@@ -1,0 +1,41 @@
+﻿               <div className="relative min-h-[300px] mb-12">
+                   <AnimatePresence mode="wait">
+                     {sortedReviews.length > 0 && (
+                       <motion.div 
+                        key={currentReviewIndex}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.5 }}
+                        className="bg-white p-10 md:p-14 rounded-[40px] border border-slate-100 shadow-pd-soft relative group"
+                       >
+                          <div className="flex flex-col items-center text-center">
+                             <div className="flex gap-1.5 mb-8">
+                                {[...Array(5)].map((_, j) => (
+                                  <Star key={j} size={20} className={j < sortedReviews[currentReviewIndex].rating ? "text-yellow-400 fill-yellow-400" : "text-slate-200"} />
+                                ))}
+                             </div>
+                             
+                             <p className="text-xl md:text-3xl font-black text-slate-800 leading-relaxed mb-10 italic">
+                               "{sortedReviews[currentReviewIndex].comment}"
+                             </p>
+
+                             <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 rounded-full bg-pd-purple/10 flex items-center justify-center text-pd-purple text-lg font-black border-2 border-white shadow-lg">
+                                   {sortedReviews[currentReviewIndex].name.charAt(0)}
+                                </div>
+                                <div className="text-left">
+                                   <h5 className="font-black text-slate-900 text-lg">{sortedReviews[currentReviewIndex].name}</h5>
+                                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{sortedReviews[currentReviewIndex].date}</p>
+                                </div>
+                             </div>
+                          </div>
+                       </motion.div>
+                     )}
+                   </AnimatePresence>
+
+                   {/* Slider Navigation */}
+                   <div className="absolute -bottom-6 left-0 right-0 flex justify-center gap-3">
+                      {sortedReviews.map((_, i) => (
+                        <button 
+                          key={i} 
