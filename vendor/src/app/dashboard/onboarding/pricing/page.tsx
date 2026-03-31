@@ -20,10 +20,75 @@ export default function SetPricingPage() {
   const router = useRouter();
   const [perPlateVeg, setPerPlateVeg] = useState('');
   const [perPlateNonVeg, setPerPlateNonVeg] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [docId, setDocId] = useState<string | null>(null);
   const [packages, setPackages] = useState([
     { id: 1, name: 'Silver Package', price: '500', desc: 'Basic inclusions with food & decor.' },
     { id: 2, name: 'Gold Package', price: '750', desc: 'Premium food variety & basic lighting.' },
   ]);
+
+  React.useEffect(() => {
+    const fetchProfile = async () => {
+      const userJson = localStorage.getItem('user');
+      if (!userJson) {
+        router.push('/login');
+        return;
+      }
+      const user = JSON.parse(userJson);
+
+      try {
+        const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+        const { Query } = await import('appwrite');
+        
+        const result = await databases.listDocuments(
+          DATABASE_ID,
+          VENUES_COLLECTION_ID,
+          [Query.equal('userId', user.$id)]
+        );
+        
+        if (result.documents.length > 0) {
+          const profile = result.documents[0];
+          setDocId(profile.$id);
+          setPerPlateVeg(profile.perPlateVeg || '');
+          setPerPlateNonVeg(profile.perPlateNonVeg || '');
+          if (profile.packages) {
+             setPackages(JSON.parse(profile.packages));
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+      }
+    };
+
+    fetchProfile();
+  }, [router]);
+
+  const handleSave = async () => {
+    if (!docId) return alert('No profile document found for this user.');
+
+    setIsSaving(true);
+    try {
+      const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+      
+      await databases.updateDocument(
+        DATABASE_ID,
+        VENUES_COLLECTION_ID,
+        docId,
+        {
+          perPlateVeg,
+          perPlateNonVeg,
+          packages: JSON.stringify(packages)
+        }
+      );
+
+      router.push('/dashboard/onboarding/subscription');
+    } catch (err: any) {
+      console.error('Save error:', err);
+      alert(`Error: ${err.message || 'Network error while saving pricing.'}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const addPackage = () => {
     setPackages(prev => [
@@ -34,6 +99,10 @@ export default function SetPricingPage() {
 
   const removePackage = (id: number) => {
     setPackages(prev => prev.filter(p => p.id !== id));
+  };
+
+  const updatePackage = (id: number, field: string, value: string) => {
+    setPackages(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
   };
 
   return (
@@ -128,11 +197,13 @@ export default function SetPricingPage() {
                             <div className="flex-1">
                                <input 
                                   className="text-sm font-black text-slate-900 uppercase italic bg-transparent outline-none mb-1 block w-full"
-                                  defaultValue={pkg.name}
+                                  value={pkg.name}
+                                  onChange={(e) => updatePackage(pkg.id, 'name', e.target.value)}
                                />
                                <input 
                                   className="text-xs text-slate-400 font-medium bg-transparent outline-none block w-full"
-                                  defaultValue={pkg.desc}
+                                  value={pkg.desc}
+                                  onChange={(e) => updatePackage(pkg.id, 'desc', e.target.value)}
                                />
                             </div>
                             <div className="flex items-center gap-6">
@@ -140,7 +211,8 @@ export default function SetPricingPage() {
                                   <IndianRupee size={16} />
                                   <input 
                                      className="w-16 bg-transparent text-lg font-black italic outline-none text-right"
-                                     defaultValue={pkg.price}
+                                     value={pkg.price}
+                                     onChange={(e) => updatePackage(pkg.id, 'price', e.target.value)}
                                   />
                                </div>
                                <button onClick={() => removePackage(pkg.id)} className="text-slate-300 hover:text-red-500 transition-colors">
@@ -153,13 +225,21 @@ export default function SetPricingPage() {
                  </section>
 
                  <div className="mt-12 flex items-center justify-between pt-8 border-t border-slate-50">
-                    <p className="text-xs text-slate-400 font-medium italic italic">Customers will see &ldquo;Starting from ₹{perPlateVeg || '...'}&rdquo;</p>
-                    <Link href="/dashboard/onboarding/subscription">
-                      <button className="pd-btn-primary italic tracking-normal flex items-center gap-2">
-                        Save Pricing
-                        <ArrowRight size={18} />
-                      </button>
-                    </Link>
+                    <p className="text-xs text-slate-400 font-medium italic">Customers will see &ldquo;Starting from ₹{perPlateVeg || '...'}&rdquo;</p>
+                    <button 
+                      onClick={handleSave}
+                      disabled={isSaving}
+                      className="pd-btn-primary italic tracking-normal flex items-center gap-2 min-w-[160px] justify-center"
+                    >
+                      {isSaving ? (
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      ) : (
+                        <>
+                          <span className="italic">Save Pricing</span>
+                          <ArrowRight size={18} />
+                        </>
+                      )}
+                    </button>
                  </div>
               </motion.div>
            </div>

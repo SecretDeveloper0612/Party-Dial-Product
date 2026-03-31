@@ -152,8 +152,8 @@ export default function Home() {
   useEffect(() => {
     const fetchTopVenues = async () => {
       try {
-        const { databases } = await import('@/lib/appwrite');
-        const result = await databases.listDocuments('partydial_main_db', 'venues_profile');
+        const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+        const result = await databases.listDocuments(DATABASE_ID, VENUES_COLLECTION_ID);
         
         const mapped = result.documents.map(doc => ({
           name: doc.venueName || "Unnamed Venue",
@@ -327,7 +327,22 @@ export default function Home() {
                       <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Guest Count</label>
                       <div className="relative">
                         <Users className="absolute left-4 top-5 text-pd-blue" size={16} />
-                        <input type="number" placeholder="e.g. 200" className="w-full h-14 bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 text-sm font-bold text-slate-800 outline-none focus:border-pd-purple transition-all" />
+                        <select 
+                          className="w-full h-14 bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-10 text-sm font-bold text-slate-800 outline-none focus:border-pd-purple transition-all appearance-none cursor-pointer"
+                          value={formData.guests}
+                          onChange={(e) => setFormData({ ...formData, guests: e.target.value })}
+                        >
+                          <option value="">Select Capacity</option>
+                          <option value="0-50">0-50 guests</option>
+                          <option value="50-100">50-100 guests</option>
+                          <option value="100-200">100-200 guests</option>
+                          <option value="200-500">200-500 guests</option>
+                          <option value="500-1000">500-1000 guests</option>
+                          <option value="1000-2000">1000-2000 guests</option>
+                          <option value="2000-5000">2000-5000 guests</option>
+                          <option value="5000+">5000+ guests</option>
+                        </select>
+                        <ChevronDown className="absolute right-4 top-5 text-slate-400" size={16} />
                       </div>
                     </div>
 

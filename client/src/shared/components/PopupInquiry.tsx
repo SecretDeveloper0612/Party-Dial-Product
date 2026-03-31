@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, CheckCircle2, Phone, Building2, Calendar, Users, MapPin } from 'lucide-react';
+import { X, Send, CheckCircle2, Phone, Building2, Calendar, Users, MapPin, ChevronDown } from 'lucide-react';
 
 // Memoized Backdrop with lighter blur
 const PopupBackdrop = memo(({ onClick }: { onClick: () => void }) => (
@@ -134,27 +134,36 @@ const InquiryForm = memo(({
           <div className="space-y-1">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Approx Guests</label>
             <div className="relative">
-                <input 
-                    type="number" 
+                <select 
                     name="guests"
                     required
                     value={formData.guests}
                     onChange={onChange}
-                    placeholder="100" 
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-9 pr-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-pd-red/20 transition-colors placeholder:text-slate-300"
-                />
-                <Users size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" />
+                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-pd-red/20 transition-colors appearance-none cursor-pointer"
+                >
+                    <option value="">Select Capacity</option>
+                    <option value="0-50">0-50 guests</option>
+                    <option value="50-100">50-100 guests</option>
+                    <option value="100-200">100-200 guests</option>
+                    <option value="200-500">200-500 guests</option>
+                    <option value="500-1000">500-1000 guests</option>
+                    <option value="1000-2000">1000-2000 guests</option>
+                    <option value="2000-5000">2000-5000 guests</option>
+                    <option value="5000+">5000+ guests</option>
+                </select>
+                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
             </div>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Event Type</label>
-            <select 
-              name="eventType"
-              required
-              value={formData.eventType}
-              onChange={onChange}
-              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-pd-red/20 transition-colors appearance-none cursor-pointer"
-            >
+            <div className="relative">
+                <select 
+                  name="eventType"
+                  required
+                  value={formData.eventType}
+                  onChange={onChange}
+                  className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-pd-red/20 transition-colors appearance-none cursor-pointer"
+                >
               <option value="">Select Event</option>
               {/* options omitted for brevity in thought, but I will include them in final code */}
               <option value="Birthday Party">Birthday Party</option>
@@ -173,8 +182,10 @@ const InquiryForm = memo(({
               <option value="Engagement Ceremony">Engagement Ceremony</option>
               <option value="Entertainment / Theme Parties">Entertainment / Theme Parties</option>
             </select>
+            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
           </div>
         </div>
+      </div>
 
         <div className="space-y-1">
           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Proposed Event Date</label>

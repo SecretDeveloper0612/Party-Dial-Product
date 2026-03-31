@@ -117,51 +117,70 @@ export default function VenuesPage() {
   const [liveVenues, setLiveVenues] = useState<any[]>([]);
   const [isLiveLoading, setIsLiveLoading] = useState(true);
 
-  // --- FETCH LIVE VENUES ---
+  // --- FETCH LIVE VENUES & REALTIME SYNC ---
   useEffect(() => {
-    const fetchLive = async () => {
+    let unsubscribe: () => void;
+
+    const setupLiveVenues = async () => {
       try {
-        const { databases } = await import('@/lib/appwrite');
-        const result = await databases.listDocuments('partydial_main_db', 'venues_profile');
+        const { client, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
         
-        const mapped = result.documents.map(doc => {
-          // Attempt to parse capacity range to a number (use the lower bound)
-          let parsedCapacity = 0;
-          if (doc.capacity) {
-            const match = doc.capacity.match(/\d+/);
-            if (match) parsedCapacity = parseInt(match[0]);
+        const fetchVenues = async () => {
+          try {
+            const response = await fetch('http://127.0.0.1:5000/api/venues');
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+              const mapped = result.data.map((doc: any) => ({
+                id: doc.$id,
+                name: doc.venueName || "Unnamed Venue",
+                location: doc.landmark || doc.city || "India",
+                city: doc.city || "Unknown",
+                type: doc.venueType || "Banquet Hall",
+                capacity: parseInt(doc.capacity?.toString().match(/\d+/)?.[0] || '0'),
+                price: doc.perPlateVeg || 1500,
+                rating: 4.5,
+                reviews: 0,
+                img: (doc.photos && JSON.parse(doc.photos).length > 0) 
+                  ? `https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${JSON.parse(doc.photos)[0]}/view?project=69ae84bc001ca4edf8c2`
+                  : "/venues/palace-hotel.png",
+                verified: false,
+                popular: false,
+                isNew: true,
+                bestValue: false,
+                amenities: doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : [],
+                categories: ["Wedding Events", "Engagement Ceremony"],
+                foodTypes: ["Veg", "Non-Veg", "Both"]
+              }));
+              setLiveVenues(mapped);
+            }
+          } catch (err) {
+            console.error('Fetch error:', err);
           }
+        };
 
-          return {
-            id: doc.$id,
-            name: doc.venueName || "Unnamed Venue",
-            location: doc.landmark || doc.city || "India",
-            city: doc.city || "Unknown",
-            type: doc.venueType || "Banquet Hall",
-            capacity: parsedCapacity,
-            price: 1500, // Default price as pricing is not in current profile attributes
-            rating: 4.5, // New venues start with default high rating
-            reviews: 0,
-            img: "/venues/palace-hotel.png", // Default image
-            verified: false,
-            popular: false,
-            isNew: true,
-            bestValue: false,
-            amenities: doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : [],
-            categories: ["Wedding Events", "Engagement Ceremony"],
-            foodTypes: ["Veg", "Non-Veg", "Both"]
-          };
-        });
+        await fetchVenues();
 
-        setLiveVenues(mapped);
+        // Realtime Subscription
+        unsubscribe = client.subscribe(
+          `databases.${DATABASE_ID}.collections.${VENUES_COLLECTION_ID}.documents`,
+          () => {
+            // Re-fetch everything to ensure consistent mapping and order
+            fetchVenues();
+          }
+        );
       } catch (err) {
-        console.error('Failed to fetch live venues:', err);
+        console.error('Failed to setup live venues:', err);
       } finally {
         setIsLiveLoading(false);
       }
     };
 
-    fetchLive();
+    setupLiveVenues();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   // --- FILTER LOGIC ---

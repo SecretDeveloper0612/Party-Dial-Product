@@ -8,8 +8,8 @@ const client = new Client()
 
 const databases = new Databases(client);
 
-const DB_ID = 'partydial_main_db';
-const COLL_ID = 'venues_profile';
+const DB_ID = '69c2305e000ecd6d04c1';
+const COLL_ID = 'party-dial';
 
 async function updatePermissions() {
     try {

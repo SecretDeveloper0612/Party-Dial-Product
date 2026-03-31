@@ -22,12 +22,12 @@ export default function VenueLoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
 
-  // Redirect if already logged in
+  // No local storage redirection needed, dashboard will handle auth check.
   React.useEffect(() => {
-    if (localStorage.getItem('auth_session')) {
-      router.push('/dashboard');
-    }
-  }, [router]);
+    // Optionally clear any old stale data
+    localStorage.removeItem('auth_session');
+    localStorage.removeItem('user');
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.type === 'email' ? 'email' : 'password']: e.target.value }));
@@ -39,23 +39,21 @@ export default function VenueLoginPage() {
     setError('');
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('auth_session', JSON.stringify(result.session));
-        localStorage.setItem('user', JSON.stringify(result.user));
-        router.push('/dashboard');
-      } else {
-        setError(result.message || 'Login failed. Please check your credentials.');
-      }
-    } catch (err) {
-      setError('Connection error. Please try again later.');
+      const { account } = await import('@/lib/appwrite');
+      
+      // 1. Create the session directly on frontend (required for browser cookies)
+      const session = await account.createEmailPasswordSession(formData.email, formData.password);
+      
+      // 2. Get user details
+      const user = await account.get();
+      
+      localStorage.setItem('auth_session', JSON.stringify(session));
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      router.push('/dashboard');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setIsSubmitting(false);
     }

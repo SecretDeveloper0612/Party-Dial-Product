@@ -11,6 +11,8 @@ const morgan = require('morgan');
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const dataRoutes = require('./routes/dataRoutes');
+const venueRoutes = require('./routes/venueRoutes');
+const configController = require('./controllers/configController');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +30,8 @@ app.get('/', (req, res) => {
 // Appwrite APIs
 app.use('/api/auth', authRoutes);
 app.use('/api/data', dataRoutes);
+app.use('/api/venues', venueRoutes);
+app.get('/api/config', configController.getPublicConfig);
 
 // Optional: Fallback for undefined routes
 app.use((req, res) => {

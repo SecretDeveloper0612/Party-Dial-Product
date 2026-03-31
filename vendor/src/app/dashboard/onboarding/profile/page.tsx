@@ -81,11 +81,17 @@ export default function CompleteProfilePage() {
     // 2. Fetch current profile from backend
     const fetchProfile = async (userId: string) => {
       try {
-        const response = await fetch(`http://127.0.0.1:5000/api/data/party-dial?userId=${userId}`);
-        const result = await response.json();
+        const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+        const { Query } = await import('appwrite');
         
-        if (response.ok && result.data && result.data.length > 0) {
-          const profile = result.data[0];
+        const result = await databases.listDocuments(
+          DATABASE_ID,
+          VENUES_COLLECTION_ID,
+          [Query.equal('userId', userId)]
+        );
+        
+        if (result.documents.length > 0) {
+          const profile = result.documents[0];
           setDocId(profile.$id);
           setDescription(profile.description || '');
           setLandmark(profile.landmark || '');
@@ -94,7 +100,6 @@ export default function CompleteProfilePage() {
              setSelectedAmenities(amenities);
           }
         } else {
-           // If no profile found, we might need to create one, but for now we expect the backend to have created it during register
            console.log('No profile found for user:', userId);
         }
       } catch (err) {
@@ -118,29 +123,25 @@ export default function CompleteProfilePage() {
 
     setIsSaving(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/data/party-dial/${docId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          data: {
-            description,
-            amenities: JSON.stringify(selectedAmenities), // Store as string if array is not supported
-            landmark
-          }
-        })
-      });
+      const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+      
+      await databases.updateDocument(
+        DATABASE_ID,
+        VENUES_COLLECTION_ID,
+        docId,
+        {
+          description,
+          amenities: JSON.stringify(selectedAmenities),
+          landmark
+        }
+      );
 
-      if (response.ok) {
-        router.push('/dashboard/onboarding/photos');
-      } else {
-        const result = await response.json();
-        alert(`Error: ${result.message}`);
-      }
-    } catch (err) {
+      router.push('/dashboard/onboarding/photos');
+    } catch (err: any) {
       console.error('Save error:', err);
-      alert('Network error while saving profile.');
+      alert(`Error: ${err.message || 'Network error while saving profile.'}`);
     } finally {
-      setIsSaving(true);
+      setIsSaving(false);
     }
   };
 
@@ -232,6 +233,8 @@ export default function CompleteProfilePage() {
                     type="text"
                     placeholder="e.g. Near City Center Mall or Opp. Gandhi Park"
                     className="w-full h-14 bg-slate-50 border border-slate-100 rounded-[20px] px-6 text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none"
+                    value={landmark}
+                    onChange={(e) => setLandmark(e.target.value)}
                   />
                </section>
 

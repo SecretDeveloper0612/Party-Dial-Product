@@ -50,6 +50,50 @@ const plans = [
 export default function SubscriptionPage() {
   const router = useRouter();
   const [selectedPlan, setSelectedPlan] = useState('premium');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleActivate = async () => {
+    const userJson = localStorage.getItem('user');
+    if (!userJson) {
+      router.push('/login');
+      return;
+    }
+    const user = JSON.parse(userJson);
+
+    setIsSaving(true);
+    try {
+      const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+      const { Query } = await import('appwrite');
+      
+      const result = await databases.listDocuments(
+        DATABASE_ID,
+        VENUES_COLLECTION_ID,
+        [Query.equal('userId', user.$id)]
+      );
+      
+      if (result.documents.length > 0) {
+        const docId = result.documents[0].$id;
+        await databases.updateDocument(
+          DATABASE_ID,
+          VENUES_COLLECTION_ID,
+          docId,
+          {
+            subscriptionPlan: selectedPlan,
+            onboardingComplete: true,
+            status: 'active'
+          }
+        );
+      }
+
+      localStorage.setItem('onboardingComplete', 'true');
+      router.push('/dashboard');
+    } catch (err: any) {
+      console.error('Finalize error:', err);
+      alert(`Error: ${err.message || 'Network error while finalizing account.'}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 font-pd py-12 px-6">
@@ -145,14 +189,18 @@ export default function SubscriptionPage() {
                </div>
                
                <button 
-                  onClick={() => {
-                    localStorage.setItem('onboardingComplete', 'true');
-                    router.push('/dashboard');
-                  }}
+                  onClick={handleActivate}
+                  disabled={isSaving}
                   className="pd-btn-primary min-w-[240px] flex items-center justify-center gap-3 italic tracking-normal uppercase text-[11px] font-black h-14"
                >
-                  Activate Account
-                  <Zap size={18} />
+                  {isSaving ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      Activate Account
+                      <Zap size={18} />
+                    </>
+                  )}
                </button>
             </div>
 

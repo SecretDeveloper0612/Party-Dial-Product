@@ -58,13 +58,12 @@ export default function VenueSignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPincodeLoading, setIsPincodeLoading] = useState(false);
 
-  // Redirect if already logged in
+  // No auto-redirect from localStorage, as we want to use the live SDK for checks.
   React.useEffect(() => {
-    const session = localStorage.getItem('auth_session');
-    if (session) {
-      router.push('/dashboard');
-    }
-  }, [router]);
+    // Optionally clear stale data on this page too
+    localStorage.removeItem('auth_session');
+    localStorage.removeItem('user');
+  }, []);
 
 
   // Auto-fill City/State based on Pincode
@@ -150,15 +149,13 @@ export default function VenueSignupPage() {
     try {
       const response = await fetch('http://127.0.0.1:5000/api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-          name: formData.ownerName, // Using owner name for Appwrite user name
-          // Additional data can be sent if the backend is updated to store it in a collection
+          name: formData.ownerName,
           venueName: formData.businessName,
+          ownerName: formData.ownerName,
           phone: formData.phone,
           city: formData.city,
           state: formData.state,
@@ -171,21 +168,16 @@ export default function VenueSignupPage() {
       const result = await response.json();
 
       if (response.ok) {
-        // Successful registration
-        console.log('Registration success:', result);
-        // Store session if returned
-        if (result.session) {
-          localStorage.setItem('auth_session', JSON.stringify(result.session));
-          localStorage.setItem('user', JSON.stringify(result.user));
-        }
-        router.push('/dashboard/onboarding/profile');
-
+        localStorage.setItem('auth_session', JSON.stringify(result.session));
+        localStorage.setItem('user', JSON.stringify(result.user));
+        console.log('Registration success');
+        router.push('/dashboard');
       } else {
-        setErrors({ submit: result.message || 'Registration failed' });
+        setErrors({ submit: result.message || 'Registration failed. Please try again.' });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
-      setErrors({ submit: 'Service unavailable. Please try again later.' });
+      setErrors({ submit: 'Connection error. Please try again later.' });
     } finally {
       setIsSubmitting(false);
     }

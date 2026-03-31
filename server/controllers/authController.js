@@ -19,26 +19,28 @@ exports.register = async (req, res) => {
         // --- Added: Create Venue Profile in Database ---
         try {
             if (DATABASE_ID && VENUES_COLLECTION_ID) {
-                await databases.createDocument(
-                    DATABASE_ID, 
-                    VENUES_COLLECTION_ID, 
-
-                    ID.unique(), 
-                    {
-                        userId: newUser.$id,
-                        venueName: req.body.venueName || '',
-                        ownerName: req.body.ownerName || name,
-                        contactEmail: email,
-                        contactNumber: req.body.phone || '',
-                        city: req.body.city || '',
-                        state: req.body.state || '',
-                        pincode: req.body.pincode || '',
-                        venueType: req.body.venueType || '',
-                        capacity: req.body.capacity || ''
-                    }
-
-
-                );
+                        // Create the document with required defaults per schema
+                        await databases.createDocument(
+                            DATABASE_ID, 
+                            VENUES_COLLECTION_ID, 
+                            ID.unique(), 
+                            {
+                                userId: newUser.$id,
+                                venueName: req.body.venueName || req.body.businessName || 'Unnamed Venue',
+                                ownerName: req.body.ownerName || name,
+                                contactEmail: email,
+                                contactNumber: req.body.phone || '',
+                                city: req.body.city || '',
+                                state: req.body.state || '',
+                                pincode: req.body.pincode || '',
+                                venueType: req.body.venueType || 'Banquet Hall',
+                                capacity: parseInt(req.body.capacity?.toString().match(/\d+/)?.[0] || '0'),
+                                onboardingComplete: false,
+                                isVerified: false,
+                                status: 'active',
+                                registrationDate: new Date().toISOString()
+                            }
+                        );
             }
         } catch (dbError) {
             console.error('Error creating venue profile:', dbError.message);

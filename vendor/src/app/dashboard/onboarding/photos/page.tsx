@@ -20,34 +20,103 @@ import Image from 'next/image';
 
 export default function UploadPhotosPage() {
   const router = useRouter();
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photoIds, setPhotoIds] = useState<string[]>([]);
+  const [docId, setDocId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  React.useEffect(() => {
+    const fetchProfile = async () => {
+      const userJson = localStorage.getItem('user');
+      if (!userJson) return;
+      const user = JSON.parse(userJson);
+
+      try {
+        const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+        const { Query } = await import('appwrite');
+        
+        const result = await databases.listDocuments(
+          DATABASE_ID,
+          VENUES_COLLECTION_ID,
+          [Query.equal('userId', user.$id)]
+        );
+        
+        if (result.documents.length > 0) {
+          const profile = result.documents[0];
+          setDocId(profile.$id);
+          if (profile.photos) {
+            setPhotoIds(JSON.parse(profile.photos));
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
-    if (!selectedFiles || selectedFiles.length === 0) return;
+    if (!selectedFiles || selectedFiles.length === 0 || !docId) return;
 
     setIsUploading(true);
+    try {
+      const { storage, STORAGE_BUCKET_ID, databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+      const { ID } = await import('appwrite');
 
-    // Simulate a brief upload delay for UX
-    setTimeout(() => {
-      const newPhotoUrls = Array.from(selectedFiles).map(file => URL.createObjectURL(file));
-      setPhotos(prev => [...prev, ...newPhotoUrls]);
+      const uploadedIds: string[] = [];
+      for (const file of Array.from(selectedFiles)) {
+        const response = await storage.createFile(STORAGE_BUCKET_ID, ID.unique(), file);
+        uploadedIds.push(response.$id);
+      }
+
+      const newPhotoIds = [...photoIds, ...uploadedIds];
+      setPhotoIds(newPhotoIds);
+
+      // Save to database
+      await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, docId, {
+        photos: JSON.stringify(newPhotoIds)
+      });
+
+    } catch (err: any) {
+      console.error('Upload failed:', err);
+      alert('Upload failed. Please ensure a storage bucket named "venues_photos" exists.');
+    } finally {
       setIsUploading(false);
-
-      // Reset input value to allow uploading the same file again if deleted
       if (fileInputRef.current) fileInputRef.current.value = '';
-    }, 800);
+    }
   };
 
-  const triggerUpload = () => {
-    fileInputRef.current?.click();
+  const removePhoto = async (id: string) => {
+    if (!docId) return;
+    try {
+      const { storage, STORAGE_BUCKET_ID, databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+      
+      await storage.deleteFile(STORAGE_BUCKET_ID, id);
+      const newPhotoIds = photoIds.filter(pid => pid !== id);
+      setPhotoIds(newPhotoIds);
+
+      await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, docId, {
+        photos: JSON.stringify(newPhotoIds)
+      });
+    } catch (err) {
+      console.error('Delete failed:', err);
+    }
   };
 
-  const removePhoto = (index: number) => {
-    setPhotos(prev => prev.filter((_, i) => i !== index));
+  const getFilePreview = (id: string) => {
+    return `https://sgp.cloud.appwrite.io/v1/storage/buckets/${STORAGE_BUCKET_ID_STATE}/files/${id}/view?project=69ae84bc001ca4edf8c2`;
   };
+
+  const [STORAGE_BUCKET_ID_STATE, setStorageBucketId] = useState('venues_photos');
+  
+  React.useEffect(() => {
+    const loadConfig = async () => {
+      const { STORAGE_BUCKET_ID } = await import('@/lib/appwrite');
+      setStorageBucketId(STORAGE_BUCKET_ID);
+    };
+    loadConfig();
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 font-pd py-12 px-6">
@@ -84,7 +153,7 @@ export default function UploadPhotosPage() {
 
             {/* Dropzone Area */}
             <div
-              onClick={triggerUpload}
+              onClick={() => fileInputRef.current?.click()}
               className="group relative border-2 border-dashed border-slate-200 rounded-[40px] p-16 text-center hover:border-pd-pink hover:bg-pink-50/10 transition-all cursor-pointer overflow-hidden mb-10"
             >
                <input
@@ -112,17 +181,17 @@ export default function UploadPhotosPage() {
 
             {/* Photo Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-               {photos.map((url, idx) => (
+               {photoIds.map((id) => (
                  <motion.div
-                   key={idx}
+                   key={id}
                    initial={{ opacity: 0, y: 10 }}
                    animate={{ opacity: 1, y: 0 }}
                    className="relative aspect-square rounded-[30px] overflow-hidden group shadow-sm"
                  >
-                    <Image src={url} alt={`Venue ${idx}`} fill className="object-cover group-hover:scale-110 transition-transform duration-500 px-0.5 py-0.5" />
+                    <Image src={getFilePreview(id)} alt="Venue Photo" fill className="object-cover group-hover:scale-110 transition-transform duration-500 px-0.5 py-0.5" />
                     <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                        <button
-                         onClick={(e) => { e.stopPropagation(); removePhoto(idx); }}
+                         onClick={(e) => { e.stopPropagation(); removePhoto(id); }}
                          className="w-full h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-red-500 transition-colors"
                        >
                          <Trash2 size={18} />
@@ -132,9 +201,9 @@ export default function UploadPhotosPage() {
                ))}
 
                {/* Add More Slot */}
-               {photos.length > 0 && (
+               {photoIds.length > 0 && (
                  <button
-                   onClick={triggerUpload}
+                   onClick={() => fileInputRef.current?.click()}
                    className="aspect-square rounded-[30px] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center gap-2 text-slate-300 hover:text-pd-pink hover:border-pd-pink hover:bg-slate-50 transition-all"
                  >
                    <Plus size={32} />
@@ -143,7 +212,7 @@ export default function UploadPhotosPage() {
                )}
             </div>
 
-            {photos.length === 0 && (
+            {photoIds.length === 0 && (
               <div className="text-center py-10 opacity-40">
                 <p className="text-sm font-medium italic">No photos uploaded yet.</p>
               </div>

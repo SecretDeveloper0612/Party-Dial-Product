@@ -102,31 +102,7 @@ export default function VendorDashboard() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const session = localStorage.getItem('auth_session');
-      if (!session) {
-        // Try to recover session from Appwrite
-        try {
-          const { account } = await import('@/lib/appwrite');
-          const currentAccount = await account.get();
-          if (currentAccount) {
-            localStorage.setItem('user', JSON.stringify(currentAccount));
-            localStorage.setItem('auth_session', 'recovered-from-google');
-            setIsAuthorized(true);
-            return;
-          }
-        } catch (err) {
-          console.error('Session recovery failed on dashboard:', err);
-        }
-        router.push('/login');
-      } else {
-        setIsAuthorized(true);
-      }
-    };
-
-    checkAuth();
-  }, [router]);
+  // Removed checkAuth effect - functionality merged into setupAuthAndRealtime below
 
   const handleLogout = async () => {
     try {
@@ -140,8 +116,15 @@ export default function VendorDashboard() {
       // Silently log the error; the logout should still proceed for the user.
       console.warn('Backend logout call failed (expected if server is offline or blocked):', err);
     } finally {
+      try {
+        const { account } = await import('@/lib/appwrite');
+        await account.deleteSession('current');
+      } catch (err) {
+        // Session might not exist in SDK, ignore
+      }
       localStorage.removeItem('auth_session');
       localStorage.removeItem('user');
+      localStorage.removeItem('onboardingComplete');
       router.push('/login');
     }
   };
@@ -204,14 +187,66 @@ export default function VendorDashboard() {
   };
 
   useEffect(() => {
-    const isCompleted = localStorage.getItem('onboardingComplete');
-    if (isCompleted !== 'true') {
-      const timer = setTimeout(() => {
-        setShowOnboarding(true);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, []);
+    let unsubscribe: () => void;
+
+    const setupAuthAndRealtime = async () => {
+      try {
+        const { client, account, databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+        const { Query } = await import('appwrite');
+        
+        // 1. Live Auth Check
+        const user = await account.get().catch(() => null);
+        if (!user) {
+          router.push('/login');
+          return;
+        }
+        
+        localStorage.setItem('user', JSON.stringify(user));
+        setIsAuthorized(true);
+
+        // 2. Initial Fetch Status
+        const fetchStatus = async () => {
+          const result = await databases.listDocuments(
+            DATABASE_ID,
+            VENUES_COLLECTION_ID,
+            [Query.equal('userId', user.$id)]
+          );
+          
+          if (result.documents.length > 0) {
+            const profile = result.documents[0];
+            setShowOnboarding(!profile.onboardingComplete);
+          } else {
+            setShowOnboarding(true);
+          }
+        };
+
+        await fetchStatus();
+
+        // 3. Realtime Subscription
+        unsubscribe = client.subscribe(
+          `databases.${DATABASE_ID}.collections.${VENUES_COLLECTION_ID}.documents`,
+          (response) => {
+            const doc = response.payload as any;
+            if (doc.userId === user.$id) {
+              if (response.events.some(e => e.includes('update') || e.includes('create'))) {
+                setShowOnboarding(!doc.onboardingComplete);
+              }
+            }
+          }
+        );
+
+      } catch (err) {
+        console.error('Project synchronization failed:', err);
+        router.push('/login');
+      }
+    };
+
+    setupAuthAndRealtime();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [router]);
 
   const [selectedDay, setSelectedDay] = useState(20);
   const [currentMonth, setCurrentMonth] = useState('March');
