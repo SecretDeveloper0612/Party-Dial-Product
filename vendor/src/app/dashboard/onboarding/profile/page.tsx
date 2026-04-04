@@ -36,11 +36,30 @@ const amenitiesList = [
   { id: 'cafe', name: 'Cafe/Bar', icon: <Coffee size={18} /> },
 ];
 
+const eventTypesList = [
+  "Birthday Party",
+  "Wedding Events",
+  "Pre-Wedding Events",
+  "Anniversary Party",
+  "Corporate Events",
+  "Kitty Party",
+  "Family Functions",
+  "Festival Parties",
+  "Social Gatherings",
+  "Kids Parties",
+  "Bachelor / Bachelorette Party",
+  "Housewarming Party",
+  "Baby Shower",
+  "Engagement Ceremony",
+  "Entertainment / Theme Parties"
+];
+
 export default function CompleteProfilePage() {
   const router = useRouter();
   const [userData, setUserData] = useState<any>(null);
   const [docId, setDocId] = useState<string | null>(null);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [description, setDescription] = useState('');
   const [landmark, setLandmark] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -104,6 +123,15 @@ export default function CompleteProfilePage() {
                 setSelectedAmenities([]);
              }
           }
+          if (profile.eventTypes) {
+             try {
+                const et = Array.isArray(profile.eventTypes) ? profile.eventTypes : JSON.parse(profile.eventTypes);
+                setSelectedEventTypes(et);
+             } catch (e) {
+                console.warn('Failed to parse eventTypes:', e);
+                setSelectedEventTypes([]);
+             }
+          }
         } else {
            console.log('No profile found for user:', userId);
            // We'll create it during first save if it doesn't exist
@@ -124,6 +152,12 @@ export default function CompleteProfilePage() {
     );
   };
 
+  const toggleEventType = (id: string) => {
+    setSelectedEventTypes(prev => 
+      prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
+    );
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -133,6 +167,7 @@ export default function CompleteProfilePage() {
       const payload = {
         description,
         amenities: JSON.stringify(selectedAmenities),
+        eventTypes: JSON.stringify(selectedEventTypes),
         landmark,
         contactNumber: userData?.phone || '',
         city: userData?.city || 'Haldwani',
@@ -255,7 +290,31 @@ export default function CompleteProfilePage() {
                   </div>
                </section>
 
-               {/* Landmarks */}
+                {/* Event Types */}
+                <section className="space-y-4">
+                   <div className="flex items-center gap-2 mb-2">
+                     <div className="w-8 h-8 rounded-xl bg-pd-red/5 text-pd-red flex items-center justify-center">
+                        <Sparkles size={18} />
+                     </div>
+                     <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 italic">Parties We Organize</h2>
+                   </div>
+                   <div className="flex flex-wrap gap-2.5">
+                     {eventTypesList.map(type => (
+                       <button
+                         key={type}
+                         onClick={() => toggleEventType(type)}
+                         className={`px-5 py-2.5 rounded-[20px] text-[10px] font-black uppercase tracking-widest border transition-all ${
+                           selectedEventTypes.includes(type) 
+                           ? 'bg-pd-red border-pd-red text-white shadow-lg' 
+                           : 'bg-white border-slate-100 text-slate-500 hover:border-pd-red/30'
+                         }`}
+                       >
+                         {type}
+                       </button>
+                     ))}
+                   </div>
+                   <p className="text-[10px] text-slate-400 font-bold italic">Select all events you can host at your venue.</p>
+                </section>
                <section className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
