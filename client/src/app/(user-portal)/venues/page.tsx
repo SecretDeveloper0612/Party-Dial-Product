@@ -21,6 +21,7 @@ import {
   Check
 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 
 
@@ -70,9 +71,22 @@ const getCapacityLabel = (capacity: any) => {
 };
 
 export default function VenuesPage() {
+  const searchParams = useSearchParams();
   const [selectedCity, setSelectedCity] = useState("All Cities");
   const [locationSearchQuery, setLocationSearchQuery] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<string>("");
+
+  useEffect(() => {
+    const typeParam = searchParams.get('type');
+    if (typeParam) {
+      // Find the event type that matches the URL slug
+      const matched = FILTER_CONFIG.eventTypes.find(e => 
+        e.toLowerCase().replace(/\s+/g, '-') === typeParam.toLowerCase()
+      );
+      if (matched) setSelectedEvent(matched);
+    }
+  }, [searchParams]);
+
   const [selectedVenueTypes, setSelectedVenueTypes] = useState<string[]>([]);
   const [budgetRange, setBudgetRange] = useState({ min: 0, max: 10000 });
   const [selectedCapacity, setSelectedCapacity] = useState<number>(0);
@@ -164,7 +178,7 @@ export default function VenuesPage() {
                 isNew: true,
                 bestValue: false,
                 amenities: doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : [],
-                categories: ["Wedding Events", "Engagement Ceremony"],
+                categories: doc.eventTypes ? (typeof doc.eventTypes === 'string' ? JSON.parse(doc.eventTypes) : doc.eventTypes) : [],
                 foodTypes: ["Veg", "Non-Veg", "Both"]
               }));
               setLiveVenues(mapped);
