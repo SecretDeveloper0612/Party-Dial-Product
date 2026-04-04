@@ -31,6 +31,7 @@ interface DashboardSettingsProps {
   venueProfile: any;
   handleProfileUpdate: (field: string, value: any) => void;
   handleAmenityToggle: (amenityId: string) => void;
+  handleEventTypeToggle: (eventTypeId: string) => void;
   isUpdatingProfile: boolean;
   saveProfileSettings: () => void;
 }
@@ -41,14 +42,40 @@ const DashboardSettings = ({
   venueProfile,
   handleProfileUpdate,
   handleAmenityToggle,
+  handleEventTypeToggle,
   isUpdatingProfile,
   saveProfileSettings
 }: DashboardSettingsProps) => {
+
+  const eventTypesList = [
+    "Birthday Party",
+    "Wedding Events",
+    "Pre-Wedding Events",
+    "Anniversary Party",
+    "Corporate Events",
+    "Kitty Party",
+    "Family Functions",
+    "Festival Parties",
+    "Social Gatherings",
+    "Kids Parties",
+    "Bachelor / Bachelorette Party",
+    "Housewarming Party",
+    "Baby Shower",
+    "Engagement Ceremony",
+    "Entertainment / Theme Parties"
+  ];
 
   const amenities = (() => {
     try {
        if (!venueProfile?.amenities) return [];
        return typeof venueProfile.amenities === 'string' ? JSON.parse(venueProfile.amenities) : (Array.isArray(venueProfile?.amenities) ? venueProfile.amenities : []); 
+    } catch (e) { return []; } 
+  })(); 
+
+  const eventTypes = (() => {
+    try {
+       if (!venueProfile?.eventTypes) return [];
+       return typeof venueProfile.eventTypes === 'string' ? JSON.parse(venueProfile.eventTypes) : (Array.isArray(venueProfile?.eventTypes) ? venueProfile.eventTypes : []); 
     } catch (e) { return []; } 
   })(); 
 
@@ -169,6 +196,24 @@ const DashboardSettings = ({
                                        />
                                     </div>
                                  </div>
+                              </div>
+                           </section>
+
+                           <section>
+                              <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Parties We Organize</h3>
+                              <div className="flex flex-wrap gap-2">
+                                 {eventTypesList.map((type, i) => {
+                                    const isActive = eventTypes.includes(type);
+                                    return (
+                                       <button 
+                                         key={i}
+                                         onClick={() => handleEventTypeToggle(type)}
+                                         className={`px-4 py-2 rounded-full border transition-all text-[9px] font-black uppercase tracking-widest ${isActive ? 'bg-pd-red border-pd-red text-white shadow-lg' : 'bg-white border-slate-100 text-slate-400 hover:border-pd-red/30'}`}
+                                       >
+                                          {type}
+                                       </button>
+                                    );
+                                 })}
                               </div>
                            </section>
                         </div>

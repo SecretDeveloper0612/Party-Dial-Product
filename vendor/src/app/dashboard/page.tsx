@@ -290,6 +290,17 @@ export default function VendorDashboard() {
     });
   };
 
+  const handleEventTypeToggle = (eventTypeId: string) => {
+    setVenueProfile((prev: any) => {
+       let current = [];
+       try {
+          current = typeof prev?.eventTypes === 'string' ? JSON.parse(prev.eventTypes) : (Array.isArray(prev?.eventTypes) ? prev.eventTypes : []);
+       } catch (e) { current = []; }
+       const updated = current.includes(eventTypeId) ? current.filter((a: any) => a !== eventTypeId) : [...current, eventTypeId];
+       return { ...prev, eventTypes: JSON.stringify(updated) };
+    });
+  };
+
   const handleProfileUpdate = (field: string, value: any) => {
     setVenueProfile((prev: any) => ({ ...prev, [field]: value }));
   };
@@ -304,7 +315,8 @@ export default function VendorDashboard() {
         capacity: venueProfile.capacity,
         perPlateVeg: venueProfile.perPlateVeg,
         perPlateNonVeg: venueProfile.perPlateNonVeg,
-        amenities: venueProfile.amenities
+        amenities: venueProfile.amenities,
+        eventTypes: venueProfile.eventTypes
       });
       alert('Profile successfully synchronized with the portal.');
     } catch (err) {
@@ -767,6 +779,7 @@ export default function VendorDashboard() {
                 venueProfile={venueProfile}
                 handleProfileUpdate={handleProfileUpdate}
                 handleAmenityToggle={handleAmenityToggle}
+                handleEventTypeToggle={handleEventTypeToggle}
                 saveProfileSettings={saveProfileSettings}
                 isUpdatingProfile={isUpdatingProfile}
               />
