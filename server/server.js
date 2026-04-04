@@ -8,8 +8,7 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 
-// Import config
-const connectDB = require('./config/mongoose');
+// Import essential routes
 const authRoutes = require('./routes/authRoutes');
 const dataRoutes = require('./routes/dataRoutes');
 const venueRoutes = require('./routes/venueRoutes');
@@ -18,10 +17,7 @@ const configController = require('./controllers/configController');
 const app = express();
 const PORT = process.env.PORT || 5005;
 
-// Connect to MongoDB
-connectDB();
-
-// Middleware
+// Routes
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
