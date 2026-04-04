@@ -447,7 +447,9 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {categories.map((cat, i) => (
+            {categories
+              .filter(cat => (categoryCounts[cat.name] || 0) > 0)
+              .map((cat, i) => (
               <Link href={`/venues?type=${cat.name.toLowerCase().replace(/\s+/g, '-')}`} key={i}>
                 <div className="border border-slate-100 rounded-lg overflow-hidden h-64 relative group cursor-pointer">
                   <Image src={cat.img} alt={cat.name} fill className="object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
