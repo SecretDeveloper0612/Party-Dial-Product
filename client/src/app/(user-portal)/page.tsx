@@ -162,11 +162,13 @@ export default function Home() {
   ];
 
   const [liveVenues, setLiveVenues] = useState<any[]>([]);
+  const displayVenues = liveVenues;
 
   useEffect(() => {
     const fetchTopVenues = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5005/api/venues');
+        const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://127.0.0.1:5005/api';
+        const response = await fetch(`${baseUrl}/venues`);
         const result = await response.json();
         
         if (result.status === 'success' && result.data) {
@@ -179,7 +181,7 @@ export default function Home() {
             price: doc.perPlateVeg ? `₹${doc.perPlateVeg}` : "₹1,500",
             rating: 4.8,
             reviews: 0,
-            img: doc.photos ? `https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${JSON.parse(doc.photos)[0]}/view?project=69ae84bc001ca4edf8c2` : "/venues/palace-hotel.png"
+            img: doc.photos ? `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1'}/storage/buckets/venues_photos/files/${JSON.parse(doc.photos)[0]}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '69ae84bc001ca4edf8c2'}` : "/venues/palace-hotel.png"
           }));
 
           setLiveVenues(mapped.slice(0, 3)); // Take top 3 for home page
@@ -191,38 +193,6 @@ export default function Home() {
 
     fetchTopVenues();
   }, []);
-
-  const staticVenues = [
-    {
-      name: "The Royal Ballroom",
-      location: "South Delhi",
-      capacity: "500-800",
-      price: "₹1,800",
-      rating: 4.8,
-      reviews: 124,
-      img: "/venues/royal-ballroom.png"
-    },
-    {
-      name: "Grand Palace Hotel",
-      location: "Dwarka, Delhi",
-      capacity: "200-500",
-      price: "₹2,500",
-      rating: 4.9,
-      reviews: 89,
-      img: "/venues/palace-hotel.png"
-    },
-    {
-      name: "Oceanic Resort",
-      location: "Goa (NCR Office)",
-      capacity: "1000+",
-      price: "₹3,200",
-      rating: 4.7,
-      reviews: 210,
-      img: "/venues/oceanic-resort.png"
-    }
-  ];
-
-  const displayVenues = liveVenues.length > 0 ? liveVenues : staticVenues;
 
   const steps = [
     { title: "Submit Requirement", desc: "Tell us about your event type, guest count, and budget.", icon: <Send className="text-white" size={24} /> },

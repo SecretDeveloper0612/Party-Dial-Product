@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 
-import { MOCK_VENUES } from '@/data/venues';
+
 
 const FILTER_CONFIG = {
   eventTypes: [
@@ -141,7 +141,8 @@ export default function VenuesPage() {
         
         const fetchVenues = async () => {
           try {
-            const response = await fetch('http://127.0.0.1:5005/api/venues');
+            const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://127.0.0.1:5005/api';
+            const response = await fetch(`${baseUrl}/venues`);
             const result = await response.json();
             
             if (result.status === 'success') {
@@ -151,8 +152,8 @@ export default function VenuesPage() {
                 location: doc.landmark || doc.city || "India",
                 city: doc.city || "Unknown",
                 type: doc.venueType || "Banquet Hall",
-                capacity: getCapacityLabel(doc.capacity),
-                price: doc.perPlateVeg || 1500,
+                capacity: parseInt(doc.capacity) || 0,
+                price: parseInt(doc.perPlateVeg) || 1500,
                 rating: 4.5,
                 reviews: 0,
                 img: (doc.photos && JSON.parse(doc.photos).length > 0) 
@@ -179,7 +180,6 @@ export default function VenuesPage() {
         unsubscribe = client.subscribe(
           `databases.${DATABASE_ID}.collections.${VENUES_COLLECTION_ID}.documents`,
           () => {
-            // Re-fetch everything to ensure consistent mapping and order
             fetchVenues();
           }
         );
@@ -198,7 +198,7 @@ export default function VenuesPage() {
   }, []);
 
   // --- FILTER LOGIC ---
-  const allVenues = useMemo(() => [...liveVenues, ...MOCK_VENUES], [liveVenues]);
+  const allVenues = liveVenues;
 
   const filteredVenues = useMemo(() => {
     return allVenues.filter(venue => {
