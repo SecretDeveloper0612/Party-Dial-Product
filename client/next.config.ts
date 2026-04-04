@@ -14,6 +14,18 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sgp.cloud.appwrite.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cloud.appwrite.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
       }
     ],
   },

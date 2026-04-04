@@ -34,76 +34,47 @@ import {
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { Camera, Trash2, Edit3, Filter as FilterIcon } from 'lucide-react';
 
-// Mock Venue Data (Expanded for Detail Page)
-const VENUE_DETAIL = {
-  id: 1,
-  name: "The Royal Ballroom",
-  location: "Main Road, Janakpuri, Near Metro Pillar 542",
-  area: "Janakpuri",
-  city: "Delhi",
-  pincode: "110058",
-  type: "Banquet Hall",
-  verified: true,
-  popular: true,
-  rating: 4.8,
-  reviewCount: 124,
-  pricePerPlate: 1800,
-  startingRental: "₹1,50,000",
-  capacity: "500-800",
-  guestRange: [500, 800],
-  about: "The Royal Ballroom is an exquisite wedding venue that offers a blend of luxury, elegance, and modern amenities. Located in the heart of Janakpuri, Delhi, our venue is designed to make your special celebrations truly unforgettable. Whether it's a grand wedding reception, an intimate engagement ceremony, or a professional corporate summit, we provide tailored services to meet your every need. Our team of experienced decorators and caterers work tirelessly to ensure every detail is perfect.",
-  images: [
-    "/gallery/interior.png",
-    "/gallery/exterior.png",
-    "/gallery/decoration.png",
-    "/gallery/stage.png",
-    "/gallery/buffet.png"
-  ],
-  amenities: [
-    { name: "Ample Parking", icon: <ParkingCircle size={20} /> },
-    { name: "In-house Catering", icon: <Utensils size={20} /> },
-    { name: "Thematic Decoration", icon: <Palette size={20} /> },
-    { name: "AC Main Hall", icon: <Wind size={20} /> },
-    { name: "Live DJ & Sound", icon: <Music size={20} /> },
-    { name: "Bridal Room", icon: <Hotel size={20} /> },
-    { name: "Power Backup", icon: <ShieldCheck size={20} /> }
-  ],
-  halls: [
-    { name: "Grand Imperial Hall", capacity: "800 Guests", area: "12,000 sq ft" },
-    { name: "Royal Lounge", capacity: "300 Guests", area: "5,000 sq ft" }
-  ],
-  policies: [
-    "Advance Payment: 25% at the time of booking.",
-    "Cancellation: Non-refundable if cancelled within 30 days of event.",
-    "Outside Food: Not allowed.",
-    "Alcohol: Allowed with valid license.",
-    "Music: Allowed till 11:00 PM as per local guidelines."
-  ],
-  reviews: [
-    { name: "Rahul Sharma", date: "Feb 12, 2026", rating: 5, comment: "Exceptional service and beautiful decor. My wedding was handled perfectly by the management team." },
-    { name: "Priya Gupta", date: "Jan 28, 2026", rating: 4, comment: "Great food and spacious hall. Only issue was parking for the 800+ guests we had, but managed well." }
-  ],
-  similarVenues: [
-    {
-       name: "Grand Palace Hotel",
-       location: "Dwarka, Delhi",
-       price: "₹1,500",
-       rating: 4.9,
-       img: "/venues/palace-hotel.png"
-    },
-    {
-       name: "Elite Banquet & Suites",
-       location: "Janakpuri, Delhi",
-       price: "₹1,200",
-       rating: 4.6,
-       img: "/venues/royal-ballroom.png"
-    }
-  ]
+import { MOCK_VENUES } from '@/data/venues';
+import { STORAGE_BUCKET_ID } from '@/lib/appwrite';
+
+// Helper to map amenity names to icons
+const AMENITY_ICONS: Record<string, React.ReactNode> = {
+  "Ample Parking": <ParkingCircle size={20} />,
+  "Parking Available": <ParkingCircle size={20} />,
+  "In-house Catering": <Utensils size={20} />,
+  "Catering Available": <Utensils size={20} />,
+  "Thematic Decoration": <Palette size={20} />,
+  "In-house Decoration": <Palette size={20} />,
+  "AC Main Hall": <Wind size={20} />,
+  "Air Conditioned Hall": <Wind size={20} />,
+  "Live DJ & Sound": <Music size={20} />,
+  "DJ or Music System": <Music size={20} />,
+  "Bridal Room": <Hotel size={20} />,
+  "Guest Rooms": <Hotel size={20} />,
+  "Power Backup": <ShieldCheck size={20} />,
+  "Outdoor Lawn": <Wind size={20} />,
+  "Default": <CheckCircle2 size={20} />
+};
+
+// Helper to map capacity integer to range label
+const getCapacityLabel = (capacity: any) => {
+  const cap = parseInt(capacity);
+  if (cap === 2000) return "2000-5000";
+  if (cap === 1000) return "1000-2000";
+  if (cap === 500) return "500-1000";
+  if (cap === 200) return "200-500";
+  if (cap === 100) return "100-200";
+  if (cap === 50) return "50-100";
+  if (cap === 0) return "0-50";
+  if (cap === 5000) return "5000+";
+  return capacity?.toString() || "0";
 };
 
 export default function VenueDetailPage() {
   const params = useParams();
   const id = params.id as string;
+  const [venue, setVenue] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [formData, setFormData] = useState({
     name: '',
@@ -115,12 +86,148 @@ export default function VenueDetailPage() {
     budget: '',
     requirements: ''
   });
+  const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
-  const nextImage = () => setActiveImage((prev) => (prev + 1) % VENUE_DETAIL.images.length);
-  const prevImage = () => setActiveImage((prev) => (prev - 1 + VENUE_DETAIL.images.length) % VENUE_DETAIL.images.length);
+  const handleLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingLead(true);
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5005/api/venues/leads`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          venueId: id,
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          eventType: formData.eventType,
+          guests: formData.guests,
+          notes: formData.requirements
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        alert('Lead submitted successfully! Our team will contact you soon.');
+        setFormData({
+          name: '',
+          phone: '',
+          email: '',
+          eventType: 'Wedding',
+          eventDate: '',
+          guests: '',
+          budget: '',
+          requirements: ''
+        });
+      } else {
+        alert(result.message || 'Error submitting lead');
+      }
+    } catch (error) {
+      console.error('Error submitting lead:', error);
+      alert('Failed to submit lead. Please try again.');
+    } finally {
+      setIsSubmittingLead(false);
+    }
+  };
+
+  // Fetch venue data from backend or mock
+  useEffect(() => {
+    const fetchVenue = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`http://127.0.0.1:5005/api/venues/${id}`);
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          const doc = result.data;
+          const photoIds = doc.photos ? (typeof doc.photos === 'string' ? JSON.parse(doc.photos) : doc.photos) : [];
+          
+          const mappedVenue = {
+            id: doc.$id,
+            name: doc.venueName || "Unnamed Venue",
+            location: doc.landmark || doc.city || "India",
+            city: doc.city || "Unknown",
+            pincode: doc.pincode || "",
+            type: doc.venueType || "Banquet Hall",
+            verified: doc.isVerified || false,
+            popular: doc.status === 'active',
+            rating: 4.8, 
+            reviewCount: 0,
+            pricePerPlate: doc.perPlateVeg || 1500,
+            pricePerPlateNonVeg: doc.perPlateNonVeg || 1800,
+            startingRental: "₹1,50,000",
+            capacity: getCapacityLabel(doc.capacity),
+            about: doc.description || "No description available for this venue.",
+            images: photoIds.map((pid: string) => 
+               `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${STORAGE_BUCKET_ID}/files/${pid}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`
+            ).concat(photoIds.length === 0 ? ["/gallery/interior.png"] : []),
+            amenities: (doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : []).map((a: string) => ({
+              name: a,
+              icon: AMENITY_ICONS[a] || AMENITY_ICONS["Default"]
+            })),
+            halls: [
+              { name: "Grand Imperial Hall", capacity: `${getCapacityLabel(doc.capacity)} Guests`, area: "12,000 sq ft" }
+            ],
+            policies: [
+              "Advance Payment: 25% at the time of booking.",
+              "Cancellation: Non-refundable if cancelled within 30 days of event.",
+              "Outside Food: Not allowed.",
+              "Alcohol: Allowed with valid license.",
+              "Music: Allowed till 11:00 PM as per local guidelines."
+            ],
+            reviews: [],
+            similarVenues: []
+          };
+          setVenue(mappedVenue);
+          setIsLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.warn('API Fetch failed, trying mock data:', err);
+      }
+
+      // Fallback to MOCK_VENUES
+      const mock = MOCK_VENUES.find(v => v.id === id);
+      if (mock) {
+          const mappedMock = {
+            ...mock,
+            images: [mock.img, "/gallery/interior.png", "/gallery/exterior.png"],
+            pricePerPlate: mock.price,
+            pricePerPlateNonVeg: mock.price + 300,
+            about: "This is a premium venue listed on PartyDial. Experience excellence in service and ambiance.",
+            amenities: mock.amenities.map(a => ({
+              name: a,
+              icon: AMENITY_ICONS[a] || AMENITY_ICONS["Default"]
+            })),
+            halls: [
+              { name: "Main Hall", capacity: `${mock.capacity} Guests`, area: "8,000 sq ft" }
+            ],
+            policies: [
+              "Advance Payment: 25% at the time of booking.",
+              "Cancellation: Non-refundable if cancelled within 30 days of event.",
+              "Outside Food: Not allowed.",
+              "Alcohol: Allowed with valid license."
+            ],
+            reviews: [],
+            similarVenues: []
+          };
+          setVenue(mappedMock);
+      }
+      setIsLoading(false);
+    };
+
+    if (id) fetchVenue();
+  }, [id]);
+
+  const nextImage = () => venue && setActiveImage((prev) => (prev + 1) % venue.images.length);
+  const prevImage = () => venue && setActiveImage((prev) => (prev - 1 + venue.images.length) % venue.images.length);
 
   // Review State Management
-  const [reviews, setReviews] = useState(VENUE_DETAIL.reviews);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewSort, setReviewSort] = useState("Most Recent");
   const [hoverRating, setHoverRating] = useState(0);
@@ -136,13 +243,17 @@ export default function VenueDetailPage() {
     }
   });
 
+  useEffect(() => {
+    if (venue) setReviews(venue.reviews || []);
+  }, [venue]);
+
 
   const ratingStats = useMemo(() => {
-    const total = reviews.length;
-    const avg = total > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / total).toFixed(1) : 0;
+    const total = reviews.length || 1; // Avoid divide by zero
+    const avg = reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / total).toFixed(1) : "4.8";
     const counts = [0, 0, 0, 0, 0]; // 1-5 stars
     reviews.forEach(r => counts[Math.floor(r.rating) - 1]++);
-    return { avg, total, breakdown: counts.reverse() }; // 5 to 1
+    return { avg, total: reviews.length, breakdown: counts.reverse() }; // 5 to 1
   }, [reviews]);
 
   const sortedReviews = useMemo(() => {
@@ -181,11 +292,12 @@ export default function VenueDetailPage() {
   };
 
   const handleShare = async () => {
+    if (!venue) return;
     try {
       if (navigator.share) {
         await navigator.share({
-          title: VENUE_DETAIL.name,
-          text: `Check out ${VENUE_DETAIL.name} on PartyDial!`,
+          title: venue.name,
+          text: `Check out ${venue.name} on PartyDial!`,
           url: window.location.href,
         });
       } else {
@@ -196,6 +308,28 @@ export default function VenueDetailPage() {
       console.error("Error sharing:", err);
     }
   };
+
+  if (isLoading) {
+     return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-pd-red border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Loading Venue Details...</p>
+            </div>
+        </div>
+     );
+  }
+
+  if (!venue) {
+     return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+            <div className="text-center">
+                <h1 className="text-2xl font-black text-slate-900 mb-4">Venue Not Found</h1>
+                <Link href="/venues" className="text-pd-red font-bold hover:underline">Back to Listings</Link>
+            </div>
+        </div>
+     );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -212,8 +346,8 @@ export default function VenueDetailPage() {
             className="absolute inset-0"
           >
             <Image 
-              src={VENUE_DETAIL.images[activeImage]} 
-              alt={VENUE_DETAIL.name} 
+              src={venue.images[activeImage]} 
+              alt={venue.name} 
               fill 
               className="object-cover opacity-80"
               priority
@@ -254,8 +388,8 @@ export default function VenueDetailPage() {
           <button className="px-5 py-3 md:px-8 md:py-4 bg-black/20 backdrop-blur-xl rounded-full border border-white/10 text-white flex items-center gap-2 md:gap-3 hover:bg-pd-red transition-all group active:scale-95 shadow-2xl">
              <ImageIcon size={16} className="md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
              <div className="text-left">
-                <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">View Gallery</span>
-                <span className="block text-[8px] md:text-[9px] font-bold text-white/50 uppercase tracking-widest leading-none">{VENUE_DETAIL.images.length} Photos</span>
+                <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">View Venue</span>
+                <span className="block text-[8px] md:text-[9px] font-bold text-white/50 uppercase tracking-widest leading-none">{venue.images.length} Photos</span>
              </div>
           </button>
         </Link>
@@ -270,7 +404,7 @@ export default function VenueDetailPage() {
                   <div className="bg-green-50 text-green-600 px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg flex items-center gap-1.5 border border-green-100 uppercase text-[8px] md:text-[10px] font-black tracking-widest">
                      <CheckCircle2 size={10} className="md:w-3 md:h-3" /> Verified Venue
                   </div>
-                  {VENUE_DETAIL.popular && (
+                  {venue.popular && (
                     <div className="bg-pd-pink/10 text-pd-pink px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg flex items-center gap-1.5 border border-pd-pink/20 uppercase text-[8px] md:text-[10px] font-black tracking-widest">
                        <Star size={10} className="fill-pd-pink md:w-3 md:h-3" /> Popular Venue
                     </div>
@@ -280,10 +414,10 @@ export default function VenueDetailPage() {
                      <span className="text-slate-400 font-bold opacity-70">({ratingStats.total} Reviews)</span>
                   </div>
                </div>
-               <h1 className="text-2xl md:text-4xl font-black text-slate-900 mb-3">{VENUE_DETAIL.name}</h1>
+               <h1 className="text-2xl md:text-4xl font-black text-slate-900 mb-3">{venue.name}</h1>
                <div className="flex items-center gap-2 text-slate-500 font-bold text-xs md:text-sm">
                  <MapPin className="text-pd-red shrink-0" size={16} />
-                 <span>{VENUE_DETAIL.location}</span>
+                 <span>{venue.location}</span>
                </div>
             </div>
             
@@ -292,14 +426,21 @@ export default function VenueDetailPage() {
                  <p className="text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Guest Capacity</p>
                  <div className="flex flex-col items-center md:items-start gap-1">
                    <Users size={16} className="text-pd-purple md:w-5 md:h-5" />
-                   <span className="text-sm md:text-lg font-black text-slate-900">{VENUE_DETAIL.capacity}</span>
+                   <span className="text-sm md:text-lg font-black text-slate-900">{venue.capacity}</span>
                  </div>
                </div>
                <div className="text-center md:text-left flex-1 md:flex-none">
                  <p className="text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Veg Boarding</p>
                  <div className="flex flex-col items-center md:items-start gap-1">
                    <Utensils size={16} className="text-pd-pink md:w-5 md:h-5" />
-                   <span className="text-sm md:text-lg font-black text-slate-900">₹{VENUE_DETAIL.pricePerPlate} <span className="text-[8px] md:text-[9px] opacity-40">/ plate</span></span>
+                   <span className="text-sm md:text-lg font-black text-slate-900">₹{venue.pricePerPlate} <span className="text-[8px] md:text-[9px] opacity-40">/ plate</span></span>
+                 </div>
+               </div>
+               <div className="text-center md:text-left flex-1 md:flex-none">
+                 <p className="text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Non-Veg Boarding</p>
+                 <div className="flex flex-col items-center md:items-start gap-1">
+                   <Utensils size={16} className="text-pd-red md:w-5 md:h-5" />
+                   <span className="text-sm md:text-lg font-black text-slate-900">₹{venue.pricePerPlateNonVeg} <span className="text-[8px] md:text-[9px] opacity-40">/ plate</span></span>
                  </div>
                </div>
             </div>
@@ -320,15 +461,15 @@ export default function VenueDetailPage() {
                 About the Venue <Info size={18} className="text-pd-red" />
               </h2>
               <p className="text-slate-500 font-semibold leading-relaxed text-base">
-                {VENUE_DETAIL.about}
+                {venue.about}
               </p>
             </div>
 
             {/* Amenities Grid */}
             <div>
               <h2 className="text-xl font-black text-slate-900 mb-6 border-l-4 border-pd-purple pl-4">Key Amenities</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-                 {VENUE_DETAIL.amenities.map((amenity, i) => (
+               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+                 {venue.amenities.map((amenity: any, i: number) => (
                    <div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 flex flex-col items-center text-center gap-3 hover:shadow-pd-soft transition-all group">
                       <div className="w-12 h-12 bg-pd-purple/5 text-pd-purple rounded-xl flex items-center justify-center group-hover:bg-pd-purple group-hover:text-white transition-colors">
                         {amenity.icon}
@@ -343,7 +484,7 @@ export default function VenueDetailPage() {
             <div className="bg-slate-900 rounded-[32px] p-10 text-white">
                <h2 className="text-xl font-black mb-8 italic">Available Spaces</h2>
                <div className="space-y-6">
-                 {VENUE_DETAIL.halls.map((hall, i) => (
+                 {venue.halls.map((hall: any, i: number) => (
                    <div key={i} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all">
                       <div>
                         <h4 className="text-lg font-black mb-1">{hall.name}</h4>
@@ -360,22 +501,6 @@ export default function VenueDetailPage() {
                </div>
             </div>
 
-            {/* Policies */}
-            <div>
-               <h2 className="text-xl font-black text-slate-900 mb-8 flex items-center gap-3">
-                 Venue Policies <ShieldCheck size={18} className="text-pd-red" />
-               </h2>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 {VENUE_DETAIL.policies.map((policy, i) => (
-                   <div key={i} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
-                      <div className="shrink-0 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
-                        <CheckCircle2 size={16} />
-                      </div>
-                      <p className="text-sm font-bold text-slate-600">{policy}</p>
-                   </div>
-                 ))}
-               </div>
-            </div>
 
              {/* Venue Gallery Section */}
              <div className="py-8">
@@ -386,7 +511,7 @@ export default function VenueDetailPage() {
                    </Link>
                 </div>
                 <div className="columns-2 md:columns-3 gap-4 space-y-4">
-                   {VENUE_DETAIL.images.slice(0, 5).map((img, i) => (
+                   {venue.images.slice(0, 5).map((img: string, i: number) => (
                       <Link 
                         key={i} 
                         href={`/venues/${id}/gallery`}
@@ -411,9 +536,9 @@ export default function VenueDetailPage() {
              {/* Small Location Map Placeholder */}
             <div>
               <h2 className="text-xl font-black text-slate-900 mb-8 border-l-4 border-slate-900 pl-4">Location & Map</h2>
-              <div className="w-full h-80 bg-slate-200 rounded-[32px] overflow-hidden relative shadow-xl">
+               <div className="w-full h-80 bg-slate-200 rounded-[32px] overflow-hidden relative shadow-xl">
                  <iframe 
-                   src={`https://maps.google.com/maps?q=${encodeURIComponent(VENUE_DETAIL.name + ' ' + VENUE_DETAIL.location)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                   src={`https://maps.google.com/maps?q=${encodeURIComponent(venue.name + ' ' + (venue.location || venue.city))}&output=embed`}
                    className="w-full h-full border-0 grayscale opacity-90 contrast-125"
                    allowFullScreen
                    loading="lazy"
@@ -567,17 +692,27 @@ export default function VenueDetailPage() {
                   <h3 className="text-2xl font-black text-slate-900 mb-2">Get Free Customized Quotes</h3>
                   <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Zero Brokerage. Direct Rates.</p>
                </div>
-
-               <form className="space-y-6">
+               <form className="space-y-6" onSubmit={handleLeadSubmit}>
                  <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Full Name</label>
-                    <input type="text" placeholder="Enter your name" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-pd-red transition-all" />
+                    <input 
+                        required
+                        type="text" 
+                        placeholder="Enter your name" 
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-pd-red transition-all" 
+                    />
                  </div>
                  
                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Event Type</label>
-                        <select className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none">
+                        <select 
+                            value={formData.eventType}
+                            onChange={(e) => setFormData({...formData, eventType: e.target.value})}
+                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none"
+                        >
                             <option>Wedding</option>
                             <option>Engagement</option>
                             <option>Birthday</option>
@@ -586,7 +721,14 @@ export default function VenueDetailPage() {
                     </div>
                     <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Guest Count</label>
-                        <input type="number" placeholder="Eg. 200" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" />
+                        <input 
+                            required
+                            type="number" 
+                            placeholder="Eg. 200" 
+                            value={formData.guests}
+                            onChange={(e) => setFormData({...formData, guests: e.target.value})}
+                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" 
+                        />
                     </div>
                  </div>
 
@@ -617,11 +759,21 @@ export default function VenueDetailPage() {
 
                  <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Requirement Notes</label>
-                    <textarea placeholder="e.g. Need rooms, catering required..." rows={3} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none"></textarea>
+                    <textarea 
+                        placeholder="e.g. Need rooms, catering required..." 
+                        rows={3} 
+                        value={formData.requirements}
+                        onChange={(e) => setFormData({...formData, requirements: e.target.value})}
+                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none"
+                    ></textarea>
                  </div>
 
-                 <button className="w-full pd-btn-primary py-5 text-sm tracking-[0.2em] font-black uppercase italic shadow-2xl shadow-pd-pink/20 flex items-center justify-center gap-3 active:scale-95 transition-all">
-                    Get Best Rates <Send size={20} />
+                 <button 
+                    type="submit"
+                    disabled={isSubmittingLead}
+                    className="w-full pd-btn-primary py-5 text-sm tracking-[0.2em] font-black uppercase italic shadow-2xl shadow-pd-pink/20 flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-50"
+                 >
+                    {isSubmittingLead ? 'Sending...' : 'Get Best Rates'} <Send size={20} />
                  </button>
 
                  <p className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest px-4 leading-relaxed">
@@ -643,19 +795,19 @@ export default function VenueDetailPage() {
                  View All <ArrowRight size={14} />
                </Link>
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-               {VENUE_DETAIL.similarVenues.map((venue, i) => (
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+               {(venue.similarVenues && venue.similarVenues.length > 0 ? venue.similarVenues : []).map((v: any, i: number) => (
                  <div key={i} className="pd-card group bg-slate-50 overflow-hidden">
                     <div className="relative h-56 overflow-hidden">
-                       <Image src={venue.img} alt={venue.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                       <Image src={v.img} alt={v.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                     <div className="p-6">
-                       <h4 className="text-xl font-black text-slate-900 mb-1">{venue.name}</h4>
-                       <p className="text-xs font-bold text-slate-500 mb-4">{venue.location}</p>
+                       <h4 className="text-xl font-black text-slate-900 mb-1">{v.name}</h4>
+                       <p className="text-xs font-bold text-slate-500 mb-4">{v.location}</p>
                        <div className="flex items-center justify-between">
-                          <span className="text-pd-pink font-black text-lg">{venue.price} <span className="text-[10px] opacity-40">/plate</span></span>
+                          <span className="text-pd-pink font-black text-lg">{v.price} <span className="text-[10px] opacity-40">/plate</span></span>
                           <div className="flex items-center gap-1 font-black text-xs text-slate-800">
-                            <Star size={14} className="text-yellow-400 fill-yellow-400" /> {venue.rating}
+                            <Star size={14} className="text-yellow-400 fill-yellow-400" /> {v.rating}
                           </div>
                        </div>
                     </div>

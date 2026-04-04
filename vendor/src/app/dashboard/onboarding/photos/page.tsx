@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ImageIcon, 
@@ -57,12 +57,19 @@ export default function UploadPhotosPage() {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
-    if (!selectedFiles || selectedFiles.length === 0 || !docId) return;
+    if (!selectedFiles || selectedFiles.length === 0) return;
 
     setIsUploading(true);
     try {
       const { storage, STORAGE_BUCKET_ID, databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
       const { ID } = await import('appwrite');
+      const userJson = localStorage.getItem('user');
+      const user = userJson ? JSON.parse(userJson) : null;
+
+      if (!user) {
+         router.push('/login');
+         return;
+      }
 
       const uploadedIds: string[] = [];
       for (const file of Array.from(selectedFiles)) {
@@ -74,9 +81,27 @@ export default function UploadPhotosPage() {
       setPhotoIds(newPhotoIds);
 
       // Save to database
-      await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, docId, {
+      const payload = {
         photos: JSON.stringify(newPhotoIds)
-      });
+      };
+
+      if (docId) {
+        await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, docId, payload);
+      } else {
+        // Create if doesn't exist
+        const newDoc = await databases.createDocument(DATABASE_ID, VENUES_COLLECTION_ID, ID.unique(), {
+          ...payload,
+          userId: user.$id,
+          venueName: user.name || 'My Venue',
+          ownerName: user.name || 'Owner',
+          contactEmail: user.email || '',
+          onboardingComplete: false,
+          isVerified: false,
+          status: 'active',
+          registrationDate: new Date().toISOString()
+        });
+        setDocId(newDoc.$id);
+      }
 
     } catch (err: any) {
       console.error('Upload failed:', err);
@@ -104,16 +129,24 @@ export default function UploadPhotosPage() {
     }
   };
 
+  const [appConfig, setAppConfig] = useState({
+    endpoint: 'https://sgp.cloud.appwrite.io/v1',
+    projectId: '69ae84bc001ca4edf8c2',
+    bucketId: 'venues_photos'
+  });
+
   const getFilePreview = (id: string) => {
-    return `https://sgp.cloud.appwrite.io/v1/storage/buckets/${STORAGE_BUCKET_ID_STATE}/files/${id}/view?project=69ae84bc001ca4edf8c2`;
+    return `${appConfig.endpoint}/storage/buckets/${appConfig.bucketId}/files/${id}/view?project=${appConfig.projectId}`;
   };
 
-  const [STORAGE_BUCKET_ID_STATE, setStorageBucketId] = useState('venues_photos');
-  
-  React.useEffect(() => {
+  useEffect(() => {
     const loadConfig = async () => {
-      const { STORAGE_BUCKET_ID } = await import('@/lib/appwrite');
-      setStorageBucketId(STORAGE_BUCKET_ID);
+      const { ENDPOINT, PROJECT_ID, STORAGE_BUCKET_ID } = await import('@/lib/appwrite');
+      setAppConfig({
+        endpoint: ENDPOINT,
+        projectId: PROJECT_ID,
+        bucketId: STORAGE_BUCKET_ID
+      });
     };
     loadConfig();
   }, []);

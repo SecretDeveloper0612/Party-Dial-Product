@@ -1,10 +1,11 @@
-const { Client, Account, Databases, Users } = require('node-appwrite');
+const { Client, Account, Databases, Users, Storage } = require('node-appwrite');
 
 const endpoint = process.env.APPWRITE_ENDPOINT;
 const project = process.env.APPWRITE_PROJECT_ID;
 const key = process.env.APPWRITE_API_KEY;
 const databaseId = process.env.APPWRITE_DATABASE_ID;
 const venuesCollectionId = process.env.APPWRITE_VENUES_COLLECTION_ID;
+const storageBucketId = process.env.APPWRITE_STORAGE_BUCKET_ID;
 
 if (!endpoint || !project || !key || !databaseId || !venuesCollectionId) {
     console.error('❌ Appwrite configuration is incomplete! Check your .env file.');
@@ -13,6 +14,7 @@ if (!endpoint || !project || !key || !databaseId || !venuesCollectionId) {
     console.error('API Key:', key ? '✅' : '❌');
     console.error('Database ID:', databaseId ? '✅' : '❌');
     console.error('Collection ID:', venuesCollectionId ? '✅' : '❌');
+    console.error('Bucket ID:', storageBucketId ? '✅' : '❌');
 }
 
 const client = new Client()
@@ -23,6 +25,7 @@ const client = new Client()
 const account = new Account(client);
 const databases = new Databases(client);
 const users = new Users(client);
+const storage = new Storage(client);
 
 module.exports = { 
     Client, 
@@ -30,6 +33,9 @@ module.exports = {
     account, 
     databases, 
     users, 
+    storage,
     DATABASE_ID: databaseId, 
-    VENUES_COLLECTION_ID: venuesCollectionId 
+    VENUES_COLLECTION_ID: venuesCollectionId,
+    LEADS_COLLECTION_ID: process.env.APPWRITE_LEADS_COLLECTION_ID,
+    STORAGE_BUCKET_ID: storageBucketId
 };

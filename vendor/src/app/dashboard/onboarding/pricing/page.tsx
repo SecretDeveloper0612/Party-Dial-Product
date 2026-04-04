@@ -64,22 +64,51 @@ export default function SetPricingPage() {
   }, [router]);
 
   const handleSave = async () => {
-    if (!docId) return alert('No profile document found for this user.');
-
     setIsSaving(true);
     try {
       const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+      const { ID } = await import('appwrite');
+      const userJson = localStorage.getItem('user');
+      const user = userJson ? JSON.parse(userJson) : null;
+
+      if (!user) {
+         router.push('/login');
+         return;
+      }
       
-      await databases.updateDocument(
-        DATABASE_ID,
-        VENUES_COLLECTION_ID,
-        docId,
-        {
-          perPlateVeg,
-          perPlateNonVeg,
-          packages: JSON.stringify(packages)
-        }
-      );
+      const payload = {
+        perPlateVeg: parseInt(perPlateVeg || '0', 10),
+        perPlateNonVeg: parseInt(perPlateNonVeg || '0', 10),
+        packages: JSON.stringify(packages),
+        // If creating new, add required defaults
+        ...(docId ? {} : {
+          userId: user.$id,
+          venueName: user.name || 'My Venue',
+          ownerName: user.name || 'Owner',
+          contactEmail: user.email || '',
+          onboardingComplete: false,
+          isVerified: false,
+          status: 'active',
+          registrationDate: new Date().toISOString()
+        })
+      };
+
+      if (docId) {
+        await databases.updateDocument(
+          DATABASE_ID,
+          VENUES_COLLECTION_ID,
+          docId,
+          payload
+        );
+      } else {
+        const newDoc = await databases.createDocument(
+          DATABASE_ID,
+          VENUES_COLLECTION_ID,
+          ID.unique(),
+          payload
+        );
+        setDocId(newDoc.$id);
+      }
 
       router.push('/dashboard/onboarding/subscription');
     } catch (err: any) {

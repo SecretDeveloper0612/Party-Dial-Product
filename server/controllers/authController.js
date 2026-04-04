@@ -34,7 +34,7 @@ exports.register = async (req, res) => {
                                 state: req.body.state || '',
                                 pincode: req.body.pincode || '',
                                 venueType: req.body.venueType || 'Banquet Hall',
-                                capacity: parseInt(req.body.capacity?.toString().match(/\d+/)?.[0] || '0'),
+                                capacity: req.body.capacity || '0',
                                 onboardingComplete: false,
                                 isVerified: false,
                                 status: 'active',

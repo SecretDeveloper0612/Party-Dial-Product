@@ -55,6 +55,20 @@ const FILTER_CONFIG = {
   foodTypes: ["Veg", "Non-Veg", "Both"]
 };
 
+// Helper to map capacity integer to range label
+const getCapacityLabel = (capacity: any) => {
+  const cap = parseInt(capacity);
+  if (cap === 2000) return "2000-5000";
+  if (cap === 1000) return "1000-2000";
+  if (cap === 500) return "500-1000";
+  if (cap === 200) return "200-500";
+  if (cap === 100) return "100-200";
+  if (cap === 50) return "50-100";
+  if (cap === 0) return "0-50";
+  if (cap === 5000) return "5000+";
+  return capacity?.toString() || "0";
+};
+
 export default function VenuesPage() {
   const [selectedCity, setSelectedCity] = useState("All Cities");
   const [locationSearchQuery, setLocationSearchQuery] = useState("");
@@ -127,7 +141,7 @@ export default function VenuesPage() {
         
         const fetchVenues = async () => {
           try {
-            const response = await fetch('http://127.0.0.1:5000/api/venues');
+            const response = await fetch('http://127.0.0.1:5005/api/venues');
             const result = await response.json();
             
             if (result.status === 'success') {
@@ -137,12 +151,12 @@ export default function VenuesPage() {
                 location: doc.landmark || doc.city || "India",
                 city: doc.city || "Unknown",
                 type: doc.venueType || "Banquet Hall",
-                capacity: parseInt(doc.capacity?.toString().match(/\d+/)?.[0] || '0'),
+                capacity: getCapacityLabel(doc.capacity),
                 price: doc.perPlateVeg || 1500,
                 rating: 4.5,
                 reviews: 0,
                 img: (doc.photos && JSON.parse(doc.photos).length > 0) 
-                  ? `https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${JSON.parse(doc.photos)[0]}/view?project=69ae84bc001ca4edf8c2`
+                  ? `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/venues_photos/files/${JSON.parse(doc.photos)[0]}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`
                   : "/venues/palace-hotel.png",
                 verified: false,
                 popular: false,

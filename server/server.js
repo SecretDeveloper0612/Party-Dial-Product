@@ -8,14 +8,18 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 
-// Import routes
+// Import config
+const connectDB = require('./config/mongoose');
 const authRoutes = require('./routes/authRoutes');
 const dataRoutes = require('./routes/dataRoutes');
 const venueRoutes = require('./routes/venueRoutes');
 const configController = require('./controllers/configController');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5005;
+
+// Connect to MongoDB
+connectDB();
 
 // Middleware
 app.use(cors());

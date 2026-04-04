@@ -67,7 +67,9 @@ export default function VenueCard({ venue: v, index: i }: VenueCardProps) {
              </div>
              <div className="flex flex-col border-l border-slate-100 pl-6">
                 <span className="text-[7px] md:text-[8px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">Guest Cap.</span>
-                <span className="text-sm md:text-lg font-black text-slate-900 italic">{v.capacity}+</span>
+                <span className="text-sm md:text-lg font-black text-slate-900 italic">
+                  {v.capacity?.toString().includes('-') ? v.capacity : `${v.capacity}+`}
+                </span>
              </div>
           </div>
           
@@ -81,7 +83,7 @@ export default function VenueCard({ venue: v, index: i }: VenueCardProps) {
           <div className="flex flex-col sm:flex-row gap-2 w-full mt-auto">
              <Link href={`/venues/${v.id}`} className="flex-1 order-2 sm:order-1">
                 <button className="w-full py-3 border-2 border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-700 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all italic active:scale-95">
-                   View Gallery
+                   View Venue
                 </button>
              </Link>
              <button className="flex-1 order-1 sm:order-2 pd-btn-primary !py-3 !text-[9px] tracking-widest uppercase italic shadow-lg shadow-pd-pink/10 flex items-center justify-center gap-2 active:scale-95">

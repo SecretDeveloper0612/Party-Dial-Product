@@ -55,6 +55,20 @@ const AnimatedCounter = ({ end, duration = 2000, suffix = "" }: { end: number, d
   return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 };
 
+// Helper to map capacity integer to range label
+const getCapacityLabel = (capacity: any) => {
+  const cap = parseInt(capacity);
+  if (cap === 2000) return "2000-5000";
+  if (cap === 1000) return "1000-2000";
+  if (cap === 500) return "500-1000";
+  if (cap === 200) return "200-500";
+  if (cap === 100) return "100-200";
+  if (cap === 50) return "50-100";
+  if (cap === 0) return "0-50";
+  if (cap === 5000) return "5000+";
+  return capacity?.toString() || "0";
+};
+
 export default function Home() {
   const locationRef = useRef<HTMLDivElement>(null);
 
@@ -152,23 +166,26 @@ export default function Home() {
   useEffect(() => {
     const fetchTopVenues = async () => {
       try {
-        const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
-        const result = await databases.listDocuments(DATABASE_ID, VENUES_COLLECTION_ID);
+        const response = await fetch('http://127.0.0.1:5005/api/venues');
+        const result = await response.json();
         
-        const mapped = result.documents.map(doc => ({
-          name: doc.venueName || "Unnamed Venue",
-          location: doc.landmark || doc.city || "India",
-          city: doc.city || "Unknown",
-          capacity: doc.capacity || "500-1000",
-          price: "₹1,500",
-          rating: 4.8,
-          reviews: 0,
-          img: "/venues/palace-hotel.png"
-        }));
+        if (result.status === 'success' && result.data) {
+          const mapped = result.data.map((doc: any) => ({
+            id: doc.$id,
+            name: doc.venueName || "Unnamed Venue",
+            location: doc.landmark || doc.city || "India",
+            city: doc.city || "Unknown",
+            capacity: getCapacityLabel(doc.capacity),
+            price: doc.perPlateVeg ? `₹${doc.perPlateVeg}` : "₹1,500",
+            rating: 4.8,
+            reviews: 0,
+            img: doc.photos ? `https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${JSON.parse(doc.photos)[0]}/view?project=69ae84bc001ca4edf8c2` : "/venues/palace-hotel.png"
+          }));
 
-        setLiveVenues(mapped.slice(0, 3)); // Take top 3 for home page
+          setLiveVenues(mapped.slice(0, 3)); // Take top 3 for home page
+        }
       } catch (err) {
-        console.error('Home: Failed to fetch live venues:', err);
+        console.error('Home: Failed to fetch live venues via backend:', err);
       }
     };
 
@@ -467,7 +484,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {displayVenues.map((venue, i) => (
-              <motion.div key={i} className="pd-card group overflow-hidden bg-white">
+              <motion.div key={i} className="pd-card group overflow-hidden bg-white hover:border-pd-red/30 transition-colors">
                 <div className="h-56 relative overflow-hidden">
                   <Image src={venue.img} alt={venue.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm">
@@ -490,9 +507,16 @@ export default function Home() {
                       <p className="text-sm font-black text-pd-pink">{venue.price} <span className="text-[10px] text-slate-400">/plate</span></p>
                     </div>
                   </div>
-                  <button className="w-full mt-6 py-3 border border-pd-purple/20 rounded-xl text-pd-purple font-black text-[11px] uppercase tracking-widest hover:bg-pd-purple hover:text-white transition-all">
-                    Show Phone Number
-                  </button>
+                  <div className="flex flex-col gap-2 mt-6">
+                    <Link href={`/venues/${venue.id}`} className="w-full">
+                      <button className="w-full py-3 bg-slate-900 text-white rounded-xl font-black text-[11px] uppercase tracking-widest hover:bg-pd-red transition-all">
+                        View Details
+                      </button>
+                    </Link>
+                    <button className="w-full py-3 border border-pd-purple/20 rounded-xl text-pd-purple font-black text-[11px] uppercase tracking-widest hover:bg-pd-purple/5 transition-all">
+                      Show Phone Number
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             ))}

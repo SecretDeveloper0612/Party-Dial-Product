@@ -13,41 +13,79 @@ import {
   Image as ImageIcon,
   Heart
 } from 'lucide-react';
-import { useState, useMemo } from 'react';
-
-// Enhanced Mock Gallery Data
-const GALLERY_DATA = {
-  venueName: "The Royal Ballroom",
-  categories: ["All Photos", "Interior", "Decoration", "Food & Dining", "Exterior", "Event Setups"],
-  images: [
-    { id: 1, category: "Interior", url: "/gallery/interior.png", title: "Main Grand Hall" },
-    { id: 2, category: "Decoration", url: "/gallery/decoration.png", title: "Floral Stage Setup" },
-    { id: 3, category: "Food & Dining", url: "/gallery/buffet.png", title: "Buffet Arrangement" },
-    { id: 4, category: "Exterior", url: "/gallery/exterior.png", title: "Entrance facade" },
-    { id: 5, category: "Event Setups", url: "/gallery/setup.png", title: "Reception Table" },
-    { id: 6, category: "Interior", url: "/gallery/interior.png", title: "Lobby Area" },
-    { id: 7, category: "Decoration", url: "/gallery/decoration.png", title: "Luxury Decor" },
-    { id: 8, category: "Food & Dining", url: "/gallery/buffet.png", title: "Catering Details" },
-    { id: 9, category: "Event Setups", url: "/gallery/stage.png", title: "Stage Lighting" },
-    { id: 10, category: "Interior", url: "/gallery/interior.png", title: "Cocktail Lounge" },
-    { id: 11, category: "Exterior", url: "/gallery/exterior.png", title: "Vertical Entrance" },
-    { id: 12, category: "Decoration", url: "/gallery/decoration.png", title: "Wedding Theme" },
-    { id: 13, category: "Exterior", url: "/gallery/exterior.png", title: "Night View" },
-    { id: 14, category: "Food & Dining", url: "/gallery/buffet.png", title: "Fine Dining" },
-    { id: 15, category: "Interior", url: "/gallery/interior.png", title: "VIP Seating" }
-  ]
-};
+import { useState, useMemo, useEffect } from 'react';
 
 export default function VenueGalleryPage() {
   const params = useParams();
-  const venueName = (params.id as string)?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') || "Venue Gallery";
+  const id = params.id as string;
+  const [venue, setVenue] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All Photos");
   const [selectedImage, setSelectedImage] = useState<any>(null);
 
+  const categories = ["All Photos", "Interior", "Decoration", "Food & Dining", "Exterior", "Event Setups"];
+
+  // Fetch venue data for gallery
+  useEffect(() => {
+    const fetchVenue = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/api/venues/${id}`);
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          const doc = result.data;
+          const { STORAGE_BUCKET_ID } = await import('@/lib/appwrite');
+          const photoIds = doc.photos ? JSON.parse(doc.photos) : [];
+          
+          const mappedVenue = {
+            name: doc.venueName || "Unnamed Venue",
+            images: photoIds.map((pid: string, idx: number) => ({
+              id: pid,
+              category: "All Photos", // Default category
+              url: `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${STORAGE_BUCKET_ID}/files/${pid}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`,
+              title: `Photo ${idx + 1}`
+            }))
+          };
+          setVenue(mappedVenue);
+        }
+      } catch (err) {
+        console.error('Failed to fetch gallery:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) fetchVenue();
+  }, [id]);
+
   const filteredImages = useMemo(() => {
-    if (activeCategory === "All Photos") return GALLERY_DATA.images;
-    return GALLERY_DATA.images.filter(img => img.category === activeCategory);
-  }, [activeCategory]);
+    if (!venue) return [];
+    if (activeCategory === "All Photos") return venue.images;
+    return venue.images.filter((img: any) => img.category === activeCategory);
+  }, [venue, activeCategory]);
+
+  if (isLoading) {
+    return (
+       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+           <div className="flex flex-col items-center gap-4">
+               <div className="w-12 h-12 border-4 border-pd-red border-t-transparent rounded-full animate-spin"></div>
+               <p className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Loading Gallery...</p>
+           </div>
+       </div>
+    );
+  }
+
+  if (!venue) {
+    return (
+       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+           <div className="text-center">
+               <h1 className="text-2xl font-black text-slate-900 mb-4">Venue Not Found</h1>
+               <Link href="/venues" className="text-pd-red font-bold hover:underline">Back to Listings</Link>
+           </div>
+       </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -60,14 +98,14 @@ export default function VenueGalleryPage() {
                 <ChevronLeft size={24} />
              </Link>
              <div>
-               <h1 className="text-xl font-black text-slate-900 leading-none mb-1">{venueName}</h1>
+               <h1 className="text-xl font-black text-slate-900 leading-none mb-1">{venue.name}</h1>
                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                  <Camera size={12} /> Venue Photo Gallery
                </p>
              </div>
           </div>
           <div className="hidden md:flex bg-slate-100 p-1 rounded-xl">
-            {GALLERY_DATA.categories.map((cat) => (
+            {categories.map((cat: string) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
@@ -90,7 +128,7 @@ export default function VenueGalleryPage() {
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Mobile Filter Pills */}
         <div className="md:hidden flex gap-2 overflow-x-auto no-scrollbar pb-6 mb-2">
-           {GALLERY_DATA.categories.map((cat) => (
+           {categories.map((cat: string) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
@@ -106,7 +144,7 @@ export default function VenueGalleryPage() {
           className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6 auto-rows-[160px] md:auto-rows-[200px] grid-flow-dense"
         >
           <AnimatePresence>
-            {filteredImages.map((img, i) => {
+            {filteredImages.map((img: any, i: number) => {
               // Bento Grid Span Logic
               const spanClass = 
                 i % 12 === 0 ? "md:col-span-2 md:row-span-2 lg:col-span-2 lg:row-span-3" : // Large Hero

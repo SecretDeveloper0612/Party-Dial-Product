@@ -62,7 +62,7 @@ export default function VenueLoginPage() {
   const handleGoogleLogin = () => {
     const successUrl = `${window.location.origin}/dashboard`;
     const failureUrl = `${window.location.origin}/login`;
-    window.location.href = `http://127.0.0.1:5000/api/auth/google?successUrl=${encodeURIComponent(successUrl)}&failureUrl=${encodeURIComponent(failureUrl)}`;
+    window.location.href = `http://127.0.0.1:5005/api/auth/google?successUrl=${encodeURIComponent(successUrl)}&failureUrl=${encodeURIComponent(failureUrl)}`;
   };
 
 

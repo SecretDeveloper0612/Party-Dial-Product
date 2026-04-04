@@ -96,11 +96,17 @@ export default function CompleteProfilePage() {
           setDescription(profile.description || '');
           setLandmark(profile.landmark || '');
           if (profile.amenities) {
-             const amenities = Array.isArray(profile.amenities) ? profile.amenities : JSON.parse(profile.amenities);
-             setSelectedAmenities(amenities);
+             try {
+                const amenities = Array.isArray(profile.amenities) ? profile.amenities : JSON.parse(profile.amenities);
+                setSelectedAmenities(amenities);
+             } catch (e) {
+                console.warn('Failed to parse amenities:', e);
+                setSelectedAmenities([]);
+             }
           }
         } else {
            console.log('No profile found for user:', userId);
+           // We'll create it during first save if it doesn't exist
         }
       } catch (err) {
         console.error('Failed to fetch profile:', err);
@@ -119,22 +125,50 @@ export default function CompleteProfilePage() {
   };
 
   const handleSave = async () => {
-    if (!docId) return alert('No profile document found for this user.');
-
     setIsSaving(true);
     try {
       const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+      const { ID } = await import('appwrite');
       
-      await databases.updateDocument(
-        DATABASE_ID,
-        VENUES_COLLECTION_ID,
-        docId,
-        {
-          description,
-          amenities: JSON.stringify(selectedAmenities),
-          landmark
-        }
-      );
+      const payload = {
+        description,
+        amenities: JSON.stringify(selectedAmenities),
+        landmark,
+        contactNumber: userData?.phone || '',
+        city: userData?.city || 'Haldwani',
+        state: userData?.state || 'Uttarakhand',
+        pincode: userData?.pincode || '263139',
+        venueType: userData?.venueType || 'Banquet Hall',
+        capacity: parseInt(userData?.capacity || '500', 10),
+        // If creating new, add required defaults
+        ...(docId ? {} : {
+          userId: userData?.$id,
+          venueName: userData?.name || 'My Venue',
+          ownerName: userData?.name || 'Owner',
+          contactEmail: userData?.email || '',
+          onboardingComplete: false,
+          isVerified: false,
+          status: 'active',
+          registrationDate: new Date().toISOString()
+        })
+      };
+
+      if (docId) {
+        await databases.updateDocument(
+          DATABASE_ID,
+          VENUES_COLLECTION_ID,
+          docId,
+          payload
+        );
+      } else {
+        const newDoc = await databases.createDocument(
+          DATABASE_ID,
+          VENUES_COLLECTION_ID,
+          ID.unique(),
+          payload
+        );
+        setDocId(newDoc.$id);
+      }
 
       router.push('/dashboard/onboarding/photos');
     } catch (err: any) {

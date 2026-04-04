@@ -147,7 +147,7 @@ export default function VenueSignupPage() {
     setErrors({});
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/auth/register', {
+      const response = await fetch('http://127.0.0.1:5005/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -170,6 +170,7 @@ export default function VenueSignupPage() {
       if (response.ok) {
         localStorage.setItem('auth_session', JSON.stringify(result.session));
         localStorage.setItem('user', JSON.stringify(result.user));
+        localStorage.setItem('fresh_signup', 'true');
         console.log('Registration success');
         router.push('/dashboard');
       } else {
@@ -188,7 +189,7 @@ export default function VenueSignupPage() {
     const successUrl = `${window.location.origin}/dashboard/onboarding/profile`;
 
     const failureUrl = `${window.location.origin}/signup`;
-    window.location.href = `http://127.0.0.1:5000/api/auth/google?successUrl=${encodeURIComponent(successUrl)}&failureUrl=${encodeURIComponent(failureUrl)}`;
+    window.location.href = `http://127.0.0.1:5005/api/auth/google?successUrl=${encodeURIComponent(successUrl)}&failureUrl=${encodeURIComponent(failureUrl)}`;
   };
 
 
