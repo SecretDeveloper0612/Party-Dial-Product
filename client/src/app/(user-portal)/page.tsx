@@ -75,7 +75,7 @@ export default function Home() {
   // Form States
   const [formData, setFormData] = useState({
     eventType: '',
-    city: '',
+    locations: [] as any[], // Changed from city: ''
     date: '',
     guests: ''
   });
@@ -85,12 +85,34 @@ export default function Home() {
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [isEventDropdownOpen, setIsEventDropdownOpen] = useState(false);
+  const eventDropdownRef = useRef<HTMLDivElement>(null);
 
   // Fetch Location from Indian Post API
   useEffect(() => {
     const fetchLocations = async () => {
       if (locationInput.length < 3) {
         setSuggestions([]);
+        return;
+      }
+
+      // Special Case for Haldwani (263139) and nearby areas
+      if (locationInput === '263139') {
+        const customSuggestions = [
+          { display: 'Haldwani-263139', name: 'Haldwani', pincode: '263139', state: 'Uttarakhand' },
+          { display: 'Kathgodam-263126', name: 'Kathgodam', pincode: '263126', state: 'Uttarakhand' },
+          { display: 'Lalkuan-263131', name: 'Lalkuan', pincode: '263131', state: 'Uttarakhand' },
+          { display: 'Mukhani-263139', name: 'Mukhani', pincode: '263139', state: 'Uttarakhand' },
+          { display: 'Kaladhungi-263140', name: 'Kaladhungi', pincode: '263140', state: 'Uttarakhand' },
+          { display: 'Bhowali-263132', name: 'Bhowali', pincode: '263132', state: 'Uttarakhand' },
+          { display: 'Nainital-263001', name: 'Nainital', pincode: '263001', state: 'Uttarakhand' },
+          { display: 'Damuadhunga-263126', name: 'Damuadhunga', pincode: '263126', state: 'Uttarakhand' },
+          { display: 'Lamachaur-263139', name: 'Lamachaur', pincode: '263139', state: 'Uttarakhand' },
+          { display: 'Dahariya-263139', name: 'Dahariya', pincode: '263139', state: 'Uttarakhand' },
+          { display: 'Kamaluaganja-263139', name: 'Kamaluaganja', pincode: '263139', state: 'Uttarakhand' }
+        ];
+        setSuggestions(customSuggestions);
+        setIsLoadingLocations(false);
         return;
       }
 
@@ -133,10 +155,20 @@ export default function Home() {
     return () => clearTimeout(debounceTimer);
   }, [locationInput]);
 
+  // Close dropdown on scroll
+  useEffect(() => {
+    const handleScroll = () => setIsEventDropdownOpen(false);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (locationRef.current && !locationRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
+      }
+      if (eventDropdownRef.current && !eventDropdownRef.current.contains(event.target as Node)) {
+        setIsEventDropdownOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -205,7 +237,14 @@ export default function Home() {
             price: doc.perPlateVeg ? `₹${doc.perPlateVeg}` : "₹1,500",
             rating: 4.8,
             reviews: 0,
-            img: doc.photos ? `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1'}/storage/buckets/venues_photos/files/${JSON.parse(doc.photos)[0]}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '69ae84bc001ca4edf8c2'}` : "/venues/palace-hotel.png"
+            img: doc.photos ? (() => {
+               try {
+                  const photos = JSON.parse(doc.photos);
+                  const firstId = typeof photos[0] === 'string' ? photos[0] : photos[0].id;
+                  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5005/api';
+                  return `${serverUrl}/venues/proxy/image/venues_photos/${firstId}`;
+               } catch(e) { return "/venues/palace-hotel.png"; }
+            })() : "/venues/palace-hotel.png"
           }));
 
           setLiveVenues(mapped.slice(0, 3)); // Take top 3 for home page
@@ -231,67 +270,144 @@ export default function Home() {
     { name: "Free Assistance", desc: "Our expert planners help you decide for free.", icon: <Star size={32} /> }
   ];
 
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (formData.eventType) params.set('type', formData.eventType.toLowerCase().replace(/\s+/g, '-'));
+    
+    if (formData.locations.length > 0) {
+      const locationString = formData.locations.map(l => l.display).join(',');
+      params.set('location', locationString);
+    } else if (locationInput) {
+      params.set('location', locationInput);
+    }
+    
+    if (formData.guests) params.set('capacity', formData.guests);
+    
+    window.location.href = `/venues?${params.toString()}`;
+  };
+
+  const addLocation = (loc: any) => {
+    if (!formData.locations.find(l => l.display === loc.display)) {
+      setFormData({
+        ...formData,
+        locations: [...formData.locations, loc]
+      });
+    }
+    setLocationInput('');
+    setShowSuggestions(false);
+  };
+
+  const removeLocation = (display: string) => {
+    setFormData({
+      ...formData,
+      locations: formData.locations.filter(l => l.display !== display)
+    });
+  };
 
   return (
     <main className="min-h-screen">
       {/* HERO SECTION */}
-      <section className="relative pt-16 pb-16 px-6 bg-white border-b border-slate-50">
+      <section className="relative pt-12 lg:pt-16 pb-12 lg:pb-16 px-4 md:px-6 bg-white border-b border-slate-50">
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
+          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
             {/* Hero Text */}
             <div className="w-full lg:w-1/2 text-left">
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-6">
-                  Find the <span className="text-pd-red">Perfect Venue</span> for Your Event
+                <h1 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight mb-4 lg:mb-6">
+                   Find the <span className="text-pd-red">Perfect Venue</span> for Your Event
                 </h1>
-                <p className="text-lg text-slate-500 mb-8 leading-relaxed">
-                  Get free customized quotes from top venues in minutes. 
-                  Direct connections. Zero brokerage.
+                <p className="text-base md:text-lg text-slate-500 mb-6 lg:mb-8 leading-relaxed">
+                   Get free customized quotes from top venues in minutes. 
+                   Direct connections. Zero brokerage.
                 </p>
-                <div className="flex items-center gap-4 text-sm font-bold text-slate-800">
-                  <div className="flex -space-x-2">
+                <div className="flex items-center gap-4 text-xs md:text-sm font-bold text-slate-800">
+                  <div className="flex -space-x-2 shrink-0">
                     {[1,2,3,4].map(i => (
-                      <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
+                      <div key={i} className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
                         <img src={`https://i.pravatar.cc/100?u=${i}`} alt="user" />
                       </div>
                     ))}
                   </div>
-                  <span>Trusted by 50,000+ happy hosts</span>
+                  <span className="leading-tight">Trusted by 50,000+ happy hosts</span>
                 </div>
               </motion.div>
             </div>
 
             {/* Lead Form */}
             <div className="w-full lg:w-1/2">
-               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-8 md:p-10 rounded-[20px] shadow-pd-strong border border-slate-50">
-                  <h3 className="text-xl font-black text-slate-900 mb-8 border-l-4 border-pd-red pl-4">Get Free Quotes Now</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-6 md:p-10 rounded-[20px] shadow-pd-strong border border-slate-50">
+                  <h3 className="text-lg md:text-xl font-black text-slate-900 mb-6 lg:mb-8 border-l-4 border-pd-red pl-4">Get Free Quotes Now</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Event Type</label>
-                      <div className="relative">
-                        <select className="w-full h-14 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-800 outline-none focus:border-pd-purple transition-all appearance-none cursor-pointer">
-                          {categories.map((cat, i) => (
-                            <option key={i}>{cat.name}</option>
-                          ))}
-                        </select>
-                        <ChevronDown className="absolute right-4 top-5 text-slate-400" size={16} />
+                      <div className="relative" ref={eventDropdownRef}>
+                        <button 
+                             type="button"
+                             onClick={() => setIsEventDropdownOpen(!isEventDropdownOpen)}
+                             className={`w-full h-14 bg-slate-50 border ${isEventDropdownOpen ? 'border-pd-purple ring-2 ring-pd-purple/10' : 'border-slate-200'} rounded-xl px-4 text-sm font-bold text-slate-800 outline-none transition-all flex items-center justify-between group`}
+                          >
+                             <span className={formData.eventType ? 'text-slate-800' : 'text-slate-400'}>
+                                {formData.eventType || "Select Event"}
+                             </span>
+                             <ChevronDown className={`text-slate-400 transition-transform duration-300 ${isEventDropdownOpen ? 'rotate-180' : ''}`} size={16} />
+                          </button>
+
+                          <AnimatePresence>
+                             {isEventDropdownOpen && (
+                                <motion.div 
+                                   initial={{ opacity: 0, y: 5, scale: 0.98 }}
+                                   animate={{ opacity: 1, y: 0, scale: 1 }}
+                                   exit={{ opacity: 0, y: 5, scale: 0.98 }}
+                                   className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-pd-strong z-[60] py-2 max-h-80 overflow-y-auto"
+                                >
+                                   {categories.map((cat, i) => (
+                                      <button
+                                         key={i}
+                                         type="button"
+                                         onClick={() => {
+                                            setFormData({ ...formData, eventType: cat.name });
+                                            setIsEventDropdownOpen(false);
+                                         }}
+                                         className={`w-full text-left px-5 py-3 text-sm font-bold transition-all flex items-center gap-3 hover:bg-slate-50 ${formData.eventType === cat.name ? 'text-pd-red bg-pd-red/[0.03]' : 'text-slate-600 hover:text-slate-900'}`}
+                                      >
+                                         <span className="text-lg">{cat.icon}</span>
+                                         {cat.name}
+                                         {formData.eventType === cat.name && <CheckCircle2 size={14} className="ml-auto" />}
+                                      </button>
+                                   ))}
+                                </motion.div>
+                             )}
+                          </AnimatePresence>
                       </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">City / Location</label>
                       <div className="relative" ref={locationRef}>
-                        <MapPin className="absolute left-4 top-5 text-pd-red" size={16} />
-                        <input 
-                          type="text" 
-                          placeholder="Enter Pincode or City" 
-                          value={locationInput}
-                          onChange={(e) => {
-                            setLocationInput(e.target.value);
-                            setShowSuggestions(true);
-                          }}
-                          onFocus={() => setShowSuggestions(true)}
-                          className="w-full h-14 bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 text-sm font-bold text-slate-800 outline-none focus:border-pd-purple transition-all" 
-                        />
+                        <div className={`w-full min-h-14 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 flex flex-wrap items-center gap-2 transition-all focus-within:border-pd-purple`}>
+                          <MapPin className="text-pd-red shrink-0" size={16} />
+                          
+                          {/* Location Chips */}
+                          {formData.locations.map((loc, i) => (
+                            <div key={i} className="flex items-center gap-1 bg-pd-red/10 text-pd-red px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider">
+                              <span>{loc.display}</span>
+                              <button onClick={() => removeLocation(loc.display)} className="hover:text-slate-900 transition-colors">
+                                <X size={10} />
+                              </button>
+                            </div>
+                          ))}
+
+                          <input 
+                            type="text" 
+                            placeholder={formData.locations.length === 0 ? "Enter Pincode or City" : ""} 
+                            value={locationInput}
+                            onChange={(e) => {
+                              setLocationInput(e.target.value);
+                              setShowSuggestions(true);
+                            }}
+                            onFocus={() => setShowSuggestions(true)}
+                            className="flex-1 bg-transparent border-none text-sm font-bold text-slate-800 outline-none min-w-[120px]" 
+                          />
+                        </div>
                         
                         {/* Suggestions Dropdown */}
                         <AnimatePresence>
@@ -310,11 +426,7 @@ export default function Home() {
                                 suggestions.map((s: any, i) => (
                                   <button
                                     key={i}
-                                    onClick={() => {
-                                      setLocationInput(s.display);
-                                      setShowSuggestions(false);
-                                      setFormData({ ...formData, city: s.display });
-                                    }}
+                                    onClick={() => addLocation(s)}
                                     className="w-full text-left px-5 py-3.5 hover:bg-slate-50 text-sm font-bold text-slate-700 transition-colors border-b border-slate-50 last:border-none flex items-center justify-between"
                                   >
                                     <span>{s.display}</span>
@@ -328,11 +440,16 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Event Date</label>
-                      <div className="relative">
-                        <Calendar className="absolute left-4 top-5 text-pd-purple" size={16} />
-                        <input type="date" className="w-full h-14 bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 text-sm font-bold text-slate-800 outline-none focus:border-pd-purple transition-all" />
-                      </div>
+                       <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Event Date</label>
+                       <div className="relative">
+                         <Calendar className="absolute left-4 top-5 text-pd-purple" size={16} />
+                         <input 
+                            type="date" 
+                            value={formData.date}
+                            onChange={(e) => setFormData({...formData, date: e.target.value})}
+                            className="w-full h-14 bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 text-sm font-bold text-slate-800 outline-none focus:border-pd-purple transition-all" 
+                         />
+                       </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Guest Count</label>
@@ -358,7 +475,10 @@ export default function Home() {
                     </div>
 
                   </div>
-                  <button className="w-full pd-btn-primary h-16 mt-8 shadow-xl shadow-pd-pink/20 uppercase tracking-[0.2em] font-black italic">
+                  <button 
+                    onClick={handleSearch}
+                    className="w-full pd-btn-primary h-16 mt-8 shadow-xl shadow-pd-pink/20 uppercase tracking-[0.2em] font-black italic"
+                  >
                     Get Free Quotes <ArrowRight className="inline ml-2" size={18} />
                   </button>
                </motion.div>
@@ -452,7 +572,7 @@ export default function Home() {
               .map((cat, i) => (
               <Link href={`/venues?type=${cat.name.toLowerCase().replace(/\s+/g, '-')}`} key={i}>
                 <div className="border border-slate-100 rounded-lg overflow-hidden h-64 relative group cursor-pointer">
-                  <Image src={cat.img} alt={cat.name} fill className="object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                  <img src={cat.img} alt={cat.name} className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" loading="lazy" />
                   <div className="absolute inset-0 bg-black/40"></div>
                   {/* Realtime Count Badge */}
                   <div className="absolute top-4 right-4 bg-pd-red text-white px-3 py-1 rounded-full text-[10px] font-black group-hover:scale-110 transition-transform">
@@ -486,7 +606,7 @@ export default function Home() {
             {displayVenues.map((venue, i) => (
               <motion.div key={i} className="pd-card group overflow-hidden bg-white hover:border-pd-red/30 transition-colors">
                 <div className="h-56 relative overflow-hidden">
-                  <Image src={venue.img} alt={venue.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={venue.img} alt={venue.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm">
                     <Star className="text-yellow-400 fill-yellow-400" size={14} />
                     <span className="text-xs font-black text-slate-800">{venue.rating}</span>
@@ -649,7 +769,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto overflow-hidden">
           <div className="pd-gradient p-8 md:p-16 rounded-[40px] text-white flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16 shadow-[0_32px_80px_-16px_rgba(239,68,68,0.3)] relative">
              <div className="text-center md:text-left relative z-10 w-full md:w-auto">
-                <h2 className="text-3xl md:text-6xl font-black leading-tight mb-4 md:mb-6 uppercase italic tracking-tighter">Ready to Plan the <br className="hidden md:block" /> Grand <span className="text-slate-900/10">Celebration?</span></h2>
+                <h2 className="text-3xl md:text-6xl font-black leading-tight mb-4 md:mb-6 uppercase italic tracking-tighter">Ready to Plan the <br className="hidden md:block" /> Grand <span className="text-white">Celebration?</span></h2>
                 <p className="text-sm md:text-xl font-medium text-white/80 max-w-xl mb-8 md:mb-10">Submit your requirements and get free quotes from 5,000+ luxury venues near you.</p>
                 <div className="flex flex-col items-center md:items-start gap-4">
                   <button 

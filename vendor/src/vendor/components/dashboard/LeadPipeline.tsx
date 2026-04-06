@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Zap, MessageCircle, Phone, CalendarDays, IndianRupee } from 'lucide-react';
 
 interface Lead {
@@ -37,84 +37,107 @@ const LeadPipeline = ({
   updateLeadStatus,
   setLeadView
 }: LeadPipelineProps) => {
+  const [expandedStage, setExpandedStage] = React.useState<string | null>(null);
+
+  const toggleStage = (stageId: string) => {
+    setExpandedStage(prev => prev === stageId ? null : stageId);
+  };
+
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="w-full h-full">
-      <header className="flex flex-col justify-between gap-2 mb-6 ml-2">
-        <h1 className="text-3xl font-black text-slate-900 mb-0">Lead Pipeline</h1>
-        <p className="text-sm font-medium text-slate-500">Manage your lead funnel visually</p>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl mx-auto py-4 lg:py-8">
+      <header className="mb-6 lg:mb-10 px-4 text-center lg:text-left">
+        <h1 className="text-2xl lg:text-3xl font-black text-slate-900 uppercase italic tracking-tighter mb-2">Lead <span className="text-pd-pink">Pipeline</span></h1>
+        <p className="text-[9px] lg:text-[11px] font-black text-slate-400 uppercase tracking-widest italic leading-none opacity-70">Track your sales funnel progression</p>
       </header>
-         <div className="flex gap-6 overflow-x-auto pb-10 custom-scrollbar -mx-2 px-2 min-h-[600px]">
-            {pipelineStages.map((stage) => {
-               const stageLeads = recentLeads.filter(l => l.status === stage.id);
-               return (
-                  <div key={stage.id} className="min-w-[340px] w-[340px] bg-slate-50/50 rounded-[40px] p-6 border border-slate-100 flex flex-col h-full shadow-inner">
-                     <div className="flex items-center justify-between mb-8 px-4">
-                        <div className="flex items-center gap-3">
-                           <div className={`w-10 h-10 rounded-2xl ${stage.color} flex items-center justify-center text-white shadow-xl shadow-opacity-20`}>
-                              {stage.icon}
-                           </div>
-                           <div>
-                              <h3 className="text-xs font-black italic uppercase text-slate-900 tracking-tighter leading-none">{stage.id}</h3>
-                              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1.5">{stageLeads.length} Inquiries</p>
-                           </div>
-                        </div>
-                        <div className="w-8 h-8 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-pd-pink cursor-pointer transition-colors">
-                           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-                        </div>
-                     </div>
-                     
-                     <div className="flex-1 space-y-4 overflow-y-auto pr-2 custom-scrollbar">
-                        {stageLeads.map((lead, idx) => (
-                           <motion.div 
-                             key={lead.id}
-                             initial={{ opacity: 0, scale: 0.95 }}
-                             animate={{ opacity: 1, scale: 1 }}
-                             transition={{ delay: idx * 0.05 }}
-                             whileHover={{ y: -5, rotate: 1, scale: 1.02 }}
-                             className="bg-white p-6 rounded-[35px] border border-slate-100 shadow-pd-soft cursor-grab active:cursor-grabbing hover:border-pd-pink/40 hover:shadow-2xl transition-all duration-300 group relative"
-                           >
-                              <button 
-                                onClick={() => setLeadView('list')} 
-                                className="absolute top-4 right-4 w-6 h-6 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                              </button>
-                              <div className="flex items-start justify-between mb-6">
-                                 <div className={`w-12 h-12 rounded-[22px] ${stage.color}/10 ${stage.text} flex items-center justify-center border border-current/10`}>
-                                    <Users size={22} />
-                                 </div>
-                              </div>
-                              
-                              <h4 className="text-base font-black italic text-slate-900 uppercase tracking-tight mb-1 group-hover:text-pd-pink transition-colors">{lead.name}</h4>
-                              <div className="flex items-center gap-2 mb-6">
-                                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{lead.event}</p>
-                                 <span className="w-1 h-1 rounded-full bg-slate-200"></span>
-                                 <p className="text-[11px] font-black text-pd-pink italic">{lead.guests} Pax</p>
-                              </div>
-                              
-                              <div className="grid grid-cols-2 gap-2 pt-4 border-t border-slate-50 relative z-10">
-                                 {pipelineStages.filter(s => s.id !== stage.id).slice(0, 2).map(s => (
-                                    <button 
-                                      key={s.id}
-                                      onClick={() => updateLeadStatus(lead.id, s.id)}
-                                      className="py-2 rounded-xl text-[8px] font-black uppercase tracking-[0.15em] text-slate-400 hover:text-white hover:bg-slate-900 transition-all bg-slate-50 border border-slate-100"
-                                    >
-                                       {s.id.split(' ')[0]}
-                                    </button>
-                                 ))}
-                              </div>
-                           </motion.div>
-                        ))}
-                        {stageLeads.length === 0 && (
-                           <div className="py-24 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-[45px] opacity-20">
-                              <div className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 text-center">Empty Stage</div>
-                           </div>
-                        )}
-                     </div>
+
+      <div className="space-y-3 lg:space-y-4 px-4">
+        {pipelineStages.map((stage, i) => {
+          const stageLeads = recentLeads.filter(l => l.status === stage.id);
+          const isExpanded = expandedStage === stage.id;
+
+          return (
+            <div key={stage.id} className="group">
+              <motion.button 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.1 }}
+                onClick={() => toggleStage(stage.id)}
+                className={`w-full flex items-center justify-between p-4 lg:p-5 bg-white border border-slate-50 rounded-[25px] lg:rounded-[30px] hover:shadow-xl hover:border-pd-pink/20 transition-all duration-500 relative overflow-hidden group shadow-sm ${isExpanded ? 'ring-2 ring-pd-pink' : ''}`}
+              >
+                <div className="flex items-center gap-4 lg:gap-6 relative z-10">
+                  <div className={`w-12 h-12 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl ${stage.color} flex items-center justify-center text-white shadow-lg shadow-opacity-20 transform group-hover:scale-110 transition-transform duration-500 shrink-0`}>
+                    {React.isValidElement(stage.icon) && React.cloneElement(stage.icon as React.ReactElement<any>, { size: 22 })}
                   </div>
-               );
-            })}
-         </div>
+                  <div className="text-left">
+                    <h3 className="text-sm lg:text-base font-black italic uppercase text-slate-900 tracking-tight leading-none mb-1.5">{stage.id}</h3>
+                    <p className="text-[8px] lg:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">{stageLeads.length} total inquiries</p>
+                  </div>
+                </div>
+                <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-pd-pink/10 group-hover:text-pd-pink transition-all duration-500 ${isExpanded ? 'rotate-90 bg-pd-pink text-white shadow-md' : ''}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+                
+                <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-slate-50/50 to-transparent pointer-events-none"></div>
+              </motion.button>
+
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden bg-slate-50/30 rounded-b-[40px] -mt-10 pt-16 pb-10 px-6 lg:px-12 space-y-4"
+                  >
+                    <div className="grid grid-cols-1 gap-4">
+                      {stageLeads.length > 0 ? (
+                        stageLeads.map((lead, idx) => (
+                          <motion.div 
+                            key={lead.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className="bg-white p-6 rounded-[30px] border border-slate-100 flex items-center justify-between hover:border-pd-pink transition-all shadow-sm group/card"
+                          >
+                            <div className="flex items-center gap-5">
+                              <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover/card:bg-pd-pink/10 group-hover/card:text-pd-pink transition-colors">
+                                <Users size={20} />
+                              </div>
+                              <div className="text-left">
+                                <h4 className="text-sm font-black italic uppercase text-slate-900 leading-none mb-1.5">{lead.name}</h4>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase italic tracking-widest">{lead.event} • {lead.guests} Pax</p>
+                                <p className="text-[8px] font-black text-pd-pink uppercase tracking-widest mt-1 opacity-60">Recieved: {lead.date}</p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                               {pipelineStages.filter(s => s.id !== stage.id).slice(0, 2).map(s => (
+                                  <button 
+                                    key={s.id}
+                                    onClick={(e) => { e.stopPropagation(); updateLeadStatus(lead.id, s.id); }}
+                                    className="px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white hover:bg-slate-900 transition-all border border-slate-100"
+                                  >
+                                     Move to {s.id.split(' ')[0]}
+                                  </button>
+                               ))}
+                            </div>
+                          </motion.div>
+                        ))
+                      ) : (
+                        <div className="py-20 text-center border-2 border-dashed border-slate-200 rounded-[40px]">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-300 italic">No inquiries currently in this stage</p>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </div>
+
+      <footer className="mt-20 text-center pb-10">
+        <button onClick={() => setLeadView('list')} className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-pd-pink transition-colors italic">Switch to Database View</button>
+      </footer>
     </motion.div>
   );
 };

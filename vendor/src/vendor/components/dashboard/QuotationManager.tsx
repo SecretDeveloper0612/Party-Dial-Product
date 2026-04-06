@@ -1,13 +1,37 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
+import { storage, ID, STORAGE_BUCKET_ID } from '@/lib/appwrite';
 import { 
   FileText, 
   CheckCircle2, 
   X, 
   Download, 
-  Send 
+  Send, 
+  IndianRupee, 
+  CalendarDays, 
+  Users, 
+  Building2, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  Star, 
+  MessageCircle, 
+  Printer, 
+  Plus, 
+  Trash2, 
+  ShieldCheck, 
+  Image as ImageIcon,
+  Wifi,
+  Wind,
+  Coffee,
+  Music,
+  Car,
+  Utensils,
+  User
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -19,8 +43,16 @@ interface LineItem {
 
 interface QuoteData {
   client: string;
+  contact: string;
+  email: string;
   event: string;
+  eventDate: string;
+  guestCount: string;
+  specialRequests: string;
   gstRate: number;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  extraCharges: number;
   lineItems: LineItem[];
 }
 
@@ -37,7 +69,21 @@ interface QuotationManagerProps {
   logo: any;
   handleDownload: () => void;
   handleSend: () => void;
+  venueProfile: any;
+  showToast: (message: string, type?: 'success' | 'error') => void;
 }
+
+const AMENITY_ICONS: { [key: string]: any } = {
+  'WIFI': <Wifi size={14} />,
+  'AC': <Wind size={14} />,
+  'Parking': <Car size={14} />,
+  'Catering': <Utensils size={14} />,
+  'Music': <Music size={14} />,
+  'Coffee': <Coffee size={14} />,
+  'Pool': <ShieldCheck size={14} />,
+  'Garden': <Star size={14} />,
+  'Bar': <Star size={14} />,
+};
 
 const QuotationManager = ({
   quoteData,
@@ -45,326 +91,716 @@ const QuotationManager = ({
   handleFinalize,
   isFinalizing,
   qtnSuccess,
-  subtotal,
-  gstAmount,
-  totalWithTax,
   setActiveTab,
   logo,
   handleDownload,
-  handleSend
+  handleSend,
+  venueProfile,
+  showToast
 }: QuotationManagerProps) => {
 
+
+  // Derived calculations
+  const calculateTotal = () => {
+    const linesTotal = quoteData.lineItems.reduce((acc, item) => acc + item.amount, 0);
+    const discountAmt = quoteData.discountType === 'percentage' 
+      ? (linesTotal * quoteData.discountValue) / 100 
+      : quoteData.discountValue;
+    
+    const taxableTotal = linesTotal - discountAmt + quoteData.extraCharges;
+    const gstAmt = (taxableTotal * quoteData.gstRate) / 100;
+    const total = taxableTotal + gstAmt;
+    
+    return {
+      subtotal: linesTotal,
+      discountAmt,
+      taxableTotal,
+      gstAmt,
+      total
+    };
+  };
+
+  const { subtotal, discountAmt, taxableTotal, gstAmt, total } = calculateTotal();
+
+   const [isGenerating, setIsGenerating] = useState(false);
+   const [isSharing, setIsSharing] = useState(false);
+   const quotationRef = useRef<HTMLDivElement>(null);
+
+   const generatePdfBlob = async (): Promise<Blob | null> => {
+      if (!quotationRef.current) return null;
+      const canvas = await html2canvas(quotationRef.current, {
+         scale: 2,
+         useCORS: true,
+         logging: false,
+         backgroundColor: '#ffffff'
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      return pdf.output('blob');
+   };
+
+   const downloadAsPDF = async () => {
+      try {
+         setIsGenerating(true);
+         const blob = await generatePdfBlob();
+         if (!blob) return;
+         
+         const url = URL.createObjectURL(blob);
+         const link = document.createElement('a');
+         link.href = url;
+         link.download = `Quotation_${quoteData.client.replace(/\s+/g, '_')}.pdf`;
+         link.click();
+         URL.revokeObjectURL(url);
+         
+         showToast('Quotation PDF generated successfully.', 'success');
+      } catch (error) {
+         console.error('PDF Generation Error:', error);
+         showToast('Direct PDF generation failed. Opening print dialog instead...', 'error');
+         window.print();
+      } finally {
+         setIsGenerating(false);
+      }
+   };
+
+   const handleWhatsAppShare = async () => {
+      try {
+         setIsSharing(true);
+         showToast('Generating shareable PDF link...', 'success');
+         
+         const blob = await generatePdfBlob();
+         if (!blob) throw new Error('Failed to generate PDF');
+         
+         // Upload to Appwrite Storage
+         const file = new File([blob], `Quotation_${Date.now()}.pdf`, { type: 'application/pdf' });
+         const uploadedFile = await storage.createFile(STORAGE_BUCKET_ID, ID.unique(), file);
+         
+         // Get View URL
+         const fileUrl = `${window.location.origin.includes('localhost') ? 'https://sgp.cloud.appwrite.io/v1' : 'https://sgp.cloud.appwrite.io/v1'}/storage/buckets/${STORAGE_BUCKET_ID}/files/${uploadedFile.$id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '69ae84bc001ca4edf8c2'}`;
+         
+         const text = `Hello *${quoteData.client}*, here is your customized proposal for *${quoteData.event}* from *${venueProfile?.venueName || 'Party Dial'}*.\n\n📄 *View Quotation PDF:* ${fileUrl}\n\nTotal Amount: *₹${total.toLocaleString('en-IN')}*\n\nLooking forward to hosting your event!`;
+         
+         window.open(`https://wa.me/${quoteData.contact.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+         showToast('Quotation shared via WhatsApp!', 'success');
+      } catch (error) {
+         console.error('WhatsApp Share Error:', error);
+         showToast('Failed to generate shareable link. Sending text only...', 'error');
+         const text = `Hello ${quoteData.client}, here is your quotation for ${quoteData.event} from ${venueProfile?.venueName || 'Party Dial'}.\nTotal Amount: ₹${total.toLocaleString('en-IN')}`;
+         window.open(`https://wa.me/${quoteData.contact.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+      } finally {
+         setIsSharing(false);
+      }
+   };
+
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen -mt-10 -mx-4 md:-mx-10 bg-slate-50/50">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      className="min-h-screen -mt-10 -mx-4 md:-mx-10 bg-[#F8FAFC]/50 flex flex-col printable-container"
+    >
        {/* Executive Status Bar */}
-       <div className="bg-[#0F172A] px-8 py-5 flex items-center justify-between sticky top-0 z-30 shadow-2xl no-print">
-          <div className="flex items-center gap-4">
-             <div className="w-8 h-8 rounded bg-pd-pink flex items-center justify-center text-white">
-                <FileText size={16} />
+       <div className="bg-[#0F172A] px-4 lg:px-10 py-4 lg:py-6 flex items-center justify-between sticky top-0 z-40 shadow-xl no-print">
+          <div className="flex items-center gap-3 lg:gap-6">
+             <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-400 flex items-center justify-center text-white shadow-lg shadow-pink-500/20 scale-90 lg:scale-100">
+                <FileText size={20} className="opacity-90" />
              </div>
              <div>
-                <h1 className="text-sm font-black italic text-white uppercase tracking-wider leading-none">Quote Engine</h1>
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1.5">Active Session: #QTN-8821</p>
+                <h1 className="text-[11px] lg:text-base font-black italic text-white uppercase tracking-wider leading-none">Executive <span className="text-pink-500">Proposal</span></h1>
+                <div className="flex items-center gap-2 lg:gap-3 mt-1.5 lg:mt-2">
+                   <p className="hidden sm:block text-[8px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest border-r border-slate-700 pr-3">Session: #QTN-{new Date().getTime().toString().slice(-4)}</p>
+                   <p className="text-[8px] lg:text-[10px] font-black text-emerald-500 uppercase tracking-widest">Authenticated</p>
+                </div>
              </div>
           </div>
-          <div className="flex items-center gap-4">
-             <button onClick={() => setActiveTab('overview')} className="text-[9px] font-black uppercase text-slate-400 hover:text-white transition-all tracking-widest">Discard</button>
+          <div className="flex items-center gap-3 lg:gap-6">
+             <button 
+                onClick={() => setActiveTab('overview')} 
+                className="hidden lg:block text-[10px] font-black uppercase text-slate-400 hover:text-white transition-all tracking-widest px-4 py-2 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10"
+             >
+                Discard Draft
+             </button>
              <button 
                onClick={handleFinalize}
                disabled={isFinalizing || qtnSuccess}
-               className={`px-8 py-2.5 rounded text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
+               className={`px-6 lg:px-10 py-3 lg:py-3.5 rounded-xl lg:rounded-2xl text-[9px] lg:text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2 lg:gap-3 shadow-2xl relative group ${
                  qtnSuccess 
                  ? 'bg-emerald-500 text-white' 
                  : isFinalizing 
-                   ? 'bg-slate-700 text-slate-300' 
-                   : 'bg-white text-slate-900 hover:bg-pd-pink hover:text-white'
+                   ? 'bg-slate-800 text-slate-400' 
+                   : 'bg-white text-slate-900 hover:scale-105 active:scale-95'
                }`}
              >
                 {isFinalizing ? (
-                   <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                   <div className="w-3 h-3 lg:w-4 lg:h-4 border-2 border-slate-400 border-t-white rounded-full animate-spin" />
                 ) : qtnSuccess ? (
-                   <CheckCircle2 size={14} />
-                ) : null}
-                {isFinalizing ? 'Processing...' : qtnSuccess ? 'Finalized' : 'Submit & Finalize'}
+                   <CheckCircle2 size={16} />
+                 ) : <FileText size={14} className="text-pink-500 group-hover:rotate-12" />}
+                {isFinalizing ? '...' : qtnSuccess ? 'Finalized' : 'Finalize'}
              </button>
           </div>
        </div>
 
-       <div className="flex flex-col lg:flex-row h-[calc(100vh-80px)] overflow-hidden printable-container">
-          {/* LEFT: FORM SECTION */}
-          <div className="w-full lg:w-[480px] bg-white border-r border-slate-100 overflow-y-auto p-10 custom-scrollbar no-print">
+       <div className="flex-1 flex flex-col lg:flex-row lg:h-[calc(100vh-80px)] overflow-y-auto lg:overflow-hidden printable-container">
+          {/* LEFT: ADVANCED FORM SECTION */}
+          <div className="w-full lg:w-[500px] bg-white border-r border-slate-200/50 overflow-y-visible lg:overflow-y-auto p-6 lg:p-10 custom-scrollbar no-print">
              <div className="space-y-12">
-                {/* Entity Section */}
-                <section className="space-y-8">
-                   <div className="flex items-center gap-3">
-                      <span className="w-2 h-2 rounded-full bg-pd-pink"></span>
-                      <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-900">Entity Details</h3>
+                
+
+                {/* Section: Customer Details */}
+                <section className="space-y-10">
+                   <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center text-pink-500">
+                         <Users size={20} />
+                      </div>
+                      <div>
+                         <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Client Profile</h3>
+                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Identification & Outreach</p>
+                      </div>
                    </div>
                    <div className="space-y-6">
-                      <div className="space-y-2">
-                         <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Client Identification</label>
-                         <input 
-                            type="text" 
-                            value={quoteData.client}
-                            onChange={(e) => setQuoteData({ ...quoteData, client: e.target.value })}
-                            className="w-full bg-slate-50 border border-slate-100 rounded-xl py-4 px-6 text-sm font-bold text-slate-900 outline-none focus:border-pd-pink focus:bg-white transition-all"
-                            placeholder="e.g. Rahul Varma"
-                         />
+                      <div className="grid grid-cols-1 gap-6">
+                         <div className="space-y-2.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Legal Entity Name</label>
+                            <div className="relative group">
+                               <input 
+                                  type="text" 
+                                  value={quoteData.client}
+                                  onChange={(e) => setQuoteData({ ...quoteData, client: e.target.value })}
+                                  className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl py-4 px-6 text-[13px] font-bold text-slate-900 outline-none focus:border-pink-500 focus:bg-white transition-all shadow-sm"
+                                  placeholder="e.g. Suman Saxena"
+                               />
+                               <User size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-pink-500 transition-colors" />
+                            </div>
+                         </div>
+                         <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2.5">
+                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact No.</label>
+                               <div className="relative group">
+                                  <input 
+                                     type="text" 
+                                     value={quoteData.contact}
+                                     onChange={(e) => setQuoteData({ ...quoteData, contact: e.target.value })}
+                                     className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl py-4 px-6 text-[13px] font-bold text-slate-900 outline-none focus:border-pink-500 focus:bg-white transition-all shadow-sm"
+                                     placeholder="9876543210"
+                                  />
+                                  <Phone size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300" />
+                               </div>
+                            </div>
+                            <div className="space-y-2.5">
+                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Hash</label>
+                               <div className="relative group">
+                                  <input 
+                                     type="email" 
+                                     value={quoteData.email}
+                                     onChange={(e) => setQuoteData({ ...quoteData, email: e.target.value })}
+                                     className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl py-4 px-6 text-[13px] font-bold text-slate-900 outline-none focus:border-pink-500 focus:bg-white transition-all shadow-sm"
+                                     placeholder="client@mail.com"
+                                  />
+                                  <Mail size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300" />
+                               </div>
+                            </div>
+                         </div>
                       </div>
-                      <div className="space-y-2">
-                         <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Reference Title</label>
-                         <input 
-                            type="text" 
+                   </div>
+                </section>
+
+                {/* Section: Event Specifications */}
+                <section className="space-y-10">
+                   <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-500">
+                         <CalendarDays size={20} />
+                      </div>
+                      <div>
+                         <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Event Matrix</h3>
+                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Timeline & Volume</p>
+                      </div>
+                   </div>
+                   <div className="space-y-6">
+                      <div className="space-y-2.5">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nature of Celebration</label>
+                         <select 
                             value={quoteData.event}
                             onChange={(e) => setQuoteData({ ...quoteData, event: e.target.value })}
-                            className="w-full bg-slate-50 border border-slate-100 rounded-xl py-4 px-6 text-sm font-bold text-slate-900 outline-none focus:border-pd-pink focus:bg-white transition-all"
-                            placeholder="e.g. Imperial Wedding Gala"
-                         />
-                      </div>
-                   </div>
-                </section>
-
-                {/* Fiscal Section */}
-                <section className="space-y-8">
-                   <div className="flex items-center gap-3">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                      <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-900">Fiscal Configuration</h3>
-                   </div>
-                   <div className="grid grid-cols-3 gap-2">
-                      {[0, 5, 12, 18, 28].map(r => (
-                         <button 
-                            key={r}
-                            onClick={() => setQuoteData({ ...quoteData, gstRate: r })}
-                            className={`py-3 rounded-xl text-[10px] font-bold border transition-all ${quoteData.gstRate === r ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300'}`}
+                            className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl py-4 px-6 text-[13px] font-bold text-slate-900 outline-none focus:border-pink-500 focus:bg-white transition-all appearance-none cursor-pointer shadow-sm"
                          >
-                            {r}% GST
-                         </button>
-                      ))}
-                      <div className="relative">
-                         <input 
-                            type="number"
-                            placeholder="Custom"
-                            className="w-full h-full bg-slate-50 border border-slate-100 rounded-xl px-3 text-[10px] font-bold outline-none focus:border-pd-pink"
-                            onChange={(e) => setQuoteData({ ...quoteData, gstRate: parseInt(e.target.value) || 0 })}
+                            <option>Wedding Ceremony</option>
+                            <option>Corporate Gala</option>
+                            <option>Cocktail Party</option>
+                            <option>Birthday Bash</option>
+                            <option>Anniversary Celebration</option>
+                         </select>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                         <div className="space-y-2.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Session Date</label>
+                            <input 
+                               type="date" 
+                               value={quoteData.eventDate}
+                               onChange={(e) => setQuoteData({ ...quoteData, eventDate: e.target.value })}
+                               className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl py-4 px-6 text-[13px] font-bold text-slate-900 outline-none focus:border-pink-500 focus:bg-white transition-all shadow-sm"
+                            />
+                         </div>
+                         <div className="space-y-2.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pax Count</label>
+                            <div className="relative">
+                               <input 
+                                  type="number" 
+                                  value={quoteData.guestCount}
+                                  onChange={(e) => setQuoteData({ ...quoteData, guestCount: e.target.value })}
+                                  className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl py-4 px-6 text-[13px] font-bold text-slate-900 outline-none focus:border-pink-500 focus:bg-white transition-all shadow-sm"
+                                  placeholder="500"
+                               />
+                               <Users size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300" />
+                            </div>
+                         </div>
+                      </div>
+                      <div className="space-y-2.5">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Operational Directives</label>
+                         <textarea 
+                            rows={4}
+                            value={quoteData.specialRequests}
+                            onChange={(e) => setQuoteData({ ...quoteData, specialRequests: e.target.value })}
+                            className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl py-4 px-6 text-[13px] font-bold text-slate-900 outline-none focus:border-pink-500 focus:bg-white transition-all shadow-sm resize-none"
+                            placeholder="Add specific requirements or project notes..."
                          />
                       </div>
                    </div>
                 </section>
 
-                {/* Ledger Section */}
-                <section className="space-y-8">
+                {/* Section: Fiscal Architecture */}
+                <section className="space-y-10">
                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                         <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                         <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-900">Document Ledger</h3>
+                      <div className="flex items-center gap-4">
+                         <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500">
+                            <IndianRupee size={20} />
+                         </div>
+                         <div>
+                            <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Fiscal Structure</h3>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Levy & Discounts</p>
+                         </div>
                       </div>
                       <button 
                          onClick={() => setQuoteData({
                             ...quoteData,
-                            lineItems: [...quoteData.lineItems, { id: Date.now(), label: 'New Line Item', amount: 0 }]
+                            lineItems: [...quoteData.lineItems, { id: Date.now(), label: 'New Revenue Stream', amount: 0 }]
                          })}
-                         className="text-[9px] font-black text-pd-pink uppercase tracking-widest hover:underline"
+                         className="flex items-center gap-2 text-[10px] font-black text-pink-500 uppercase tracking-widest bg-pink-50 px-4 py-2 rounded-xl border border-pink-100 hover:bg-pink-500 hover:text-white transition-all"
                       >
-                         + Appended Item
+                         <Plus size={12} />
+                         Stream
                       </button>
                    </div>
+
+                   {/* Line Items */}
                    <div className="space-y-4">
-                      {quoteData.lineItems.map((item, idx) => (
-                         <div key={item.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4 relative group hover:border-pd-pink transition-all">
-                            <button 
-                               onClick={() => {
-                                  const newItems = quoteData.lineItems.filter((_, i) => i !== idx);
-                                  setQuoteData({ ...quoteData, lineItems: newItems });
-                               }}
-                               className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-300 hover:text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-all z-10"
+                      <AnimatePresence>
+                         {quoteData.lineItems.map((item, idx) => (
+                            <motion.div 
+                               layout
+                               initial={{ opacity: 0, x: -20 }}
+                               animate={{ opacity: 1, x: 0 }}
+                               exit={{ opacity: 0, scale: 0.95 }}
+                               key={item.id} 
+                               className="p-8 bg-white rounded-3xl border border-slate-200/60 space-y-6 relative group hover:border-pink-500/50 hover:shadow-xl transition-all duration-500"
                             >
-                               <X size={12} />
-                            </button>
-                            <input 
-                               type="text" 
-                               value={item.label}
-                               onChange={(e) => {
-                                  const newItems = [...quoteData.lineItems];
-                                  newItems[idx].label = e.target.value;
-                                  setQuoteData({ ...quoteData, lineItems: newItems });
-                               }}
-                               className="w-full bg-white border border-slate-100 rounded-xl py-3 px-4 text-xs font-bold text-slate-900 outline-none focus:border-pd-pink"
-                               placeholder="Item Description"
-                            />
-                            <div className="flex items-center gap-3">
-                               <span className="text-[9px] font-black text-slate-400">VALUATION</span>
-                               <div className="flex-1 flex items-center bg-white border border-slate-100 rounded-xl px-4 py-3">
-                                  <span className="text-[10px] font-black text-slate-300 mr-2">₹</span>
+                               <button 
+                                  onClick={() => {
+                                     const newItems = quoteData.lineItems.filter((_, i) => i !== idx);
+                                     setQuoteData({ ...quoteData, lineItems: newItems });
+                                  }}
+                                  className="absolute top-4 right-4 w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100"
+                               >
+                                  <Trash2 size={16} />
+                               </button>
+                               
+                               <div className="space-y-2">
+                                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Revenue Allocation</label>
                                   <input 
-                                     type="number" 
-                                     value={item.amount}
+                                     type="text" 
+                                     value={item.label}
                                      onChange={(e) => {
                                         const newItems = [...quoteData.lineItems];
-                                        newItems[idx].amount = parseInt(e.target.value) || 0;
+                                        newItems[idx].label = e.target.value;
                                         setQuoteData({ ...quoteData, lineItems: newItems });
                                      }}
-                                     className="w-full bg-transparent text-xs font-bold text-slate-900 outline-none"
-                                     placeholder="0.00"
+                                     className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-xs font-bold text-slate-900 outline-none focus:ring-1 ring-pink-500 transition-all"
+                                     placeholder="e.g. Wedding Catering Layer"
                                   />
                                </div>
-                            </div>
+                               
+                               <div className="flex items-center gap-4">
+                                  <div className="flex-1 space-y-2">
+                                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Amount (INR)</label>
+                                     <div className="relative">
+                                        <input 
+                                           type="number" 
+                                           value={item.amount}
+                                           onChange={(e) => {
+                                              const newItems = [...quoteData.lineItems];
+                                              newItems[idx].amount = parseInt(e.target.value) || 0;
+                                              setQuoteData({ ...quoteData, lineItems: newItems });
+                                           }}
+                                           className="w-full bg-slate-50 border-none rounded-xl py-3 pl-8 pr-4 text-xs font-black text-slate-900 outline-none focus:ring-1 ring-pink-500 transition-all"
+                                        />
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-300">₹</span>
+                                     </div>
+                                  </div>
+                               </div>
+                            </motion.div>
+                         ))}
+                      </AnimatePresence>
+                   </div>
+
+                   {/* Discount & Extras - Reduced Size */}
+                   <div className="grid grid-cols-2 gap-4 bg-slate-900 p-6 rounded-3xl text-white shadow-xl">
+                      <div className="space-y-3">
+                         <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Discount Engine</label>
+                         <div className="flex items-center bg-white/5 rounded-xl p-1">
+                            <button 
+                               onClick={() => setQuoteData({ ...quoteData, discountType: 'percentage' })}
+                               className={`flex-1 py-1.5 text-[9px] font-black transition-all rounded-lg ${quoteData.discountType === 'percentage' ? 'bg-pink-500 text-white' : 'text-slate-400'}`}
+                            >
+                               %
+                            </button>
+                            <button 
+                               onClick={() => setQuoteData({ ...quoteData, discountType: 'fixed' })}
+                               className={`flex-1 py-1.5 text-[9px] font-black transition-all rounded-lg ${quoteData.discountType === 'fixed' ? 'bg-pink-500 text-white' : 'text-slate-400'}`}
+                            >
+                               FIX
+                            </button>
                          </div>
-                      ))}
+                         <div className="relative">
+                            <input 
+                               type="number"
+                               value={quoteData.discountValue}
+                               onChange={(e) => setQuoteData({...quoteData, discountValue: parseFloat(e.target.value) || 0})}
+                               className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs font-black text-white outline-none focus:border-pink-500"
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-500 uppercase">{quoteData.discountType === 'percentage' ? '%' : 'INR'}</span>
+                         </div>
+                      </div>
+                      <div className="space-y-3">
+                         <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Surcharge Addons</label>
+                         <div className="h-7" /> {/* Spacer */}
+                         <div className="relative">
+                            <input 
+                               type="number"
+                               value={quoteData.extraCharges}
+                               onChange={(e) => setQuoteData({...quoteData, extraCharges: parseFloat(e.target.value) || 0})}
+                               className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs font-black text-white outline-none focus:border-pink-500"
+                               placeholder="Addon Costs"
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-500 uppercase">INR</span>
+                         </div>
+                      </div>
+                   </div>
+
+                   {/* GST Control - Reduced Size */}
+                   <div className="space-y-3">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Levy Percentage (Tax)</label>
+                      <div className="grid grid-cols-4 gap-2">
+                         {[0, 5, 12, 18].map(r => (
+                            <button 
+                               key={r}
+                               onClick={() => setQuoteData({ ...quoteData, gstRate: r })}
+                               className={`py-3 rounded-xl text-[10px] font-black border transition-all ${quoteData.gstRate === r ? 'bg-pink-500 text-white border-pink-500 shadow-md' : 'bg-white text-slate-400 border-slate-200 hover:border-pink-500'}`}
+                            >
+                               {r}%
+                            </button>
+                         ))}
+                      </div>
                    </div>
                 </section>
 
-                <div className="pt-8 border-t border-slate-100">
-                   <div className="p-8 bg-[#0F172A] rounded-[32px] text-white space-y-6 shadow-2xl">
-                      <div className="space-y-2">
-                         <div className="flex justify-between items-center text-[9px] font-black uppercase text-slate-500 tracking-widest">
-                            <span>Base Valuation</span>
-                            <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                {/* Final Accumulation Card - Reduced Size */}
+                <div className="pt-6">
+                   <div className="p-8 bg-white rounded-3xl border-2 border-slate-100 space-y-6 shadow-xl relative overflow-hidden">
+                      <div className="space-y-3 relative z-10">
+                         <div className="flex justify-between items-center text-[9px] font-bold uppercase text-slate-400 tracking-widest">
+                            <span>Gross Valuation</span>
+                            <span className="text-slate-900 border-b border-slate-100 pb-0.5">₹{subtotal.toLocaleString('en-IN')}</span>
                          </div>
-                         <div className="flex justify-between items-center text-[9px] font-black uppercase text-emerald-400 tracking-widest">
+                         <div className="flex justify-between items-center text-[9px] font-bold uppercase text-rose-500 tracking-widest">
+                            <span>Strategic Discount</span>
+                            <span className="bg-rose-50 px-2 py-0.5 rounded-lg">-₹{discountAmt.toLocaleString('en-IN')}</span>
+                         </div>
+                         <div className="flex justify-between items-center text-[9px] font-bold uppercase text-emerald-500 tracking-widest">
                             <span>Levy Charge ({quoteData.gstRate}%)</span>
-                            <span>+₹{gstAmount.toLocaleString('en-IN')}</span>
+                            <span className="bg-emerald-50 px-2 py-0.5 rounded-lg">+₹{gstAmt.toLocaleString('en-IN')}</span>
                          </div>
                       </div>
-                      <div className="h-[1px] bg-white/10" />
-                      <div className="flex justify-between items-end">
+                      <div className="h-[1px] bg-slate-100" />
+                      <div className="flex justify-between items-end relative z-10">
                          <div>
-                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 block mb-1">Final Total</span>
-                            <span className="text-xs font-bold text-white/40 italic">In Indian Rupees</span>
+                            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-400 block mb-1">Aggregate Total</span>
+                            <div className="flex items-center gap-2">
+                               <ShieldCheck size={12} className="text-emerald-500" />
+                               <span className="text-[8px] font-black text-emerald-500/60 uppercase tracking-widest">Verified</span>
+                            </div>
                          </div>
-                         <span className="text-3xl font-black italic text-pd-pink tracking-tight">₹{totalWithTax.toLocaleString('en-IN')}</span>
+                         <div className="text-right">
+                           <span className="text-4xl font-black italic text-slate-900 tracking-tighter block -mb-1">₹{total.toLocaleString('en-IN')}</span>
+                           <span className="text-[9px] font-bold text-slate-300 italic tracking-tight">Incl. statutory levies</span>
+                         </div>
                       </div>
-                   </div>
-                </div>
-             </div>
-          </div>
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full translate-x-8 -translate-y-8"></div>
+                    </div>
+                 </div>
+            </div>
+         </div>
 
-          {/* RIGHT: PREVIEW SECTION */}
-          <div className="flex-1 bg-slate-100 p-8 lg:p-20 overflow-y-auto custom-scrollbar flex flex-col items-center">
-             {/* Floating Action Menu for Preview */}
-             <div className="mb-8 flex items-center gap-4 bg-[#0F172A] p-2 rounded-2xl shadow-xl no-print">
+          {/* RIGHT: PREMIUM PREVIEW SECTION */}
+          <div className="flex-1 bg-slate-100/80 p-8 lg:p-16 overflow-y-auto custom-scrollbar flex flex-col items-center printable-container">
+             
+             {/* Floating Premium Controls */}
+             <div className="mb-10 flex items-center gap-4 bg-white/80 backdrop-blur-3xl p-3 rounded-[28px] shadow-2xl border border-white no-print">
                 <button 
-                  onClick={handleDownload}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-slate-900 text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink hover:text-white transition-all"
+                  onClick={downloadAsPDF}
+                  disabled={isGenerating}
+                  className="flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-pink-500 transition-all shadow-xl hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-wait"
                 >
-                   <Download size={14} />
-                   Download PDF
+                   {isGenerating ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Printer size={16} />}
+                   {isGenerating ? 'Generating...' : 'Export PDF'}
+                </button>
+                <div className="w-[1px] h-8 bg-slate-200 mx-2" />
+                 <button 
+                   onClick={handleWhatsAppShare}
+                   disabled={isSharing}
+                   className="w-12 h-12 rounded-2xl bg-[#25D366]/10 text-[#25D366] flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-all shadow-md group disabled:opacity-50 disabled:cursor-wait"
+                >
+                   {isSharing ? (
+                      <div className="w-5 h-5 border-2 border-[#25D366] border-t-transparent rounded-full animate-spin" />
+                   ) : (
+                      <MessageCircle size={20} className="group-hover:rotate-12 transition-transform" />
+                   )}
                 </button>
                 <button 
                   onClick={handleSend}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink transition-all"
+                  className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-md group"
                 >
-                   <Send size={14} />
-                   Send to Client
+                   <Send size={18} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
                 </button>
-             </div>
+              </div>
 
-             <motion.div 
-                layout
-                className="w-full max-w-[850px] bg-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] p-16 md:p-24 relative min-h-[1100px] flex flex-col print-only"
-             >
-                {/* Formal Document Header */}
-                <div className="flex justify-between items-start mb-24 relative z-10">
-                   <div className="flex items-center gap-6">
-                    <div className="flex flex-col items-start">
-                       <div className="w-48 h-12 relative -mb-1">
-                          <Image src={logo} alt="Logo" fill className="object-contain object-left" />
-                       </div>
-                       <span className="text-[10px] font-black uppercase text-slate-400 tracking-[0.5em] ml-1 opacity-70 italic">Official Partner</span>
-                    </div>
-                   </div>
-                   <div className="text-right">
-                      <h2 className="text-5xl font-black text-slate-900 mb-2 italic tracking-tighter">QTN</h2>
-                      <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.5em]">#8821B-2026</p>
-                   </div>
-                </div>
+              {/* PREVIEW DOCUMENT (Visual-First Proposal Format) */}
+              <motion.div 
+                 layout
+                 ref={quotationRef}
+                 className="w-full max-w-[900px] bg-white shadow-[0_60px_100px_-20px_rgba(15,23,42,0.12)] rounded-[32px] relative min-h-[1100px] flex flex-col overflow-hidden border border-slate-200 print:shadow-none print:rounded-none print-only"
+              >
+                      <div className="p-12 lg:p-16 space-y-12">
+                         
+                         {/* Header: Venue Identity */}
+                         <div className="flex justify-between items-start">
+                            <div className="space-y-2">
+                               <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none">{venueProfile?.venueName || "Henry's Imperial Ballroom"}</h1>
+                               <div className="flex items-center gap-2 text-slate-400">
+                                  <MapPin size={12} className="text-pink-500" />
+                                  <p className="text-[10px] font-bold uppercase tracking-widest">{venueProfile?.location || "Nainital Road, Haldwani"}</p>
+                               </div>
+                            </div>
+                            <div className="w-16 h-16 bg-white rounded-xl border border-slate-100 p-2 shadow-sm flex items-center justify-center overflow-hidden">
+                               {(() => {
+                                  const photos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
+                                  const avatar = Array.isArray(photos) ? photos.find((p: any) => p.category === 'Profile') : null;
+                                  if (avatar) {
+                                     return (
+                                        <Image 
+                                           src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${avatar.id}/view?project=69ae84bc001ca4edf8c2`} 
+                                           alt="Logo" 
+                                           width={60}
+                                           height={60}
+                                           className="object-cover w-full h-full" 
+                                        />
+                                     );
+                                  }
+                                  return <Image src={logo} alt="Logo" className="object-contain w-10 h-10" />;
+                               })()}
+                            </div>
+                         </div>
 
-                {/* Data Grid */}
-                <div className="grid grid-cols-2 gap-24 mb-24 border-t border-slate-50 pt-16">
-                   <div className="space-y-8">
-                      <div>
-                         <p className="text-[9px] font-black text-pd-pink uppercase tracking-widest mb-6">Issued By</p>
-                         <p className="text-xl font-black text-slate-900 mb-2 uppercase italic tracking-tight">Grand Imperial Resort</p>
-                         <p className="text-xs font-medium text-slate-500 leading-relaxed italic opacity-80">
-                            Sector 44, Golf Course Extension<br />
-                            Gurgaon, Haryana 122003<br />
-                            GSTIN: 09AAFCP9821G1ZM
-                         </p>
-                      </div>
-                   </div>
-                   <div className="text-right space-y-8">
-                      <div className="flex flex-col items-end">
-                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-6">Recipient</p>
-                         <p className="text-xl font-black text-slate-900 mb-2 uppercase italic tracking-tight">{quoteData.client}</p>
-                         <p className="text-xs font-medium text-slate-500 leading-relaxed italic opacity-80">
-                            Reference: {quoteData.event}<br />
-                            Date: {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}
-                         </p>
-                      </div>
-                   </div>
-                </div>
+                         <div className="h-[1px] bg-slate-100 w-full" />
 
-                {/* Table Ledger */}
-                <div className="flex-1 mb-24">
-                   <table className="w-full">
-                      <thead>
-                         <tr className="border-b-2 border-slate-900">
-                            <th className="text-left font-black uppercase text-[10px] tracking-[0.3em] py-8 text-slate-400">Description of Deliverables</th>
-                            <th className="text-right font-black uppercase text-[10px] tracking-[0.3em] py-8 text-slate-400">Amount (INR)</th>
-                         </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                         {quoteData.lineItems.map((item, i) => (
-                            <tr key={i} className="group">
-                               <td className="py-10">
-                                  <p className="text-sm font-black text-slate-800 mb-1 uppercase italic tracking-tight">{item.label}</p>
-                                  <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest italic leading-none">Professional Service Allocation</p>
-                               </td>
-                               <td className="py-10 text-right">
-                                  <p className="text-sm font-black text-slate-900 italic tracking-tight">₹{item.amount.toLocaleString('en-IN')}.00</p>
-                               </td>
-                            </tr>
-                         ))}
-                      </tbody>
-                   </table>
-                </div>
+                         {/* Personalized Intro */}
+                         <div className="space-y-4">
+                            <h3 className="text-xl font-bold text-slate-900">Quotation for {quoteData.client}</h3>
+                            <p className="text-sm font-medium text-slate-500 leading-relaxed">
+                               Hi {quoteData.client.split(' ')[0]} , based on your requirement of "{quoteData.guestCount || 200} pax", here is our customized proposal for your event.
+                            </p>
+                         </div>
 
-                {/* Mathematical Summations */}
-                <div className="flex justify-end pt-12 border-t-2 border-slate-900">
-                   <div className="w-full md:w-80 space-y-4">
-                      <div className="flex justify-between items-center">
-                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Gross Total</span>
-                         <span className="text-sm font-black text-slate-900 italic">₹{subtotal.toLocaleString('en-IN')}</span>
-                      </div>
-                      <div className="flex justify-between items-center py-4 border-y border-slate-100 italic">
-                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Tax Provision ({quoteData.gstRate}%)</span>
-                         <span className="text-sm font-black text-slate-900">+₹{gstAmount.toLocaleString('en-IN')}</span>
-                      </div>
-                      <div className="flex justify-between items-center pt-6">
-                         <span className="text-[10px] font-black text-slate-900 uppercase tracking-[0.3em]">Total Amount Payable</span>
-                         <span className="text-4xl font-black italic text-pd-pink tracking-tight">₹{totalWithTax.toLocaleString('en-IN')}</span>
-                      </div>
-                   </div>
-                </div>
+                         {/* About Our Venue */}
+                         <div className="space-y-6">
+                            <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-blue-500 pl-4 py-1">About Our Venue</h4>
+                            <div className="bg-slate-50/50 rounded-3xl p-8 border border-slate-100 space-y-6">
+                               <p className="text-xs font-semibold text-slate-500 leading-relaxed italic">A premium luxury event space designed for grand celebrations.</p>
+                               <div className="grid grid-cols-3 gap-y-6 gap-x-4">
+                                  {Object.entries(AMENITY_ICONS).slice(0, 6).map(([key, icon]) => (
+                                     <div key={key} className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center text-slate-600 shadow-sm">
+                                           {icon}
+                                        </div>
+                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{key}</span>
+                                     </div>
+                                  ))}
+                               </div>
+                            </div>
+                         </div>
 
-                {/* Legal Disclaimer */}
-                <div className="mt-auto pt-32 flex justify-between items-end opacity-40 grayscale">
-                   <div className="space-y-4">
-                      <p className="text-[10px] font-black uppercase text-slate-900 border-b border-slate-900 pb-1 w-fit">Terms of Business</p>
-                      <ul className="text-[9px] font-bold text-slate-500 italic space-y-1">
-                         <li>• Validity: 7 Working Days</li>
-                         <li>• Execution contingent on 50% retainer</li>
-                         <li>• E. & O. E.</li>
-                      </ul>
-                   </div>
-                   <div className="text-right">
-                      <div className="w-48 h-[1px] bg-slate-900 mb-6 ml-auto" />
-                      <p className="text-[10px] font-black uppercase text-slate-900 italic tracking-widest">Authorized Executive</p>
-                      <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.4em] mt-2">Digital Verification: {Math.random().toString(36).substring(7).toUpperCase()}</p>
-                   </div>
-                </div>
-             </motion.div>
-          </div>
-       </div>
+                         {/* Venue Gallery */}
+                         <div className="space-y-6">
+                            <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-blue-500 pl-4 py-1">Venue Gallery</h4>
+                            <div className="grid grid-cols-3 gap-4">
+                               {(() => {
+                                  const photos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
+                                  const gallery = Array.isArray(photos) ? photos.filter((p: any) => p.category !== 'Profile').slice(0, 6) : [];
+                                  return [0, 1, 2, 3, 4, 5].map((i) => (
+                                     <div key={i} className="aspect-[4/3] rounded-2xl bg-slate-50 overflow-hidden relative border border-slate-100 shadow-sm">
+                                        {gallery[i] ? (
+                                           <Image 
+                                             src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${gallery[i].id}/view?project=69ae84bc001ca4edf8c2`} 
+                                             alt={`View ${i}`} 
+                                             fill 
+                                             className="object-cover" 
+                                           />
+                                        ) : <div className="w-full h-full flex items-center justify-center text-slate-200"><ImageIcon size={20} /></div>}
+                                     </div>
+                                  ));
+                               })()}
+                            </div>
+                         </div>
+
+                         {/* Financial Ledger Table */}
+                         <div className="pt-8">
+                            <div className="overflow-hidden rounded-xl border border-slate-200">
+                               <table className="w-full border-collapse">
+                                  <thead>
+                                     <tr className="bg-[#0F172A]">
+                                        <th className="text-left text-[9px] font-black text-slate-400 uppercase tracking-widest p-4 pb-3">Description</th>
+                                        <th className="text-center text-[9px] font-black text-slate-400 uppercase tracking-widest p-4 pb-3 w-32">Qty</th>
+                                        <th className="text-right text-[9px] font-black text-slate-400 uppercase tracking-widest p-4 pb-3 w-40">Amount (₹)</th>
+                                     </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-slate-100">
+                                     {quoteData.lineItems.map((item, i) => (
+                                        <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                                           <td className="p-4 py-5">
+                                              <p className="text-xs font-bold text-slate-800 tracking-tight">{item.label}</p>
+                                           </td>
+                                           <td className="p-4 py-5 text-center">
+                                              <p className="text-xs font-bold text-slate-800">1</p>
+                                           </td>
+                                           <td className="p-4 py-5 text-right">
+                                              <p className="text-xs font-black text-slate-900">₹{item.amount.toLocaleString('en-IN')}</p>
+                                           </td>
+                                        </tr>
+                                     ))}
+                                  </tbody>
+                               </table>
+                            </div>
+
+                            {/* Totals Floating Card */}
+                            <div className="flex justify-end pt-10">
+                               <div className="w-full max-w-[340px] bg-slate-50/50 rounded-3xl p-8 border border-slate-200/50 space-y-4 shadow-sm">
+                                  <div className="flex justify-between items-center">
+                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
+                                     <span className="text-sm font-black text-slate-900">₹{subtotal.toLocaleString('en-IN')}</span>
+                                  </div>
+                                  {discountAmt > 0 && (
+                                     <div className="flex justify-between items-center text-rose-500">
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Discount</span>
+                                        <span className="text-sm font-black">-₹{discountAmt.toLocaleString('en-IN')}</span>
+                                     </div>
+                                  )}
+                                  <div className="flex justify-between items-center">
+                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Taxes ({quoteData.gstRate}%)</span>
+                                     <span className="text-sm font-black text-slate-900">₹{gstAmt.toLocaleString('en-IN')}</span>
+                                  </div>
+                                  <div className="h-[1px] bg-slate-200 my-2" />
+                                  <div className="flex justify-between items-center pb-2">
+                                     <div>
+                                        <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest">Grand Total</span>
+                                     </div>
+                                     <span className="text-3xl font-black text-pink-500 tracking-tighter">₹{total.toLocaleString('en-IN')}</span>
+                                  </div>
+                               </div>
+                            </div>
+                         </div>
+
+                         {/* Signature Section */}
+                         <div className="flex justify-end pt-8">
+                            <div className="text-right space-y-4">
+                               <div className="w-48 h-[1px] bg-slate-300 ml-auto" />
+                               <div>
+                                  <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Authorized Signatory</p>
+                                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">{venueProfile?.venueName || "Henry's Imperial Ballroom"}</p>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+
+                      {/* Visual-First Footer */}
+                      <div className="mt-auto p-12 bg-white">
+                         <div className="border-2 border-dashed border-slate-100 rounded-[32px] p-6 text-center">
+                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 flex items-center justify-center gap-2">
+                               ✨ This document is a visual-first proposal created by Party Dial AI Engine for {venueProfile?.venueName || "Henry's Imperial Ballroom"}
+                            </p>
+                         </div>
+                      </div>
+                   </motion.div>
+              </div>
+           </div>
+
+       <style jsx global>{`
+         .custom-scrollbar::-webkit-scrollbar {
+           width: 6px;
+         }
+         .custom-scrollbar::-webkit-scrollbar-track {
+           background: transparent;
+         }
+         .custom-scrollbar::-webkit-scrollbar-thumb {
+           background: #E2E8F0;
+           border-radius: 10px;
+         }
+         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+           background: #CBD5E1;
+         }
+         
+         @media print {
+           .print-only {
+             display: block !important;
+             visibility: visible !important;
+             width: 100% !important;
+             border: none !important;
+             box-shadow: none !important;
+             -webkit-print-color-adjust: exact !important;
+             print-color-adjust: exact !important;
+             min-height: auto !important;
+             margin: 0 !important;
+             padding: 0 !important;
+             background: white !important;
+           }
+           
+           .print-only * {
+             visibility: visible !important;
+           }
+           
+           .no-print {
+             display: none !important;
+           }
+
+           body {
+             background: white !important;
+           }
+
+           .printable-main {
+             overflow: visible !important;
+             height: auto !important;
+           }
+         }
+       `}</style>
     </motion.div>
   );
 };

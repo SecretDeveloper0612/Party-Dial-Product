@@ -264,7 +264,7 @@ export default function CategoriesPage() {
                 className="group border border-slate-100 rounded-xl overflow-hidden hover:border-pd-red transition-all hover:shadow-lg bg-white"
               >
                 <div className="aspect-[16/10] relative bg-slate-100 overflow-hidden">
-                  <Image src={cat.img} alt={cat.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={cat.img} alt={cat.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   <div className="absolute top-3 left-3 px-2 py-1 bg-white/95 rounded-md text-[9px] font-black text-slate-800 uppercase tracking-widest backdrop-blur shadow-sm">
                     {cat.tag}
                   </div>

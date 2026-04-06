@@ -20,20 +20,31 @@ import {
   CheckCircle2,
   ChevronRight,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Zap,
+  Trees,
+  ChefHat,
+  Palette,
+  Heart,
+  ShieldCheck,
+  Building
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 const amenitiesList = [
-  { id: 'wifi', name: 'Free WiFi', icon: <Wifi size={18} /> },
   { id: 'ac', name: 'Air Conditioning', icon: <Wind size={18} /> },
-  { id: 'parking', name: 'Valet Parking', icon: <Car size={18} /> },
-  { id: 'catering', name: 'In-house Catering', icon: <Utensils size={18} /> },
-  { id: 'dj', name: 'DJ & Sound', icon: <Music size={18} /> },
-  { id: 'photography', name: 'Photography', icon: <Camera size={18} /> },
-  { id: 'security', name: 'Security', icon: <Shield size={18} /> },
-  { id: 'cafe', name: 'Cafe/Bar', icon: <Coffee size={18} /> },
+  { id: 'parking', name: 'Parking Available', icon: <Car size={18} /> },
+  { id: 'power', name: 'Power Backup', icon: <Zap size={18} /> },
+  { id: 'indoor', name: 'Indoor Hall', icon: <Building size={18} /> },
+  { id: 'outdoor', name: 'Outdoor Lawn', icon: <Trees size={18} /> },
+  { id: 'catering_in', name: 'In-House Catering', icon: <Utensils size={18} /> },
+  { id: 'catering_out', name: 'Outside Catering Allowed', icon: <ChefHat size={18} /> },
+  { id: 'dj', name: 'DJ Allowed', icon: <Music size={18} /> },
+  { id: 'decoration', name: 'Decoration Available', icon: <Palette size={18} /> },
+  { id: 'bridal', name: 'Bridal Room', icon: <Heart size={18} /> },
+  { id: 'security', name: 'Security Available', icon: <ShieldCheck size={18} /> },
+  { id: 'wifi', name: 'Wi-Fi Available', icon: <Wifi size={18} /> },
 ];
 
 const eventTypesList = [

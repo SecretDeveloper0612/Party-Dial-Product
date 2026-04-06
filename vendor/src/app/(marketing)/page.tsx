@@ -535,16 +535,16 @@ export default function PartnerLandingPage() {
     <div suppressHydrationWarning className="bg-slate-50 min-h-screen text-slate-800 selection:bg-pd-pink selection:text-white">
       
       {/* 1. HERO SECTION */}
-      <section className="relative py-24 md:py-32 overflow-hidden bg-white border-b border-slate-100">
+      <section className="relative py-12 md:py-16 overflow-hidden bg-white border-b border-slate-100">
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             style={{ willChange: "transform, opacity" }}
-            className="relative z-10 py-8 lg:py-12"
+            className="relative z-10 py-4 lg:py-6"
           >
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-widest mb-8">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-widest mb-6">
               <Shield size={12} className="text-pd-blue" /> Verified Partner Program
             </span>
             <h1 className="text-4xl md:text-6xl font-extrabold text-[#0F172A] leading-snug mb-8 tracking-normal italic px-1">
@@ -618,7 +618,7 @@ export default function PartnerLandingPage() {
 
 
       {/* 5. EVENT CATEGORIES - INFINITE MOSAIC CAROUSEL */}
-      <section id="categories" className="relative py-24 md:py-32 px-6 bg-slate-50 overflow-hidden">
+      <section id="categories" className="relative py-12 md:py-16 px-6 bg-slate-50 overflow-hidden">
         {/* Abstract Background Accents */}
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-active-blue/10 rounded-full blur-[100px] opacity-20"></div>
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-pd-pink/10 rounded-full blur-[100px] opacity-20"></div>
@@ -690,7 +690,7 @@ export default function PartnerLandingPage() {
       </section>
 
       {/* 6. MERCHANT FEATURES - COMPACT INTERACTIVE HUB */}
-      <section id="features" className="relative py-24 md:py-32 px-6 bg-slate-50 overflow-hidden">
+      <section id="features" className="relative py-12 md:py-16 px-6 bg-slate-50 overflow-hidden">
         <div className="max-w-[1440px] mx-auto lg:px-12 relative z-10">
           
           <div className="text-center mb-10">
@@ -711,7 +711,7 @@ export default function PartnerLandingPage() {
       </section>
 
       {/* 8.5 THE LEAD ENGINE - ACQUISITION TO REVENUE */}
-      <section className="py-24 md:py-32 px-6 bg-slate-900 overflow-hidden relative">
+      <section className="py-12 md:py-16 px-6 bg-slate-900 overflow-hidden relative">
         {/* Background visual noise */}
         <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] pointer-events-none"></div>
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_30%,#F43F5E15,transparent_50%)]"></div>
@@ -899,7 +899,7 @@ export default function PartnerLandingPage() {
       </section>
 
       {/* 10. NATIONAL EXPANSION - DISCOVERY HUB */}
-      <section className="relative py-24 md:py-32 px-6 overflow-hidden bg-white border-y border-slate-50">
+      <section className="relative py-12 md:py-16 px-6 overflow-hidden bg-white border-y border-slate-50">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,#F43F5E08,transparent_50%)]"></div>
         <div className="max-w-[1440px] mx-auto lg:px-12 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
@@ -1081,7 +1081,7 @@ export default function PartnerLandingPage() {
       </section>
 
       {/* 11. FAQ - PREMIUM REDESIGN */}
-      <section suppressHydrationWarning className="py-24 md:py-32 px-6 bg-white relative overflow-hidden">
+      <section suppressHydrationWarning className="py-12 md:py-16 px-6 bg-white relative overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-100 to-transparent"></div>
         <div className="absolute -top-[200px] -right-[200px] w-[500px] h-[500px] bg-pd-blue/5 rounded-full blur-[120px] pointer-events-none"></div>
@@ -1175,7 +1175,7 @@ export default function PartnerLandingPage() {
       </section>
 
       {/* 12. FINAL CTA - SPLIT VISUAL SHOWCASE */}
-      <section className="py-24 md:py-32 px-6 bg-white overflow-hidden">
+      <section className="py-12 md:py-16 px-6 bg-white overflow-hidden">
         <div className="max-w-[1440px] mx-auto lg:px-12">
            <motion.div 
              initial={{ opacity: 0, y: 30 }}
@@ -1269,7 +1269,7 @@ export default function PartnerLandingPage() {
       </section>
 
       {/* 13. REGISTRATION - SMART HUB */}
-      <section id="register" suppressHydrationWarning className="py-24 md:py-32 px-6 bg-slate-50/50 relative overflow-hidden">
+      <section id="register" suppressHydrationWarning className="py-12 md:py-16 px-6 bg-slate-50/50 relative overflow-hidden">
         {/* Ambient background glows */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-pd-blue/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-pd-pink/5 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>

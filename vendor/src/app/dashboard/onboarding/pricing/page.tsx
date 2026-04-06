@@ -77,8 +77,8 @@ export default function SetPricingPage() {
       }
       
       const payload = {
-        perPlateVeg: parseInt(perPlateVeg || '0', 10),
-        perPlateNonVeg: parseInt(perPlateNonVeg || '0', 10),
+        perPlateVeg: String(perPlateVeg || '0'),
+        perPlateNonVeg: String(perPlateNonVeg || '0'),
         packages: JSON.stringify(packages),
         // If creating new, add required defaults
         ...(docId ? {} : {

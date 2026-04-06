@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Share2,
   Heart,
   MessageSquare,
@@ -28,8 +29,16 @@ import {
   Calendar,
   Send,
   X,
+  XCircle,
   Image as ImageIcon,
-  Maximize2
+  Maximize2,
+  Zap,
+  Trees,
+  ChefHat,
+  Building,
+  Wifi,
+  Phone,
+  MessageCircle
 } from 'lucide-react';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { Camera, Trash2, Edit3, Filter as FilterIcon } from 'lucide-react';
@@ -37,23 +46,28 @@ import { Camera, Trash2, Edit3, Filter as FilterIcon } from 'lucide-react';
 import { MOCK_VENUES } from '@/data/venues';
 import { STORAGE_BUCKET_ID } from '@/lib/appwrite';
 
-// Helper to map amenity names to icons
-const AMENITY_ICONS: Record<string, React.ReactNode> = {
-  "Ample Parking": <ParkingCircle size={20} />,
-  "Parking Available": <ParkingCircle size={20} />,
-  "In-house Catering": <Utensils size={20} />,
-  "Catering Available": <Utensils size={20} />,
-  "Thematic Decoration": <Palette size={20} />,
-  "In-house Decoration": <Palette size={20} />,
-  "AC Main Hall": <Wind size={20} />,
-  "Air Conditioned Hall": <Wind size={20} />,
-  "Live DJ & Sound": <Music size={20} />,
-  "DJ or Music System": <Music size={20} />,
-  "Bridal Room": <Hotel size={20} />,
-  "Guest Rooms": <Hotel size={20} />,
-  "Power Backup": <ShieldCheck size={20} />,
-  "Outdoor Lawn": <Wind size={20} />,
-  "Default": <CheckCircle2 size={20} />
+// Helper to map amenity IDs/names to icons and labels
+const AMENITY_DATA: Record<string, { label: string, icon: React.ReactNode }> = {
+  "ac": { label: "Air Conditioning", icon: <Wind size={20} /> },
+  "parking": { label: "Parking Available", icon: <ParkingCircle size={20} /> },
+  "power": { label: "Power Backup", icon: <Zap size={20} /> },
+  "indoor": { label: "Indoor Hall", icon: <Building size={20} /> },
+  "outdoor": { label: "Outdoor Lawn", icon: <Trees size={20} /> },
+  "catering_in": { label: "In-House Catering", icon: <Utensils size={20} /> },
+  "catering_out": { label: "Outside Catering Allowed", icon: <ChefHat size={20} /> },
+  "dj": { label: "DJ Allowed", icon: <Music size={20} /> },
+  "decoration": { label: "Decoration Available", icon: <Palette size={20} /> },
+  "bridal": { label: "Bridal Room", icon: <Hotel size={20} /> },
+  "security": { label: "Security Available", icon: <ShieldCheck size={20} /> },
+  "wifi": { label: "Wi-Fi Available", icon: <Wifi size={20} /> },
+  // Legacy/Label Fallbacks
+  "Ample Parking": { label: "Ample Parking", icon: <ParkingCircle size={20} /> },
+  "Valet Parking": { label: "Valet Parking", icon: <ParkingCircle size={20} /> },
+  "In-house Catering": { label: "In-house Catering", icon: <Utensils size={20} /> },
+  "Thematic Decoration": { label: "Thematic Decoration", icon: <Palette size={20} /> },
+  "AC Main Hall": { label: "AC Main Hall", icon: <Wind size={20} /> },
+  "Live DJ & Sound": { label: "Live DJ & Sound", icon: <Music size={20} /> },
+  "Default": { label: "Service", icon: <CheckCircle2 size={20} /> }
 };
 
 // Helper to map capacity integer to range label
@@ -93,7 +107,8 @@ export default function VenueDetailPage() {
     setIsSubmittingLead(true);
 
     try {
-      const response = await fetch(`http://127.0.0.1:5005/api/venues/leads`, {
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://127.0.0.1:5005/api';
+      const response = await fetch(`${baseUrl}/venues/leads`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -112,7 +127,7 @@ export default function VenueDetailPage() {
       const result = await response.json();
 
       if (result.status === 'success') {
-        alert('Lead submitted successfully! Our team will contact you soon.');
+        showToast('Lead submitted successfully! Our team will contact you soon.', 'success');
         setFormData({
           name: '',
           phone: '',
@@ -124,11 +139,11 @@ export default function VenueDetailPage() {
           requirements: ''
         });
       } else {
-        alert(result.message || 'Error submitting lead');
+        showToast(result.message || 'Error submitting lead', 'error');
       }
     } catch (error) {
       console.error('Error submitting lead:', error);
-      alert('Failed to submit lead. Please try again.');
+      showToast('Failed to submit lead. Please try again.', 'error');
     } finally {
       setIsSubmittingLead(false);
     }
@@ -139,14 +154,16 @@ export default function VenueDetailPage() {
     const fetchVenue = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`http://127.0.0.1:5005/api/venues/${id}`);
+        const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://127.0.0.1:5005/api';
+        const response = await fetch(`${baseUrl}/venues/${id}`);
         const result = await response.json();
 
         if (result.status === 'success') {
           const doc = result.data;
-          const photoIds = doc.photos ? (typeof doc.photos === 'string' ? JSON.parse(doc.photos) : doc.photos) : [];
+          const { getAppwriteImageUrl, parsePhotos } = await import('@/shared/utils/image');
+          const photoIds = parsePhotos(doc.photos);
           
-          const mappedVenue = {
+          const mappedVenue: any = {
             id: doc.$id,
             name: doc.venueName || "Unnamed Venue",
             location: doc.landmark || doc.city || "India",
@@ -155,20 +172,24 @@ export default function VenueDetailPage() {
             type: doc.venueType || "Banquet Hall",
             verified: doc.isVerified || false,
             popular: doc.status === 'active',
-            rating: 4.8, 
+            rating: 0.0, 
             reviewCount: 0,
+            contactNumber: doc.contactNumber || "919058988455",
             pricePerPlate: doc.perPlateVeg || 1500,
             pricePerPlateNonVeg: doc.perPlateNonVeg || 1800,
             startingRental: "₹1,50,000",
             capacity: getCapacityLabel(doc.capacity),
             about: doc.description || "No description available for this venue.",
-            images: photoIds.map((pid: string) => 
-               `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${STORAGE_BUCKET_ID}/files/${pid}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`
-            ).concat(photoIds.length === 0 ? ["/gallery/interior.png"] : []),
-            amenities: (doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : []).map((a: string) => ({
-              name: a,
-              icon: AMENITY_ICONS[a] || AMENITY_ICONS["Default"]
-            })),
+            images: photoIds.length > 0 
+              ? photoIds.map((p: any) => getAppwriteImageUrl(p.id))
+              : ["/gallery/interior.png", "/gallery/exterior.png", "/gallery/setup.png"],
+            amenities: (doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : []).map((a: string) => {
+              const data = AMENITY_DATA[a] || AMENITY_DATA["Default"];
+              return {
+                name: data.label,
+                icon: data.icon
+              };
+            }),
             halls: [
               { name: "Grand Imperial Hall", capacity: `${getCapacityLabel(doc.capacity)} Guests`, area: "12,000 sq ft" }
             ],
@@ -182,6 +203,35 @@ export default function VenueDetailPage() {
             reviews: [],
             similarVenues: []
           };
+
+          // Fetch Similar Venues based on Pincode/City
+          try {
+            const allResp = await fetch(`${baseUrl}/venues`);
+            const allResult = await allResp.json();
+            if (allResult.status === 'success') {
+              const similar = allResult.data
+                .filter((v: any) => v.$id !== doc.$id && (
+                  (doc.pincode && v.pincode === doc.pincode) || 
+                  (doc.city && v.city === doc.city)
+                ))
+                .slice(0, 3)
+                .map((v: any) => {
+                  const vPhotos = parsePhotos(v.photos);
+                  return {
+                    id: v.$id,
+                    name: v.venueName || "Similar Venue",
+                    location: v.landmark || v.city || "Nearby",
+                    price: v.perPlateVeg || 1200,
+                    rating: 4.5,
+                    img: vPhotos.length > 0 ? getAppwriteImageUrl(vPhotos[0]) : "/gallery/interior.png"
+                  };
+                });
+              mappedVenue.similarVenues = similar;
+            }
+          } catch (e) {
+            console.warn('Failed to fetch similar venues:', e);
+          }
+
           setVenue(mappedVenue);
           setIsLoading(false);
           return;
@@ -198,11 +248,15 @@ export default function VenueDetailPage() {
             images: [mock.img, "/gallery/interior.png", "/gallery/exterior.png"],
             pricePerPlate: mock.price,
             pricePerPlateNonVeg: mock.price + 300,
+            contactNumber: "919058988455",
             about: "This is a premium venue listed on PartyDial. Experience excellence in service and ambiance.",
-            amenities: mock.amenities.map(a => ({
-              name: a,
-              icon: AMENITY_ICONS[a] || AMENITY_ICONS["Default"]
-            })),
+            amenities: (mock.amenities || []).map(a => {
+              const data = AMENITY_DATA[a] || AMENITY_DATA["Default"];
+              return {
+                name: data.label,
+                icon: data.icon
+              };
+            }),
             halls: [
               { name: "Main Hall", capacity: `${mock.capacity} Guests`, area: "8,000 sq ft" }
             ],
@@ -226,41 +280,62 @@ export default function VenueDetailPage() {
   const nextImage = () => venue && setActiveImage((prev) => (prev + 1) % venue.images.length);
   const prevImage = () => venue && setActiveImage((prev) => (prev - 1 + venue.images.length) % venue.images.length);
 
-  // Review State Management
   const [reviews, setReviews] = useState<any[]>([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewSort, setReviewSort] = useState("Most Recent");
   const [hoverRating, setHoverRating] = useState(0);
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
   const [newReview, setNewReview] = useState({
+    name: '',
+    email: '',
     rating: 0,
-    comment: '',
-    categories: {
-      cleanliness: 0,
-      food: 0,
-      staff: 0,
-      decor: 0,
-      value: 0
-    }
+    comment: ''
   });
 
-  useEffect(() => {
-    if (venue) setReviews(venue.reviews || []);
-  }, [venue]);
+  const fetchReviews = async () => {
+    if (!id) return;
+    setIsLoadingReviews(true);
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://127.0.0.1:5005/api';
+      const response = await fetch(`${baseUrl}/venues/${id}/reviews`);
+      const result = await response.json();
+      if (result.status === 'success') {
+        setReviews(result.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch reviews:', err);
+    } finally {
+      setIsLoadingReviews(false);
+    }
+  };
 
+  useEffect(() => {
+    fetchReviews();
+  }, [id]);
 
   const ratingStats = useMemo(() => {
-    const total = reviews.length || 1; // Avoid divide by zero
-    const avg = reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / total).toFixed(1) : "4.8";
+    if (reviews.length === 0) return { avg: "0.0", total: 0, breakdown: [0, 0, 0, 0, 0] };
+    const total = reviews.length;
+    const avg = (reviews.reduce((acc, r) => acc + r.rating, 0) / total).toFixed(1);
     const counts = [0, 0, 0, 0, 0]; // 1-5 stars
-    reviews.forEach(r => counts[Math.floor(r.rating) - 1]++);
-    return { avg, total: reviews.length, breakdown: counts.reverse() }; // 5 to 1
+    reviews.forEach(r => {
+      const rIndex = Math.floor(r.rating) - 1;
+      if (rIndex >= 0 && rIndex < 5) counts[rIndex]++;
+    });
+    return { avg, total: reviews.length, breakdown: [...counts].reverse() }; // 5 to 1
   }, [reviews]);
 
   const sortedReviews = useMemo(() => {
     let rs = [...reviews];
     if (reviewSort === "Highest Rating") rs.sort((a, b) => b.rating - a.rating);
     else if (reviewSort === "Lowest Rating") rs.sort((a, b) => a.rating - b.rating);
-    else rs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    else rs.sort((a, b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime());
     return rs;
   }, [reviews, reviewSort]);
 
@@ -275,20 +350,45 @@ export default function VenueDetailPage() {
     return () => clearInterval(timer);
   }, [sortedReviews.length]);
 
-  const handleReviewSubmit = (e: React.FormEvent) => {
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newReview.rating === 0) return alert("Please select a rating");
+    if (newReview.rating === 0) return showToast("Please select a rating", 'error');
+    if (!newReview.name.trim()) return showToast("Please provide your name", 'error');
     
-    const reviewToAdd = {
-      name: "Current User", // In real app, get from auth
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      rating: newReview.rating,
-      comment: newReview.comment
-    };
-    
-    setReviews([reviewToAdd, ...reviews]);
-    setIsReviewModalOpen(false);
-    setNewReview({ rating: 0, comment: '', categories: { cleanliness: 0, food: 0, staff: 0, decor: 0, value: 0 } });
+    setIsSubmittingReview(true);
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://127.0.0.1:5005/api';
+      const response = await fetch(`${baseUrl}/venues/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          venueId: id,
+          userName: newReview.name,
+          userEmail: newReview.email,
+          rating: newReview.rating,
+          comment: newReview.comment
+        }),
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        showToast('Review submitted successfully!', 'success');
+        setReviews(prev => [result.data, ...prev]);
+        setIsReviewModalOpen(false);
+        setNewReview({ name: '', email: '', rating: 0, comment: '' });
+      } else {
+        showToast(result.message || 'Failed to submit review', 'error');
+      }
+    } catch (err) {
+      console.error('Error submitting review:', err);
+      showToast('Failed to submit review. Please try again.', 'error');
+    } finally {
+      setIsSubmittingReview(false);
+    }
   };
 
   const handleShare = async () => {
@@ -302,7 +402,7 @@ export default function VenueDetailPage() {
         });
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        alert("Link copied to clipboard!");
+        showToast("Link copied to clipboard!", 'success');
       }
     } catch (err) {
       console.error("Error sharing:", err);
@@ -345,12 +445,11 @@ export default function VenueDetailPage() {
             transition={{ duration: 0.8 }}
             className="absolute inset-0"
           >
-            <Image 
+            <img 
               src={venue.images[activeImage]} 
               alt={venue.name} 
-              fill 
-              className="object-cover opacity-80"
-              priority
+              className="absolute inset-0 w-full h-full object-cover opacity-80"
+              loading="lazy"
             />
           </motion.div>
         </AnimatePresence>
@@ -384,8 +483,8 @@ export default function VenueDetailPage() {
         </div>
 
         {/* Gallery Counter & Button */}
-        <Link href={`/venues/${id}/gallery`} className="absolute bottom-6 md:bottom-12 right-6 md:right-12 z-30">
-          <button className="px-5 py-3 md:px-8 md:py-4 bg-black/20 backdrop-blur-xl rounded-full border border-white/10 text-white flex items-center gap-2 md:gap-3 hover:bg-pd-red transition-all group active:scale-95 shadow-2xl">
+        <Link href={`/venues/${id}/gallery`} className="absolute bottom-28 md:bottom-12 right-6 md:right-12 z-30">
+          <button className="px-5 py-3 md:px-8 md:py-4 bg-black/50 backdrop-blur-xl rounded-2xl border border-white/20 text-white flex items-center gap-2 md:gap-3 hover:bg-pd-red transition-all group active:scale-95 shadow-2xl">
              <ImageIcon size={16} className="md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
              <div className="text-left">
                 <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">View Venue</span>
@@ -419,28 +518,45 @@ export default function VenueDetailPage() {
                  <MapPin className="text-pd-red shrink-0" size={16} />
                  <span>{venue.location}</span>
                </div>
+               
+               <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                 <a 
+                   href={`tel:${venue.contactNumber}`}
+                   className="flex-1 px-4 py-4 bg-pd-red text-white text-[11px] md:text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-900 transition-all flex items-center justify-center gap-3 shadow-lg shadow-pd-red/20 active:scale-95 shadow-sm"
+                 >
+                   <Phone size={16} className="shrink-0" /> <span>Call Now</span>
+                 </a>
+                 <a 
+                   href={`https://wa.me/${venue.contactNumber}?text=Hi, I am interested in ${venue.name} from PartyDial.`}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="flex-1 px-4 py-4 bg-green-500 text-white text-[11px] md:text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-900 transition-all flex items-center justify-center gap-3 shadow-lg shadow-green-500/20 active:scale-95 shadow-sm"
+                 >
+                   <MessageCircle size={16} className="shrink-0" /> <span>WhatsApp</span>
+                 </a>
+               </div>
             </div>
             
-            <div className="flex w-full md:w-auto justify-between md:justify-start gap-4 md:gap-8 md:px-10 md:border-l border-slate-100 pt-6 md:pt-0 border-t md:border-t-0 mt-2 md:mt-0">
-               <div className="text-center md:text-left flex-1 md:flex-none">
-                 <p className="text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Guest Capacity</p>
+            <div className="grid grid-cols-3 md:flex w-full md:w-auto gap-4 md:gap-8 md:px-10 md:border-l border-slate-100 pt-8 md:pt-0 border-t md:border-t-0 mt-8 md:mt-0 divide-x md:divide-x-0 divide-slate-100">
+               <div className="text-center md:text-left flex flex-col px-1">
+                 <p className="text-[7px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] lg:tracking-[0.2em] mb-2 min-h-[3em] md:min-h-0 flex items-center justify-center md:justify-start">Guest Capacity</p>
                  <div className="flex flex-col items-center md:items-start gap-1">
-                   <Users size={16} className="text-pd-purple md:w-5 md:h-5" />
-                   <span className="text-sm md:text-lg font-black text-slate-900">{venue.capacity}</span>
+                   <Users size={14} className="text-pd-purple md:w-5 md:h-5" />
+                   <span className="text-xs md:text-lg font-black text-slate-900">{venue.capacity}</span>
                  </div>
                </div>
-               <div className="text-center md:text-left flex-1 md:flex-none">
-                 <p className="text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Veg Boarding</p>
+               <div className="text-center md:text-left flex flex-col px-1">
+                 <p className="text-[7px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] lg:tracking-[0.2em] mb-2 min-h-[3em] md:min-h-0 flex items-center justify-center md:justify-start">Veg Plate</p>
                  <div className="flex flex-col items-center md:items-start gap-1">
-                   <Utensils size={16} className="text-pd-pink md:w-5 md:h-5" />
-                   <span className="text-sm md:text-lg font-black text-slate-900">₹{venue.pricePerPlate} <span className="text-[8px] md:text-[9px] opacity-40">/ plate</span></span>
+                   <Utensils size={14} className="text-pd-pink md:w-5 md:h-5" />
+                   <span className="text-xs md:text-lg font-black text-slate-900">₹{venue.pricePerPlate}</span>
                  </div>
                </div>
-               <div className="text-center md:text-left flex-1 md:flex-none">
-                 <p className="text-[8px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Non-Veg Boarding</p>
+               <div className="text-center md:text-left flex flex-col px-1">
+                 <p className="text-[7px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] lg:tracking-[0.2em] mb-2 min-h-[3em] md:min-h-0 flex items-center justify-center md:justify-start">Non-Veg Plate</p>
                  <div className="flex flex-col items-center md:items-start gap-1">
-                   <Utensils size={16} className="text-pd-red md:w-5 md:h-5" />
-                   <span className="text-sm md:text-lg font-black text-slate-900">₹{venue.pricePerPlateNonVeg} <span className="text-[8px] md:text-[9px] opacity-40">/ plate</span></span>
+                   <Utensils size={14} className="text-pd-red md:w-5 md:h-5" />
+                   <span className="text-xs md:text-lg font-black text-slate-900">₹{venue.pricePerPlateNonVeg}</span>
                  </div>
                </div>
             </div>
@@ -638,12 +754,12 @@ export default function VenueDetailPage() {
                                </p>
   
                                <div className="flex items-center gap-3 mt-auto">
-                                  <div className="w-10 h-10 rounded-full bg-pd-purple/10 flex items-center justify-center text-pd-purple text-xs font-black border-2 border-white shadow-md">
-                                     {sortedReviews[idx].name.charAt(0)}
+                                  <div className="w-10 h-10 rounded-full bg-pd-purple/10 flex items-center justify-center text-pd-purple text-[10px] font-black border-2 border-white shadow-md uppercase tracking-tighter">
+                                     {(sortedReviews[idx].userName || 'A').charAt(0)}
                                   </div>
                                   <div>
-                                     <h5 className="font-black text-slate-900 text-sm leading-tight">{sortedReviews[idx].name}</h5>
-                                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{sortedReviews[idx].date}</p>
+                                     <h5 className="font-black text-slate-900 text-[11px] uppercase italic leading-tight tracking-tight">{sortedReviews[idx].userName}</h5>
+                                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{new Date(sortedReviews[idx].$createdAt).toLocaleDateString()}</p>
                                   </div>
                                </div>
                             </div>
@@ -708,27 +824,53 @@ export default function VenueDetailPage() {
                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Event Type</label>
-                        <select 
-                            value={formData.eventType}
-                            onChange={(e) => setFormData({...formData, eventType: e.target.value})}
-                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none"
-                        >
-                            <option>Wedding</option>
-                            <option>Engagement</option>
-                            <option>Birthday</option>
-                            <option>Corporate</option>
-                        </select>
+                        <div className="relative">
+                           <select 
+                               value={formData.eventType}
+                               onChange={(e) => setFormData({...formData, eventType: e.target.value})}
+                               className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none appearance-none cursor-pointer pr-10"
+                           >
+                               <option value="">Select Event</option>
+                               <option value="Birthday Party">Birthday Party</option>
+                               <option value="Wedding Events">Wedding Events</option>
+                               <option value="Pre-Wedding Events">Pre-Wedding Events</option>
+                               <option value="Anniversary Party">Anniversary Party</option>
+                               <option value="Corporate Events">Corporate Events</option>
+                               <option value="Kitty Party">Kitty Party</option>
+                               <option value="Family Functions">Family Functions</option>
+                               <option value="Festival Parties">Festival Parties</option>
+                               <option value="Social Gatherings">Social Gatherings</option>
+                               <option value="Kids Parties">Kids Parties</option>
+                               <option value="Bachelor / Bachelorette Party">Bachelor / Bachelorette Party</option>
+                               <option value="Housewarming Party">Housewarming Party</option>
+                               <option value="Baby Shower">Baby Shower</option>
+                               <option value="Engagement Ceremony">Engagement Ceremony</option>
+                               <option value="Entertainment / Theme Parties">Entertainment / Theme Parties</option>
+                           </select>
+                           <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={16} />
+                        </div>
                     </div>
                     <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Guest Count</label>
-                        <input 
-                            required
-                            type="number" 
-                            placeholder="Eg. 200" 
-                            value={formData.guests}
-                            onChange={(e) => setFormData({...formData, guests: e.target.value})}
-                            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" 
-                        />
+                        <div className="relative">
+                           <select 
+                               required
+                               value={formData.guests}
+                               onChange={(e) => setFormData({...formData, guests: e.target.value})}
+                               className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none appearance-none cursor-pointer pr-10" 
+                           >
+                               <option value="">Select Capacity</option>
+                               <option value="0-50">0-50 guests</option>
+                               <option value="50-100">50-100 guests</option>
+                               <option value="100-200">100-200 guests</option>
+                               <option value="200-500">200-500 guests</option>
+                               <option value="500-1000">500-1000 guests</option>
+                               <option value="1000-2000">1000-2000 guests</option>
+                               <option value="2000-5000">2000-5000 guests</option>
+                               <option value="5000+">5000+ guests</option>
+                           </select>
+                           <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={16} />
+                        </div>
                     </div>
                  </div>
 
@@ -797,21 +939,25 @@ export default function VenueDetailPage() {
             </h2>
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                {(venue.similarVenues && venue.similarVenues.length > 0 ? venue.similarVenues : []).map((v: any, i: number) => (
-                 <div key={i} className="pd-card group bg-slate-50 overflow-hidden">
+                 <Link 
+                   key={i} 
+                   href={`/venues/${v.id}`}
+                   className="pd-card group bg-slate-50 overflow-hidden block hover:shadow-pd-strong transition-all"
+                 >
                     <div className="relative h-56 overflow-hidden">
-                       <Image src={v.img} alt={v.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                       <img src={v.img} alt={v.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                     </div>
                     <div className="p-6">
-                       <h4 className="text-xl font-black text-slate-900 mb-1">{v.name}</h4>
+                       <h4 className="text-xl font-black text-slate-900 mb-1 line-clamp-1 italic">{v.name}</h4>
                        <p className="text-xs font-bold text-slate-500 mb-4">{v.location}</p>
                        <div className="flex items-center justify-between">
-                          <span className="text-pd-pink font-black text-lg">{v.price} <span className="text-[10px] opacity-40">/plate</span></span>
+                          <span className="text-pd-pink font-black text-lg">₹{v.price} <span className="text-[10px] opacity-40 italic">/plate</span></span>
                           <div className="flex items-center gap-1 font-black text-xs text-slate-800">
                             <Star size={14} className="text-yellow-400 fill-yellow-400" /> {v.rating}
                           </div>
                        </div>
                     </div>
-                 </div>
+                 </Link>
                ))}
             </div>
          </div>
@@ -837,15 +983,39 @@ export default function VenueDetailPage() {
             >
               <div className="p-8 md:p-12">
                  <div className="flex items-center justify-between mb-8">
-                   <h3 className="text-2xl font-black text-slate-900 italic">Share Your Experience</h3>
-                   <button onClick={() => setIsReviewModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={24} /></button>
+                    <h3 className="text-2xl font-black text-slate-900 italic uppercase tracking-tight">Rate Your <span className="text-pd-red">Experience</span></h3>
+                    <button onClick={() => setIsReviewModalOpen(false)} className="p-3 bg-slate-50 hover:bg-slate-900 hover:text-white rounded-2xl transition-all shadow-sm"><X size={20} /></button>
                  </div>
 
                  <form onSubmit={handleReviewSubmit} className="space-y-8">
-                    {/* Main Star Selection */}
-                    <div className="text-center bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Overall rating</p>
-                       <div className="flex justify-center gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                       <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Full Name</label>
+                          <input 
+                             required
+                             type="text" 
+                             placeholder="Enter your name" 
+                             value={newReview.name}
+                             onChange={(e) => setNewReview({...newReview, name: e.target.value})}
+                             className="w-full p-5 bg-slate-50 border border-slate-100 rounded-[28px] text-sm font-black outline-none focus:border-pd-red transition-all shadow-pd-soft-inner" 
+                          />
+                       </div>
+                       <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Email Address</label>
+                          <input 
+                             type="email" 
+                             placeholder="your@email.com (Optional)" 
+                             value={newReview.email}
+                             onChange={(e) => setNewReview({...newReview, email: e.target.value})}
+                             className="w-full p-5 bg-slate-50 border border-slate-100 rounded-[28px] text-sm font-black outline-none focus:border-pd-red transition-all shadow-pd-soft-inner" 
+                          />
+                       </div>
+                    </div>
+
+                    <div className="text-center bg-slate-900 p-8 rounded-[40px] border border-white/10 shadow-2xl relative overflow-hidden">
+                       <div className="absolute top-0 right-0 w-32 h-32 bg-pd-red/10 rounded-full blur-3xl -mr-10 -mt-10" />
+                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-4 relative z-10 italic">How was the venue?</p>
+                       <div className="flex justify-center gap-4 relative z-10">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <button
                               key={star}
@@ -853,59 +1023,44 @@ export default function VenueDetailPage() {
                               onMouseEnter={() => setHoverRating(star)}
                               onMouseLeave={() => setHoverRating(0)}
                               onClick={() => setNewReview({ ...newReview, rating: star })}
-                              className="transition-transform active:scale-95"
+                              className="transition-transform active:scale-90"
                             >
                               <Star 
-                                size={40} 
-                                className={`transition-colors ${(hoverRating || newReview.rating) >= star ? "text-yellow-400 fill-yellow-400" : "text-slate-200"}`}
+                                size={48} 
+                                className={`transition-all duration-500 ${(hoverRating || newReview.rating) >= star ? "text-yellow-400 fill-yellow-400 scale-110" : "text-white/10"}`}
                               />
                             </button>
                           ))}
                        </div>
-                    </div>
-
-                    {/* Category Specific Ratings */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                       {Object.keys(newReview.categories).map((cat) => (
-                         <div key={cat} className="flex items-center justify-between px-2">
-                           <span className="text-xs font-black text-slate-700 uppercase tracking-widest">{cat}</span>
-                           <div className="flex gap-1">
-                              {[1, 2, 3, 4, 5].map((s) => (
-                                <button
-                                  key={s}
-                                  type="button"
-                                  onClick={() => setNewReview({
-                                    ...newReview,
-                                    categories: { ...newReview.categories, [cat]: s }
-                                  })}
-                                  className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold transition-all ${newReview.categories[cat as keyof typeof newReview.categories] >= s ? 'bg-pd-red text-white' : 'bg-slate-50 text-slate-300'}`}
-                                >
-                                  {s}
-                                </button>
-                              ))}
-                           </div>
-                         </div>
-                       ))}
+                       <p className="text-[9px] font-black uppercase text-white/30 tracking-widest mt-4">Tap to rate</p>
                     </div>
 
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Detailed Review</label>
+                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Detailed Feedback</label>
                        <textarea 
-                        required
-                        value={newReview.comment}
-                        onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                        placeholder="Tell others about your event, the food, and the service..." 
-                        rows={4} 
-                        className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[24px] text-sm font-bold outline-none focus:border-pd-red transition-all"
+                          required
+                          placeholder="Tell us about the food, staff, and overall ambiance..." 
+                          rows={4} 
+                          value={newReview.comment}
+                          onChange={(e) => setNewReview({...newReview, comment: e.target.value})}
+                          className="w-full p-8 bg-slate-50 border border-slate-100 rounded-[40px] text-sm font-bold italic outline-none focus:border-pd-red transition-all shadow-pd-soft-inner"
                        ></textarea>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                       <button type="button" className="flex items-center gap-3 px-6 py-4 bg-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-200 transition-all">
-                          <Camera size={18} /> Add Photos
+                    <div className="flex gap-4">
+                       <button 
+                         type="button"
+                         onClick={() => setIsReviewModalOpen(false)}
+                         className="flex-1 py-5 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all italic"
+                       >
+                         Cancel
                        </button>
-                       <button type="submit" className="pd-btn-primary !px-10 !py-4 text-[11px] font-black uppercase tracking-widest italic flex items-center gap-3">
-                          Submit Review <Send size={18} />
+                       <button 
+                          type="submit"
+                          disabled={isSubmittingReview}
+                          className="flex-1 pd-btn-primary py-5 rounded-[24px] uppercase text-[11px] font-black italic shadow-xl shadow-pd-pink/20 flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50"
+                       >
+                          {isSubmittingReview ? 'Syncing...' : 'Post Review'} <Send size={16} className="rotate-45" />
                        </button>
                     </div>
                  </form>
@@ -915,6 +1070,27 @@ export default function VenueDetailPage() {
         )}
       </AnimatePresence>
 
+    <AnimatePresence>
+      {toast && (
+        <motion.div 
+          initial={{ opacity: 0, y: 100, x: '-50%', scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, x: '-50%', scale: 1 }}
+          exit={{ opacity: 0, y: 20, x: '-50%', scale: 0.9 }}
+          className={`fixed bottom-12 left-1/2 -translate-x-1/2 z-[300] px-8 py-5 rounded-[28px] shadow-2xl flex items-center gap-4 border border-white/5 backdrop-blur-xl ${
+            toast.type === 'success' ? 'bg-slate-900/90 text-white' : 'bg-red-950/90 text-white'
+          }`}
+        >
+          {toast.type === 'success' ? <CheckCircle2 className="text-emerald-500" size={24} /> : <XCircle className="text-pd-red" size={24} />}
+          <div className="flex flex-col">
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 leading-none mb-1">Notification</span>
+             <p className="text-sm font-black uppercase tracking-tight italic">{toast.message}</p>
+          </div>
+          <button onClick={() => setToast(null)} className="ml-4 p-2 hover:bg-white/10 rounded-full transition-all">
+             <X size={16} className="text-white/40" />
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
     </div>
   );
 }

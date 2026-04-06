@@ -12,6 +12,7 @@ const morgan = require('morgan');
 const authRoutes = require('./routes/authRoutes');
 const dataRoutes = require('./routes/dataRoutes');
 const venueRoutes = require('./routes/venueRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 const configController = require('./controllers/configController');
 
 const app = express();
@@ -31,6 +32,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/venues', venueRoutes);
+app.use('/api/ai', aiRoutes);
 app.get('/api/config', configController.getPublicConfig);
 
 // Optional: Fallback for undefined routes

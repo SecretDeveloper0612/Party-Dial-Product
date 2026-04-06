@@ -93,6 +93,26 @@ export default function Header() {
         return;
       }
 
+      // Special Case for Haldwani (263139) and nearby areas
+      if (locationInput === '263139') {
+        const customSuggestions = [
+          { display: 'Haldwani-263139', name: 'Haldwani', pincode: '263139' },
+          { display: 'Kathgodam-263126', name: 'Kathgodam', pincode: '263126' },
+          { display: 'Lalkuan-263131', name: 'Lalkuan', pincode: '263131' },
+          { display: 'Mukhani-263139', name: 'Mukhani', pincode: '263139' },
+          { display: 'Kaladhungi-263140', name: 'Kaladhungi', pincode: '263140' },
+          { display: 'Bhowali-263132', name: 'Bhowali', pincode: '263132' },
+          { display: 'Nainital-263001', name: 'Nainital', pincode: '263001' },
+          { display: 'Damuadhunga-263126', name: 'Damuadhunga', pincode: '263126' },
+          { display: 'Dahariya-263139', name: 'Dahariya', pincode: '263139' },
+          { display: 'Lamachaur-263139', name: 'Lamachaur', pincode: '263139' },
+          { display: 'Kamaluaganja-263139', name: 'Kamaluaganja', pincode: '263139' }
+        ];
+        setSuggestions(customSuggestions);
+        setIsLoadingLocations(false);
+        return;
+      }
+
       setIsLoadingLocations(true);
       try {
         const isPincode = /^\d+$/.test(locationInput);
@@ -178,7 +198,7 @@ export default function Header() {
         <nav className="max-w-7xl mx-auto px-6 h-20 sm:h-24 flex items-center justify-between gap-10">
           <Link href="/" className="flex items-center gap-4 shrink-0">
              <div className="relative w-36 h-12 cursor-pointer hover:scale-105 transition-transform flex items-center">
-                <Image src="/logo.jpg" alt="PartyDial" width={140} height={48} className="object-contain" priority />
+                <img src="/logo.jpg" alt="PartyDial" width={140} height={48} style={{ objectFit: 'contain' }} />
              </div>
           </Link>
 
@@ -265,8 +285,14 @@ export default function Header() {
              <button className="hidden lg:flex items-center gap-3 pd-btn-primary !px-7 !py-3.5 !text-xs tracking-wider uppercase active:scale-95 shadow-pd-soft">
                <Download size={18} /> <span>Download App</span>
              </button>
-             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 text-slate-600 hover:bg-slate-50 rounded-lg">
-                {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+             <button 
+               onClick={() => setAuthModal({ isOpen: true, type: 'signin' })}
+               className="hidden md:flex items-center gap-2 text-sm font-black text-slate-600 hover:text-pd-red transition-all px-4 py-2 hover:bg-slate-50 rounded-xl"
+             >
+                <User size={18} /> <span>Sign In</span>
+             </button>
+             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 text-slate-900 hover:bg-slate-50 rounded-xl border border-slate-100 shadow-sm active:scale-95 transition-all">
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
              </button>
           </div>
         </nav>
@@ -357,8 +383,23 @@ export default function Header() {
                   <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:bg-pd-red/5 hover:text-pd-red transition-all">Home</Link>
                   <Link href="/categories" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:bg-pd-red/5 hover:text-pd-red transition-all">Categories</Link>
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <button 
+                    onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signin' }); }}
+                    className="w-full flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl text-xs font-black uppercase tracking-widest text-slate-600 active:bg-slate-50"
+                  >
+                    <User size={16} /> <span>Sign In</span>
+                  </button>
+                  <button 
+                    onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
+                    className="w-full flex items-center justify-center gap-2 p-4 bg-slate-900 border border-slate-900 rounded-xl text-xs font-black uppercase tracking-widest text-white active:scale-95 transition-all"
+                  >
+                    <UserPlus size={16} /> <span>Join Now</span>
+                  </button>
+                </div>
                 
-                <div className="pt-4 border-t border-slate-100">
+                <div className="pt-4 border-t border-slate-100 italic">
                   <button className="w-full pd-btn-primary py-4 flex items-center justify-center gap-3">
                     <Download size={20} />
                     <span>Download App</span>
@@ -390,13 +431,13 @@ export default function Header() {
             >
               {/* Left Visual Side */}
               <div className="hidden lg:block w-[45%] relative bg-slate-900 border-r border-slate-100 p-12 text-white">
-                <Image 
+                <img 
                    src={authModal.type === 'signin' 
                      ? "/venues/royal-ballroom.png"
                      : "/categories/wedding.png"}
                    alt="Auth Banner"
-                   fill
-                   className="object-cover opacity-50"
+                   className="absolute inset-0 w-full h-full object-cover opacity-50"
+                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-pd-purple/20 to-transparent"></div>
                 <div className="relative z-10 h-full flex flex-col justify-between">

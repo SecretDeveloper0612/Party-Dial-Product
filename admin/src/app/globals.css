@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-body: #f4f7f6;
+  --bg-card: #ffffff;
+  --sidebar-w: 260px;
+  --header-h: 70px;
+  
+  --party-red: #ff5f6d;
+  --party-purple: #9d50bb;
+  --party-blue: #2980b9;
+  
+  --purple-primary: var(--party-purple);
+  --text-main: #343a40;
+  --text-muted: #9c9fa6;
+}
+
+body {
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Gradients for Stat Cards */
+.grad-orange {
+  background: linear-gradient(to right, #ffbf96, #fe7096) !important;
+}
+
+.grad-blue {
+  background: linear-gradient(to right, #90caf9, #047edf 99%) !important;
+}
+
+.grad-green {
+  background: linear-gradient(to right, #84d9d2, #07cdae) !important;
+}
+
+.grad-purple {
+  background: linear-gradient(to right, var(--party-red), var(--party-purple), var(--party-blue)) !important;
+}
+
+.grad-brand {
+  background: linear-gradient(135deg, var(--party-red), var(--party-purple)) !important;
+}
+
+.grad-rose {
+  background: linear-gradient(to right, #ff719a, #f72365) !important;
+}
+
+/* Card Styling */
+.purple-card {
+  @apply rounded-xl border-none shadow-sm overflow-hidden;
+  background-color: #ffffff;
+}
+
+.sidebar-nav-link {
+  @apply flex items-center gap-3 px-6 py-3.5 text-[15px] font-normal transition-all text-[#3e4b5b] hover:text-[#b66dff] hover:bg-[#f2edf3];
+}
+
+.sidebar-nav-link.active {
+  @apply text-[#b66dff] font-semibold;
+}
+
+/* Mesh-like patterns for gradient cards */
+.mesh-bg {
+  position: relative;
+}
+.mesh-bg::after {
+  content: "";
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 100px;
+  height: 100px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.mesh-bg::before {
+  content: "";
+  position: absolute;
+  bottom: -30px;
+  right: 20px;
+  width: 120px;
+  height: 120px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  pointer-events: none;
+}

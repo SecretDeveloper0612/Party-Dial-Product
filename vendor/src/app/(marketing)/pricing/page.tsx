@@ -114,6 +114,16 @@ const pricingPlans = [
   }
 ];
 
+const addonRates = [
+  { pax: "0–50", price: 1999 },
+  { pax: "50–100", price: 2999 },
+  { pax: "100–200", price: 3999 },
+  { pax: "200–500", price: 6999 },
+  { pax: "500–1000", price: 9999 },
+  { pax: "1000–2000", price: 14999 },
+  { pax: "2000–5000", price: 19999 }
+];
+
 const faqs = [
   { 
     id: "01",
@@ -270,6 +280,8 @@ const FaqItem = ({ item }: { item: typeof faqs[0] }) => {
 };
 
 export default function PricingPage() {
+  const [selectedAddon, setSelectedAddon] = useState<number | null>(null);
+
   return (
     <div className="bg-slate-50 min-h-screen text-slate-900 selection:bg-pink-500 selection:text-white font-sans antialiased">
       
@@ -315,6 +327,67 @@ export default function PricingPage() {
               <PricingCard key={plan.id} plan={plan} />
             ))}
           </div>
+        </div>
+
+        {/* ADD-ON RATES SECTION */}
+        <div className="max-w-4xl mx-auto mt-24 italic">
+            <motion.div 
+               initial={{ opacity: 0, scale: 0.95 }}
+               whileInView={{ opacity: 1, scale: 1 }}
+               viewport={{ once: true }}
+               className="bg-slate-950 rounded-[40px] p-8 md:p-14 text-white relative overflow-hidden shadow-2xl shadow-slate-900/40"
+            >
+               <div className="absolute top-0 right-0 w-64 h-64 bg-pd-pink/10 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
+               <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 blur-[80px] rounded-full -translate-x-1/4 translate-y-1/4"></div>
+
+               <div className="relative z-10 text-center mb-12">
+                  <span className="text-pink-500 text-[10px] font-black tracking-[0.3em] uppercase block mb-4">Extra Coverage</span>
+                  <h2 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter leading-none">Add-On <span className={textGradientStyle}>Rates</span></h2>
+                  <p className="mt-4 text-slate-400 font-bold max-w-lg mx-auto text-sm md:text-base italic">Boost your visibility with specialized expansion packs tailored to your pax capacity.</p>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
+                  {addonRates.map((addon, i) => (
+                     <button 
+                        key={i} 
+                        onClick={() => setSelectedAddon(selectedAddon === i ? null : i)}
+                        className={`flex items-center justify-between p-6 rounded-2xl transition-all group text-left relative overflow-hidden ${
+                           selectedAddon === i 
+                              ? 'bg-white/10 border-2 border-pd-pink shadow-[0_0_30px_rgba(255,65,94,0.1)]' 
+                              : 'bg-white/5 border border-white/10 hover:bg-white/10'
+                        }`}
+                     >
+                        {selectedAddon === i && (
+                           <motion.div 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="absolute top-2 right-2 text-pd-pink"
+                           >
+                              <CheckCircle2 size={16} fill="currentColor" className="text-white" />
+                           </motion.div>
+                        )}
+                        <div className="flex flex-col">
+                           <span className={`text-[10px] font-black uppercase tracking-widest mb-1 transition-colors ${selectedAddon === i ? 'text-pd-pink' : 'text-slate-500'}`}>PAX Capacity</span>
+                           <span className="text-base font-black text-white italic">{addon.pax} Guests</span>
+                        </div>
+                        <div className="text-right">
+                           <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest mb-1 block">Price</span>
+                           <span className="text-2xl font-black text-white italic tracking-tight">₹{addon.price.toLocaleString()}</span>
+                        </div>
+                     </button>
+                  ))}
+               </div>
+               <button className={`w-full mt-10 p-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+                  selectedAddon !== null 
+                     ? `${gradientStyle} text-white shadow-xl shadow-pink-500/20 hover:scale-[1.02]` 
+                     : 'bg-white text-slate-950 hover:bg-slate-50'
+               }`}>
+                  {selectedAddon !== null 
+                     ? `Activate ${addonRates[selectedAddon].pax} Add-on` 
+                     : 'Select An Add-on Extension'
+                  }
+               </button>
+            </motion.div>
         </div>
       </section>
 

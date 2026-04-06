@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, 
@@ -83,6 +83,7 @@ import SystemHistory from '@/vendor/components/dashboard/SystemHistory';
 import DashboardSettings from '@/vendor/components/dashboard/DashboardSettings';
 import VenueCalendar from '@/vendor/components/dashboard/VenueCalendar';
 import LeadExplorer from '@/vendor/components/dashboard/LeadExplorer';
+import NotificationDropdown from '@/vendor/components/dashboard/NotificationDropdown';
 
 import logo from '../logo.jpg';
 
@@ -114,6 +115,7 @@ export default function VendorDashboard() {
   const [leadFilter, setLeadFilter] = useState('All');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [venueProfile, setVenueProfile] = useState<any>(null);
   const [recentLeads, setRecentLeads] = useState<any[]>([]);
   const [isLoadingLeads, setIsLoadingLeads] = useState(true);
@@ -141,7 +143,7 @@ export default function VendorDashboard() {
     const views = venueProfile?.views || 1240;
 
     // 3. Average Rating
-    const rating = venueProfile?.rating || 4.8;
+    const rating = venueProfile?.rating || 0.0;
 
     // 4. Total Sales calculation (Booked leads * Estimated Revenue)
     const bookedLeads = recentLeads.filter(l => l.status === 'Booked');
@@ -218,16 +220,64 @@ export default function VendorDashboard() {
 
   const [replyTarget, setReplyTarget] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [formattedDate, setFormattedDate] = useState('');
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  useEffect(() => {
+    const updateDate = () => {
+      setFormattedDate(new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }));
+    };
+    updateDate();
+    const interval = setInterval(updateDate, 1000 * 60 * 60); // Check every hour if day changed
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Mobile responsiveness effect
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (mobile) setSidebarOpen(false);
+      else setSidebarOpen(true);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [guestRange, setGuestRange] = useState({ min: 0, max: 10000 });
   const [calendarView, setCalendarView] = useState('Monthly');
   
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const [lastClearedTime, setLastClearedTime] = useState(Date.now());
+  const unreadLeadsCount = recentLeads.filter(l => l.unread && new Date(l.rawDate).getTime() > lastClearedTime).length;
+
+  useEffect(() => {
+    if (activeTab === 'leads' || activeTab === 'pipeline') {
+      setLastClearedTime(Date.now());
+    }
+  }, [activeTab]);
+  
   const [quoteData, setQuoteData] = useState({
     client: 'Aditya Raj',
-    event: 'Imperial Wedding',
+    contact: '9876543210',
+    email: 'client@mail.com',
+    event: 'Wedding Ceremony',
+    eventDate: new Date().toISOString().split('T')[0],
+    guestCount: '500',
+    specialRequests: 'Need premium floral decoration and valet parking.',
     gstRate: 18,
+    discountType: 'percentage' as 'percentage' | 'fixed',
+    discountValue: 0,
+    extraCharges: 0,
     lineItems: [
        { id: 1, label: 'Grand Ballroom Rental', amount: 150000 },
        { id: 2, label: 'Standard Catering (500 pax)', amount: 450000 },
@@ -245,12 +295,13 @@ export default function VendorDashboard() {
         selectedEventTypes.some(t => lead.event.includes(t));
       const matchesGuests = parseInt(lead.guests) <= guestRange.max;
       return matchesStatus && matchesSearch && matchesEvent && matchesGuests;
-    }).reverse(); // Keep chronological order if needed, or rely on backend
+    }).sort((a, b) => new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime());
   }, [searchTerm, leadFilter, selectedEventTypes, guestRange, recentLeads]);
 
-  const subtotal = quoteData.lineItems.reduce((acc, item) => acc + item.amount, 0);
-  const gstAmount = (subtotal * quoteData.gstRate) / 100;
-  const totalWithTax = subtotal + gstAmount;
+  // Derived calculations moved to component for complex logic
+  const subtotal = 0;
+  const gstAmount = 0;
+  const totalWithTax = 0;
 
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [qtnSuccess, setQtnSuccess] = useState(false);
@@ -312,13 +363,13 @@ export default function VendorDashboard() {
       const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
       await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueProfile.$id, {
         venueName: venueProfile.venueName,
-        capacity: venueProfile.capacity,
-        perPlateVeg: venueProfile.perPlateVeg,
-        perPlateNonVeg: venueProfile.perPlateNonVeg,
+        capacity: parseInt(String(venueProfile.capacity || '0')), 
+        perPlateVeg: String(venueProfile.perPlateVeg || '0'),
+        perPlateNonVeg: String(venueProfile.perPlateNonVeg || '0'),
         amenities: venueProfile.amenities,
         eventTypes: venueProfile.eventTypes
       });
-      alert('Profile successfully synchronized with the portal.');
+      showToast('Profile successfully synchronized with the portal.', 'success');
     } catch (err) {
       console.error('Sync error:', err);
     } finally {
@@ -341,145 +392,175 @@ export default function VendorDashboard() {
   };
 
   const handleSend = () => {
-     alert(`Quotation successfully dispatched to ${quoteData.client}`);
+     showToast(`Quotation successfully dispatched to ${quoteData.client}`, 'success');
   };
 
+  // Connection Status Monitor
   useEffect(() => {
-    let unsubscribe: () => void;
-    let isMounted = true;
+    const handleOnline = () => {
+      showToast('Internet connection restored.', 'success');
+      // Re-trigger connection attempt
+      setConnectionVersion(v => v + 1);
+    };
+    const handleOffline = () => {
+      showToast('You are currently offline. Realtime updates suspended.', 'error');
+      setIsRealtimeConnected(false);
+    };
+ 
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+ 
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
-    const setupAuthAndRealtime = async () => {
+  const [isRealtimeConnected, setIsRealtimeConnected] = useState(true);
+  const [connectionVersion, setConnectionVersion] = useState(0);
+
+  // Initialization & Realtime Sync
+  useEffect(() => {
+    let isMounted = true;
+    
+    const initializeDashboard = async () => {
       try {
-        const { client, account, databases, DATABASE_ID, VENUES_COLLECTION_ID, LEADS_COLLECTION_ID } = await import('@/lib/appwrite');
-        const { Query } = await import('appwrite');
+        const { account, databases, DATABASE_ID, VENUES_COLLECTION_ID, LEADS_COLLECTION_ID, Query } = await import('@/lib/appwrite');
         
-        // 1. Live Auth Check
+        // 1. Auth Check
         const user = await account.get().catch(() => null);
         if (!isMounted) return;
-
-        if (!user) {
-          router.push('/login');
-          return;
-        }
-        
-        localStorage.setItem('user', JSON.stringify(user));
+        if (!user) { router.push('/login'); return; }
         setIsAuthorized(true);
 
-        const mapLeadToDashboard = (doc: any) => ({
-          id: doc.$id,
-          name: doc.name,
-          phone: doc.phone || '+91 98765 43210',
-          event: doc.eventType,
-          guests: doc.guests ? doc.guests.toString() : '0',
-          date: formatLeadDate(doc.createdAt),
-          time: formatLeadTime(doc.createdAt),
-          status: doc.status || 'New',
-          location: 'Haldwani', // Default for now
-          title: 'Direct Inquiry',
-          starred: false,
-          unread: doc.status === 'New',
-          color: doc.status === 'Booked' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
-        });
-
-        const fetchLeads = async (venueId: string) => {
-          setIsLoadingLeads(true);
-          try {
-            const result = await databases.listDocuments(
-              DATABASE_ID,
-              LEADS_COLLECTION_ID,
-              [Query.equal('venueId', venueId), Query.orderDesc('createdAt')]
-            );
-            if (isMounted) {
-              setRecentLeads(result.documents.map(mapLeadToDashboard));
-            }
-          } catch (error) {
-            console.error('Error fetching leads:', error);
-          } finally {
-            if (isMounted) setIsLoadingLeads(false);
-          }
-        };
-
-        // 2. Data Fetching & Sync Setup
-        const venuesSub = client.subscribe(
-          `databases.${DATABASE_ID}.collections.${VENUES_COLLECTION_ID}.documents`,
-          (response) => {
-            if (!isMounted) return;
-            const doc = response.payload as any;
-            if (doc.userId === user.$id) {
-              if (response.events.some(e => e.includes('update') || e.includes('create'))) {
-                setVenueProfile(doc);
-                setShowOnboarding(!doc.onboardingComplete);
-              }
-            }
-          }
-        );
-
-        // Define a way to track the active venue ID for the realtime leads enclosure
-        let activeVenueId: string | null = null;
-
-        const result = await databases.listDocuments(
-          DATABASE_ID,
-          VENUES_COLLECTION_ID,
-          [Query.equal('userId', user.$id)]
-        );
-        
+        // 2. Fetch Profile
+        const result = await databases.listDocuments(DATABASE_ID, VENUES_COLLECTION_ID, [Query.equal('userId', user.$id)]);
         if (!isMounted) return;
 
         if (result.documents.length > 0) {
           const profile = result.documents[0];
-          activeVenueId = profile.$id;
           setVenueProfile(profile);
-          const isFreshSignup = localStorage.getItem('fresh_signup') === 'true';
-          const alreadyDismissed = localStorage.getItem('onboardingComplete') === 'true';
           
-          if (isFreshSignup || (!profile.onboardingComplete && !alreadyDismissed)) {
-            setShowOnboarding(true);
-            localStorage.removeItem('fresh_signup');
+          setIsLoadingLeads(true);
+          const leadsResult = await databases.listDocuments(DATABASE_ID, LEADS_COLLECTION_ID, [
+            Query.or([
+              Query.equal('venueId', profile.$id),
+              Query.equal('venueId', 'BROADCAST')
+            ]),
+            Query.orderDesc('createdAt')
+          ]);
+          if (isMounted) {
+            setRecentLeads(leadsResult.documents.map(doc => ({
+              id: doc.$id,
+              name: doc.name,
+              phone: doc.phone || '+91 98765 43210',
+              event: doc.eventType,
+              guests: doc.guests ? doc.guests.toString() : '0',
+              date: formatLeadDate(doc.createdAt),
+              time: formatLeadTime(doc.createdAt),
+              rawDate: doc.createdAt,
+              status: doc.status || 'New',
+              location: 'Haldwani',
+              title: 'Direct Inquiry',
+              starred: false,
+              unread: doc.status === 'New',
+              color: doc.status === 'Booked' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+            })));
+            setIsLoadingLeads(false);
           }
-          fetchLeads(profile.$id);
+
+          // Handle Onboarding
+          const alreadyDismissed = localStorage.getItem('onboardingComplete') === 'true';
+          if (!profile.onboardingComplete && !alreadyDismissed) setShowOnboarding(true);
         } else {
           setShowOnboarding(true);
           setIsLoadingLeads(false);
         }
-
-        const leadsSub = client.subscribe(
-          `databases.${DATABASE_ID}.collections.${LEADS_COLLECTION_ID}.documents`,
-          (response) => {
-            if (!isMounted) return;
-            const lead = response.payload as any;
-            // Only update if it belongs to current venue
-            if (activeVenueId && lead.venueId === activeVenueId) {
-              if (response.events.some(e => e.includes('create'))) {
-                setRecentLeads(prev => [mapLeadToDashboard(lead), ...prev]);
-              } else if (response.events.some(e => e.includes('update'))) {
-                setRecentLeads(prev => prev.map(l => l.id === lead.$id ? mapLeadToDashboard(lead) : l));
-              } else if (response.events.some(e => e.includes('delete'))) {
-                setRecentLeads(prev => prev.filter(l => l.id !== lead.$id));
-              }
-            }
-          }
-        );
-
-        unsubscribe = () => {
-          venuesSub();
-          leadsSub();
-        };
-
       } catch (err) {
-        if (isMounted) {
-          console.error('Project synchronization failed:', err);
-          router.push('/login');
-        }
+        if (isMounted) router.push('/login');
       }
     };
 
-    setupAuthAndRealtime();
-
-    return () => {
-      isMounted = false;
-      if (unsubscribe) unsubscribe();
-    };
+    initializeDashboard();
+    return () => { isMounted = false; };
   }, [router]);
+
+  // Separate Effect for Realtime to avoid WebSocket "Still in CONNECTING" error
+  const subscribedId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!venueProfile?.$id) return;
+    
+    let isMounted = true;
+    let unsubscribe: (() => void) | undefined;
+    subscribedId.current = venueProfile.$id;
+
+    const connectRealtime = async () => {
+      try {
+        const { client, DATABASE_ID, VENUES_COLLECTION_ID, LEADS_COLLECTION_ID } = await import('@/lib/appwrite');
+        
+        // Safety delay for WebSocket handshake
+        await new Promise(resolve => setTimeout(resolve, 800));
+        if (!isMounted) return;
+
+        unsubscribe = client.subscribe([
+          `databases.${DATABASE_ID}.collections.${VENUES_COLLECTION_ID}.documents.${venueProfile.$id}`,
+          `databases.${DATABASE_ID}.collections.${LEADS_COLLECTION_ID}.documents`
+        ], (response) => {
+          if (!isMounted) return;
+          setIsRealtimeConnected(true); // Confirmed activity
+          const payload = response.payload as any;
+
+          if (response.events.some(e => e.includes('databases.*.collections.' + VENUES_COLLECTION_ID))) {
+            setVenueProfile(payload);
+            setShowOnboarding(!payload.onboardingComplete);
+          } else if (response.events.some(e => e.includes('databases.*.collections.' + LEADS_COLLECTION_ID))) {
+            if (payload.venueId === venueProfile?.$id || payload.venueId === 'BROADCAST') {
+               const mapped = {
+                  id: payload.$id,
+                  name: payload.name,
+                  phone: payload.phone || '+91 98765 43210',
+                  event: payload.eventType,
+                  guests: payload.guests ? payload.guests.toString() : '0',
+                  date: formatLeadDate(payload.createdAt),
+                  time: formatLeadTime(payload.createdAt),
+                  rawDate: payload.createdAt,
+                  status: payload.status || 'New',
+                  location: 'Haldwani',
+                  title: 'Direct Inquiry',
+                  starred: false,
+                  unread: payload.status === 'New',
+                  color: payload.status === 'Booked' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+               };
+
+               if (response.events.some(e => e.includes('create'))) {
+                 setRecentLeads(prev => {
+                   if (prev.some(l => l.id === payload.$id)) return prev;
+                   return [mapped, ...prev];
+                 });
+               } else if (response.events.some(e => e.includes('update'))) {
+                 setRecentLeads(prev => prev.map(l => l.id === payload.$id ? mapped : l));
+               } else if (response.events.some(e => e.includes('delete'))) {
+                 setRecentLeads(prev => prev.filter(l => l.id !== payload.$id));
+               }
+            }
+          }
+        });
+      } catch (err) { 
+        console.warn('Realtime sync dormant:', err); 
+        setIsRealtimeConnected(false);
+        subscribedId.current = null;
+      }
+    };
+
+    connectRealtime();
+    return () => { 
+      isMounted = false; 
+      if (unsubscribe) {
+        unsubscribe();
+        subscribedId.current = null;
+      }
+    };
+  }, [venueProfile?.$id, connectionVersion]);
 
   const [selectedDay, setSelectedDay] = useState(20);
   const [currentMonth, setCurrentMonth] = useState('March');
@@ -519,27 +600,52 @@ export default function VendorDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 font-pd flex relative">
       
+      {/* MOBILE OVERLAY */}
+      <AnimatePresence>
+        {isMobile && sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* SIDEBAR */}
       <motion.aside 
         initial={false}
-        animate={{ width: sidebarOpen ? 280 : 0, opacity: sidebarOpen ? 1 : 0 }}
-        className={`bg-[#0F172A] flex flex-col sticky top-0 h-screen z-50 overflow-hidden no-print ${!sidebarOpen ? 'pointer-events-none' : ''}`}
+        animate={{ 
+          width: sidebarOpen ? (isMobile ? 280 : 280) : 0, 
+          opacity: sidebarOpen ? 1 : (isMobile ? 0 : 0),
+          x: isMobile && !sidebarOpen ? -280 : 0
+        }}
+        className={`bg-white border-r border-slate-200/60 flex flex-col fixed lg:sticky top-0 h-screen z-[70] lg:z-50 overflow-hidden no-print transition-all duration-300 ${!sidebarOpen && !isMobile ? 'pointer-events-none' : ''}`}
       >
          <div className="p-8 pb-4 flex-1 w-[280px] scrollbar-hide overflow-y-auto">
-            <div className="flex items-center justify-between mb-12">
-               <Link href="/">
-                  <div className="flex flex-col items-start group cursor-pointer group">
-                     <div className="w-36 h-12 relative -mb-2">
-                        <Image src={logo} alt="Logo" fill className="object-contain object-left" />
+            <div className="flex items-center justify-between mb-16 px-2">
+               <Link href="/" className="group">
+                  <div className="flex flex-col items-start gap-1">
+                     <div className="w-40 h-10 relative">
+                        <Image 
+                           src={logo} 
+                           alt="PartyDial" 
+                           fill 
+                           className="object-contain object-left group-hover:scale-105 transition-transform duration-500" 
+                        />
                      </div>
-                     <span className="text-[9px] font-black uppercase text-pd-pink tracking-[0.4em] ml-1 opacity-80 italic">Partner</span>
+                     <div className="flex items-center gap-2 ml-1">
+                        <div className="w-4 h-[1px] bg-pd-pink/50"></div>
+                        <span className="text-[10px] font-black uppercase text-pd-pink tracking-[0.5em] italic opacity-90">Partner</span>
+                     </div>
                   </div>
                </Link>
                <button 
                   onClick={() => setSidebarOpen(false)}
-                  className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 hover:bg-white hover:text-slate-900 transition-all border border-white/10"
+                  className="w-11 h-11 rounded-[20px] bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-pd-pink hover:text-white transition-all border border-slate-100 shadow-sm active:scale-90 group/close"
                >
-                  <X size={14} />
+                  <X size={18} className="group-hover:rotate-90 transition-transform duration-500" />
                </button>
             </div>
 
@@ -552,7 +658,7 @@ export default function VendorDashboard() {
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[12px] font-bold transition-all ${
                       activeTab === item.id 
                       ? 'bg-pd-pink text-white shadow-lg shadow-pd-pink/20' 
-                      : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                     }`}
                   >
                     {item.icon}
@@ -586,9 +692,9 @@ export default function VendorDashboard() {
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-[13px] font-bold italic transition-all ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-bold tracking-wide uppercase transition-all ${
                       activeTab === item.id 
-                      ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/10' 
+                      ? 'bg-slate-100 text-slate-900 border border-slate-200' 
                       : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                     }`}
                   >
@@ -600,18 +706,18 @@ export default function VendorDashboard() {
          </div>
 
          <div className="mt-auto p-6">
-            <div className="p-4 bg-slate-900 rounded-[28px] text-white overflow-hidden relative group">
+            <div className="p-4 bg-pd-pink/5 border border-pd-pink/10 rounded-[28px] overflow-hidden relative group">
                <div className="relative z-10 flex flex-col gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-pd-pink/20 flex items-center justify-center text-pd-pink">
+                  <div className="w-8 h-8 rounded-lg bg-pd-pink/10 flex items-center justify-center text-pd-pink">
                     <Sparkles size={16} />
                   </div>
                   <div>
-                    <h4 className="text-[11px] font-black uppercase tracking-widest italic mb-1">Boost Listing</h4>
-                    <p className="text-[9px] text-slate-400 font-medium">Get 5x more visibility today.</p>
+                    <h4 className="text-[11px] font-black uppercase tracking-widest italic mb-1 text-slate-900">Boost Listing</h4>
+                    <p className="text-[9px] text-slate-500 font-medium">Get 5x more visibility today.</p>
                   </div>
-                  <button className="w-full py-2 bg-pd-pink text-[10px] font-black uppercase italic rounded-xl shadow-lg shadow-pd-pink/20">Upgrade Now</button>
+                  <button className="w-full py-2 bg-pd-pink text-white text-[10px] font-black uppercase italic rounded-xl shadow-lg shadow-pd-pink/20">Upgrade Now</button>
                </div>
-               <div className="absolute top-0 right-0 w-24 h-24 bg-pd-pink/10 rounded-full blur-2xl group-hover:scale-125 transition-transform"></div>
+               <div className="absolute top-0 right-0 w-24 h-24 bg-white/60 rounded-full blur-2xl group-hover:scale-125 transition-transform"></div>
             </div>
             
             <button 
@@ -626,83 +732,114 @@ export default function VendorDashboard() {
       </motion.aside>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 min-h-screen flex flex-col max-h-screen overflow-y-auto printable-main">
+      <main className="flex-1 min-h-screen flex flex-col max-h-screen overflow-y-auto printable-main relative">
          
-         <header className="h-16 bg-white border-b border-slate-100 px-8 flex items-center justify-between sticky top-0 z-40 no-print">
+         <header className="h-20 lg:h-16 bg-white border-b border-slate-100 px-4 lg:px-8 flex items-center justify-between sticky top-0 z-40 no-print">
             
             {/* Left Section: Context & Navigation */}
-            <div className="flex items-center gap-6">
-               {!sidebarOpen && (
+            <div className="flex items-center gap-3 lg:gap-6">
+               {(isMobile || !sidebarOpen) && (
                   <motion.button 
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setSidebarOpen(true)}
-                    className="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center text-white shadow-lg shadow-slate-900/10 hover:bg-pd-pink transition-all"
+                    className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-lg shadow-slate-900/10 hover:bg-pd-pink transition-all"
                   >
                      <Menu size={18} />
                   </motion.button>
                )}
                
                <div className="flex flex-col">
-                  <h1 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-1">
-                     Friday, 20 Mar 2026
+                  <h1 className="text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-1">
+                     {formattedDate || 'Loading...'}
                   </h1>
-                  <p className="text-sm font-black text-slate-900 uppercase italic tracking-tight">
-                     Vendor <span className="text-pd-pink">Console</span> / {activeTab}
+                  <p className="text-xs lg:text-sm font-black text-slate-900 uppercase italic tracking-tight">
+                     <span className="hidden sm:inline">Partner</span> <span className="text-pd-pink">Console</span> / <span className="capitalize">{activeTab}</span>
                   </p>
                </div>
             </div>
 
             {/* Center Section: Command Search */}
-            <div className="hidden xl:flex items-center gap-4 bg-slate-100/50 hover:bg-white px-5 py-2.5 rounded-2xl border border-transparent hover:border-pd-pink/20 w-80 lg:w-[450px] group transition-all duration-500 shadow-inner">
-               <Search size={16} className="text-slate-400 group-focus-within:text-pd-pink transition-colors" />
-               <input 
-                  type="text" 
-                  placeholder="Type to search anything..." 
-                  className="bg-transparent border-none outline-none text-[13px] font-bold text-slate-900 w-full placeholder:text-slate-300 italic" 
-               />
-               <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-200/50 rounded-lg text-[10px] font-black text-slate-400 border border-slate-300/20 group-hover:bg-pd-pink/10 group-hover:text-pd-pink group-hover:border-pd-pink/20 transition-all">
-                  <span className="mb-0.5">⌘</span>
-                  <span>K</span>
-               </div>
-            </div>
+
 
             {/* Right Section: System Actions & Profile */}
-            <div className="flex items-center gap-4">
-               <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-[20px] border border-slate-100/50 mr-2">
-                  {[
-                     { icon: <Bell size={18} />, count: 3, id: 'notif' },
-                     { icon: <HelpCircle size={18} />, count: 0, id: 'help' }
-                  ].map(item => (
-                     <button key={item.id} className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-slate-400 hover:text-pd-pink hover:bg-pd-pink/5 hover:scale-105 transition-all relative border border-slate-100 shadow-sm">
-                        {item.icon}
-                        {item.count > 0 && (
-                           <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-pd-pink text-white text-[8px] font-black flex items-center justify-center rounded-full border-[3px] border-white shadow-lg shadow-pd-pink/20">
-                              {item.count}
-                           </span>
-                        )}
-                     </button>
-                  ))}
+            <div className="flex items-center gap-2 lg:gap-4">
+               <div className="hidden sm:flex items-center gap-2 bg-slate-50 p-1.5 rounded-[20px] border border-slate-100/50 mr-1 lg:mr-2">
+                  <div className="relative">
+                    <button 
+                      onClick={() => setShowNotifDropdown(!showNotifDropdown)}
+                      className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-slate-400 hover:text-pd-pink hover:bg-pd-pink/5 transition-all relative border border-slate-100 shadow-sm"
+                    >
+                      <Bell size={18} />
+                      {unreadLeadsCount > 0 && (
+                        <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-pd-pink text-white text-[8px] font-black flex items-center justify-center rounded-full border-[3px] border-white">
+                          {unreadLeadsCount}
+                        </span>
+                      )}
+                    </button>
+
+                    <NotificationDropdown 
+                      isOpen={showNotifDropdown}
+                      onClose={() => setShowNotifDropdown(false)}
+                      notifications={recentLeads}
+                      onViewAll={() => setActiveTab('leads')}
+                      lastClearedTime={lastClearedTime}
+                    />
+                  </div>
+
+                  <button className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-slate-400 hover:text-pd-pink hover:bg-pd-pink/5 transition-all relative border border-slate-100 shadow-sm">
+                    <HelpCircle size={18} />
+                  </button>
                </div>
                
-               <div className="h-8 w-[1px] bg-slate-200/50 mx-1"></div>
+               <div className="hidden lg:block h-8 w-[1px] bg-slate-200/50 mx-1"></div>
 
-               <div className="flex items-center gap-3 pl-3 cursor-pointer group hover:translate-x-1 transition-all">
-                  <div className="text-right hidden sm:block">
-                     <p className="text-[13px] font-black text-slate-900 italic tracking-tighter uppercase whitespace-nowrap leading-none mb-1">{venueProfile?.venueName || "Grand Imperial"}</p>
-                     <div className="flex items-center gap-2 justify-end">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <p className="text-[10px] text-emerald-500 font-black uppercase tracking-widest leading-none">Premium</p>
-                     </div>
+               <div 
+                  onClick={() => { setActiveTab('settings'); setSettingsSection('profile'); }}
+                  className="flex items-center gap-2 lg:gap-3 pl-1 lg:pl-3 cursor-pointer group active:scale-95 transition-transform"
+               >
+                  <div className="text-right hidden md:block">
+                     <p className="text-[11px] lg:text-[13px] font-black text-slate-900 italic tracking-tighter uppercase whitespace-nowrap leading-none mb-1">{venueProfile?.venueName || "Grand Imperial"}</p>
+                      <div className="flex items-center gap-2 justify-end">
+                        <span className={`w-1.5 h-1.5 rounded-full ${isRealtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></span>
+                        <p className={`text-[8px] lg:text-[10px] ${isRealtimeConnected ? 'text-emerald-500' : 'text-rose-500'} font-black uppercase tracking-widest leading-none`}>
+                           {isRealtimeConnected ? 'Premium Live' : 'Reconnecting...'}
+                        </p>
+                      </div>
                   </div>
-                  <div className="flex relative">
-                     <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-pd-pink to-purple-500 p-[2px] shadow-lg shadow-pd-pink/20 group-hover:scale-105 transition-all">
+                  <div className="flex relative scale-90 lg:scale-100">
+                     <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-2xl bg-gradient-to-tr from-pd-pink to-purple-500 p-[2px] shadow-lg shadow-pd-pink/20">
                         <div className="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center">
-                           <Image src="https://i.pravatar.cc/100?u=grand-imperial" alt="Venue Profile" width={44} height={44} className="grayscale-[0.4] group-hover:grayscale-0 transition-all duration-500" />
+                           {(() => {
+                              try {
+                                 const photos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
+                                 const avatar = Array.isArray(photos) ? photos.find((p: any) => p.category === 'Profile') : null;
+                                 if (avatar) {
+                                    return (
+                                       <Image 
+                                          src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${avatar.id}/view?project=69ae84bc001ca4edf8c2`} 
+                                          alt="Venue Profile" 
+                                          width={44} 
+                                          height={44} 
+                                          className="object-cover w-full h-full" 
+                                       />
+                                    );
+                                 }
+                              } catch (e) { console.error('Failed to parse avatar:', e); }
+                              return (
+                                 <Image 
+                                    src={`https://i.pravatar.cc/100?u=${venueProfile?.venueName || 'partner'}`} 
+                                    alt="Default Profile" 
+                                    width={44} 
+                                    height={44} 
+                                    className="grayscale-[0.4]" 
+                                 />
+                              );
+                           })()}
                         </div>
                      </div>
-                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-xl shadow-md flex items-center justify-center border border-slate-100">
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                     <div className="absolute -bottom-1 -right-1 w-4 h-4 lg:w-5 lg:h-5 bg-white rounded-xl shadow-md flex items-center justify-center border border-slate-100">
+                        <div className="w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full bg-emerald-400"></div>
                      </div>
                   </div>
                </div>
@@ -710,7 +847,7 @@ export default function VendorDashboard() {
          </header>
 
          {/* DASHBOARD CONTENT */}
-         <div className="p-8">
+         <div className="p-4 lg:p-8">
             {activeTab === 'overview' && (
               <DashboardOverview 
                 venueProfile={venueProfile}
@@ -755,8 +892,10 @@ export default function VendorDashboard() {
 
             {activeTab === 'reviews' && (
               <ReviewManager 
+                venueId={venueProfile?.$id}
                 replyTarget={replyTarget}
                 setReplyTarget={setReplyTarget}
+                showToast={showToast}
               />
             )}
 
@@ -782,6 +921,7 @@ export default function VendorDashboard() {
                 handleEventTypeToggle={handleEventTypeToggle}
                 saveProfileSettings={saveProfileSettings}
                 isUpdatingProfile={isUpdatingProfile}
+                showToast={showToast}
               />
             )}
 
@@ -805,11 +945,46 @@ export default function VendorDashboard() {
                 handleDownload={handleDownload}
                 handleSend={handleSend}
                 logo={logo}
+                venueProfile={venueProfile}
+                showToast={showToast}
               />
             )}
           </div>
 
       </main>
+
+      {/* Modern Smooth Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20, x: '-50%' }}
+            animate={{ opacity: 1, scale: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, scale: 0.9, y: 10, x: '-50%' }}
+            className={`fixed bottom-10 left-1/2 -translate-x-1/2 z-[10001] px-6 py-4 rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-4 border border-white/10 backdrop-blur-md ${
+              toast.type === 'success' 
+                ? 'bg-slate-900 text-white' 
+                : 'bg-red-950 text-white'
+            }`}
+          >
+            {toast.type === 'success' ? (
+              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                <CheckCircle2 size={18} />
+              </div>
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white shadow-lg shadow-red-500/20">
+                <XCircle size={18} />
+              </div>
+            )}
+            <div className="flex flex-col">
+               <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] leading-none mb-1">System Message</span>
+               <p className="text-[12px] font-black uppercase tracking-tight italic">{toast.message}</p>
+            </div>
+            <button onClick={() => setToast(null)} className="ml-4 p-1 hover:bg-white/10 rounded-lg transition-colors">
+               <X size={14} className="text-white/40" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Optimized Onboarding Popup */}
       <OnboardingPopup 

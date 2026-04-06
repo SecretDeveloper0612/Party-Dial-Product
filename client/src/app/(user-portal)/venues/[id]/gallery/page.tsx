@@ -30,22 +30,28 @@ export default function VenueGalleryPage() {
     const fetchVenue = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`http://127.0.0.1:5000/api/venues/${id}`);
+        const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://127.0.0.1:5005/api';
+        const response = await fetch(`${baseUrl}/venues/${id}`);
         const result = await response.json();
 
         if (result.status === 'success') {
           const doc = result.data;
-          const { STORAGE_BUCKET_ID } = await import('@/lib/appwrite');
-          const photoIds = doc.photos ? JSON.parse(doc.photos) : [];
+          const { getAppwriteImageUrl, parsePhotos } = await import('@/shared/utils/image');
+          const photoIds = parsePhotos(doc.photos);
           
           const mappedVenue = {
             name: doc.venueName || "Unnamed Venue",
-            images: photoIds.map((pid: string, idx: number) => ({
-              id: pid,
-              category: "All Photos", // Default category
-              url: `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${STORAGE_BUCKET_ID}/files/${pid}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`,
-              title: `Photo ${idx + 1}`
-            }))
+            images: photoIds.length > 0 
+              ? photoIds.map((p: any, idx: number) => ({
+                  id: p.id,
+                  category: p.category,
+                  url: getAppwriteImageUrl(p.id),
+                  title: `Photo ${idx + 1}`
+                }))
+              : [
+                  { id: '1', category: 'Interior', url: '/gallery/interior.png', title: 'Interior' },
+                  { id: '2', category: 'Exterior', url: '/gallery/exterior.png', title: 'Exterior' }
+                ]
           };
           setVenue(mappedVenue);
         }
@@ -165,11 +171,11 @@ export default function VenueGalleryPage() {
                   onClick={() => setSelectedImage(img)}
                   className={`group relative bg-white rounded-2xl md:rounded-[32px] overflow-hidden shadow-pd-soft border border-slate-100 cursor-pointer hover:shadow-pd-strong transition-all duration-500 ${spanClass}`}
                 >
-                  <Image 
+                  <img 
                     src={img.url} 
                     alt={img.title} 
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-1000"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                    loading="lazy"
                   />
                   <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-pd-purple/5 transition-colors"></div>
                   
@@ -211,12 +217,11 @@ export default function VenueGalleryPage() {
               onClick={() => setSelectedImage(null)}
             >
               <div className="relative w-full h-[85vh] md:h-full">
-                <Image 
+                <img 
                   src={selectedImage.url} 
                   alt={selectedImage.title} 
-                  fill 
-                  className="object-contain" 
-                  priority
+                  className="absolute inset-0 w-full h-full object-contain" 
+                  loading="eager"
                 />
               </div>
 

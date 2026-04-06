@@ -72,7 +72,7 @@ const getCapacityLabel = (capacity: any) => {
 
 export default function VenuesPage() {
   const searchParams = useSearchParams();
-  const [selectedCity, setSelectedCity] = useState("All Cities");
+  const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [locationSearchQuery, setLocationSearchQuery] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<string>("");
 
@@ -84,6 +84,11 @@ export default function VenuesPage() {
         e.toLowerCase().replace(/\s+/g, '-') === typeParam.toLowerCase()
       );
       if (matched) setSelectedEvent(matched);
+    }
+    
+    const locationParam = searchParams.get('location');
+    if (locationParam) {
+      setSelectedCities(locationParam.split(','));
     }
   }, [searchParams]);
 
@@ -118,6 +123,25 @@ export default function VenuesPage() {
         return;
       }
 
+      // Special Case for Haldwani (263139) and nearby areas
+      if (locationSearchQuery === '263139') {
+        setCitySuggestions([
+          'Haldwani-263139',
+          'Kathgodam-263126',
+          'Lalkuan-263131',
+          'Mukhani-263139',
+          'Kaladhungi-263140',
+          'Bhowali-263132',
+          'Nainital-263001',
+          'Damuadhunga-263126',
+          'Dahariya-263139',
+          'Lamachaur-263139',
+          'Kamaluaganja-263139'
+        ]);
+        setIsLoadingCities(false);
+        return;
+      }
+
       setIsLoadingCities(true);
       try {
         const type = /^\d+$/.test(locationSearchQuery) ? 'pincode' : 'postoffice';
@@ -148,6 +172,7 @@ export default function VenuesPage() {
   // --- FETCH LIVE VENUES & REALTIME SYNC ---
   useEffect(() => {
     let unsubscribe: () => void;
+    let isMounted = true;
 
     const setupLiveVenues = async () => {
       try {
@@ -159,28 +184,30 @@ export default function VenuesPage() {
             const response = await fetch(`${baseUrl}/venues`);
             const result = await response.json();
             
-            if (result.status === 'success') {
-              const mapped = result.data.map((doc: any) => ({
-                id: doc.$id,
-                name: doc.venueName || "Unnamed Venue",
-                location: doc.landmark || doc.city || "India",
-                city: doc.city || "Unknown",
-                type: doc.venueType || "Banquet Hall",
-                capacity: parseInt(doc.capacity) || 0,
-                price: parseInt(doc.perPlateVeg) || 1500,
-                rating: 4.5,
-                reviews: 0,
-                img: (doc.photos && JSON.parse(doc.photos).length > 0) 
-                  ? `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/venues_photos/files/${JSON.parse(doc.photos)[0]}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`
-                  : "/venues/palace-hotel.png",
-                verified: false,
-                popular: false,
-                isNew: true,
-                bestValue: false,
-                amenities: doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : [],
-                categories: doc.eventTypes ? (typeof doc.eventTypes === 'string' ? JSON.parse(doc.eventTypes) : doc.eventTypes) : [],
-                foodTypes: ["Veg", "Non-Veg", "Both"]
-              }));
+            if (result.status === 'success' && isMounted) {
+              const { getAppwriteImageUrl, parsePhotos } = await import('@/shared/utils/image');
+              const mapped = result.data.map((doc: any) => {
+                const photos = parsePhotos(doc.photos);
+                return {
+                  id: doc.$id,
+                  name: doc.venueName || "Unnamed Venue",
+                  location: doc.landmark || doc.city || "India",
+                  city: doc.city || "Delhi",
+                  type: doc.venueType || "Banquet Hall",
+                  capacity: parseInt(doc.capacity) || 500,
+                  price: parseInt(doc.perPlateVeg) || 1200,
+                  rating: 0,
+                  reviews: 0,
+                  img: photos.length > 0 ? getAppwriteImageUrl(photos[0]) : "/gallery/interior.png",
+                  verified: doc.isVerified || false,
+                  popular: doc.status === 'active',
+                  isNew: true,
+                  bestValue: true,
+                  amenities: (doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : ["AC Hall", "Parking"]),
+                  categories: (doc.eventTypes ? (typeof doc.eventTypes === 'string' ? JSON.parse(doc.eventTypes) : doc.eventTypes) : ["Wedding"]),
+                  foodTypes: ["Veg", "Non-Veg"]
+                };
+              });
               setLiveVenues(mapped);
             }
           } catch (err) {
@@ -190,23 +217,29 @@ export default function VenuesPage() {
 
         await fetchVenues();
 
-        // Realtime Subscription
-        unsubscribe = client.subscribe(
-          `databases.${DATABASE_ID}.collections.${VENUES_COLLECTION_ID}.documents`,
-          () => {
-            fetchVenues();
-          }
-        );
+        // Realtime Subscription (Delayed)
+        setTimeout(() => {
+          if (!isMounted) return;
+          const sub = client.subscribe(
+            `databases.${DATABASE_ID}.collections.${VENUES_COLLECTION_ID}.documents`,
+            () => {
+              fetchVenues();
+            }
+          );
+          unsubscribe = () => sub();
+        }, 100);
+
       } catch (err) {
         console.error('Failed to setup live venues:', err);
       } finally {
-        setIsLiveLoading(false);
+        if (isMounted) setIsLiveLoading(false);
       }
     };
 
     setupLiveVenues();
 
     return () => {
+      isMounted = false;
       if (unsubscribe) unsubscribe();
     };
   }, []);
@@ -216,24 +249,42 @@ export default function VenuesPage() {
 
   const filteredVenues = useMemo(() => {
     return allVenues.filter(venue => {
-      // Adjusted City Filtering for higher default visibility
-      if (selectedCity && selectedCity !== "All Cities") {
-        const cityOnly = selectedCity.split('-')[0].toLowerCase();
-        const venueCity = venue.city.toLowerCase();
-        const venueLocality = venue.location.toLowerCase();
+      // 1. City Filtering
+      if (selectedCities.length > 0) {
+        const venueCity = (venue.city || "").toLowerCase();
+        const venueLocality = (venue.location || "").toLowerCase();
         
-        // Match if selected city is in venue city/locality OR venue city is in selected string
-        if (!venueCity.includes(cityOnly) && !cityOnly.includes(venueCity) && !venueLocality.includes(cityOnly)) {
-          return false;
-        }
+        const hasMatch = selectedCities.some(city => {
+          const cityOnly = city.split('-')[0].toLowerCase();
+          return venueCity.includes(cityOnly) || cityOnly.includes(venueCity) || venueLocality.includes(cityOnly);
+        });
+        
+        if (!hasMatch) return false;
       }
       
-      if (selectedEvent && !venue.categories.includes(selectedEvent)) return false;
+      // 2. Event Type Filtering (The core fix)
+      if (selectedEvent) {
+        if (!venue.categories || !Array.isArray(venue.categories) || venue.categories.length === 0) {
+           return false; // Or should we show if no categories? Usually hide.
+        }
+        const hasMatch = venue.categories.some((c: string) => 
+          c.toLowerCase().includes(selectedEvent.toLowerCase()) || 
+          selectedEvent.toLowerCase().includes(c.toLowerCase())
+        );
+        if (!hasMatch) return false;
+      }
+      
+      // 3. Other Filters
       if (selectedVenueTypes.length > 0 && !selectedVenueTypes.includes(venue.type)) return false;
       if (venue.price < budgetRange.min || venue.price > budgetRange.max) return false;
       if (venue.capacity < selectedCapacity) return false;
-      if (selectedAmenities.length > 0 && !selectedAmenities.every(a => venue.amenities.includes(a))) return false;
-      if (foodPreference && foodPreference !== "Both" && !venue.foodTypes.includes(foodPreference)) return false;
+      
+      const venueAmenities = Array.isArray(venue.amenities) ? venue.amenities : [];
+      if (selectedAmenities.length > 0 && !selectedAmenities.every(a => venueAmenities.includes(a))) return false;
+      
+      const venueFoodTypes = Array.isArray(venue.foodTypes) ? venue.foodTypes : [];
+      if (foodPreference && foodPreference !== "Both" && !venueFoodTypes.includes(foodPreference)) return false;
+      
       if (venue.rating < minRating) return false;
       if (quickFilters.verified && !venue.verified) return false;
       if (quickFilters.popular && !venue.popular) return false;
@@ -247,10 +298,10 @@ export default function VenuesPage() {
       if (sortBy === "Top Rated") return b.rating - a.rating;
       return (b.popular ? 1 : 0) - (a.popular ? 1 : 0);
     });
-  }, [allVenues, selectedCity, selectedEvent, selectedVenueTypes, budgetRange, selectedCapacity, selectedAmenities, foodPreference, minRating, quickFilters, sortBy]);
+  }, [allVenues, selectedCities, selectedEvent, selectedVenueTypes, budgetRange, selectedCapacity, selectedAmenities, foodPreference, minRating, quickFilters, sortBy]);
 
   const clearFilters = () => {
-    setSelectedCity("All Cities");
+    setSelectedCities([]);
     setSelectedEvent("");
     setSelectedVenueTypes([]);
     setBudgetRange({ min: 0, max: 10000 });
@@ -313,7 +364,9 @@ export default function VenuesPage() {
                                <button 
                                  key={idx}
                                  onClick={() => {
-                                   setSelectedCity(city);
+                                   if (!selectedCities.includes(city)) {
+                                     setSelectedCities([...selectedCities, city]);
+                                   }
                                    setLocationSearchQuery("");
                                    setCitySuggestions([]);
                                  }}
@@ -325,6 +378,21 @@ export default function VenuesPage() {
                           </motion.div>
                         )}
                       </AnimatePresence>
+                   </div>
+
+                   {/* Selected Cities Chips */}
+                   <div className="flex flex-wrap gap-2 mt-2">
+                      {selectedCities.map((city, i) => (
+                        <div key={i} className="flex items-center gap-1.5 bg-pd-red/5 text-pd-red px-3 py-1.5 rounded-xl border border-pd-red/10">
+                          <span className="text-[10px] font-black uppercase tracking-wider">{city}</span>
+                          <button 
+                            onClick={() => setSelectedCities(selectedCities.filter(c => c !== city))}
+                            className="hover:text-slate-900 transition-colors"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
                    </div>
                                 {/* Event Type Custom Dropdown */}
                 <div className="space-y-4">
@@ -532,13 +600,17 @@ export default function VenuesPage() {
 
           {/* MAIN LISTINGS */}
           <main className="flex-1 min-w-0">
-             <div className="flex items-center justify-between mb-10 flex-wrap gap-4">
-                <div className="flex gap-2 items-center overflow-x-auto no-scrollbar flex-nowrap md:flex-wrap pb-2 md:pb-0">
-                    {selectedCity !== "All Cities" && (
-                      <div className="shrink-0 px-3 py-1.5 bg-pd-red/10 border border-pd-red/20 rounded-full text-[9px] font-black text-pd-red uppercase flex items-center gap-2">
-                        {selectedCity} <button onClick={() => setSelectedCity("All Cities")}><X size={10} /></button>
+             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-black text-slate-900 italic mb-2 tracking-tight">Discover Venues</h1>
+                  <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">{filteredVenues.length} Results in Haldwani & Near By</p>
+                </div>
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-nowrap pb-2 md:pb-0">
+                    {selectedCities.length > 0 && selectedCities.map((city, i) => (
+                      <div key={i} className="shrink-0 px-3 py-1.5 bg-pd-red/10 border border-pd-red/20 rounded-full text-[9px] font-black text-pd-red uppercase flex items-center gap-2">
+                        {city} <button onClick={() => setSelectedCities(selectedCities.filter(c => c !== city))}><X size={10} /></button>
                       </div>
-                    )}
+                    ))}
                     {selectedEvent && (
                       <div className="shrink-0 px-3 py-1.5 bg-pd-purple/10 border border-pd-purple/20 rounded-full text-[9px] font-black text-pd-purple uppercase flex items-center gap-2">
                         {selectedEvent} <button onClick={() => setSelectedEvent("")}><X size={10} /></button>
@@ -636,12 +708,12 @@ export default function VenuesPage() {
             <motion.div 
                initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
                transition={{ type: "spring", damping: 25, stiffness: 200 }}
-               className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[48px] z-[310] max-h-[92vh] flex flex-col shadow-2xl"
+               className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[40px] z-[310] max-h-[90vh] flex flex-col shadow-2xl"
             >
-               <div className="p-10 flex flex-col h-full overflow-hidden">
-                  <div className="flex items-center justify-between mb-8 shrink-0">
-                     <h3 className="text-2xl font-black text-slate-900 italic tracking-tight">Refine Results</h3>
-                     <button onClick={() => setShowMobileFilters(false)} className="p-3 bg-slate-100 rounded-full"><X size={20} /></button>
+               <div className="p-6 md:p-10 flex flex-col h-full overflow-hidden">
+                  <div className="flex items-center justify-between mb-6 shrink-0">
+                     <h3 className="text-xl font-black text-slate-900 italic tracking-tight">Refine Results</h3>
+                     <button onClick={() => setShowMobileFilters(false)} className="p-2.5 bg-slate-100 rounded-full transition-transform active:scale-90"><X size={18} /></button>
                   </div>
                   
                   <div className="flex-1 overflow-y-auto no-scrollbar pb-10 space-y-8">
@@ -680,7 +752,9 @@ export default function VenuesPage() {
                                     <button 
                                       key={idx}
                                       onClick={() => {
-                                        setSelectedCity(city);
+                                        if (!selectedCities.includes(city)) {
+                                          setSelectedCities([...selectedCities, city]);
+                                        }
                                         setLocationSearchQuery("");
                                         setCitySuggestions([]);
                                       }}
@@ -692,6 +766,21 @@ export default function VenuesPage() {
                                </motion.div>
                              )}
                            </AnimatePresence>
+
+                           {/* Mobile Selected Cities Chips */}
+                           <div className="flex flex-wrap gap-2 mt-3">
+                              {selectedCities.map((city, i) => (
+                                <div key={i} className="flex items-center gap-2 bg-pd-red text-white px-4 py-2 rounded-2xl shadow-lg shadow-pd-red/20 border border-pd-red/10">
+                                  <span className="text-[10px] font-black uppercase tracking-wider">{city}</span>
+                                  <button 
+                                    onClick={() => setSelectedCities(selectedCities.filter(c => c !== city))}
+                                    className="hover:scale-110 transition-transform"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
+                              ))}
+                           </div>
                         </div>
                      </div>
 

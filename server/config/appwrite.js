@@ -36,6 +36,7 @@ module.exports = {
     storage,
     DATABASE_ID: databaseId, 
     VENUES_COLLECTION_ID: venuesCollectionId,
-    LEADS_COLLECTION_ID: process.env.APPWRITE_LEADS_COLLECTION_ID,
+    LEADS_COLLECTION_ID: process.env.APPWRITE_LEADS_COLLECTION_ID || '69cf7b100035f0d02235',
+    REVIEWS_COLLECTION_ID: process.env.APPWRITE_REVIEWS_COLLECTION_ID || '69d0f0eb001cad584e09',
     STORAGE_BUCKET_ID: storageBucketId
 };

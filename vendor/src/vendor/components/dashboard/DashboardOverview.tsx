@@ -55,25 +55,25 @@ const DashboardOverview = ({
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         
         {/* Executive Hero Banner */}
-        <div className="relative overflow-hidden bg-white border border-slate-100 rounded-[30px] p-12 mb-10 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-           <div className="absolute top-0 right-0 w-1/4 h-full bg-slate-50/50"></div>
-           <div className="absolute top-0 right-0 w-[1px] h-full bg-slate-100"></div>
+        <div className="relative overflow-hidden bg-white border border-slate-100 rounded-[24px] lg:rounded-[30px] p-6 lg:p-12 mb-6 lg:mb-10 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+           <div className="absolute top-0 right-0 w-full lg:w-1/4 h-full bg-slate-50/50"></div>
+           <div className="absolute top-0 right-0 w-[1px] h-full bg-slate-100 hidden lg:block"></div>
            
-           <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
+           <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 lg:gap-10">
               <div>
-                 <div className="flex items-center gap-3 mb-8">
+                 <div className="flex items-center gap-3 mb-4 lg:mb-8">
                     <span className="w-10 h-[3px] bg-pd-pink"></span>
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Executive Briefing</span>
+                    <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Executive Briefing</span>
                  </div>
-                 <h1 className="text-5xl lg:text-3xl font-black text-slate-900 uppercase italic tracking-tighter mb-6 leading-none">
+                 <h1 className="text-3xl lg:text-4xl xl:text-5xl font-black text-slate-900 uppercase italic tracking-tighter mb-4 lg:mb-6 leading-none">
                     {venueProfile?.venueName || "Grand Imperial"}
                  </h1>
-                 <div className="flex flex-wrap gap-4">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest">
-                       {recentLeads.length} New Inquiries
+                 <div className="flex flex-wrap gap-2 lg:gap-4">
+                    <div className="flex items-center gap-2 px-3 lg:px-4 py-1.5 lg:py-2 bg-slate-900 text-white rounded-lg text-[8px] lg:text-[9px] font-black uppercase tracking-widest">
+                       {recentLeads.length} Inquiries
                     </div>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black uppercase tracking-widest">
-                       Top 10% Listing
+                    <div className="flex items-center gap-2 px-3 lg:px-4 py-1.5 lg:py-2 bg-emerald-50 text-emerald-600 rounded-lg text-[8px] lg:text-[9px] font-black uppercase tracking-widest">
+                       Top tier
                     </div>
                  </div>
               </div>
@@ -81,7 +81,7 @@ const DashboardOverview = ({
               <div className="flex flex-col gap-3">
                  <button 
                    onClick={() => setActiveTab('leads')}
-                   className="h-14 px-10 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] italic hover:bg-pd-pink transition-all shadow-xl shadow-slate-900/5 group"
+                   className="h-12 lg:h-14 px-6 lg:px-10 bg-slate-900 text-white rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] italic hover:bg-pd-pink transition-all shadow-xl shadow-slate-900/5 group"
                  >
                     Launch Inquiry Manager
                  </button>
@@ -90,28 +90,28 @@ const DashboardOverview = ({
         </div>
 
         {/* Minimal Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-6 mb-8 lg:mb-12">
           {stats.map((stat, i) => (
              <motion.div
                key={i}
-               className="bg-white p-8 rounded-[24px] border border-slate-100 shadow-[0_1px_2px_rgba(0,0,0,0.01)] hover:border-pd-pink transition-all"
+               className="bg-white p-4 lg:p-8 rounded-[20px] lg:rounded-[24px] border border-slate-100 shadow-[0_1px_2px_rgba(0,0,0,0.01)] hover:border-pd-pink transition-all"
              >
-                <div className="flex items-center justify-between mb-10">
-                   <div className={`w-10 h-10 rounded-lg ${stat.color} flex items-center justify-center`}>
+                <div className="flex items-center justify-between mb-6 lg:mb-10">
+                   <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-lg ${stat.color} flex items-center justify-center scale-90 lg:scale-100`}>
                       {stat.icon}
                    </div>
-                   <span className={`text-[9px] font-black uppercase tracking-widest ${stat.isUp ? 'text-emerald-500' : 'text-red-500'}`}>
+                   <span className={`text-[8px] lg:text-[9px] font-black uppercase tracking-widest ${stat.isUp ? 'text-emerald-500' : 'text-red-500'}`}>
                       {stat.trend}
                    </span>
                 </div>
-                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{stat.label}</h4>
-                <p className="text-2xl font-black italic text-slate-900 tracking-tight">{stat.value}</p>
+                <h4 className="text-[8px] lg:text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1 lg:mb-2">{stat.label}</h4>
+                <p className="text-lg lg:text-2xl font-black italic text-slate-900 tracking-tight">{stat.value}</p>
              </motion.div>
           ))}
         </div>
 
        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-white rounded-[32px] border border-slate-100 p-10">
+          <div className="lg:col-span-3 bg-white rounded-[32px] border border-slate-100 p-10">
              <div className="flex items-center justify-between mb-10">
                 <h2 className="text-xl font-black italic tracking-tighter uppercase leading-none">
                    Live <span className="text-pd-pink">Inquiry Feed</span>
@@ -153,37 +153,7 @@ const DashboardOverview = ({
              </div>
           </div>
 
-          {/* Performance Profile Sidebar */}
-          <div className="space-y-8">
-             <div className="bg-[#0F172A] rounded-[32px] p-8 text-white relative overflow-hidden group">
-                <header className="flex items-center justify-between mb-8">
-                   <div>
-                      <h3 className="text-[9px] font-black italic uppercase tracking-[0.2em] text-pd-pink mb-1">Listing Velocity</h3>
-                      <p className="text-xl font-black italic tracking-tighter leading-none">85.4%</p>
-                   </div>
-                   <div className="w-12 h-12 rounded-lg border border-white/20 flex items-center justify-center">
-                      <TrendingUp size={18} className="text-emerald-400" />
-                   </div>
-                </header>
-                <p className="text-[10px] text-slate-400 font-medium leading-relaxed mb-8 italic">Your storefront is performing in the <span className="text-white font-bold underline decoration-pd-pink decoration-2 underline-offset-4">Top Tier</span> of Luxury Venues.</p>
-                <button className="w-full py-4 bg-pd-pink text-[9px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-pd-pink/20">Expand Reach</button>
-             </div>
-             
-             <div className="bg-white border border-slate-100 rounded-[32px] p-8">
-                <div className="flex items-center justify-between mb-6">
-                   <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900">Quick Wins</h4>
-                   <Sparkles size={14} className="text-pd-pink" />
-                </div>
-                <div className="space-y-4">
-                   <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-500 italic leading-snug">Average response time is <span className="text-emerald-500 font-black">2.4 mins</span>. Excellent!</p>
-                   </div>
-                   <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-500 italic leading-snug">Update your ballroom photos to increase leads by <span className="text-pd-pink font-black">18%</span>.</p>
-                   </div>
-                </div>
-             </div>
-          </div>
+
        </div>
     </motion.div>
   );

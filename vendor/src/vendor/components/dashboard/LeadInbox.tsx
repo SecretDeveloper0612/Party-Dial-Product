@@ -43,11 +43,11 @@ const LeadInbox = ({
   setQuoteData
 }: LeadInboxProps) => {
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-5xl mx-auto space-y-6">
-      <header className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-4">
+    <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-5xl mx-auto space-y-4 lg:space-y-6">
+      <header className="flex flex-col md:flex-row md:items-start justify-between gap-4 lg:gap-6 mb-2 lg:mb-4 px-2 lg:px-0">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 mb-1">Lead Inbox</h1>
-          <p className="text-sm font-medium text-slate-500">Real-time inquiries from clients</p>
+          <h1 className="text-2xl lg:text-3xl font-black text-slate-900 mb-1 leading-none">Lead Inbox</h1>
+          <p className="text-[11px] lg:text-sm font-medium text-slate-500 italic">Real-time inquiries from clients</p>
         </div>
         <div className="flex items-center gap-3">
            <button className="bg-slate-100 p-3 rounded-2xl text-slate-600 hover:text-slate-900 transition-all">
@@ -56,26 +56,26 @@ const LeadInbox = ({
         </div>
       </header>
 
-      <div className="flex overflow-x-auto pb-2 custom-scrollbar bg-slate-50 p-1.5 rounded-3xl w-max">
+      <div className="flex overflow-x-auto pb-2 scrollbar-hide bg-slate-50 p-1.5 rounded-[20px] lg:rounded-3xl w-max max-w-full">
          {['All', 'New', 'Contacted', 'Followups', 'Quoted'].map(filter => (
            <button 
              key={filter} 
              onClick={() => setLeadFilter(filter)}
-             className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all ${leadFilter === filter ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
+             className={`px-4 lg:px-5 py-2 lg:py-2.5 rounded-xl lg:rounded-2xl text-[12px] lg:text-sm font-bold transition-all whitespace-nowrap ${leadFilter === filter ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
            >
              {filter}
            </button>
          ))}
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3 lg:space-y-4">
             {filteredAdvancedLeads.map((lead, i) => (
               <motion.div 
                 key={lead.id} 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-slate-50 rounded-[32px] p-6 flex flex-col gap-5 border border-slate-100 shadow-sm hover:border-slate-300 transition-all font-sans"
+                className="bg-white lg:bg-slate-50 rounded-[28px] lg:rounded-[32px] p-5 lg:p-6 flex flex-col gap-4 lg:gap-5 border border-slate-100 shadow-sm hover:border-slate-300 transition-all font-sans"
               >
                  <div className="flex justify-between items-start">
                     <div className="flex gap-4 items-center">
@@ -84,7 +84,7 @@ const LeadInbox = ({
                        </div>
                        <div>
                           <h4 className="text-base font-black text-slate-900 flex items-center gap-2">{lead.name}</h4>
-                          <p className="text-[10px] font-bold text-slate-400 mt-0.5 tracking-wide">just now</p>
+                          <p className="text-[10px] font-bold text-slate-400 mt-0.5 tracking-wide">{lead.time || 'just now'}</p>
                        </div>
                     </div>
                     <div className="relative">
@@ -148,7 +148,14 @@ const LeadInbox = ({
                     </button>
                     <button 
                       onClick={() => {
-                         setQuoteData((prev: any) => ({ ...prev, client: lead.name, event: lead.event || 'Special Event' }));
+                         setQuoteData((prev: any) => ({ 
+                           ...prev, 
+                           client: lead.name, 
+                           contact: lead.phone,
+                           event: lead.event || 'Special Event',
+                           guestCount: lead.guests || '0',
+                           eventDate: lead.date ? new Date(lead.date).toISOString().split('T')[0] : prev.eventDate
+                         }));
                          setActiveTab('quotation');
                       }}
                       className="flex items-center gap-2 text-xs font-black text-slate-600 hover:text-slate-900 transition-colors z-10 relative"
