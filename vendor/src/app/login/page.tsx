@@ -41,6 +41,13 @@ export default function VenueLoginPage() {
     try {
       const { account } = await import('@/lib/appwrite');
       
+      // Delete any existing session first to avoid "session already active" error
+      try {
+        await account.deleteSession('current');
+      } catch (_) {
+        // No active session — that's fine, continue
+      }
+      
       // 1. Create the session directly on frontend (required for browser cookies)
       const session = await account.createEmailPasswordSession(formData.email, formData.password);
       
@@ -62,7 +69,8 @@ export default function VenueLoginPage() {
   const handleGoogleLogin = () => {
     const successUrl = `${window.location.origin}/dashboard`;
     const failureUrl = `${window.location.origin}/login`;
-    window.location.href = `http://127.0.0.1:5005/api/auth/google?successUrl=${encodeURIComponent(successUrl)}&failureUrl=${encodeURIComponent(failureUrl)}`;
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+    window.location.href = `${serverUrl}/auth/google?successUrl=${encodeURIComponent(successUrl)}&failureUrl=${encodeURIComponent(failureUrl)}`;
   };
 
 
