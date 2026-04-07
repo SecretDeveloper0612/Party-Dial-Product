@@ -147,7 +147,8 @@ export default function VenueSignupPage() {
     setErrors({});
 
     try {
-      const response = await fetch('http://127.0.0.1:5005/api/auth/register', {
+      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const response = await fetch(`${serverUrl}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -189,7 +190,8 @@ export default function VenueSignupPage() {
     const successUrl = `${window.location.origin}/dashboard/onboarding/profile`;
 
     const failureUrl = `${window.location.origin}/signup`;
-    window.location.href = `http://127.0.0.1:5005/api/auth/google?successUrl=${encodeURIComponent(successUrl)}&failureUrl=${encodeURIComponent(failureUrl)}`;
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+    window.location.href = `${serverUrl}/auth/google?successUrl=${encodeURIComponent(successUrl)}&failureUrl=${encodeURIComponent(failureUrl)}`;
   };
 
 
@@ -545,7 +547,7 @@ export default function VenueSignupPage() {
                     />
                  </div>
                  <div className="text-[11px] text-slate-500 leading-tight">
-                    I accept the platform’s <Link href="/terms" className="text-pd-pink font-bold hover:underline">Terms & Conditions</Link> and <Link href="/privacy" className="text-pd-pink font-bold hover:underline">Privacy Policy</Link> before submitting.
+                    I accept the platform’s <Link href="#" className="text-pd-pink font-bold hover:underline">Terms & Conditions</Link> and <Link href="#" className="text-pd-pink font-bold hover:underline">Privacy Policy</Link> before submitting.
                     {errors.acceptTerms && <p className="text-[9px] text-red-500 font-bold mt-1">{errors.acceptTerms}</p>}
                  </div>
                </div>
