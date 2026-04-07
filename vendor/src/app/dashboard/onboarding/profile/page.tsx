@@ -180,7 +180,6 @@ export default function CompleteProfilePage() {
         amenities: JSON.stringify(selectedAmenities),
         eventTypes: JSON.stringify(selectedEventTypes),
         landmark,
-        location: landmark, // Map landmark to profile address (location)
         contactNumber: userData?.phone || '',
         city: userData?.city || 'Haldwani',
         state: userData?.state || 'Uttarakhand',
