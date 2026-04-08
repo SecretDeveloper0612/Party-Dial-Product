@@ -1,76 +1,156 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Target, MessageSquare, ShieldCheck, Zap } from 'lucide-react';
+import { 
+  Target, 
+  MessageSquare, 
+  ShieldCheck, 
+  Zap, 
+  Instagram, 
+  Twitter, 
+  Linkedin, 
+  Youtube,
+  AtSign,
+  ArrowRight,
+  Mail,
+  ChevronRight
+} from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer suppressHydrationWarning className="bg-slate-900 pt-20 pb-10 px-6 text-white text-center">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
-          <div className="space-y-6 flex flex-col items-center md:items-start">
-            <div className="flex items-center gap-3">
+    <footer suppressHydrationWarning className="bg-[#0B1121] pt-24 pb-12 px-6 text-white relative overflow-hidden">
+      {/* Background Ornaments */}
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] pointer-events-none"></div>
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+      <div className="absolute -bottom-[100px] -left-[100px] w-[400px] h-[400px] bg-pd-blue/20 rounded-full blur-[120px] pointer-events-none opacity-20"></div>
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-24">
+          
+          {/* Brand Column */}
+          <div className="lg:col-span-4 space-y-10 flex flex-col items-center md:items-start text-center md:text-left">
+            <div className="flex items-center gap-1">
               <Image 
                 src="/logo.png" 
                 alt="PartyDial" 
-                width={120} 
+                width={140} 
                 height={40} 
-                className="h-8 w-auto object-contain" 
+                className="h-10 w-auto object-contain" 
               />
-              <div className="h-4 w-px bg-slate-700 mx-1 hidden sm:block"></div>
-              <span className="text-pd-red text-xs font-black uppercase tracking-widest">Partner</span>
+              <div className="h-4 w-[1px] bg-white/20 mx-2"></div>
+              <span className="text-pd-red text-[10px] font-black uppercase tracking-[0.3em] italic">Partner</span>
             </div>
-            <p className="max-w-[280px] text-slate-400 text-sm font-medium leading-relaxed">
-              Empowering venues and event partners with high-quality leads and smart management tools.
+            
+            <p className="max-w-sm text-slate-400 text-base font-medium leading-relaxed">
+              Empowering venues and event partners with high-quality leads and the most advanced management engine in India.
             </p>
+
+            <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+              {[
+                { Icon: Instagram, color: 'hover:bg-pink-600' },
+                { 
+                  Icon: () => (
+                    <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] fill-current" aria-hidden="true">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                    </svg>
+                  ), 
+                  color: 'hover:bg-black', 
+                  label: 'X' 
+                },
+                { Icon: Linkedin, color: 'hover:bg-blue-700' },
+                { Icon: AtSign, color: 'hover:bg-white hover:text-black', label: 'Threads' },
+                { Icon: Youtube, color: 'hover:bg-red-600' }
+              ].map((social, i) => (
+                <Link 
+                  key={i} 
+                  href="#" 
+                  className={`w-11 h-11 rounded-[16px] bg-white/5 border border-white/5 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg ${social.color} group`}
+                  title={social.label}
+                >
+                  <social.Icon size={18} className="group-hover:scale-110 transition-transform" />
+                </Link>
+              ))}
+            </div>
           </div>
           
-          <div>
-            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-pd-red mb-8">Platform</h4>
-            <ul className="space-y-4">
-              <li><Link href="/#benefits" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">Benefits</Link></li>
-              <li><Link href="/how-it-works" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">How it Works</Link></li>
-              <li><Link href="/pricing" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">Subscription Plans</Link></li>
-              <li><Link href="#" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">Merchant App</Link></li>
-              <li><Link href="#" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">Lead Manager</Link></li>
+          {/* Navigation Columns */}
+          <div className="lg:col-span-2">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-pd-red mb-10 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-pd-red"></div> Platform
+            </h4>
+            <ul className="space-y-5">
+              {[
+                { name: 'Benefits', href: '/#features' },
+                { name: 'How it Works', href: '/process' },
+                { name: 'Pricing Plans', href: '/pricing' },
+                { name: 'Merchant App', href: '/signup' },
+                { name: 'Lead Manager', href: '/dashboard' }
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="group flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-white transition-all duration-300">
+                    <ChevronRight size={12} className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-pd-red" />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-pd-red mb-8">Resources</h4>
-            <ul className="space-y-4">
-              <li><Link href="#" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">Partner FAQ</Link></li>
-              <li><Link href="#" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">Success Stories</Link></li>
-              <li><Link href="#" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">Community</Link></li>
-              <li><Link href="#" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">Contact Support</Link></li>
+          <div className="lg:col-span-2">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-pd-red mb-10 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-pd-red"></div> Resources
+            </h4>
+            <ul className="space-y-5">
+              {[
+                { name: 'Partner FAQ', href: '/#faq' },
+                { name: 'Success Stories', href: '/#stories' },
+                { name: 'Community', href: '/signup' },
+                { name: 'Contact Us', href: '/contact' }
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="group flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-white transition-all duration-300">
+                    <ChevronRight size={12} className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-pd-red" />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-pd-red mb-8">Company</h4>
-            <ul className="space-y-4">
-              <li><Link href="#" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">Terms of Service</Link></li>
-              <li><Link href="#" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="text-sm font-bold text-slate-400 hover:text-white transition-colors">Refund Policy</Link></li>
-            </ul>
+          {/* Newsletter / CTA Column */}
+          <div className="lg:col-span-4">
+             <div className="p-8 bg-white/5 rounded-[40px] border border-white/10 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink/5 rounded-full blur-3xl"></div>
+                
+                <h4 className="text-sm font-black italic uppercase tracking-widest mb-4">Growth Insights</h4>
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-8 leading-relaxed">Join 500+ venues receiving weekly market reports and lead tips.</p>
+                
+                <div className="relative">
+                   <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                   <input 
+                      className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-14 text-sm font-bold focus:border-pd-pink focus:bg-white/10 transition-all outline-none" 
+                      placeholder="Email Address" 
+                   />
+                   <button className="absolute right-2 top-2 w-10 h-10 bg-white text-slate-900 rounded-xl flex items-center justify-center hover:bg-pd-pink hover:text-white transition-all duration-300">
+                      <ArrowRight size={18} />
+                   </button>
+                </div>
+             </div>
           </div>
         </div>
 
-        <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">© 2026 PartyDial</p>
-            <div className="hidden md:block w-px h-3 bg-white/10"></div>
+        {/* Bottom Bar */}
+        <div className="pt-12 border-t border-white/5 flex flex-col xl:flex-row justify-between items-center gap-10">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-center md:text-left">
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">© 2026 PARTYDIAL</p>
+            <div className="hidden md:block w-[1px] h-4 bg-white/10"></div>
             <p className="text-[10px] font-black text-pd-red uppercase tracking-[0.2em]">A Platform by Preet Tech OPC PVT. LTD.</p>
-            <div className="hidden md:block w-px h-3 bg-white/10"></div>
-            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest italic">All billing and operations managed exclusively by Preet Tech</p>
+            <div className="hidden md:block w-[1px] h-4 bg-white/10"></div>
+            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] italic">All billing and operations managed exclusively by Preet Tech</p>
           </div>
-          <div className="flex gap-8">
-            <Zap size={18} className="text-white/20" />
-            <Target size={18} className="text-white/20" />
-            <ShieldCheck size={18} className="text-white/20" />
-            <MessageSquare size={18} className="text-white/20" />
-          </div>
+          
         </div>
       </div>
     </footer>
   );
 }
+

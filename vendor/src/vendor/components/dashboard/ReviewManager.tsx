@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, X, Send, User, MessageSquareQuote, Trash2 } from 'lucide-react';
+import { Star, X, Send, User, MessageSquareQuote } from 'lucide-react';
 import Image from 'next/image';
 
 interface ReviewManagerProps {
@@ -17,8 +17,6 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
   const [isLoading, setIsLoading] = React.useState(true);
   const [replyText, setReplyText] = React.useState('');
   const [isSubmittingReply, setIsSubmittingReply] = React.useState(false);
-  const [reviewToDelete, setReviewToDelete] = React.useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const fetchReviews = React.useCallback(async () => {
     if (!venueId) return;
@@ -107,28 +105,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
     }
   };
 
-  const handleDeleteReview = async (reviewId: string) => {
-    setIsDeleting(true);
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
-      const response = await fetch(`${baseUrl}/venues/reviews/${reviewId}`, {
-        method: 'DELETE',
-      });
-      const result = await response.json();
-      if (result.status === 'success') {
-        showToast('Review deleted successfully!', 'success');
-        setReviews(prev => prev.filter(r => r.$id !== reviewId));
-        setReviewToDelete(null);
-      } else {
-        showToast(result.message || 'Failed to delete review', 'error');
-      }
-    } catch (err) {
-      console.error('Failed to delete review:', err);
-      showToast('Failed to delete review. Please try again.', 'error');
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+
 
   const avgRating = reviews.length > 0 
     ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) 
@@ -177,13 +154,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                             <Star key={s} size={10} fill={s <= review.rating ? "currentColor" : "none"} className={s > review.rating ? 'text-slate-200' : ''} />
                           ))}
                        </div>
-                       <button 
-                         onClick={() => setReviewToDelete(review.$id)}
-                         className="w-8 h-8 rounded-lg bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                         title="Delete Review"
-                       >
-                          <Trash2 size={14} />
-                       </button>
+
                     </div>
                  </div>
                 <p className="text-xs text-slate-600 font-medium leading-relaxed italic mb-8 min-h-[48px]">
@@ -294,51 +265,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
         )}
        </AnimatePresence>
 
-       {/* Delete Confirmation Modal */}
-       <AnimatePresence>
-         {reviewToDelete && (
-           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setReviewToDelete(null)}
-                className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
-              />
-              
-              <motion.div 
-                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                 className="bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden relative z-10 p-10 text-center"
-              >
-                 <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center text-red-500 mx-auto mb-8 shadow-inner">
-                    <Trash2 size={32} />
-                 </div>
-                 
-                 <h3 className="text-2xl font-black italic uppercase text-slate-900 leading-tight mb-4">Confirm <span className="text-pd-red">Deletion</span></h3>
-                 <p className="text-xs text-slate-500 font-bold uppercase tracking-widest leading-relaxed mb-10">This action is permanent and cannot be undone. All review data will be wiped from the system.</p>
 
-                 <div className="flex flex-col gap-3">
-                    <button 
-                      onClick={() => handleDeleteReview(reviewToDelete)}
-                      disabled={isDeleting}
-                      className="w-full py-5 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest italic rounded-2xl shadow-xl shadow-slate-900/20 hover:bg-pd-red transition-all disabled:opacity-50"
-                    >
-                      {isDeleting ? 'PURGING DATA...' : 'CONFIRM PURGE'}
-                    </button>
-                    <button 
-                      onClick={() => setReviewToDelete(null)}
-                      disabled={isDeleting}
-                      className="w-full py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all italic"
-                    >
-                      NEVERMIND, GO BACK
-                    </button>
-                 </div>
-              </motion.div>
-           </div>
-         )}
-       </AnimatePresence>
     </motion.div>
   );
 };

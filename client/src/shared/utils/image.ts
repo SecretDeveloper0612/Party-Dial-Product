@@ -32,7 +32,7 @@ export const parsePhotos = (photosData: any): GalleryPhoto[] => {
            id: p.id || p.$id || '', 
            category: p.category || 'All Photos' 
          };
-      }).filter(p => p.id);
+      }).filter(p => p.id && p.category !== 'Profile');
     }
   } catch (e) {
     console.error("Error parsing photos:", e);

@@ -12,28 +12,37 @@ const QuickSupport = () => {
           <p className="text-slate-500 font-medium italic">We&apos;re here to help you grow your venue business.</p>
        </div>
        
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          {[
-             { title: 'Chat Support', desc: 'Average response time: 5 mins', icon: <MessageSquare className="text-pd-pink" size={24} /> },
-             { title: 'Knowledge Base', desc: 'Read guides on getting more leads', icon: <HelpCircle className="text-blue-500" size={24} /> }
-          ].map((item, idx) => (
-             <div key={idx} className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-pd-soft flex items-center gap-6 hover:border-pd-pink transition-all cursor-pointer">
-                <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100">
-                   {item.icon}
-                </div>
-                <div>
-                   <h4 className="text-sm font-black italic text-slate-900 uppercase">{item.title}</h4>
-                   <p className="text-[10px] text-slate-400 font-bold italic">{item.desc}</p>
-                </div>
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <a 
+            href="https://wa.me/919058988455?text=Hi%20PartyDial%20Support,%20I%20need%20help%20with%20my%20venue%20listing." 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-pd-soft flex items-center gap-6 hover:border-emerald-500 transition-all cursor-pointer group hover:scale-[1.02]"
+          >
+             <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center border border-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                <MessageSquare size={24} />
              </div>
-          ))}
+             <div>
+                <h4 className="text-sm font-black italic text-slate-900 uppercase">WhatsApp Support</h4>
+                <p className="text-[10px] text-slate-400 font-bold italic">Chat with our team instantly</p>
+             </div>
+          </a>
+
+          <a 
+            href="mailto:support@partydial.com"
+            className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-pd-soft flex items-center gap-6 hover:border-blue-500 transition-all cursor-pointer group hover:scale-[1.02]"
+          >
+             <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                <HelpCircle size={24} />
+             </div>
+             <div>
+                <h4 className="text-sm font-black italic text-slate-900 uppercase">Email Support</h4>
+                <p className="text-[10px] text-slate-400 font-bold italic">Official help desk channel</p>
+             </div>
+          </a>
        </div>
        
-       <div className="bg-slate-900 p-12 rounded-[50px] text-white text-center shadow-2xl">
-          <h3 className="text-2xl font-black italic uppercase mb-4">Dedicated Account Manager</h3>
-          <p className="text-slate-400 text-sm mb-8 italic">Available for <span className="text-emerald-400">Platinum Plus</span> vendors to optimize listings manually.</p>
-          <button className="pd-btn-primary px-10">Email My Manager</button>
-       </div>
+
     </motion.div>
   );
 };

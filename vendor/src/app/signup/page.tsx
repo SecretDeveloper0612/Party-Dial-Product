@@ -56,13 +56,11 @@ export default function VenueSignupPage() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isPincodeLoading, setIsPincodeLoading] = useState(false);
+  const [isPincodeLoading, setIsPincodeLoading] = React.useState(false);
 
   // No auto-redirect from localStorage, as we want to use the live SDK for checks.
   React.useEffect(() => {
-    // Optionally clear stale data on this page too
-    localStorage.removeItem('auth_session');
-    localStorage.removeItem('user');
+    // We no longer clear stale data here to avoid logging out users who visit this page while logged in
   }, []);
 
 
@@ -154,7 +152,7 @@ export default function VenueSignupPage() {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-          name: formData.ownerName,
+          name: formData.businessName,
           venueName: formData.businessName,
           ownerName: formData.ownerName,
           phone: formData.phone,
@@ -169,11 +167,30 @@ export default function VenueSignupPage() {
       const result = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('auth_session', JSON.stringify(result.session));
-        localStorage.setItem('user', JSON.stringify(result.user));
-        localStorage.setItem('fresh_signup', 'true');
-        console.log('Registration success');
-        router.push('/dashboard');
+        // Automatically log in on frontend to establish session cookie
+        try {
+          const { account } = await import('@/lib/appwrite');
+          
+          // Clear any existing stale sessions
+          try { await account.deleteSession('current'); } catch (_) {}
+          
+          // Create new session
+          const session = await account.createEmailPasswordSession(formData.email, formData.password);
+          const user = await account.get();
+          
+          localStorage.setItem('auth_session', JSON.stringify(session));
+          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('fresh_signup', 'true');
+          
+          console.log('Registration & Auto-login success');
+          router.push('/dashboard');
+        } catch (loginErr: any) {
+          console.error('Auto-login failed:', loginErr);
+          // Fallback: Use server-provided session if possible, but the dashboard might redirect
+          localStorage.setItem('auth_session', JSON.stringify(result.session));
+          localStorage.setItem('user', JSON.stringify(result.user));
+          router.push('/dashboard');
+        }
       } else {
         setErrors({ submit: result.message || 'Registration failed. Please try again.' });
       }
@@ -271,7 +288,7 @@ export default function VenueSignupPage() {
         <div className="absolute top-8 left-8 lg:top-12 lg:left-12 z-20">
            <Link href="/">
              <div className="flex items-center gap-2 group cursor-pointer bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20">
-               <div className="w-8 h-8 rounded-lg bg-pd-pink flex items-center justify-center text-white font-black italic shadow-lg group-hover:scale-110 transition-transform">P</div>
+                <div className="w-8 h-8 rounded-lg bg-pd-pink flex items-center justify-center text-white font-black italic shadow-lg group-hover:scale-110 transition-transform">P</div>
                <span className="text-sm font-black text-white italic tracking-tighter uppercase group-hover:tracking-widest transition-all">PARTYDIAL</span>
              </div>
            </Link>

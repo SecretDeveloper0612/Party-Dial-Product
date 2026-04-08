@@ -145,6 +145,7 @@ export interface Venue {
   availableSpaces: VenueSpace[];
   coverPhotos: string[];
   fullGallery: GalleryItem[];
+  about: string;
   joinedAt: string;
   ownerEmail: string;
 }
@@ -237,7 +238,7 @@ export const getUsers = (): User[] => [
 
 export const getVenues = (): Venue[] => [
   { 
-    id: "v1", name: "The Grand Regency", businessName: "Regency Hospitality", location: { address: "NH-8", city: "Delhi" }, contactNumber: "+91 9988776655", startingRates: { veg: 1200, nonVeg: 1500 }, isVerified: true, hasActivePlan: true, status: "Active", subscriptionPlan: "200-500 PAX", totalLeads: 245, activity: { received: 245, contacted: 210, booked: 45, lost: 12 }, amenities: ["AC"], availableSpaces: [], coverPhotos: ["https://images.unsplash.com/photo-1519167758481-83f550bb49b3"], fullGallery: [], joinedAt: "2023-10-12", ownerEmail: "owner1@regency.com"
+    id: "v1", name: "The Grand Regency", businessName: "Regency Hospitality", location: { address: "NH-8", city: "Delhi" }, contactNumber: "+91 9988776655", startingRates: { veg: 1200, nonVeg: 1500 }, isVerified: true, hasActivePlan: true, status: "Active", subscriptionPlan: "200-500 PAX", totalLeads: 245, activity: { received: 245, contacted: 210, booked: 45, lost: 12 }, amenities: ["AC"], availableSpaces: [], coverPhotos: ["https://images.unsplash.com/photo-1519167758481-83f550bb49b3"], fullGallery: [], about: "A premium banquet hall for all your needs.", joinedAt: "2023-10-12", ownerEmail: "owner1@regency.com"
   }
 ];
 

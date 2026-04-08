@@ -624,7 +624,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pricing From</p>
-                      <p className="text-sm font-black text-pd-pink">{venue.price} <span className="text-[10px] text-slate-400">/plate</span></p>
+                      <p className="text-sm font-black text-emerald-500">{venue.price} <span className="text-[10px] text-slate-400">/plate</span></p>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2 mt-6">

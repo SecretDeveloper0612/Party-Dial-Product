@@ -115,6 +115,7 @@ export default function VenueDetailPage() {
         },
         body: JSON.stringify({
           venueId: id,
+          pincode: venue?.pincode,
           name: formData.name,
           phone: formData.phone,
           email: formData.email,
@@ -548,7 +549,7 @@ export default function VenueDetailPage() {
                <div className="text-center md:text-left flex flex-col px-1">
                  <p className="text-[7px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] lg:tracking-[0.2em] mb-2 min-h-[3em] md:min-h-0 flex items-center justify-center md:justify-start">Veg Plate</p>
                  <div className="flex flex-col items-center md:items-start gap-1">
-                   <Utensils size={14} className="text-pd-pink md:w-5 md:h-5" />
+                   <Utensils size={14} className="text-emerald-500 md:w-5 md:h-5" />
                    <span className="text-xs md:text-lg font-black text-slate-900">₹{venue.pricePerPlate}</span>
                  </div>
                </div>
@@ -626,19 +627,18 @@ export default function VenueDetailPage() {
                       Explore All Photos <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                    </Link>
                 </div>
-                <div className="columns-2 md:columns-3 gap-4 space-y-4">
-                   {venue.images.slice(0, 5).map((img: string, i: number) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                   {venue.images.slice(0, 3).map((img: string, i: number) => (
                       <Link 
                         key={i} 
                         href={`/venues/${id}/gallery`}
-                        className="relative block break-inside-avoid rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-pd-strong transition-all duration-700 cursor-pointer group"
+                        className="relative block aspect-[4/3] rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-pd-strong transition-all duration-700 cursor-pointer group"
                       >
                          <Image 
                            src={img} 
                            alt="venue gallery" 
-                           width={800}
-                           height={1000}
-                           className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-1000" 
+                           fill
+                           className="object-cover group-hover:scale-105 transition-transform duration-1000" 
                          />
                          <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-pd-purple/5 transition-colors"></div>
                          <div className="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100">

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
-import { storage, ID, STORAGE_BUCKET_ID } from '@/lib/appwrite';
+import { storage, ID, STORAGE_BUCKET_ID, PROJECT_ID, ENDPOINT } from '@/lib/appwrite';
 import { 
   FileText, 
   CheckCircle2, 
@@ -54,6 +54,8 @@ interface QuoteData {
   discountValue: number;
   extraCharges: number;
   lineItems: LineItem[];
+  selectedImages: string[];
+  leadId?: string;
 }
 
 interface QuotationManagerProps {
@@ -100,7 +102,34 @@ const QuotationManager = ({
 }: QuotationManagerProps) => {
 
 
-  // Derived calculations
+  // Automatically fetch lead details if leadId is provided
+  useEffect(() => {
+    const fetchLeadDetails = async () => {
+      if (quoteData.leadId) {
+        try {
+          const { databases, DATABASE_ID, LEADS_COLLECTION_ID } = await import('@/lib/appwrite');
+          const leadDoc = await databases.getDocument(DATABASE_ID, LEADS_COLLECTION_ID, quoteData.leadId);
+          
+          if (leadDoc) {
+            setQuoteData((prev: any) => ({
+              ...prev,
+              client: leadDoc.name || prev.client,
+              contact: leadDoc.phone || prev.contact,
+              email: leadDoc.email || prev.email,
+              guestCount: leadDoc.guests ? leadDoc.guests.toString() : prev.guestCount,
+              // Only clear leadId after successful fetch to prevent infinite loop
+              // but we want to keep it to know we already fetched for this ID
+              // So we can check if data matches
+            }));
+          }
+        } catch (err) {
+          console.error('Failed to fetch lead details:', err);
+        }
+      }
+    };
+
+    fetchLeadDetails();
+  }, [quoteData.leadId]);
   const calculateTotal = () => {
     const linesTotal = quoteData.lineItems.reduce((acc, item) => acc + item.amount, 0);
     const discountAmt = quoteData.discountType === 'percentage' 
@@ -126,25 +155,88 @@ const QuotationManager = ({
    const [isSharing, setIsSharing] = useState(false);
    const quotationRef = useRef<HTMLDivElement>(null);
 
-   const generatePdfBlob = async (): Promise<Blob | null> => {
-      if (!quotationRef.current) return null;
-      const canvas = await html2canvas(quotationRef.current, {
-         scale: 2,
-         useCORS: true,
-         logging: false,
-         backgroundColor: '#ffffff'
-      });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      return pdf.output('blob');
-   };
+    const generatePdfBlob = async (): Promise<Blob | null> => {
+       if (!quotationRef.current) return null;
+       
+       const canvas = await html2canvas(quotationRef.current, {
+          scale: 2, // High fidelity capture
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          onclone: (clonedDoc) => {
+             // 1. Find the preview element in the clone using its ID
+             const el = clonedDoc.getElementById('quotation-preview-doc');
+             if (el) {
+                el.style.display = 'flex';
+                el.style.visibility = 'visible';
+                el.style.boxShadow = 'none';
+                el.style.transform = 'none';
+             }
+
+             // 2. Sanitize all <style> tags in the head to prevent html2canvas parser crashes
+             const styles = clonedDoc.getElementsByTagName('style');
+             const colorRegex = /(oklch|oklab|lab|lch|color-mix|color)\s*\([^\)]+\)/gi;
+             for (let i = 0; i < styles.length; i++) {
+                if (styles[i].innerHTML) {
+                   styles[i].innerHTML = styles[i].innerHTML.replace(colorRegex, '#94a3b8');
+                }
+             }
+
+             // 3. Iterate through all elements to fix any inline styles or problematic attributes
+             const allElements = clonedDoc.getElementsByTagName('*');
+             for (let i = 0; i < allElements.length; i++) {
+                const node = allElements[i] as HTMLElement;
+                
+                // Fix inline style attributes
+                if (node.hasAttribute('style')) {
+                   const styleStr = node.getAttribute('style') || '';
+                   node.setAttribute('style', styleStr.replace(colorRegex, '#94a3b8'));
+                }
+
+                // Fix SVG-specific color attributes that often use modern colors
+                if (node.nodeName.toLowerCase() === 'path' || node.nodeName.toLowerCase() === 'circle' || node.nodeName.toLowerCase() === 'svg') {
+                   ['fill', 'stroke'].forEach(attr => {
+                      const val = node.getAttribute(attr);
+                      if (val) {
+                         node.setAttribute(attr, val.replace(colorRegex, '#94a3b8'));
+                      }
+                   });
+                }
+             }
+          }
+       });
+       
+       const imgData = canvas.toDataURL('image/png', 1.0);
+       const pdf = new jsPDF('p', 'mm', 'a4');
+       
+       const pdfWidth = pdf.internal.pageSize.getWidth();
+       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+       
+       // Multi-page handling logic
+       const pageHeight = pdf.internal.pageSize.getHeight();
+       let heightLeft = pdfHeight;
+       let position = 0;
+
+       // Add first page
+       pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+       heightLeft -= pageHeight;
+
+       // Add subsequent pages if content is longer than one page
+       while (heightLeft > 0) {
+          position = heightLeft - pdfHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+          heightLeft -= pageHeight;
+       }
+       
+       return pdf.output('blob');
+    };
 
    const downloadAsPDF = async () => {
       try {
          setIsGenerating(true);
+         showToast('Preparing PDF for download...', 'success');
          const blob = await generatePdfBlob();
          if (!blob) return;
          
@@ -154,47 +246,63 @@ const QuotationManager = ({
          link.download = `Quotation_${quoteData.client.replace(/\s+/g, '_')}.pdf`;
          link.click();
          URL.revokeObjectURL(url);
-         
-         showToast('Quotation PDF generated successfully.', 'success');
-      } catch (error) {
+         showToast('Quotation downloaded successfully!', 'success');
+      } catch (error: any) {
          console.error('PDF Generation Error:', error);
-         showToast('Direct PDF generation failed. Opening print dialog instead...', 'error');
-         window.print();
+         showToast(`Generation failed: ${error.message || 'Please try again'}`, 'error');
       } finally {
          setIsGenerating(false);
       }
    };
 
-   const handleWhatsAppShare = async () => {
-      try {
-         setIsSharing(true);
-         showToast('Generating shareable PDF link...', 'success');
-         
-         const blob = await generatePdfBlob();
-         if (!blob) throw new Error('Failed to generate PDF');
-         
-         // Upload to Appwrite Storage
-         const file = new File([blob], `Quotation_${Date.now()}.pdf`, { type: 'application/pdf' });
-         const uploadedFile = await storage.createFile(STORAGE_BUCKET_ID, ID.unique(), file);
-         
-         // Get View URL
-         const fileUrl = `${window.location.origin.includes('localhost') ? 'https://sgp.cloud.appwrite.io/v1' : 'https://sgp.cloud.appwrite.io/v1'}/storage/buckets/${STORAGE_BUCKET_ID}/files/${uploadedFile.$id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '69ae84bc001ca4edf8c2'}`;
-         
-         const text = `Hello *${quoteData.client}*, here is your customized proposal for *${quoteData.event}* from *${venueProfile?.venueName || 'Party Dial'}*.\n\n📄 *View Quotation PDF:* ${fileUrl}\n\nTotal Amount: *₹${total.toLocaleString('en-IN')}*\n\nLooking forward to hosting your event!`;
-         
-         window.open(`https://wa.me/${quoteData.contact.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
-         showToast('Quotation shared via WhatsApp!', 'success');
-      } catch (error) {
-         console.error('WhatsApp Share Error:', error);
-         showToast('Failed to generate shareable link. Sending text only...', 'error');
-         const text = `Hello ${quoteData.client}, here is your quotation for ${quoteData.event} from ${venueProfile?.venueName || 'Party Dial'}.\nTotal Amount: ₹${total.toLocaleString('en-IN')}`;
-         window.open(`https://wa.me/${quoteData.contact.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
-      } finally {
-         setIsSharing(false);
-      }
-   };
+    const handleWhatsAppShare = async () => {
+       setIsSharing(true);
+       try {
+          if (!quotationRef.current) {
+             throw new Error('Quotation preview not found');
+          }
+
+          showToast('Preparing your shareable proposal...', 'success');
+          
+          const blob = await generatePdfBlob();
+          if (!blob) throw new Error('Failed to generate PDF');
+          
+          // Upload to Appwrite Storage
+          const fileName = `Quotation_${quoteData.client.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
+          const file = new File([blob], fileName, { type: 'application/pdf' });
+          const uploadedFile = await storage.createFile(STORAGE_BUCKET_ID, ID.unique(), file);
+          
+          // Get View URL
+          const fileUrl = `${ENDPOINT}/storage/buckets/${STORAGE_BUCKET_ID}/files/${uploadedFile.$id}/view?project=${PROJECT_ID}`;
+          
+          // Format phone number (ensure country code for India if missing)
+          let phone = quoteData.contact.replace(/\D/g, '');
+          if (phone.length === 10) phone = '91' + phone;
+
+          const message = `*PROPOSAL FROM ${venueProfile?.venueName || 'Our Venue'}*\n\n` +
+                          `Hello ${quoteData.client},\n` +
+                          `We are pleased to share the proposal for your event.\n\n` +
+                          `📄 *View Quotation:* ${fileUrl}\n\n` +
+                          `*Details:*\n` +
+                          `• Guest Count: ${quoteData.guestCount}\n` +
+                          `• Grand Total: ₹${total.toLocaleString('en-IN')}\n\n` +
+                          `_Generated via Party Dial AI Engine_`;
+
+          const waUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+          
+          window.open(waUrl, '_blank', 'noopener,noreferrer');
+          
+          showToast('Quotation shared successfully!', 'success');
+       } catch (error: any) {
+          console.error('WhatsApp Share Error:', error);
+          showToast(`Sharing failed: ${error.message || 'Please try again'}`, 'error');
+       } finally {
+          setIsSharing(false);
+       }
+    };
 
   return (
+    <>
     <motion.div 
       initial={{ opacity: 0, y: 20 }} 
       animate={{ opacity: 1, y: 0 }} 
@@ -242,9 +350,9 @@ const QuotationManager = ({
           </div>
        </div>
 
-       <div className="flex-1 flex flex-col lg:flex-row lg:h-[calc(100vh-80px)] overflow-y-auto lg:overflow-hidden printable-container">
-          {/* LEFT: ADVANCED FORM SECTION */}
-          <div className="w-full lg:w-[500px] bg-white border-r border-slate-200/50 overflow-y-visible lg:overflow-y-auto p-6 lg:p-10 custom-scrollbar no-print">
+       <div className="flex-1 flex flex-col lg:flex-row printable-container relative">
+          {/* LEFT: ADVANCED FORM SECTION - STICKY */}
+          <div className="w-full lg:w-[500px] bg-white border-r border-slate-200/50 p-6 lg:p-10 no-print lg:sticky lg:top-[80px] lg:h-[calc(100vh-80px)] lg:overflow-y-auto custom-scrollbar shadow-sm z-10">
              <div className="space-y-12">
                 
 
@@ -514,6 +622,87 @@ const QuotationManager = ({
                    </div>
                 </section>
 
+                {/* Section: Proposal Gallery Selection */}
+                <section className="space-y-10">
+                   <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
+                         <ImageIcon size={20} />
+                      </div>
+                      <div>
+                         <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">Proposal Gallery</h3>
+                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Select visual assets to showcase</p>
+                      </div>
+                   </div>
+
+                   <div className="grid grid-cols-3 gap-3">
+                      {(() => {
+                         let photos = [];
+                         try {
+                            photos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : (Array.isArray(venueProfile?.photos) ? venueProfile.photos : []);
+                         } catch (e) { photos = []; }
+                         
+                         const galleryPhotos = photos.filter((p: any) => p.category !== 'Profile');
+
+                         if (galleryPhotos.length === 0) {
+                            return (
+                               <div className="col-span-3 p-8 border-2 border-dashed border-slate-100 rounded-3xl text-center">
+                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No gallery photos found in profile</p>
+                                  <button 
+                                     onClick={() => setActiveTab('settings')}
+                                     className="mt-2 text-[10px] font-black text-pink-500 uppercase tracking-widest hover:underline"
+                                  >
+                                     Upload Photos First
+                                  </button>
+                               </div>
+                            );
+                         }
+
+                         return galleryPhotos.map((photo: any) => {
+                            const isSelected = quoteData.selectedImages?.includes(photo.id);
+                            return (
+                               <button
+                                  key={photo.id}
+                                  onClick={() => {
+                                     const current = quoteData.selectedImages || [];
+                                     const updated = isSelected 
+                                        ? current.filter(id => id !== photo.id)
+                                        : [...current, photo.id].slice(0, 6); // Max 6 images
+                                     setQuoteData({ ...quoteData, selectedImages: updated });
+                                     
+                                     if (!isSelected && current.length >= 6) {
+                                        showToast('Maximum 6 images allowed per proposal', 'error');
+                                     }
+                                  }}
+                                  className={`aspect-square rounded-2xl overflow-hidden border-2 transition-all relative group ${
+                                     isSelected ? 'border-pink-500 ring-2 ring-pink-500/20' : 'border-transparent hover:border-slate-200'
+                                  }`}
+                               >
+                                  <Image 
+                                     src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${photo.id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '69ae84bc001ca4edf8c2'}`}
+                                     alt="Gallery"
+                                     fill
+                                     className={`object-cover transition-all duration-500 ${isSelected ? 'scale-110' : 'group-hover:scale-105'}`}
+                                  />
+                                  {isSelected && (
+                                     <div className="absolute inset-0 bg-pink-500/20 flex items-center justify-center">
+                                        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-pink-500 shadow-lg">
+                                           <CheckCircle2 size={14} />
+                                        </div>
+                                     </div>
+                                  )}
+                                  {!isSelected && (
+                                     <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Plus size={12} />
+                                     </div>
+                                  )}
+                               </button>
+                            );
+                         });
+                      })()}
+                   </div>
+                   <p className="text-[9px] font-bold text-slate-400 italic">Tip: Select up to 6 images to include in your visual proposal.</p>
+                </section>
+
                 {/* Final Accumulation Card - Reduced Size */}
                 <div className="pt-6">
                    <div className="p-8 bg-white rounded-3xl border-2 border-slate-100 space-y-6 shadow-xl relative overflow-hidden">
@@ -547,40 +736,44 @@ const QuotationManager = ({
                       </div>
                       <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-full translate-x-8 -translate-y-8"></div>
                     </div>
-                 </div>
-            </div>
-         </div>
-
-          {/* RIGHT: PREMIUM PREVIEW SECTION */}
-          <div className="flex-1 bg-slate-100/80 p-8 lg:p-16 overflow-y-auto custom-scrollbar flex flex-col items-center printable-container">
+                  </div>
+             </div>
+          </div>
+ 
+           {/* RIGHT: PREMIUM PREVIEW SECTION - SCROLLABLE */}
+          <div className="flex-1 bg-slate-100/80 p-8 lg:p-16 flex flex-col items-center printable-container min-h-screen">
              
              {/* Floating Premium Controls */}
-             <div className="mb-10 flex items-center gap-4 bg-white/80 backdrop-blur-3xl p-3 rounded-[28px] shadow-2xl border border-white no-print">
+             <div className="mb-10 flex items-center gap-4 bg-white/80 backdrop-blur-3xl p-4 rounded-[32px] shadow-2xl border border-white no-print">
+                <button 
+                   onClick={handleWhatsAppShare}
+                   disabled={isSharing}
+                   className="w-14 h-14 rounded-2xl bg-[#25D366]/10 text-[#25D366] flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-all shadow-sm group disabled:opacity-50 disabled:cursor-wait"
+                >
+                   {isSharing ? (
+                      <div className="w-6 h-6 border-2 border-[#25D366] border-t-transparent rounded-full animate-spin" />
+                   ) : (
+                      <MessageCircle size={24} className="group-hover:rotate-12 transition-transform" />
+                   )}
+                </button>
+
                 <button 
                   onClick={downloadAsPDF}
                   disabled={isGenerating}
-                  className="flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-pink-500 transition-all shadow-xl hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-wait"
+                  className="w-14 h-14 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center hover:bg-purple-500 hover:text-white transition-all shadow-sm group disabled:opacity-50 disabled:cursor-wait"
                 >
-                   {isGenerating ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Printer size={16} />}
-                   {isGenerating ? 'Generating...' : 'Export PDF'}
-                </button>
-                <div className="w-[1px] h-8 bg-slate-200 mx-2" />
-                 <button 
-                   onClick={handleWhatsAppShare}
-                   disabled={isSharing}
-                   className="w-12 h-12 rounded-2xl bg-[#25D366]/10 text-[#25D366] flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-all shadow-md group disabled:opacity-50 disabled:cursor-wait"
-                >
-                   {isSharing ? (
-                      <div className="w-5 h-5 border-2 border-[#25D366] border-t-transparent rounded-full animate-spin" />
+                   {isGenerating ? (
+                      <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
                    ) : (
-                      <MessageCircle size={20} className="group-hover:rotate-12 transition-transform" />
+                      <Download size={22} className="group-hover:translate-y-0.5 transition-transform" />
                    )}
                 </button>
+                
                 <button 
                   onClick={handleSend}
-                  className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-md group"
+                  className="w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-sm group"
                 >
-                   <Send size={18} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
+                   <Send size={22} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
 
@@ -588,6 +781,7 @@ const QuotationManager = ({
               <motion.div 
                  layout
                  ref={quotationRef}
+                 id="quotation-preview-doc"
                  className="w-full max-w-[900px] bg-white shadow-[0_60px_100px_-20px_rgba(15,23,42,0.12)] rounded-[32px] relative min-h-[1100px] flex flex-col overflow-hidden border border-slate-200 print:shadow-none print:rounded-none print-only"
               >
                       <div className="p-12 lg:p-16 space-y-12">
@@ -647,32 +841,35 @@ const QuotationManager = ({
                                   ))}
                                </div>
                             </div>
-                         </div>
+                          </div>
 
-                         {/* Venue Gallery */}
-                         <div className="space-y-6">
-                            <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-blue-500 pl-4 py-1">Venue Gallery</h4>
-                            <div className="grid grid-cols-3 gap-4">
-                               {(() => {
-                                  const photos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
-                                  const gallery = Array.isArray(photos) ? photos.filter((p: any) => p.category !== 'Profile').slice(0, 6) : [];
-                                  return [0, 1, 2, 3, 4, 5].map((i) => (
-                                     <div key={i} className="aspect-[4/3] rounded-2xl bg-slate-50 overflow-hidden relative border border-slate-100 shadow-sm">
-                                        {gallery[i] ? (
-                                           <Image 
-                                             src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${gallery[i].id}/view?project=69ae84bc001ca4edf8c2`} 
-                                             alt={`View ${i}`} 
-                                             fill 
-                                             className="object-cover" 
-                                           />
-                                        ) : <div className="w-full h-full flex items-center justify-center text-slate-200"><ImageIcon size={20} /></div>}
-                                     </div>
-                                  ));
-                               })()}
-                            </div>
-                         </div>
+                          {/* Venue Gallery */}
+                          {(() => {
+                             const photos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
+                             const gallery = Array.isArray(photos) ? photos.filter(p => quoteData.selectedImages?.includes(p.id)) : [];
+                             
+                             if (gallery.length === 0) return null;
 
-                         {/* Financial Ledger Table */}
+                             return (
+                                <div className="space-y-6">
+                                   <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-blue-500 pl-4 py-1">Venue Gallery</h4>
+                                   <div className="grid grid-cols-3 gap-4">
+                                      {gallery.map((photo, i) => (
+                                         <div key={photo.id} className="aspect-[4/3] rounded-2xl bg-slate-50 overflow-hidden relative border border-slate-100 shadow-sm">
+                                            <Image 
+                                              src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${photo.id}/view?project=69ae84bc001ca4edf8c2`} 
+                                              alt={`View ${i}`} 
+                                              fill 
+                                              className="object-cover" 
+                                            />
+                                         </div>
+                                      ))}
+                                   </div>
+                                </div>
+                             );
+                          })()}
+ 
+                          {/* Financial Ledger Table */}
                          <div className="pt-8">
                             <div className="overflow-hidden rounded-xl border border-slate-200">
                                <table className="w-full border-collapse">
@@ -730,78 +927,79 @@ const QuotationManager = ({
                          </div>
 
                          {/* Signature Section */}
-                         <div className="flex justify-end pt-8">
-                            <div className="text-right space-y-4">
-                               <div className="w-48 h-[1px] bg-slate-300 ml-auto" />
-                               <div>
-                                  <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Authorized Signatory</p>
-                                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">{venueProfile?.venueName || "Henry's Imperial Ballroom"}</p>
-                               </div>
-                            </div>
-                         </div>
-                      </div>
+                          <div className="flex justify-end pt-8">
+                             <div className="text-right space-y-4">
+                                <div className="w-48 h-[1px] bg-slate-300 ml-auto" />
+                                <div>
+                                   <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Authorized Signatory</p>
+                                   <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">{venueProfile?.venueName || "Henry's Imperial Ballroom"}</p>
+                                </div>
+                             </div>
+                          </div>
 
-                      {/* Visual-First Footer */}
-                      <div className="mt-auto p-12 bg-white">
-                         <div className="border-2 border-dashed border-slate-100 rounded-[32px] p-6 text-center">
-                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 flex items-center justify-center gap-2">
-                               ✨ This document is a visual-first proposal created by Party Dial AI Engine for {venueProfile?.venueName || "Henry's Imperial Ballroom"}
-                            </p>
-                         </div>
-                      </div>
-                   </motion.div>
+                          {/* Visual-First Footer */}
+                          <div className="mt-auto p-12 bg-white">
+                             <div className="border-2 border-dashed border-slate-100 rounded-[32px] p-6 text-center">
+                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 flex items-center justify-center gap-2">
+                                   ✨ This document is a visual-first proposal created by Party Dial AI Engine for {venueProfile?.venueName || "Henry's Imperial Ballroom"}
+                                </p>
+                             </div>
+                          </div>
+                       </div>
+                     </motion.div>
+                 </div>
               </div>
-           </div>
-
-       <style jsx global>{`
-         .custom-scrollbar::-webkit-scrollbar {
-           width: 6px;
-         }
-         .custom-scrollbar::-webkit-scrollbar-track {
-           background: transparent;
-         }
-         .custom-scrollbar::-webkit-scrollbar-thumb {
-           background: #E2E8F0;
-           border-radius: 10px;
-         }
-         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-           background: #CBD5E1;
-         }
-         
-         @media print {
-           .print-only {
-             display: block !important;
-             visibility: visible !important;
-             width: 100% !important;
-             border: none !important;
-             box-shadow: none !important;
-             -webkit-print-color-adjust: exact !important;
-             print-color-adjust: exact !important;
-             min-height: auto !important;
-             margin: 0 !important;
-             padding: 0 !important;
-             background: white !important;
-           }
-           
-           .print-only * {
-             visibility: visible !important;
-           }
-           
-           .no-print {
-             display: none !important;
-           }
-
-           body {
-             background: white !important;
-           }
-
-           .printable-main {
-             overflow: visible !important;
-             height: auto !important;
-           }
-         }
-       `}</style>
-    </motion.div>
+           </motion.div>
+ 
+           <style jsx global>{`
+             .custom-scrollbar::-webkit-scrollbar {
+               width: 6px;
+             }
+             .custom-scrollbar::-webkit-scrollbar-track {
+               background: transparent;
+             }
+             .custom-scrollbar::-webkit-scrollbar-thumb {
+               background: #E2E8F0;
+               border-radius: 10px;
+             }
+             .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+               background: #CBD5E1;
+             }
+             
+             @media print {
+               .print-only {
+                 display: block !important;
+                 visibility: visible !important;
+                 width: 100% !important;
+                 border: none !important;
+                 box-shadow: none !important;
+                 -webkit-print-color-adjust: exact !important;
+                 print-color-adjust: exact !important;
+                 min-height: auto !important;
+                 margin: 0 !important;
+                 padding: 0 !important;
+                 background: white !important;
+               }
+               
+               .print-only * {
+                 visibility: visible !important;
+               }
+               
+               .no-print {
+                 display: none !important;
+               }
+ 
+               body {
+                 background: white !important;
+               }
+ 
+               .printable-main {
+                 overflow: visible !important;
+                 height: auto !important;
+               }
+             }
+           `}</style>
+    </>
   );
 };
 

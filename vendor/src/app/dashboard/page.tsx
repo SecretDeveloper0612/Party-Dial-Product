@@ -108,6 +108,18 @@ const pastActivities = [
   { id: 5, type: 'Refund Processed', title: 'Security deposit returned to cliente #PD-882', time: '3 days ago', icon: <ArrowDownRight className="text-amber-500" size={16} /> },
 ];
 
+const planLabels: {[key: string]: string} = {
+  'pax_0_50': 'Starter Live',
+  'pax_50_100': 'Growth Live',
+  'pax_100_200': 'Priority Live',
+  'pax_200_500': 'Featured Live',
+  'pax_500_1000': 'Premium Live',
+  'pax_1000_2000': 'Elite Live',
+  'pax_2000_5000': 'Platinum Live',
+  'pax_5000': 'Enterprise Live',
+  'free': 'Free Live'
+};
+
 export default function VendorDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
@@ -117,6 +129,7 @@ export default function VendorDashboard() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [venueProfile, setVenueProfile] = useState<any>(null);
+  const [userData, setUserData] = useState<any>(null);
   const [recentLeads, setRecentLeads] = useState<any[]>([]);
   const [isLoadingLeads, setIsLoadingLeads] = useState(true);
 
@@ -139,8 +152,9 @@ export default function VendorDashboard() {
       ['New', 'In-Progress', 'Contacted', 'Followups', 'Quoted'].includes(l.status)
     ).length;
 
-    // 2. Profile Views (Fall back to a realistic base if missing)
-    const views = venueProfile?.views || 1240;
+    // 2. Today's Leads calculation
+    const today = new Date().toLocaleDateString('en-GB');
+    const todayLeadsCount = recentLeads.filter(l => l.date === today).length;
 
     // 3. Average Rating
     const rating = venueProfile?.rating || 0.0;
@@ -171,12 +185,12 @@ export default function VendorDashboard() {
         isUp: activeLeadsCount > 0 
       },
       { 
-        label: 'Profile Views', 
-        value: views.toLocaleString(), 
-        icon: <BarChart3 size={20} />, 
+        label: "Today's Leads", 
+        value: todayLeadsCount.toString(), 
+        icon: <Users size={20} />, 
         color: 'bg-blue-50 text-blue-600', 
-        trend: '+2.4%', 
-        isUp: true 
+        trend: todayLeadsCount > 0 ? 'New' : 'Static', 
+        isUp: todayLeadsCount > 0 
       },
       { 
         label: 'Average Rating', 
@@ -196,6 +210,53 @@ export default function VendorDashboard() {
       },
     ];
   }, [recentLeads, venueProfile]);
+
+  // Automatic Onboarding Completion Check
+  const isOnboardingComplete = useMemo(() => {
+    if (!venueProfile) return false;
+    if (venueProfile.onboardingComplete) return true;
+
+    // Check individual fields for completion
+    const hasName = venueProfile.venueName && venueProfile.venueName.length > 3;
+    const hasCapacity = parseInt(venueProfile.capacity) > 0;
+    const hasPricing = (parseFloat(venueProfile.perPlateVeg) > 0 || parseFloat(venueProfile.perPlateNonVeg) > 0);
+    
+    let photosCount = 0;
+    try {
+      const photos = typeof venueProfile.photos === 'string' ? JSON.parse(venueProfile.photos) : (Array.isArray(venueProfile.photos) ? venueProfile.photos : []);
+      photosCount = photos.length;
+    } catch (e) {}
+
+    let eventTypesCount = 0;
+    try {
+      const et = typeof venueProfile.eventTypes === 'string' ? JSON.parse(venueProfile.eventTypes) : (Array.isArray(venueProfile.eventTypes) ? venueProfile.eventTypes : []);
+      eventTypesCount = et.length;
+    } catch (e) {}
+
+    // We consider onboarding complete if name, capacity, pricing, and at least 3 photos & 1 event type are present
+    const isComplete = hasName && hasCapacity && hasPricing && photosCount >= 3 && eventTypesCount >= 1;
+
+    return isComplete || venueProfile.onboardingComplete;
+  }, [venueProfile]);
+
+  // Auto-update onboarding status in database
+  useEffect(() => {
+    if (isOnboardingComplete && venueProfile?.$id && !venueProfile?.onboardingComplete) {
+      const syncOnboarding = async () => {
+        try {
+          const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+          await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueProfile.$id, {
+            onboardingComplete: true
+          });
+          setVenueProfile((prev: any) => ({ ...prev, onboardingComplete: true }));
+          showToast('Onboarding completed! Listing Management moved to Settings.', 'success');
+        } catch (err) {
+          console.error('Failed to auto-complete onboarding:', err);
+        }
+      };
+      syncOnboarding();
+    }
+  }, [isOnboardingComplete, venueProfile?.$id, venueProfile?.onboardingComplete]);
 
   const handleLogout = async () => {
     try {
@@ -283,7 +344,9 @@ export default function VendorDashboard() {
        { id: 1, label: 'Grand Ballroom Rental', amount: 150000 },
        { id: 2, label: 'Standard Catering (500 pax)', amount: 450000 },
        { id: 3, label: 'Floral Arrangement & Decor', amount: 75000 },
-    ]
+    ],
+    selectedImages: [] as string[],
+    leadId: ''
   });
 
   const filteredAdvancedLeads = useMemo(() => {
@@ -310,23 +373,29 @@ export default function VendorDashboard() {
 
   const PIPELINE_STAGES = [
     { id: 'New', color: 'bg-blue-500', text: 'text-blue-600', icon: <Zap size={14} /> },
-    { id: 'In-Progress', color: 'bg-indigo-500', text: 'text-indigo-600', icon: <MessageCircle size={14} /> },
     { id: 'Contacted', color: 'bg-purple-500', text: 'text-purple-600', icon: <Phone size={14} /> },
     { id: 'Followups', color: 'bg-amber-500', text: 'text-amber-600', icon: <CalendarDays size={14} /> },
-    { id: 'Quoted', color: 'bg-pink-500', text: 'text-pink-600', icon: <IndianRupee size={14} /> },
+    { id: 'Quotation Send', color: 'bg-pink-500', text: 'text-pink-600', icon: <IndianRupee size={14} /> },
     { id: 'Booked', color: 'bg-emerald-500', text: 'text-emerald-600', icon: <CheckCircle2 size={14} /> },
     { id: 'Lost', color: 'bg-red-500', text: 'text-red-600', icon: <XCircle size={14} /> }
   ];
 
   const updateLeadStatus = async (leadId: string, newStatus: string) => {
+    // 1. Optimistic Update (UI becomes "realtime" instantly)
+    const previousLeads = [...recentLeads];
+    setRecentLeads(prev => prev.map(l => l.id === leadId ? { ...l, status: newStatus } : l));
+    showToast(`Lead successfully moved to ${newStatus}`, 'success');
+
     try {
       const { databases, DATABASE_ID, LEADS_COLLECTION_ID } = await import('@/lib/appwrite');
       await databases.updateDocument(DATABASE_ID, LEADS_COLLECTION_ID, leadId, {
         status: newStatus
       });
-      // Local state will be updated by Realtime subscription!
     } catch (error) {
       console.error('Failed to update status:', error);
+      // Revert if failed
+      setRecentLeads(previousLeads);
+      showToast('Offline mode: Could not sync status with server.', 'error');
     }
   };
 
@@ -368,7 +437,8 @@ export default function VendorDashboard() {
         perPlateVeg: String(venueProfile.perPlateVeg || '0'),
         perPlateNonVeg: String(venueProfile.perPlateNonVeg || '0'),
         amenities: venueProfile.amenities,
-        eventTypes: venueProfile.eventTypes
+        eventTypes: venueProfile.eventTypes,
+        packages: venueProfile.packages
       });
       showToast('Profile successfully synchronized with the portal.', 'success');
     } catch (err) {
@@ -432,6 +502,7 @@ export default function VendorDashboard() {
         const user = await account.get().catch(() => null);
         if (!isMounted) return;
         if (!user) { router.push('/login'); return; }
+        setUserData(user);
         setIsAuthorized(true);
 
         // 2. Fetch Profile
@@ -448,7 +519,7 @@ export default function VendorDashboard() {
               Query.equal('venueId', profile.$id),
               Query.equal('venueId', 'BROADCAST')
             ]),
-            Query.orderDesc('createdAt')
+            Query.orderDesc('$createdAt')
           ]);
           if (isMounted) {
             setRecentLeads(leadsResult.documents.map(doc => ({
@@ -457,11 +528,12 @@ export default function VendorDashboard() {
               phone: doc.phone || '+91 98765 43210',
               event: doc.eventType,
               guests: doc.guests ? doc.guests.toString() : '0',
-              date: formatLeadDate(doc.createdAt),
-              time: formatLeadTime(doc.createdAt),
-              rawDate: doc.createdAt,
-              status: doc.status || 'New',
+              date: formatLeadDate(doc.$createdAt),
+              time: formatLeadTime(doc.$createdAt),
+              rawDate: doc.$createdAt,
+              status: doc.status === 'Quoted' ? 'Quotation Send' : (doc.status === 'In-Progress' ? 'Contacted' : (doc.status || 'New')),
               location: doc.city || 'Haldwani',
+              email: doc.email || 'client@mail.com',
               title: 'Direct Inquiry',
               starred: false,
               unread: doc.status === 'New',
@@ -522,11 +594,12 @@ export default function VendorDashboard() {
                   phone: payload.phone || '+91 98765 43210',
                   event: payload.eventType,
                   guests: payload.guests ? payload.guests.toString() : '0',
-                  date: formatLeadDate(payload.createdAt),
-                  time: formatLeadTime(payload.createdAt),
-                  rawDate: payload.createdAt,
-                  status: payload.status || 'New',
+                  date: formatLeadDate(payload.$createdAt),
+                  time: formatLeadTime(payload.$createdAt),
+                  rawDate: payload.$createdAt,
+                  status: payload.status === 'Quoted' ? 'Quotation Send' : (payload.status === 'In-Progress' ? 'Contacted' : (payload.status || 'New')),
                   location: payload.city || 'Haldwani',
+                  email: payload.email || 'client@mail.com',
                   title: 'Direct Inquiry',
                   starred: false,
                   unread: payload.status === 'New',
@@ -534,6 +607,16 @@ export default function VendorDashboard() {
                };
 
                if (response.events.some(e => e.includes('create'))) {
+                 // 1. Play Lead Arrival Sound
+                 try {
+                   const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                   audio.volume = 0.5;
+                   audio.play();
+                   showToast(`New Inquiry from ${payload.name}!`, 'success');
+                 } catch (audioErr) {
+                   console.log('Audio notification blocked by browser.');
+                 }
+
                  setRecentLeads(prev => {
                    if (prev.some(l => l.id === payload.$id)) return prev;
                    return [mapped, ...prev];
@@ -622,7 +705,7 @@ export default function VendorDashboard() {
           opacity: sidebarOpen ? 1 : (isMobile ? 0 : 0),
           x: isMobile && !sidebarOpen ? -280 : 0
         }}
-        className={`bg-white border-r border-slate-200/60 flex flex-col fixed lg:sticky top-0 h-screen z-[70] lg:z-50 overflow-hidden no-print transition-all duration-300 ${!sidebarOpen && !isMobile ? 'pointer-events-none' : ''}`}
+        className={`bg-white border-r border-slate-200/60 flex flex-col fixed md:sticky top-0 h-screen z-[70] md:z-50 overflow-hidden no-print transition-all duration-300 ${!sidebarOpen && !isMobile ? 'pointer-events-none' : ''}`}
       >
          <div className="p-8 pb-4 flex-1 w-[280px] scrollbar-hide overflow-y-auto">
             <div className="flex items-center justify-between mb-16 px-2">
@@ -668,18 +751,21 @@ export default function VendorDashboard() {
                 ))}
              </div>
 
-             {showOnboarding && (
-               <div className="space-y-1 mt-6">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-4 mb-2 block">Listing Management</span>
+              {/* Listing Management - Only visible during onboarding */}
+             {!isOnboardingComplete && (
+               <div className="space-y-1 mt-6 px-2">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 pl-4 mb-2 block opacity-60">Listing Management</span>
                   {[
-                    { id: 'profile', label: 'View Profile', icon: <User size={18} />, href: '/dashboard/onboarding/profile' },
-                    { id: 'photos', label: 'Photos', icon: <ImageIcon size={18} />, href: '/dashboard/onboarding/photos' },
-                    { id: 'pricing', label: 'Pricing', icon: <IndianRupee size={18} />, href: '/dashboard/onboarding/pricing' },
+                    { id: 'profile', label: 'Set Profile', icon: <User size={18} />, href: '/dashboard/onboarding/profile' },
+                    { id: 'photos', label: 'Upload Photos', icon: <ImageIcon size={18} />, href: '/dashboard/onboarding/photos' },
+                    { id: 'pricing', label: 'Manage Pricing', icon: <IndianRupee size={18} />, href: '/dashboard/onboarding/pricing' },
                     { id: 'subscription', label: 'Subscription', icon: <ShieldCheck size={18} />, href: '/dashboard/onboarding/subscription' },
                   ].map(item => (
                     <Link key={item.id} href={item.href || '#'}>
-                      <div className="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-[13px] font-bold italic text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all cursor-pointer">
-                        {item.icon}
+                      <div className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-slate-500 hover:bg-slate-50 hover:text-pd-pink transition-all cursor-pointer">
+                        <div className="p-1.5 bg-slate-50 rounded-lg group-hover:bg-white transition-colors">
+                           {item.icon}
+                        </div>
                         {item.label}
                       </div>
                     </Link>
@@ -707,19 +793,7 @@ export default function VendorDashboard() {
          </div>
 
          <div className="mt-auto p-6">
-            <div className="p-4 bg-pd-pink/5 border border-pd-pink/10 rounded-[28px] overflow-hidden relative group">
-               <div className="relative z-10 flex flex-col gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-pd-pink/10 flex items-center justify-center text-pd-pink">
-                    <Sparkles size={16} />
-                  </div>
-                  <div>
-                    <h4 className="text-[11px] font-black uppercase tracking-widest italic mb-1 text-slate-900">Boost Listing</h4>
-                    <p className="text-[9px] text-slate-500 font-medium">Get 5x more visibility today.</p>
-                  </div>
-                  <button className="w-full py-2 bg-pd-pink text-white text-[10px] font-black uppercase italic rounded-xl shadow-lg shadow-pd-pink/20">Upgrade Now</button>
-               </div>
-               <div className="absolute top-0 right-0 w-24 h-24 bg-white/60 rounded-full blur-2xl group-hover:scale-125 transition-transform"></div>
-            </div>
+
             
             <button 
                onClick={handleLogout}
@@ -765,7 +839,12 @@ export default function VendorDashboard() {
 
             {/* Right Section: System Actions & Profile */}
             <div className="flex items-center gap-2 lg:gap-4">
-               <div className="hidden sm:flex items-center gap-2 bg-slate-50 p-1.5 rounded-[20px] border border-slate-100/50 mr-1 lg:mr-2">
+               <div className="hidden sm:flex items-center gap-3 bg-slate-50 p-1.5 px-3 rounded-[20px] border border-slate-100/50 mr-1 lg:mr-2">
+                  <div className="flex items-center gap-2 pr-2 border-r border-slate-200">
+                    <div className={`w-2 h-2 rounded-full ${isRealtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Live Sync</span>
+                  </div>
+
                   <div className="relative">
                     <button 
                       onClick={() => setShowNotifDropdown(!showNotifDropdown)}
@@ -800,11 +879,11 @@ export default function VendorDashboard() {
                   className="flex items-center gap-2 lg:gap-3 pl-1 lg:pl-3 cursor-pointer group active:scale-95 transition-transform"
                >
                   <div className="text-right hidden md:block">
-                     <p className="text-[11px] lg:text-[13px] font-black text-slate-900 italic tracking-tighter uppercase whitespace-nowrap leading-none mb-1">{venueProfile?.venueName || "Grand Imperial"}</p>
+                     <p className="text-[11px] lg:text-[13px] font-black text-slate-900 italic tracking-tighter uppercase whitespace-nowrap leading-none mb-1">{venueProfile?.venueName || userData?.name || "Your Venue"}</p>
                       <div className="flex items-center gap-2 justify-end">
                         <span className={`w-1.5 h-1.5 rounded-full ${isRealtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></span>
                         <p className={`text-[8px] lg:text-[10px] ${isRealtimeConnected ? 'text-emerald-500' : 'text-rose-500'} font-black uppercase tracking-widest leading-none`}>
-                           {isRealtimeConnected ? 'Premium Live' : 'Reconnecting...'}
+                           {isRealtimeConnected ? (planLabels[venueProfile?.subscriptionPlan] || 'Live') : 'Reconnecting...'}
                         </p>
                       </div>
                   </div>
@@ -852,6 +931,7 @@ export default function VendorDashboard() {
             {activeTab === 'overview' && (
               <DashboardOverview 
                 venueProfile={venueProfile}
+                userName={userData?.name}
                 recentLeads={recentLeads}
                 setActiveTab={setActiveTab}
                 stats={stats}

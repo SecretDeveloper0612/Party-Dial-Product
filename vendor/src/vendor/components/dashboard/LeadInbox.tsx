@@ -22,6 +22,7 @@ interface Lead {
   date: string;
   time: string;
   status: string;
+  email: string;
   color: string;
 }
 
@@ -57,7 +58,7 @@ const LeadInbox = ({
       </header>
 
       <div className="flex overflow-x-auto pb-2 scrollbar-hide bg-slate-50 p-1.5 rounded-[20px] lg:rounded-3xl w-max max-w-full">
-         {['All', 'New', 'Contacted', 'Followups', 'Quoted'].map(filter => (
+         {['All', 'New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost'].map(filter => (
            <button 
              key={filter} 
              onClick={() => setLeadFilter(filter)}
@@ -96,7 +97,7 @@ const LeadInbox = ({
                           value={lead.status}
                           onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
                        >
-                          {['New', 'In-Progress', 'Contacted', 'Followups', 'Quoted', 'Booked', 'Lost'].map(s => (
+                          {['New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost'].map(s => (
                              <option key={s} value={s}>{s}</option>
                           ))}
                        </select>
@@ -148,14 +149,16 @@ const LeadInbox = ({
                     </button>
                     <button 
                       onClick={() => {
-                         setQuoteData((prev: any) => ({ 
-                           ...prev, 
-                           client: lead.name, 
-                           contact: lead.phone,
-                           event: lead.event || 'Special Event',
-                           guestCount: lead.guests || '0',
-                           eventDate: lead.date ? new Date(lead.date).toISOString().split('T')[0] : prev.eventDate
-                         }));
+                          setQuoteData((prev: any) => ({ 
+                            ...prev, 
+                            client: lead.name, 
+                            contact: lead.phone,
+                            email: lead.email || 'client@mail.com',
+                            event: lead.event || 'Special Event',
+                            guestCount: lead.guests || '0',
+                            eventDate: lead.date ? new Date(lead.date).toISOString().split('T')[0] : prev.eventDate,
+                            leadId: lead.id
+                          }));
                          setActiveTab('quotation');
                       }}
                       className="flex items-center gap-2 text-xs font-black text-slate-600 hover:text-slate-900 transition-colors z-10 relative"

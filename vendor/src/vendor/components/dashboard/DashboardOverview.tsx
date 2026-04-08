@@ -40,6 +40,7 @@ interface Stat {
 
 interface DashboardOverviewProps {
   venueProfile: VenueProfile | null;
+  userName?: string;
   recentLeads: Lead[];
   setActiveTab: (tab: string) => void;
   stats: Stat[];
@@ -47,6 +48,7 @@ interface DashboardOverviewProps {
 
 const DashboardOverview = ({
   venueProfile,
+  userName,
   recentLeads,
   setActiveTab,
   stats
@@ -66,7 +68,7 @@ const DashboardOverview = ({
                     <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Executive Briefing</span>
                  </div>
                  <h1 className="text-3xl lg:text-4xl xl:text-5xl font-black text-slate-900 uppercase italic tracking-tighter mb-4 lg:mb-6 leading-none">
-                    {venueProfile?.venueName || "Grand Imperial"}
+                    {venueProfile?.venueName || userName || "Your Venue"}
                  </h1>
                  <div className="flex flex-wrap gap-2 lg:gap-4">
                     <div className="flex items-center gap-2 px-3 lg:px-4 py-1.5 lg:py-2 bg-slate-900 text-white rounded-lg text-[8px] lg:text-[9px] font-black uppercase tracking-widest">

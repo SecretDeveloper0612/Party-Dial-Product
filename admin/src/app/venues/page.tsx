@@ -59,7 +59,8 @@ function VenueManagementContent() {
     availableSpaces: [],
     coverPhotos: [],
     fullGallery: [],
-    subscriptionPlan: "None"
+    subscriptionPlan: "None",
+    ownerEmail: ""
   });
 
   useEffect(() => {
@@ -99,7 +100,8 @@ function VenueManagementContent() {
         availableSpaces: [],
         coverPhotos: [],
         fullGallery: [],
-        subscriptionPlan: "None"
+        subscriptionPlan: "None",
+        ownerEmail: ""
       });
     }
     setIsModalOpen(true);
@@ -121,7 +123,17 @@ function VenueManagementContent() {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (modalType === "create") {
-      const newV: Venue = { ...formData as Venue, id: `v${venues.length + 1}`, hasActivePlan: formData.subscriptionPlan !== 'None', isVerified: false, status: 'Active', totalLeads: 0, joinedAt: new Date().toISOString(), activity: { received: 0, contacted: 0, booked: 0, lost: 0 } };
+      const newV: Venue = { 
+        ...formData as Venue, 
+        id: `v${venues.length + 1}`, 
+        hasActivePlan: formData.subscriptionPlan !== 'None', 
+        isVerified: false, 
+        status: 'Active', 
+        totalLeads: 0, 
+        joinedAt: new Date().toISOString(), 
+        ownerEmail: formData.ownerEmail || "",
+        activity: { received: 0, contacted: 0, booked: 0, lost: 0 } 
+      };
       setVenues([newV, ...venues]);
     } else if (modalType === "edit" && selectedVenue) {
       setVenues(venues.map(v => v.id === selectedVenue.id ? { ...v, ...formData } as Venue : v));

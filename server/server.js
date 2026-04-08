@@ -13,6 +13,7 @@ const authRoutes = require('./routes/authRoutes');
 const dataRoutes = require('./routes/dataRoutes');
 const venueRoutes = require('./routes/venueRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 const configController = require('./controllers/configController');
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/venues', venueRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/payments', paymentRoutes);
 app.get('/api/config', configController.getPublicConfig);
 
 // Optional: Fallback for undefined routes

@@ -117,7 +117,7 @@ const eventCategories = [
 const successStories = [
   { name: "Grand Imperial", location: "Delhi", text: "PartyDial helped us increase weekend bookings by 35% in 6 months. Their verified lead system is top-notch.", img: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=400" },
   { name: "The Sky Lawn", location: "Mumbai", text: "Their dashboard makes lead management effortless. We've closed more corporate events than ever before.", img: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&q=80&w=400" },
-  { name: "Royal Palms", location: "Bangalore", text: "The real-time WhatsApp alerts are a game-changer. We respond to inquiries in minutes now.", img: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=400" },
+  { name: "Royal Palms", location: "Bangalore", text: "The Real-time App Alerts are a game-changer. We respond to inquiries in minutes now.", img: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=400" },
   { name: "City View Banquet", location: "Chandigarh", text: "Being listed as a verified partner has boosted our credibility significantly. Leads are high-intent.", img: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=400" },
   { name: "Emerald Resort", location: "Jaipur", text: "The seasonal demand analytics helped us price our weekend slots better. Highly recommended for owners.", img: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400" }
 ];
@@ -209,10 +209,9 @@ const CursorZoomImage = ({ src, alt, height, priority = false }: { src: string, 
 
 const features = [
   { title: 'Smart Dashboard', type: 'dashboard', desc: 'Centralized command for lead management, revenue tracking, and venue operations.', icon: <LayoutDashboard size={24} />, accent: '#F43F5E', stats: '200% Growth', img: '/dashboard-preview.png' },
-  { title: 'Real-Time Alerts', type: 'alerts', desc: 'Never miss a lead. Instant WhatsApp and SMS push notifications for every query.', icon: <Zap size={24} />, accent: '#10B981', stats: '< 5s Latency', img: '/alerts-preview.png' },
+  { title: 'Real-Time Alerts', type: 'alerts', desc: 'Never miss a lead. Instant App and Email alerts for every query.', icon: <Zap size={24} />, accent: '#10B981', stats: '< 5s Latency', img: '/alerts-preview.png' },
   { title: 'Verified Contacts', type: 'verification', desc: 'Every inquiry is pre-qualified. We only deliver leads with high intent to book.', icon: <Phone size={24} />, accent: '#8B5CF6', stats: '99% Verified', img: '/dashboard-preview.png' },
-  { title: 'Booking Calendar', type: 'calendar', desc: 'A dedicated digital space to visualize your events and availability smoothly.', icon: <Calendar size={24} />, accent: '#F59E0B', stats: 'Smart Sync', img: '/dashboard-preview.png' },
-  { title: 'Smart Analytics', type: 'analytics', desc: 'Understand your market. Deep insights into conversion rates and peak traffic.', icon: <PieChart size={24} />, accent: '#3B82F6', stats: 'AI Insights', img: '/dashboard-preview.png' },
+  { title: 'Followups', type: 'followups', desc: 'Stay top-of-mind with automated follow-ups. Nurture leads through scheduled messages and reminders.', icon: <MessageSquare size={24} />, accent: '#3B82F6', stats: '3x Conversion', img: '/dashboard-preview.png' },
   { title: 'Elite Support', type: 'support', desc: 'Direct access to our senior partner success team whenever you need it.', icon: <Shield size={24} />, accent: '#EC4899', stats: '24/7 Priority', img: '/dashboard-preview.png' }
 ];
 
@@ -368,7 +367,7 @@ const FeatureHub = () => {
                                       </div>
                                       <div>
                                          <p className="text-[10px] font-black text-slate-800 uppercase tracking-tight">New Lead Received</p>
-                                         <p className="text-[9px] font-bold text-slate-400">Just now via WhatsApp</p>
+                                         <p className="text-[9px] font-bold text-slate-400">Just now via App Alert</p>
                                       </div>
                                    </motion.div>
                                 ))}
@@ -412,69 +411,39 @@ const FeatureHub = () => {
                            </div>
                         )}
 
-                       {features[selected].type === 'calendar' && (
-                          <div className="h-full flex flex-col">
-                             <div className="grid grid-cols-7 gap-2 mb-4">
-                                {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, idx) => <div key={d + idx} className="text-center text-[10px] font-black text-slate-300">{d}</div>)}
-                                {Array.from({ length: 28 }).map((_, i) => (
-                                   <div key={i} className={`aspect-square rounded-lg flex items-center justify-center text-[10px] font-bold ${i % 5 === 0 ? 'bg-orange-500 text-white' : 'bg-slate-50 text-slate-400 opacity-40'}`}>
-                                      {i + 1}
-                                   </div>
-                                ))}
-                             </div>
-                             <div className="flex-1 bg-white/80 rounded-3xl p-6 border border-slate-100 flex flex-col gap-3">
-                                <div className="flex items-center justify-between">
-                                   <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest leading-none">Upcoming Events</p>
-                                   <Plus size={14} className="text-slate-400" />
-                                </div>
-                                {[
-                                   { t: 'Wedding Anniversary', d: '12:00 PM', c: '#8B5CF6' },
-                                   { t: 'Corporate Gala', d: '06:30 PM', c: '#3B82F6' }
-                                ].map((ev, i) => (
-                                   <div key={i} className="p-4 rounded-2xl bg-slate-50 border-l-4 border-l-orange-500 flex justify-between items-center" style={{ borderLeftColor: ev.c }}>
-                                      <div>
-                                         <p className="text-xs font-black text-slate-900">{ev.t}</p>
-                                         <p className="text-[9px] font-bold text-slate-400">{ev.d}</p>
-                                      </div>
-                                      <Users size={14} className="text-slate-300" />
-                                   </div>
-                                ))}
-                             </div>
-                          </div>
-                       )}
-
-                       {features[selected].type === 'analytics' && (
-                          <div className="h-full flex flex-col gap-4 md:gap-6">
-                             <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                                <div className="bg-white/80 p-4 md:p-6 rounded-3xl border border-slate-100 flex flex-col items-center justify-center group/donut">
-                                   <div className="w-16 h-16 md:w-24 md:h-24 rounded-full border-[6px] md:border-[10px] border-pd-pink relative flex items-center justify-center">
-                                      <div className="absolute inset-0 rotate-45 border-[6px] md:border-[10px] border-slate-100 rounded-full border-t-transparent border-r-transparent"></div>
-                                      <span className="text-[10px] md:text-sm font-black text-slate-900">84%</span>
-                                   </div>
-                                   <p className="mt-2 md:mt-4 text-[7px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest">Market Share</p>
-                                </div>
-                                <div className="md:col-span-2 bg-slate-100/50 rounded-3xl p-4 md:p-6 flex flex-col justify-end space-y-4">
-                                   <div className="flex items-end gap-1.5 md:gap-2 h-20 md:h-32">
-                                      {[40, 65, 45, 90, 55, 80, 70, 95].map((h, i) => (
-                                         <motion.div key={i} initial={{ height: 0 }} animate={{ height: `${h}%` }} transition={{ delay: i * 0.05 }} className="flex-1 bg-blue-500/20 rounded-t-sm md:rounded-t-lg group relative">
-                                            <div className="absolute inset-x-0 top-0 h-1 md:h-2 bg-blue-500 rounded-lg scale-y-0 group-hover:scale-y-100 transition-transform"></div>
-                                         </motion.div>
-                                      ))}
-                                   </div>
-                                   <div className="flex justify-between text-[7px] md:text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">
-                                      <span>Jan</span><span>Apr</span><span>Jul</span><span>Oct</span>
-                                   </div>
-                                </div>
-                             </div>
-                             <div className="p-3 md:p-5 bg-pd-blue/5 rounded-xl md:rounded-2xl flex items-center justify-between border border-pd-blue/10">
-                                <div className="flex items-center gap-2 md:gap-3">
-                                   <TrendingUp size={16} className="text-pd-blue" />
-                                   <span className="text-[8px] md:text-[10px] font-black text-pd-blue uppercase tracking-widest leading-none">Growth Velocity Optimized</span>
-                                </div>
-                                <ArrowRight size={12} className="text-pd-blue" />
-                             </div>
-                          </div>
-                       )}
+                        {features[selected].type === 'followups' && (
+                           <div className="h-full flex flex-col justify-center items-center">
+                              <div className="w-full max-w-md space-y-4">
+                                 {[
+                                    { user: 'Amit K.', status: 'Sent 1st Follow-up', time: '10m ago', icon: <Mail size={16} /> },
+                                    { user: 'Sonal M.', status: 'Meeting Scheduled', time: '2h ago', icon: <Calendar size={16} /> },
+                                    { user: 'Rahul S.', status: 'Booking Confirmed', time: '5h ago', icon: <CheckCircle2 size={16} /> }
+                                 ].map((f, i) => (
+                                    <motion.div 
+                                       key={i}
+                                       initial={{ opacity: 0, x: -20 }}
+                                       animate={{ opacity: 1, x: 0 }}
+                                       transition={{ delay: i * 0.2 }}
+                                       className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between"
+                                    >
+                                       <div className="flex items-center gap-4">
+                                          <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                                             <Users size={20} />
+                                          </div>
+                                          <div>
+                                             <p className="text-sm font-black text-slate-900">{f.user}</p>
+                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{f.status}</p>
+                                          </div>
+                                       </div>
+                                       <div className="text-right">
+                                          <p className="text-[10px] font-black text-pd-blue mb-1">{f.time}</p>
+                                          <div className="text-pd-blue">{f.icon}</div>
+                                       </div>
+                                    </motion.div>
+                                 ))}
+                              </div>
+                           </div>
+                        )}
 
                        {features[selected].type === 'support' && (
                           <div className="h-full flex flex-col justify-end p-4">
@@ -514,14 +483,6 @@ export default function PartnerLandingPage() {
   const router = useRouter();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [showSticky, setShowSticky] = useState(false);
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (localStorage.getItem('auth_session')) {
-      router.push('/dashboard');
-    }
-  }, [router]);
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -863,7 +824,7 @@ export default function PartnerLandingPage() {
       </section>
 
       {/* 9. SUCCESS STORIES */}
-      <section className="py-24 bg-white border-t border-slate-50 overflow-hidden">
+      <section id="stories" className="py-24 bg-white border-t border-slate-50 overflow-hidden">
         <div className="max-w-[1440px] mx-auto mb-16 px-6 lg:px-12 text-center">
             <h3 className="text-2xl font-black italic uppercase tracking-widest text-[#0F172A]">Real Success Stories</h3>
         </div>
@@ -1081,7 +1042,7 @@ export default function PartnerLandingPage() {
       </section>
 
       {/* 11. FAQ - PREMIUM REDESIGN */}
-      <section suppressHydrationWarning className="py-12 md:py-16 px-6 bg-white relative overflow-hidden">
+      <section id="faq" suppressHydrationWarning className="py-12 md:py-16 px-6 bg-white relative overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-100 to-transparent"></div>
         <div className="absolute -top-[200px] -right-[200px] w-[500px] h-[500px] bg-pd-blue/5 rounded-full blur-[120px] pointer-events-none"></div>
@@ -1119,7 +1080,7 @@ export default function PartnerLandingPage() {
             <div className="lg:col-span-7 space-y-4">
                {[
                  { q: "How do I list my venue?", a: "Registering is easy. Fill out our partner onboarding form with your basic venue details. Our verification team reviews all applications within 24-48 hours to ensure our quality standards are met." },
-                 { q: "How do I receive leads?", a: "Every inquiry is delivered instantly. We notify you via real-time WhatsApp alerts, SMS, and email. You can also view, track, and manage all your conversations through the Partner Dashboard." },
+                 { q: "How do I receive leads?", a: "Every inquiry is delivered instantly. We notify you via Real-time App Alerts and Email Alerts. You can also view, track, and manage all your conversations through the Partner Dashboard." },
                  { q: "Can I update pricing?", a: "Yes, you have full control. Update your pricing, seasonal availability, event capacity, and high-quality photo gallery at any time through your dashboard." },
                  { q: "Is there a listing fee?", a: "We offer several ways to grow. From organic free listings with standard visibility to premium growth plans that guarantee high-intent lead volume. Contact us to find your perfect fit." }
                ].map((f, i) => (

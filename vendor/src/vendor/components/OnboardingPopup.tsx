@@ -73,46 +73,67 @@ const OnboardingPopup = ({ isOpen, onClose }: OnboardingPopupProps) => {
                    </div>
                 </div>
 
-                <h2 className="text-2xl md:text-4xl font-black text-slate-900 uppercase italic tracking-tighter mb-4 leading-tight">
+                <motion.h2 
+                   initial={{ opacity: 0, y: 20 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ delay: 0.1, duration: 0.6 }}
+                   className="text-2xl md:text-4xl font-black text-slate-900 uppercase italic tracking-tighter mb-4 leading-tight"
+                >
                    Welcome to <br />
                    <span className="pd-gradient-text italic">Your Legacy!</span>
-                </h2>
-                <p className="text-[13px] md:text-sm font-medium text-slate-500 leading-relaxed mb-8 italic max-w-sm mx-auto">
+                </motion.h2>
+                <motion.p 
+                   initial={{ opacity: 0, y: 10 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ delay: 0.2, duration: 0.6 }}
+                   className="text-[13px] md:text-sm font-medium text-slate-500 leading-relaxed mb-8 italic max-w-sm mx-auto"
+                >
                    Your venue storefront is <span className="text-slate-900 font-black">90% ready</span>. Just a few finishing touches to start reaching over <span className="pd-gradient-text font-black">2,500+ local seekers</span> monthly.
-                </p>
+                </motion.p>
 
-                <div className="grid grid-cols-1 gap-2.5 mb-8">
+                <div className="grid grid-cols-1 gap-3 mb-8">
                    {[
-                      { label: 'Polish Your Story', sub: 'Venue description & amenities', icon: <Building2 className="text-pd-pink" size={16} /> },
-                      { label: 'Curate Your Gallery', sub: 'High-definition venue photos', icon: <ImageIcon className="text-blue-500" size={16} /> },
-                      { label: 'Set Your Prestige', sub: 'Dynamic pricing for all events', icon: <IndianRupee className="text-emerald-500" size={16} /> }
+                      { label: 'Polish Your Story', sub: 'Venue description & amenities', icon: <Building2 size={18} />, href: '/dashboard/onboarding/profile', color: 'bg-rose-50 text-rose-500' },
+                      { label: 'Curate Your Gallery', sub: 'High-definition venue photos', icon: <ImageIcon size={18} />, href: '/dashboard/onboarding/photos', color: 'bg-blue-50 text-blue-500' },
+                      { label: 'Set Your Prestige', sub: 'Dynamic pricing for all events', icon: <IndianRupee size={18} />, href: '/dashboard/onboarding/pricing', color: 'bg-emerald-50 text-emerald-500' }
                    ].map((item, idx) => (
-                      <div 
-                        key={idx}
-                        className="flex items-center gap-4 p-3.5 bg-slate-50/50 rounded-[24px] border border-slate-100/60 hover:border-pd-pink/20 transition-all text-left group cursor-pointer"
+                      <Link 
+                        key={idx} 
+                        href={item.href}
+                        onClick={onClose}
+                        className="block group"
                       >
-                         <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center group-hover:bg-pd-pink group-hover:text-white transition-all">
-                            {item.icon}
-                         </div>
-                         <div className="flex-1">
-                            <h4 className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-slate-900 leading-none mb-1 group-hover:text-pd-pink transition-colors">{item.label}</h4>
-                            <p className="text-[9px] md:text-[10px] font-bold text-slate-400 italic">{item.sub}</p>
-                         </div>
-                         <ChevronRight size={14} className="text-slate-300 group-hover:text-pd-pink group-hover:translate-x-1 transition-all" />
-                      </div>
+                        <motion.div 
+                          whileHover={{ x: 5, backgroundColor: 'rgba(241, 245, 249, 0.8)' }}
+                          whileTap={{ scale: 0.98 }}
+                          className="flex items-center gap-4 p-4 bg-slate-50/50 rounded-[24px] border border-slate-100/60 hover:border-pd-pink/30 hover:shadow-lg hover:shadow-pd-pink/5 transition-all text-left"
+                        >
+                           <div className={`w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-500`}>
+                              {item.icon}
+                           </div>
+                           <div className="flex-1">
+                              <h4 className="text-[11px] md:text-[12px] font-black uppercase tracking-widest text-slate-900 leading-none mb-1.5 group-hover:text-pd-pink transition-colors">{item.label}</h4>
+                              <p className="text-[10px] md:text-[11px] font-bold text-slate-400 italic leading-none">{item.sub}</p>
+                           </div>
+                           <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:bg-pd-pink group-hover:text-white transition-all transform group-hover:rotate-45">
+                              <ChevronRight size={14} />
+                           </div>
+                        </motion.div>
+                      </Link>
                    ))}
                 </div>
 
                 <div className="flex flex-col gap-3">
                    <Link href="/dashboard/onboarding/profile" onClick={onClose} className="w-full">
-                      <button className="pd-btn-primary w-full py-4.5 rounded-[20px] text-[11px] font-black uppercase tracking-[0.2em] italic shadow-xl shadow-pd-pink/20 hover:scale-[1.01] active:scale-95 transition-all">
+                      <button className="pd-btn-primary w-full py-5 rounded-[22px] text-[11px] font-black uppercase tracking-[0.2em] italic shadow-2xl shadow-pd-pink/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
+                         <Sparkle size={16} fill="white" />
                          Ignite My Storefront
                       </button>
                    </Link>
 
                    <button 
                       onClick={onClose}
-                      className="py-2.5 text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-all italic"
+                      className="py-3 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-slate-900 transition-all italic"
                    >
                       Skip for later
                    </button>

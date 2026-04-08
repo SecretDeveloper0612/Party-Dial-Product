@@ -171,10 +171,7 @@ export default function Header() {
       {/* 1. TOP BAR */}
       <div className="pd-gradient text-white py-2 md:py-2.5 px-4 md:px-6 shadow-lg relative z-[60]">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-[9px] md:text-[11px] font-bold uppercase tracking-[0.1em] md:tracking-[0.2em]">
-          <a href="tel:+919876543210" className="flex items-center gap-1.5 md:gap-2 hover:text-white/80 transition-colors shrink-0">
-            <Phone size={12} className="text-white md:size-[14px]" />
-            <span className="font-black text-[10px] md:text-sm shadow-sm tracking-widest">+91 98765 43210</span>
-          </a>
+          {/* Phone number removed */}
           <div className="hidden md:flex flex-1 justify-center overflow-hidden h-4 relative mx-10">
             <AnimatePresence mode="wait">
               <motion.span

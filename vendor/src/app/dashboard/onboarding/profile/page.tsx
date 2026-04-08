@@ -195,7 +195,6 @@ export default function CompleteProfilePage() {
           onboardingComplete: false,
           isVerified: false,
           status: 'active',
-          registrationDate: new Date().toISOString()
         })
       };
 

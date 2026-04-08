@@ -34,88 +34,144 @@ const textGradientStyle = "bg-gradient-to-r from-red-500 via-pink-500 via-purple
 const pricingPlans = [
   {
     id: 1,
-    name: "0–50 PAX",
-    mrp: 15000,
-    price: 12000,
+    name: "Upto 50 PAX",
+    packName: "Starter Pack",
+    mrp: 14965,
+    price: 12045,
     leads: "Unlimited Leads",
-    features: ["Basic visibility", "Standard listing", "Lead notifications", "Email support"],
+    features: [
+      "Basic listing visibility",
+      "Standard search placement",
+      "Lead notifications (App + Email)",
+      "Upload up to 10 photos",
+      "Basic customer support"
+    ],
     popular: false,
     cta: "Get Started"
   },
   {
     id: 2,
     name: "50–100 PAX",
-    mrp: 20000,
-    price: 16000,
+    packName: "Growth Pack",
+    mrp: 20075,
+    price: 16060,
     leads: "Unlimited Leads",
-    features: ["Improved visibility", "WhatsApp alerts", "Standard placement", "Basic analytics"],
+    features: [
+      "Improved listing visibility",
+      "WhatsApp lead alerts",
+      "Standard placement in search",
+      "Upload up to 20 photos",
+      "Basic analytics dashboard"
+    ],
     popular: false,
     cta: "Get Started"
   },
   {
     id: 3,
     name: "100–200 PAX",
-    mrp: 35000,
-    price: 28000,
+    packName: "Priority Pack",
+    mrp: 35040,
+    price: 28105,
     leads: "Unlimited Leads",
-    features: ["Priority listing", "WhatsApp notifications", "Lead insights dashboard", "Faster lead delivery"],
+    features: [
+      "Priority listing in search results",
+      "WhatsApp notifications",
+      "Lead insights dashboard",
+      "Faster lead delivery",
+      "Upload up to 30 photos"
+    ],
     popular: true,
     cta: "Get Started"
   },
   {
     id: 4,
     name: "200–500 PAX",
-    mrp: 57000,
-    price: 45000,
+    packName: "Featured Pack",
+    mrp: 56940,
+    price: 44895,
     leads: "Unlimited Leads",
-    features: ["Featured placement", "Priority visibility", "Lead filtering", "Priority support"],
+    features: [
+      "Featured placement in listings",
+      "Priority visibility in search",
+      "Lead filtering system",
+      "Priority customer support",
+      "Upload up to 40 photos"
+    ],
     popular: false,
     cta: "Get Started"
   },
   {
     id: 5,
     name: "500–1000 PAX",
-    mrp: 80000,
-    price: 65000,
+    packName: "Premium Pack",
+    mrp: 79935,
+    price: 65335,
     leads: "Unlimited Leads",
-    features: ["Premium placement", "High visibility", "Faster response routing", "Support assistance"],
+    features: [
+      "Premium placement in listings",
+      "High visibility ranking",
+      "Faster lead routing",
+      "Advanced performance analytics",
+      "Upload up to 50 photos"
+    ],
     popular: false,
     cta: "Get Started"
   },
   {
     id: 6,
     name: "1000–2000 PAX",
-    mrp: 110000,
-    price: 90000,
+    packName: "Elite Pack",
+    mrp: 109865,
+    price: 90885,
     leads: "Unlimited Leads",
-    features: ["Top city visibility", "Premium ranking", "Lead analytics", "Priority handling"],
+    features: [
+      "Top city visibility",
+      "Premium ranking placement",
+      "Advanced lead analytics",
+      "Priority lead routing",
+      "Upload up to 60 photos"
+    ],
     popular: false,
     cta: "Get Started"
   },
   {
     id: 7,
     name: "2000–5000 PAX",
-    mrp: 180000,
-    price: 140000,
+    packName: "Platinum Pack",
+    mrp: 179945,
+    price: 138335,
     leads: "Unlimited Leads",
-    features: ["High priority ranking", "Dedicated support", "Advanced analytics", "Premium distribution"],
+    features: [
+      "High priority ranking",
+      "Dedicated support assistance",
+      "Premium listing visibility",
+      "Advanced reporting dashboard",
+      "Upload up to 75 photos"
+    ],
     popular: false,
     cta: "Get Started"
   },
   {
     id: 8,
     name: "5000+ PAX",
-    mrp: 300000,
-    price: 220000,
+    packName: "Enterprise Pack",
+    mrp: 300030,
+    price: 218635,
     leads: "Unlimited Leads",
-    features: ["Exclusive leads", "Dedicated account manager", "Custom promotions", "Highest visibility"],
+    features: [
+      "Exclusive lead priority",
+      "Dedicated account manager",
+      "Highest platform visibility",
+      "Custom promotional support",
+      "Unlimited photo uploads"
+    ],
     popular: false,
     cta: "Contact Sales"
   }
 ];
 
 const addonRates = [
-  { pax: "0–50", price: 1999 },
+  { pax: "Upto 50", price: 1999 },
   { pax: "50–100", price: 2999 },
   { pax: "100–200", price: 3999 },
   { pax: "200–500", price: 6999 },
@@ -195,7 +251,10 @@ const PricingCard = ({ plan }: { plan: typeof pricingPlans[0] }) => {
                <Star size={12} fill="currentColor" /> MOST POPULAR
             </div>
           )}
-          <h3 className="text-xl font-bold text-slate-900 leading-tight mb-4">{plan.name}</h3>
+            <div className="flex flex-col mb-4">
+               <h3 className="text-xl font-[900] text-slate-900 leading-tight tracking-tight uppercase italic">{plan.name}</h3>
+               <span className="text-[10px] font-black text-pd-purple uppercase tracking-[0.2em] mt-1">{plan.packName}</span>
+            </div>
           <div className="space-y-1">
             <p className="text-sm text-slate-400 line-through font-medium leading-none">₹{Math.round(plan.mrp / 365).toLocaleString()}</p>
             <div className="flex items-baseline gap-1">
@@ -206,12 +265,12 @@ const PricingCard = ({ plan }: { plan: typeof pricingPlans[0] }) => {
           </div>
         </div>
 
-        <div className="mb-8 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-          <div className="flex items-center gap-2 mb-1">
+        <div className="mb-8 p-4 bg-slate-50/50 rounded-2xl border border-slate-100 group-hover:bg-white transition-colors">
+          <div className="flex items-center gap-2 mb-1.5">
             <Zap size={14} className="text-pink-500 fill-pink-500" />
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Lead Capacity</span>
           </div>
-          <p className="text-xs font-bold text-slate-900">{plan.leads}</p>
+          <p className="text-xl font-black bg-gradient-to-r from-red-500 to-purple-600 bg-clip-text text-transparent">{plan.leads}</p>
         </div>
 
         <div className="flex-grow space-y-4 mb-10">
@@ -294,8 +353,19 @@ export default function PricingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-pink-50 rounded-full text-pink-500 text-[10px] font-black uppercase tracking-[0.2em] border border-pink-100">
-               <Zap size={12} className="fill-current text-pink-500" /> Grow Your Wedding & Event Business
+            <div className="mb-6 flex flex-col items-center justify-center gap-4">
+               <div className="inline-flex items-center gap-2 px-3 py-1 bg-pink-50 rounded-full text-pink-500 text-[10px] font-black uppercase tracking-[0.2em] border border-pink-100">
+                  <Zap size={12} className="fill-current text-pink-500" /> Grow Your Wedding & Event Business
+               </div>
+               
+               <motion.div 
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.3, type: "spring" }}
+                  className="bg-yellow-400 text-slate-900 px-6 py-2 rounded-2xl font-black text-sm uppercase tracking-tighter italic flex items-center gap-2 shadow-[0_10px_30px_rgba(250,204,21,0.3)] animate-bounce"
+               >
+                  <Sparkle size={18} fill="currentColor" /> Limited Time: Flat 27% OFF on All Yearly Plans!
+               </motion.div>
             </div>
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-[900] text-[#0F172A] flex flex-col items-center justify-center gap-2 md:gap-4 mb-8 tracking-tighter uppercase leading-[1.1]">
@@ -320,8 +390,37 @@ export default function PricingPage() {
       </section>
 
       {/* 2. PRICING SECTION (MAIN) */}
-      <section className="py-12 md:py-20 px-6 lg:px-12 bg-white">
-        <div className="max-w-[1440px] mx-auto">
+      <section className="py-24 px-6 lg:px-12 relative overflow-hidden bg-slate-50">
+        {/* Decorative elements from image */}
+        <div className="absolute top-10 left-10 opacity-40 transform -rotate-12">
+          <svg width="100" height="40" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 20C10 10 20 10 30 20C40 30 50 30 60 20C70 10 80 10 90 20" stroke="#f43f5e" strokeWidth="4" />
+            <path d="M0 30C10 20 20 20 30 30C40 40 50 40 60 30C70 20 80 20 90 30" stroke="#8b5cf6" strokeWidth="4" />
+          </svg>
+        </div>
+        <div className="absolute bottom-10 right-10 opacity-40">
+           <svg width="100" height="40" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 20C10 10 20 10 30 20C40 30 50 30 60 20C70 10 80 10 90 20" stroke="#f43f5e" strokeWidth="4" />
+            <path d="M0 30C10 20 20 20 30 30C40 40 50 40 60 30C70 20 80 20 90 30" stroke="#8b5cf6" strokeWidth="4" />
+          </svg>
+        </div>
+
+        <div className="max-w-7xl mx-auto text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-2 tracking-tight uppercase italic">Pricing</h2>
+          <p className="text-slate-500 font-bold text-lg">(According to Pax, you serve)</p>
+        </div>
+
+        <div className="max-w-[1440px] mx-auto relative px-4">
+          {/* Side Arrows from image */}
+          <div className="absolute -left-8 top-1/2 -translate-y-1/2 hidden xl:block text-slate-200">
+             <ChevronRight className="rotate-180" size={48} strokeWidth={3} />
+             <ChevronRight className="rotate-180 -mt-8" size={48} strokeWidth={3} />
+          </div>
+          <div className="absolute -right-8 top-1/2 -translate-y-1/2 hidden xl:block text-slate-200">
+             <ChevronRight size={48} strokeWidth={3} />
+             <ChevronRight className="-mt-8" size={48} strokeWidth={3} />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {pricingPlans.map((plan) => (
               <PricingCard key={plan.id} plan={plan} />

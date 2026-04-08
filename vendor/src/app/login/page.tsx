@@ -22,11 +22,9 @@ export default function VenueLoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
 
-  // No local storage redirection needed, dashboard will handle auth check.
+  // No auto-redirect from localStorage, as we want to use the live SDK for checks.
   React.useEffect(() => {
-    // Optionally clear any old stale data
-    localStorage.removeItem('auth_session');
-    localStorage.removeItem('user');
+    // We no longer clear stale data here to avoid logging out users who visit this page while logged in
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +73,25 @@ export default function VenueLoginPage() {
 
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-pd selection:bg-pd-pink selection:text-white">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-pd selection:bg-pd-pink selection:text-white relative">
+      
+      {/* Home Link */}
+      <div className="absolute top-8 left-8 z-20">
+        <Link href="/">
+          <div className="flex items-center gap-3 group cursor-pointer">
+            <Image 
+              src="/logo.png" 
+              alt="PartyDial" 
+              width={120} 
+              height={36} 
+              className="h-9 w-auto object-contain group-hover:scale-105 transition-transform" 
+            />
+            <div className="h-4 w-[1px] bg-slate-200 mx-1"></div>
+            <span className="text-[10px] font-black text-pd-red italic tracking-widest uppercase">PARTNER</span>
+          </div>
+        </Link>
+      </div>
+
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -83,11 +99,17 @@ export default function VenueLoginPage() {
       >
         <div className="bg-white rounded-[40px] p-8 lg:p-12 shadow-pd-strong border border-slate-100 mb-8 relative overflow-hidden">
           <div className="mb-10 text-center">
-             <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white mx-auto mb-6 group-hover:scale-110 transition-transform">
-                <Building2 size={28} />
+             <div className="w-20 h-20 bg-slate-900 rounded-[24px] flex items-center justify-center text-white mx-auto mb-6 group-hover:scale-110 transition-transform overflow-hidden shadow-xl">
+                <Image 
+                  src="/partner-icon.jpg" 
+                  alt="Venue Partner" 
+                  width={80} 
+                  height={80} 
+                  className="w-full h-full object-cover" 
+                />
              </div>
-             <h2 className="text-2xl font-black text-slate-900 uppercase italic mb-2">Venue Login</h2>
-             <p className="text-sm text-slate-500 font-medium">Manage your venue and tracking leads.</p>
+             <h2 className="text-3xl font-[900] text-slate-900 uppercase italic mb-2 tracking-tight">Venue Login</h2>
+             <p className="text-sm text-slate-500 font-medium font-pd">Manage your venue and tracking leads.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

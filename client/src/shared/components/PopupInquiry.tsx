@@ -48,19 +48,7 @@ const PopupHeader = memo(({ onClose }: { onClose: () => void }) => (
 PopupHeader.displayName = 'PopupHeader';
 
 // Memoized Trust Badges
-const PopupFooter = memo(() => (
-  <div className="px-6 lg:px-8 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-center gap-4 lg:gap-8 rounded-b-[2rem] overflow-hidden">
-      <div className="flex items-center gap-1.5 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all cursor-default">
-          <Phone size={10} className="text-pd-red" />
-          <span className="text-[8px] lg:text-[9px] font-black uppercase tracking-tighter">+91 98765 43210</span>
-      </div>
-      <div className="flex items-center gap-1.5 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all cursor-default">
-          <MapPin size={10} className="text-pd-red" />
-          <span className="text-[8px] lg:text-[9px] font-black uppercase tracking-tighter">Mumbai HQ</span>
-      </div>
-  </div>
-));
-PopupFooter.displayName = 'PopupFooter';
+// Footer removed as requested
 
 // Memoized Form Component
 const InquiryForm = memo(({ 
@@ -418,21 +406,28 @@ export default function PopupInquiry() {
         await account.createAnonymousSession();
       }
 
-      // Save to Appwrite
-      await databases.createDocument(
-        DATABASE_ID, 
-        LEADS_COLLECTION_ID, 
-        ID.unique(), 
-        {
+      // Call Server API for Distributed Leads
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const response = await fetch(`${baseUrl}/venues/leads`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          venueId: venueId || 'BROADCAST',
+          pincode: formData.pincode,
           name: formData.name,
           phone: formData.phone,
           eventType: formData.eventType,
-          capacity: Math.max(0, parseInt(formData.guests.split('-').pop() || '0')) || 200, 
-          status: 'New',
-          venueId: venueId || 'BROADCAST',
-          createdAt: new Date().toISOString()
-        }
-      );
+          guests: formData.guests,
+          notes: formData.message || `Inquiry from Popup`
+        }),
+      });
+
+      const result = await response.json();
+      if (result.status !== 'success') {
+        throw new Error(result.message || 'Failed to submit inquiry');
+      }
 
       setIsSubmitted(true);
       setTimeout(() => {
@@ -483,7 +478,7 @@ export default function PopupInquiry() {
               />
             </div>
             
-            {!isSubmitted && <PopupFooter />}
+{/* Removed footer with phone and location */}
           </motion.div>
         </div>
       )}

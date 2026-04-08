@@ -12,7 +12,12 @@ exports.createDocument = async (req, res) => {
             return res.status(400).json({ status: 'error', message: 'Collection ID and data are required' });
         }
 
-        const document = await databases.createDocument(DATABASE_ID, collectionId, ID.unique(), data);
+        // Inject createdAt if missing (required by schema)
+        const documentData = {
+            ...data,
+            createdAt: data.createdAt || new Date().toISOString()
+        };
+        const document = await databases.createDocument(DATABASE_ID, collectionId, ID.unique(), documentData);
         
         return res.status(201).json({
             status: 'success',

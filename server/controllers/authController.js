@@ -38,7 +38,8 @@ exports.register = async (req, res) => {
                                 onboardingComplete: false,
                                 isVerified: false,
                                 status: 'active',
-                                registrationDate: new Date().toISOString()
+                                registrationDate: new Date().toISOString(),
+                                createdAt: new Date().toISOString()
                             }
                         );
             }
@@ -175,5 +176,39 @@ exports.logout = async (req, res) => {
     }
 };
 
+// Update Expo Push Token
+exports.updatePushToken = async (req, res) => {
+    try {
+        const { userId, token } = req.body;
+        if (!userId || !token) {
+            return res.status(400).json({ status: 'error', message: 'User ID and Token are required' });
+        }
 
+        // Find the venue associated with this user
+        const venueResult = await databases.listDocuments(
+            DATABASE_ID,
+            VENUES_COLLECTION_ID,
+            [Query.equal('userId', userId)]
+        );
+
+        if (venueResult.documents.length === 0) {
+            return res.status(404).json({ status: 'error', message: 'Venue not found for this user' });
+        }
+
+        const venueId = venueResult.documents[0].$id;
+
+        // Update the venue document with the token
+        await databases.updateDocument(
+            DATABASE_ID,
+            VENUES_COLLECTION_ID,
+            venueId,
+            { expoPushToken: token }
+        );
+
+        return res.status(200).json({ status: 'success', message: 'Push token updated' });
+    } catch (error) {
+        console.error('Error updating push token:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
+    }
+};
 

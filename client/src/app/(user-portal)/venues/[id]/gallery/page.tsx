@@ -169,7 +169,7 @@ export default function VenueGalleryPage() {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}
                   onClick={() => setSelectedImage(img)}
-                  className={`group relative bg-white rounded-2xl md:rounded-[32px] overflow-hidden shadow-pd-soft border border-slate-100 cursor-pointer hover:shadow-pd-strong transition-all duration-500 ${spanClass}`}
+                  className="group relative bg-white rounded-2xl md:rounded-[32px] overflow-hidden shadow-pd-soft border border-slate-100 cursor-pointer hover:shadow-pd-strong transition-all duration-500 aspect-square"
                 >
                   <img 
                     src={img.url} 

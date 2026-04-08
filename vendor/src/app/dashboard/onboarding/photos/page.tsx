@@ -20,10 +20,14 @@ import Image from 'next/image';
 
 export default function UploadPhotosPage() {
   const router = useRouter();
-  const [photoIds, setPhotoIds] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<{id: string, category: string}[]>([]);
+  const [venueProfile, setVenueProfile] = useState<any>(null);
   const [docId, setDocId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("ALL PHOTOS");
+
+  const categories = ["ALL PHOTOS", "INTERIOR", "DECORATION", "FOOD & DINING", "EXTERIOR", "EVENT SETUPS"];
 
   React.useEffect(() => {
     const fetchProfile = async () => {
@@ -44,8 +48,15 @@ export default function UploadPhotosPage() {
         if (result.documents.length > 0) {
           const profile = result.documents[0];
           setDocId(profile.$id);
+          setVenueProfile(profile);
           if (profile.photos) {
-            setPhotoIds(JSON.parse(profile.photos));
+            const parsed = JSON.parse(profile.photos);
+            // Handle both old format (string[]) and new format ({id, category}[])
+            const normalized = parsed.map((p: any) => {
+              if (typeof p === 'string') return { id: p, category: 'ALL PHOTOS' };
+              return p;
+            });
+            setPhotos(normalized);
           }
         }
       } catch (err) {
@@ -71,18 +82,36 @@ export default function UploadPhotosPage() {
          return;
       }
 
-      const uploadedIds: string[] = [];
-      for (const file of Array.from(selectedFiles)) {
-        const response = await storage.createFile(STORAGE_BUCKET_ID, ID.unique(), file);
-        uploadedIds.push(response.$id);
+      const isTrial = venueProfile?.subscriptionPlan === 'trial_30';
+      const availableSlots = isTrial ? 3 - photos.length : 1000;
+
+      if (isTrial && photos.length >= 3) {
+         alert('Your trial plan allows only 3 photos. Please upgrade to a PAX Pack for unlimited uploads.');
+         setIsUploading(false);
+         return;
       }
 
-      const newPhotoIds = [...photoIds, ...uploadedIds];
-      setPhotoIds(newPhotoIds);
+      const filesToUpload = Array.from(selectedFiles);
+      if (isTrial && filesToUpload.length > availableSlots) {
+         alert(`You can only upload ${availableSlots} more photos on this plan.`);
+         setIsUploading(false);
+         return;
+      }
+
+      const uploadedPhotos: {id: string, category: string}[] = [];
+      const categoryToAssign = activeCategory === "ALL PHOTOS" ? "INTERIOR" : activeCategory;
+
+      for (const file of Array.from(selectedFiles)) {
+        const response = await storage.createFile(STORAGE_BUCKET_ID, ID.unique(), file);
+        uploadedPhotos.push({ id: response.$id, category: categoryToAssign });
+      }
+
+      const newPhotos = [...photos, ...uploadedPhotos];
+      setPhotos(newPhotos);
 
       // Save to database
       const payload = {
-        photos: JSON.stringify(newPhotoIds)
+        photos: JSON.stringify(newPhotos)
       };
 
       if (docId) {
@@ -95,10 +124,15 @@ export default function UploadPhotosPage() {
           venueName: user.name || 'My Venue',
           ownerName: user.name || 'Owner',
           contactEmail: user.email || '',
+          contactNumber: user.phone || '',
+          city: '',
+          state: '',
+          pincode: '',
+          venueType: 'Banquet Hall',
+          capacity: '0',
           onboardingComplete: false,
           isVerified: false,
           status: 'active',
-          registrationDate: new Date().toISOString()
         });
         setDocId(newDoc.$id);
       }
@@ -118,11 +152,11 @@ export default function UploadPhotosPage() {
       const { storage, STORAGE_BUCKET_ID, databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
       
       await storage.deleteFile(STORAGE_BUCKET_ID, id);
-      const newPhotoIds = photoIds.filter(pid => pid !== id);
-      setPhotoIds(newPhotoIds);
+      const newPhotos = photos.filter(p => p.id !== id);
+      setPhotos(newPhotos);
 
       await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, docId, {
-        photos: JSON.stringify(newPhotoIds)
+        photos: JSON.stringify(newPhotos)
       });
     } catch (err) {
       console.error('Delete failed:', err);
@@ -150,6 +184,8 @@ export default function UploadPhotosPage() {
     };
     loadConfig();
   }, []);
+
+  const filteredPhotos = photos.filter(p => activeCategory === "ALL PHOTOS" || p.category === activeCategory);
 
   return (
     <div className="min-h-screen bg-slate-50 font-pd py-12 px-6">
@@ -184,6 +220,23 @@ export default function UploadPhotosPage() {
                <p className="text-slate-500 font-medium max-w-lg mx-auto leading-relaxed">High-quality photos are the #1 reason customers choose a venue. Showcase your space beautifully.</p>
             </header>
 
+            {/* Category Filter */}
+            <div className="flex flex-wrap gap-2 mb-10 justify-center">
+               {categories.map((cat) => (
+                 <button
+                   key={cat}
+                   onClick={() => setActiveCategory(cat)}
+                   className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                     activeCategory === cat 
+                       ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/10' 
+                       : 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600'
+                   }`}
+                 >
+                   {cat}
+                 </button>
+               ))}
+            </div>
+
             {/* Dropzone Area */}
             <div
               onClick={() => fileInputRef.current?.click()}
@@ -201,7 +254,7 @@ export default function UploadPhotosPage() {
                   <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-400 mx-auto mb-6 shadow-sm group-hover:scale-110 group-hover:text-pd-pink transition-all">
                     <Upload size={24} />
                   </div>
-                  <h3 className="text-lg font-black text-slate-900 italic mb-2 tracking-tight uppercase">Drop your photos here</h3>
+                  <h3 className="text-lg font-black text-slate-900 italic mb-2 tracking-tight uppercase">Upload to {activeCategory === "ALL PHOTOS" ? "Gallery" : activeCategory}</h3>
                   <p className="text-sm text-slate-400 font-medium">PNG, JPG or JPEG (Max 5MB each)</p>
                </div>
                {isUploading && (
@@ -214,17 +267,20 @@ export default function UploadPhotosPage() {
 
             {/* Photo Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-               {photoIds.map((id) => (
+               {filteredPhotos.map((photo) => (
                  <motion.div
-                   key={id}
-                   initial={{ opacity: 0, y: 10 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   className="relative aspect-square rounded-[30px] overflow-hidden group shadow-sm"
+                   key={photo.id}
+                   initial={{ opacity: 0, scale: 0.9 }}
+                   animate={{ opacity: 1, scale: 1 }}
+                   className="relative aspect-square rounded-[30px] overflow-hidden group shadow-sm border border-slate-100"
                  >
-                    <Image src={getFilePreview(id)} alt="Venue Photo" fill className="object-cover group-hover:scale-110 transition-transform duration-500 px-0.5 py-0.5" />
+                    <Image src={getFilePreview(photo.id)} alt="Venue Photo" fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                    <div className="absolute top-2 left-2">
+                       <span className="px-2 py-1 bg-white/90 backdrop-blur-sm rounded-lg text-[8px] font-black uppercase text-slate-800 tracking-tighter shadow-sm">{photo.category}</span>
+                    </div>
                     <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                        <button
-                         onClick={(e) => { e.stopPropagation(); removePhoto(id); }}
+                         onClick={(e) => { e.stopPropagation(); removePhoto(photo.id); }}
                          className="w-full h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-red-500 transition-colors"
                        >
                          <Trash2 size={18} />
@@ -234,7 +290,7 @@ export default function UploadPhotosPage() {
                ))}
 
                {/* Add More Slot */}
-               {photoIds.length > 0 && (
+               {filteredPhotos.length > 0 && !(venueProfile?.subscriptionPlan === 'trial_30' && photos.length >= 3) && (
                  <button
                    onClick={() => fileInputRef.current?.click()}
                    className="aspect-square rounded-[30px] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center gap-2 text-slate-300 hover:text-pd-pink hover:border-pd-pink hover:bg-slate-50 transition-all"
@@ -245,9 +301,17 @@ export default function UploadPhotosPage() {
                )}
             </div>
 
-            {photoIds.length === 0 && (
-              <div className="text-center py-10 opacity-40">
-                <p className="text-sm font-medium italic">No photos uploaded yet.</p>
+            {filteredPhotos.length === 0 && (
+              <div className="text-center py-20 bg-slate-50/50 rounded-[40px] border border-slate-50">
+                <ImageIcon size={48} className="text-slate-200 mx-auto mb-4" />
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest italic">No photos in {activeCategory}</h3>
+                <p className="text-xs text-slate-400 mt-2">Upload photos to this category to showcase your venue.</p>
+                <button 
+                   onClick={() => fileInputRef.current?.click()}
+                   className="mt-6 px-6 py-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all"
+                >
+                   Upload to {activeCategory === "ALL PHOTOS" ? "Gallery" : activeCategory}
+                </button>
               </div>
             )}
           </div>

@@ -89,7 +89,6 @@ export default function SetPricingPage() {
           onboardingComplete: false,
           isVerified: false,
           status: 'active',
-          registrationDate: new Date().toISOString()
         })
       };
 

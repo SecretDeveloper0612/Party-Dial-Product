@@ -18,6 +18,7 @@ import {
   Music, 
   Image as ImageIcon,
   CheckCircle2,
+  IndianRupee,
   Smartphone,
   Key,
   Mail,
@@ -30,9 +31,11 @@ import {
   Palette,
   Heart,
   ShieldCheck,
-  Building
+  Building,
+  Trash2
 } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface DashboardSettingsProps {
   settingsSection: string;
@@ -218,30 +221,51 @@ const DashboardSettings = ({
           {/* Settings Sidebar */}
           <aside className="w-full lg:w-80 flex flex-col gap-2 px-2 lg:px-0">
              {[
-                { id: 'profile', label: 'Public Profile', icon: <User size={18} />, color: 'text-blue-500' },
-                { id: 'billing', label: 'Billing & Plans', icon: <CreditCard size={18} />, color: 'text-emerald-500' },
+                { id: 'profile', label: 'Venue Identity', icon: <Building2 size={18} />, color: 'text-blue-500', sub: 'Branding & Details' },
+                { id: 'photos', label: 'Media Gallery', icon: <ImageIcon size={18} />, color: 'text-purple-500', sub: 'Photos & Videos' },
+                { id: 'pricing_section', label: 'Event Pricing', icon: <IndianRupee size={18} />, color: 'text-rose-500', sub: 'Plate rates & Fees' },
+                { id: 'billing', label: 'Plan & Billing', icon: <CreditCard size={18} />, color: 'text-emerald-500', sub: 'Subscription status' },
              ].map(section => (
                 <button 
                   key={section.id}
                   onClick={() => setSettingsSection(section.id)}
-                  className={`flex items-center justify-between p-4 lg:p-5 rounded-[20px] lg:rounded-[25px] transition-all group ${settingsSection === section.id ? 'bg-slate-900 text-white shadow-2xl shadow-slate-900/20' : 'bg-white border border-slate-50 hover:bg-slate-50'}`}
+                  className={`flex items-center justify-between p-4 rounded-[22px] transition-all group ${settingsSection === section.id ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20' : 'bg-white border border-slate-50 hover:bg-slate-50'}`}
                 >
-                   <div className="flex items-center gap-3 lg:gap-4">
-                      <div className={`p-2 rounded-xl scale-90 lg:scale-100 ${settingsSection === section.id ? 'bg-white/10 text-white' : 'bg-slate-50 ' + section.color} transition-all`}>
+                   <div className="flex items-center gap-3">
+                      <div className={`p-2.5 rounded-xl ${settingsSection === section.id ? 'bg-white/10 text-white' : 'bg-slate-50 ' + section.color} transition-all`}>
                          {section.icon}
                       </div>
-                      <span className={`text-[10px] lg:text-[11px] font-black uppercase tracking-widest ${settingsSection === section.id ? 'text-white' : 'text-slate-600'}`}>{section.label}</span>
+                      <div className="text-left">
+                         <p className={`text-[10px] font-black uppercase tracking-widest ${settingsSection === section.id ? 'text-white' : 'text-slate-900'}`}>{section.label}</p>
+                         <p className={`text-[8px] font-bold uppercase tracking-widest ${settingsSection === section.id ? 'text-slate-400' : 'text-slate-400'}`}>{section.sub}</p>
+                      </div>
                    </div>
-                   <ChevronRight size={14} className={`transition-transform ${settingsSection === section.id ? 'translate-x-1 opacity-100' : 'opacity-0 hidden lg:block'}`} />
+                   <ChevronRight size={14} className={`transition-transform ${settingsSection === section.id ? 'translate-x-1 opacity-100' : 'opacity-0'}`} />
                 </button>
              ))}
 
              <div className="mt-4 lg:mt-10 p-6 lg:p-8 bg-slate-900 rounded-[30px] lg:rounded-[35px] text-white relative overflow-hidden group shadow-2xl shadow-slate-900/30">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink opacity-20 blur-3xl group-hover:opacity-40 transition-opacity"></div>
                 <Sparkles className="text-pd-pink mb-3 lg:mb-4 scale-90 lg:scale-100" size={24} />
-                <h4 className="text-xs lg:text-sm font-black italic uppercase mb-2">Pro Partner Status</h4>
-                <p className="text-[9px] lg:text-[10px] text-slate-400 uppercase tracking-widest mb-4 lg:mb-6 leading-none">Valid until March 2026</p>
-                <button className="w-full py-3 bg-white text-slate-900 rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink hover:text-white transition-all shadow-xl">MANAGE PLAN</button>
+                <h4 className="text-xs lg:text-sm font-black italic uppercase mb-2">
+                   {(() => {
+                      const id = venueProfile?.subscriptionPlan;
+                      if (id === 'pax_0_50') return 'Starter Pack';
+                      if (id === 'pax_50_100') return 'Growth Pack';
+                      if (id === 'pax_100_200') return 'Priority Pack';
+                      if (id === 'pax_200_500') return 'Featured Pack';
+                      if (id === 'pax_500_1000') return 'Premium Pack';
+                      if (id === 'pax_1000_2000') return 'Elite Pack';
+                      if (id === 'pax_2000_5000') return 'Platinum Pack';
+                      if (id === 'pax_5000') return 'Enterprise Pack';
+                      if (id === 'free') return 'Free Starter';
+                      return 'Free Starter';
+                    })()} Status
+                </h4>
+                <p className="text-[9px] lg:text-[10px] text-slate-400 uppercase tracking-widest mb-4 lg:mb-6 leading-none italic">Valid for 1 Year (365 Days)</p>
+                <Link href="/dashboard/onboarding/subscription">
+                  <button className="w-full py-3 bg-white text-slate-900 rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink hover:text-white transition-all shadow-xl">MANAGE PLAN</button>
+                </Link>
              </div>
           </aside>
 
@@ -290,8 +314,8 @@ const DashboardSettings = ({
                                      <input type="file" hidden ref={avatarInputRef} accept="image/*" onChange={handleAvatarUpload} />
                                   </div>
                                   <div className="flex-1">
-                                     <p className="text-[11px] font-black italic uppercase text-slate-900 leading-none mb-2">Partner Avatar</p>
-                                     <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">This image will represent the venue in the partner console and search results.</p>
+                                     <p className="text-[11px] font-black italic uppercase text-slate-900 leading-none mb-2">Change Logo</p>
+                                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">This image will represent your venue across the platform.</p>
                                   </div>
                                </div>
                             </section>
@@ -326,120 +350,91 @@ const DashboardSettings = ({
                                </div>
                             </section>
 
-                            <section>
-                               <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Plate Pricing</h3>
-                               <div className="grid grid-cols-2 gap-6">
-                                  <div className="space-y-3">
-                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1 italic">Veg Plate</label>
-                                     <div className="relative group">
-                                        <div className="absolute left-6 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-emerald-500" />
-                                        <input 
-                                          type="number" 
-                                          value={venueProfile?.perPlateVeg || ""} 
-                                          onChange={(e) => handleProfileUpdate('perPlateVeg', e.target.value)}
-                                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-5 pl-16 pr-8 text-sm font-black italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner" 
-                                        />
-                                     </div>
-                                  </div>
-                                  <div className="space-y-3">
-                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1 italic">Non-Veg Plate</label>
-                                     <div className="relative group">
-                                        <div className="absolute left-6 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500" />
-                                        <input 
-                                          type="number" 
-                                          value={venueProfile?.perPlateNonVeg || ""} 
-                                          onChange={(e) => handleProfileUpdate('perPlateNonVeg', e.target.value)}
-                                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-5 pl-16 pr-8 text-sm font-black italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner" 
-                                        />
-                                     </div>
-                                  </div>
-                               </div>
-                            </section>
-
-                            <section>
-                               <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Parties We Organize</h3>
-                               <div className="flex flex-wrap gap-2">
-                                  {eventTypesList.map((type) => {
-                                     const isActive = eventTypes.includes(type);
-                                     return (
-                                        <button 
-                                          key={type}
-                                          onClick={() => handleEventTypeToggle(type)}
-                                          className={`px-4 py-2 rounded-full border transition-all text-[9px] font-black uppercase tracking-widest ${isActive ? 'bg-pd-red border-pd-red text-white shadow-lg' : 'bg-white border-slate-100 text-slate-400 hover:border-pd-red/30'}`}
-                                        >
-                                           {type}
-                                        </button>
-                                     );
-                                  })}
-                               </div>
-                            </section>
-                         </div>
-
-                         <div className="space-y-12">
-                            <section>
-                               <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Amenities & Features</h3>
-                               <div className="grid grid-cols-2 gap-3">
-                                  {[
-                                     { id: 'ac', label: 'Air Conditioning', icon: <Wind size={14} /> },
-                                     { id: 'parking', label: 'Parking Available', icon: <Car size={14} /> },
-                                     { id: 'power', label: 'Power Backup', icon: <Zap size={14} /> },
-                                     { id: 'indoor', label: 'Indoor Hall', icon: <Building size={14} /> },
-                                     { id: 'outdoor', label: 'Outdoor Lawn', icon: <Trees size={14} /> },
-                                     { id: 'catering_in', label: 'In-house Catering', icon: <Utensils size={14} /> },
-                                     { id: 'catering_out', label: 'Outside Catering Allowed', icon: <ChefHat size={14} /> },
-                                     { id: 'dj', label: 'DJ Allowed', icon: <Music size={14} /> },
-                                     { id: 'decoration', label: 'Decoration Available', icon: <Palette size={14} /> },
-                                     { id: 'bridal', label: 'Bridal Room', icon: <Heart size={14} /> },
-                                     { id: 'security', label: 'Security Available', icon: <ShieldCheck size={14} /> },
-                                     { id: 'wifi', label: 'Wi-Fi Available', icon: <Wifi size={14} /> }
-                                  ].map((amenity) => {
-                                     const isActive = amenities.includes(amenity.id);
-                                     return (
-                                        <button 
-                                          key={amenity.id}
-                                          onClick={() => handleAmenityToggle(amenity.id)}
-                                          className={`flex items-center gap-3 p-4 rounded-xl border transition-all text-left ${isActive ? 'bg-slate-900 border-slate-900 text-white shadow-lg' : 'bg-white border-slate-100 text-slate-400 hover:border-pd-pink'}`}
-                                        >
-                                           <div className={isActive ? 'text-pd-pink' : 'text-slate-300'}>{amenity.icon}</div>
-                                           <span className="text-[10px] font-black uppercase tracking-wider leading-tight">{amenity.label}</span>
-                                        </button>
-                                     );
-                                  })}
-                               </div>
-                            </section>
-
-                            <section>
-                               <div className="flex items-center justify-between mb-8">
-                                  <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight">Gallery Snapshot</h3>
-                                  <button onClick={() => setSettingsSection('photos')} className="text-[9px] font-black uppercase text-pd-pink hover:text-slate-900 transition-colors tracking-widest">Update All</button>
-                               </div>
-                               <div className="grid grid-cols-3 gap-4">
-                                  {[0, 1, 2].map(idx => {
-                                      const photo = photoIds[idx];
-                                      const photoId = typeof photo === 'object' ? photo?.id : photo;
+                             <section>
+                                <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Parties We Organize</h3>
+                                <div className="flex flex-wrap gap-2 text-wrap">
+                                   {eventTypesList.map((type) => {
+                                      const isActive = eventTypes.includes(type);
                                       return (
-                                         <div key={idx} className="aspect-square rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
-                                            {photoId ? (
-                                               <Image 
-                                                  src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${photoId}/view?project=69ae84bc001ca4edf8c2`} 
-                                                 alt="Venue Gallery" 
-                                                 fill 
-                                                 className="object-cover group-hover:scale-110 transition-transform duration-500" 
-                                              />
-                                           ) : (
-                                              <div className="absolute inset-0 flex items-center justify-center bg-slate-50">
-                                                 <ImageIcon className="text-slate-200" size={20} />
-                                              </div>
-                                           )}
-                                           <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                              <ImageIcon className="text-white" size={20} />
-                                           </div>
-                                         </div>
+                                         <button 
+                                           key={type}
+                                           onClick={() => handleEventTypeToggle(type)}
+                                           className={`px-4 py-2 rounded-full border transition-all text-[9px] font-black uppercase tracking-widest ${isActive ? 'bg-pd-red border-pd-red text-white shadow-lg' : 'bg-white border-slate-100 text-slate-400 hover:border-pd-red/30'}`}
+                                         >
+                                            {type}
+                                         </button>
                                       );
-                                  })}
-                               </div>
-                            </section>
-                         </div>
+                                   })}
+                                </div>
+                             </section>
+                          </div>
+
+                          <div className="space-y-12">
+                             <section>
+                                <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Amenities & Features</h3>
+                                <div className="grid grid-cols-2 gap-3">
+                                   {[
+                                      { id: 'ac', label: 'Air Conditioning', icon: <Wind size={14} /> },
+                                      { id: 'parking', label: 'Parking Available', icon: <Car size={14} /> },
+                                      { id: 'power', label: 'Power Backup', icon: <Zap size={14} /> },
+                                      { id: 'indoor', label: 'Indoor Hall', icon: <Building size={14} /> },
+                                      { id: 'outdoor', label: 'Outdoor Lawn', icon: <Trees size={14} /> },
+                                      { id: 'catering_in', label: 'In-house Catering', icon: <Utensils size={14} /> },
+                                      { id: 'catering_out', label: 'Outside Catering Allowed', icon: <ChefHat size={14} /> },
+                                      { id: 'dj', label: 'DJ Allowed', icon: <Music size={14} /> },
+                                      { id: 'decoration', label: 'Decoration Available', icon: <Palette size={14} /> },
+                                      { id: 'bridal', label: 'Bridal Room', icon: <Heart size={14} /> },
+                                      { id: 'security', label: 'Security Available', icon: <ShieldCheck size={14} /> },
+                                      { id: 'wifi', label: 'Wi-Fi Available', icon: <Wifi size={14} /> }
+                                   ].map((amenity) => {
+                                      const isActive = amenities.includes(amenity.id);
+                                      return (
+                                         <button 
+                                           key={amenity.id}
+                                           onClick={() => handleAmenityToggle(amenity.id)}
+                                           className={`flex items-center gap-3 p-4 rounded-xl border transition-all text-left ${isActive ? 'bg-slate-900 border-slate-900 text-white shadow-lg' : 'bg-white border-slate-100 text-slate-400 hover:border-pd-pink'}`}
+                                         >
+                                            <div className={isActive ? 'text-pd-pink' : 'text-slate-300'}>{amenity.icon}</div>
+                                            <span className="text-[10px] font-black uppercase tracking-wider leading-tight">{amenity.label}</span>
+                                         </button>
+                                      );
+                                   })}
+                                </div>
+                             </section>
+
+                             <section>
+                                <div className="flex items-center justify-between mb-8">
+                                   <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight">Gallery Snapshot</h3>
+                                   <button onClick={() => setSettingsSection('photos')} className="text-[9px] font-black uppercase text-pd-pink hover:text-slate-900 transition-colors tracking-widest">Update All</button>
+                                </div>
+                                <div className="grid grid-cols-3 gap-4">
+                                   {[0, 1, 2].map(idx => {
+                                       const galleryPhotos = photoIds.filter((p: any) => p.category !== 'Profile');
+                                       const photo = galleryPhotos[idx];
+                                       const photoId = typeof photo === 'object' ? photo?.id : photo;
+                                       return (
+                                          <div key={idx} className="aspect-square rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
+                                             {photoId ? (
+                                                <Image 
+                                                   src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${photoId}/view?project=69ae84bc001ca4edf8c2`} 
+                                                  alt="Venue Gallery" 
+                                                  fill 
+                                                  className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                                               />
+                                            ) : (
+                                               <div className="absolute inset-0 flex items-center justify-center bg-slate-50">
+                                                  <ImageIcon className="text-slate-200" size={20} />
+                                               </div>
+                                            )}
+                                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                               <ImageIcon className="text-white" size={20} />
+                                            </div>
+                                          </div>
+                                       );
+                                   })}
+                                </div>
+                             </section>
+                          </div>
                       </div>
 
                       <div className="pt-10 border-t border-slate-100 flex items-center justify-between">
@@ -480,19 +475,28 @@ const DashboardSettings = ({
                                     <CreditCard size={24} className="text-pd-pink" />
                                  </div>
                                  <div>
-                                    <h3 className="text-xl font-black italic uppercase leading-none mb-1">Elite Plan Active</h3>
-                                    <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Member Since Jan 2024</p>
+                                    <h3 className="text-xl font-black italic uppercase leading-none mb-1">
+                                       {venueProfile?.subscriptionPlan === 'premium' ? 'Premium Partner' : 
+                                        venueProfile?.subscriptionPlan === 'platinum' ? 'Platinum Plus' : 
+                                        'Free Starter'} Active
+                                    </h3>
+                                    <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Member Since Jan 2026</p>
                                  </div>
                               </div>
                               
                               <div className="grid grid-cols-2 gap-10">
                                  <div>
-                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 block">Next Charge</span>
-                                    <p className="text-3xl font-black italic tracking-tighter leading-none mb-1">₹14,999</p>
-                                    <p className="text-[10px] text-pd-pink font-bold uppercase tracking-widest italic">Jan 24, 2026</p>
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 block">Monthly Charge</span>
+                                    <p className="text-3xl font-black italic tracking-tighter leading-none mb-1">
+                                       ₹{venueProfile?.subscriptionPlan === 'premium' ? '1,499' : 
+                                         venueProfile?.subscriptionPlan === 'platinum' ? '2,999' : '0'}
+                                    </p>
+                                    <p className="text-[10px] text-pd-pink font-bold uppercase tracking-widest italic">Renewal: Next Month</p>
                                  </div>
                                  <div className="flex flex-col justify-end">
-                                    <button className="pd-btn-primary py-4 text-[10px]">UPGRADE TO ENTERPRISE</button>
+                                    <Link href="/dashboard/onboarding/subscription">
+                                       <button className="pd-btn-primary py-4 px-6 text-[10px] font-black uppercase">Change Current Plan</button>
+                                    </Link>
                                  </div>
                               </div>
                            </div>
@@ -572,6 +576,7 @@ const DashboardSettings = ({
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                          {photoIds
+                           .filter((p: any) => p.category !== 'Profile')
                            .filter((p: any) => activeGalleryCategory === "All Photos" || p.category === activeGalleryCategory)
                            .map((p: any) => (
                             <div key={p.id} className="aspect-video relative rounded-3xl overflow-hidden border border-slate-100 group shadow-lg">
@@ -630,7 +635,169 @@ const DashboardSettings = ({
                       </div>
                    </motion.div>
                 )}
-             </AnimatePresence>
+
+                 {settingsSection === 'pricing_section' && (
+                    <motion.div 
+                      key="pricing"
+                      layout
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-12"
+                    >
+                       <section className="max-w-2xl">
+                          <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tight mb-2">Standard Plate Rates</h3>
+                          <p className="text-xs text-slate-400 font-medium uppercase tracking-widest mb-10">Define your base pricing for vegetarian and non-vegetarian offerings.</p>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                             <div className="space-y-4">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block ml-1">Pure Veg Rate</label>
+                                <div className="relative group">
+                                   <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                      <div className="w-4 h-4 rounded-sm border-2 border-emerald-500 flex items-center justify-center">
+                                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                      </div>
+                                   </div>
+                                   <input 
+                                     type="number" 
+                                     value={venueProfile?.perPlateVeg || ""} 
+                                     onChange={(e) => handleProfileUpdate('perPlateVeg', e.target.value)}
+                                     placeholder="000"
+                                     className="w-full bg-slate-50 border border-slate-100 rounded-[24px] py-6 pl-16 pr-8 text-lg font-black italic outline-none focus:border-emerald-500 focus:bg-white transition-all shadow-inner" 
+                                   />
+                                   <span className="absolute right-8 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">/ PLATE</span>
+                                </div>
+                             </div>
+
+                             <div className="space-y-4">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block ml-1">Non-Veg Rate</label>
+                                <div className="relative group">
+                                   <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                      <div className="w-4 h-4 rounded-sm border-2 border-red-500 flex items-center justify-center">
+                                         <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                      </div>
+                                   </div>
+                                   <input 
+                                     type="number" 
+                                     value={venueProfile?.perPlateNonVeg || ""} 
+                                     onChange={(e) => handleProfileUpdate('perPlateNonVeg', e.target.value)}
+                                     placeholder="000"
+                                     className="w-full bg-slate-50 border border-slate-100 rounded-[24px] py-6 pl-16 pr-8 text-lg font-black italic outline-none focus:border-red-500 focus:bg-white transition-all shadow-inner" 
+                                   />
+                                   <span className="absolute right-8 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">/ PLATE</span>
+                                </div>
+                             </div>
+                          </div>
+
+                          <div className="p-8 bg-slate-900 rounded-[35px] text-white flex items-center justify-between border border-pd-pink/20 shadow-2xl shadow-pd-pink/10">
+                             <div className="flex items-center gap-6">
+                                <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-pd-pink">
+                                   <Sparkles size={24} />
+                                </div>
+                                <div>
+                                   <h4 className="text-sm font-black italic uppercase leading-none mb-1 text-pd-pink">Smart Pricing Insight</h4>
+                                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">Dynamic rates help you appear in more sorted searches.</p>
+                                </div>
+                             </div>
+                          </div>
+                       </section>
+
+                       <section>
+                          <div className="flex items-center justify-between mb-8">
+                             <div>
+                                <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tight mb-2">Custom Packages</h3>
+                                <p className="text-xs text-slate-400 font-medium uppercase tracking-widest leading-relaxed">Create specialized bundles for specific event types.</p>
+                             </div>
+                             <button 
+                                onClick={() => {
+                                   let current = [];
+                                   try {
+                                      current = typeof venueProfile?.packages === 'string' ? JSON.parse(venueProfile.packages) : (Array.isArray(venueProfile?.packages) ? venueProfile.packages : []);
+                                   } catch (e) { current = []; }
+                                   const updated = [...current, { id: Date.now(), name: 'New Elite Package', price: '0', desc: 'Brief summary of package inclusions...' }];
+                                   handleProfileUpdate('packages', JSON.stringify(updated));
+                                }}
+                                className="px-6 py-3 bg-pd-pink/10 text-pd-pink rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink hover:text-white transition-all flex items-center gap-2"
+                             >
+                                <Plus size={14} /> Add Package
+                             </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-4">
+                             {(() => {
+                                let packs = [];
+                                try {
+                                   packs = typeof venueProfile?.packages === 'string' ? JSON.parse(venueProfile.packages) : (Array.isArray(venueProfile?.packages) ? venueProfile.packages : []);
+                                } catch (e) { packs = []; }
+                                
+                                return packs.map((pkg: any) => (
+                                   <div key={pkg.id} className="p-8 bg-slate-50 border border-slate-100 rounded-[30px] flex items-center justify-between group hover:border-pd-pink hover:bg-white transition-all">
+                                      <div className="flex-1 space-y-2">
+                                         <input 
+                                            value={pkg.name}
+                                            onChange={(e) => {
+                                               const updated = packs.map((p: any) => p.id === pkg.id ? { ...p, name: e.target.value } : p);
+                                               handleProfileUpdate('packages', JSON.stringify(updated));
+                                            }}
+                                            className="text-sm font-black text-slate-900 uppercase italic bg-transparent outline-none w-full"
+                                            placeholder="Package Name"
+                                         />
+                                         <input 
+                                            value={pkg.desc}
+                                            onChange={(e) => {
+                                               const updated = packs.map((p: any) => p.id === pkg.id ? { ...p, desc: e.target.value } : p);
+                                               handleProfileUpdate('packages', JSON.stringify(updated));
+                                            }}
+                                            className="text-[10px] font-medium text-slate-400 uppercase tracking-widest bg-transparent outline-none w-full"
+                                            placeholder="Package Description"
+                                         />
+                                      </div>
+                                      <div className="flex items-center gap-6">
+                                         <div className="text-right">
+                                            <div className="flex items-center text-slate-900 mb-1">
+                                               <span className="text-lg font-black italic">₹</span>
+                                               <input 
+                                                  value={pkg.price}
+                                                  onChange={(e) => {
+                                                     const updated = packs.map((p: any) => p.id === pkg.id ? { ...p, price: e.target.value } : p);
+                                                     handleProfileUpdate('packages', JSON.stringify(updated));
+                                                  }}
+                                                  className="w-20 bg-transparent text-lg font-black italic outline-none text-right"
+                                                  placeholder="000"
+                                               />
+                                            </div>
+                                            <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Base Rate</span>
+                                         </div>
+                                         <button 
+                                            onClick={() => {
+                                               const updated = packs.filter((p: any) => p.id !== pkg.id);
+                                               handleProfileUpdate('packages', JSON.stringify(updated));
+                                            }}
+                                            className="w-10 h-10 rounded-xl bg-white border border-slate-100 text-slate-300 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 transition-all shadow-sm"
+                                         >
+                                            <Trash2 size={16} />
+                                         </button>
+                                      </div>
+                                   </div>
+                                ));
+                             })()}
+                          </div>
+                       </section>
+
+                       <div className="pt-10 border-t border-slate-100 flex items-center justify-end">
+
+                          <button 
+                            onClick={saveProfileSettings}
+                            disabled={isUpdatingProfile}
+                            className="px-12 py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-pd-pink transition-all shadow-2xl shadow-slate-900/20 disabled:opacity-50"
+                          >
+                             {isUpdatingProfile ? 'SAVING CHANGES...' : 'UPDATE PRICING'}
+                          </button>
+                       </div>
+                    </motion.div>
+                 )}
+              </AnimatePresence>
           </div>
        </div>
     </motion.div>

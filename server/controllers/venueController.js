@@ -1,5 +1,6 @@
 const { databases, DATABASE_ID, VENUES_COLLECTION_ID, LEADS_COLLECTION_ID, REVIEWS_COLLECTION_ID } = require('../config/appwrite');
 const { ID, Query } = require('node-appwrite');
+const { sendPushNotification } = require('../utils/notifications');
 
 // Get all venues
 // ... (omitting unchanged getAllVenues for brevity but keeping logic)
@@ -46,41 +47,117 @@ exports.getVenueById = async (req, res) => {
     }
 };
 
-// Submit a new lead
+// Submit a new lead (Distributed by Pincode)
 exports.submitLead = async (req, res) => {
     try {
-        const { venueId, name, phone, email, eventType, guests, notes } = req.body;
+        const { venueId, pincode: rawPincode, name, phone, email, eventType, guests, notes } = req.body;
 
-        if (!venueId || !name || !phone || !eventType || !guests) {
+        if (!name || !phone || !eventType || !guests) {
             return res.status(400).json({
                 status: 'error',
-                message: 'Please provide all required fields: venueId, name, phone, eventType, guests'
+                message: 'Please provide required fields: name, phone, eventType, guests'
             });
         }
 
-        const lead = await databases.createDocument(
-            DATABASE_ID,
-            LEADS_COLLECTION_ID,
-            ID.unique(),
-            {
-                venueId,
-                name,
-                phone,
-                email: email || '',
-                eventType,
-                guests: parseInt(guests),
-                notes: notes || '',
-                status: 'New'
+        let targetPincode = rawPincode;
+        
+        // Clean up pincode if it comes in "Name-Pincode" format from suggestions
+        if (targetPincode && typeof targetPincode === 'string' && targetPincode.includes('-')) {
+            targetPincode = targetPincode.split('-').pop();
+        }
+
+        // If no direct pincode but specific venueId provided, find that venue's pincode
+        if (!targetPincode && venueId && venueId !== 'BROADCAST') {
+            try {
+                const venue = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
+                targetPincode = venue.pincode;
+            } catch (e) {
+                console.warn(`Pincode lookup failed for venue ${venueId}`);
             }
-        );
+        }
+
+        let venuesToNotify = [];
+        if (targetPincode) {
+            // Find all venues in this pincode
+            const result = await databases.listDocuments(
+                DATABASE_ID,
+                VENUES_COLLECTION_ID,
+                [Query.equal('pincode', targetPincode)]
+            );
+            venuesToNotify = result.documents;
+        } else if (venueId && venueId !== 'BROADCAST') {
+            // Fallback to specific venue if no pincode found
+            try {
+                const v = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
+                venuesToNotify = [v];
+            } catch (e) {}
+        }
+
+        // If no venues found (rare but possible), still save a single lead for global tracking
+        if (venuesToNotify.length === 0) {
+            const lead = await databases.createDocument(
+                DATABASE_ID,
+                LEADS_COLLECTION_ID,
+                ID.unique(),
+                {
+                    venueId: venueId || 'BROADCAST',
+                    name,
+                    phone,
+                    email: email || '',
+                    eventType,
+                    guests: typeof guests === 'string' ? (parseInt(guests.split('-').pop()) || 0) : parseInt(guests),
+                    notes: notes || (rawPincode ? `Pincode: ${rawPincode}` : ''),
+                    status: 'New',
+                    createdAt: new Date().toISOString()
+                }
+            );
+            return res.status(201).json({ status: 'success', data: lead });
+        }
+
+        // Create distributed leads for all relevant venues
+        const leadPromises = venuesToNotify.map(async (v) => {
+            const leadInstance = await databases.createDocument(
+                DATABASE_ID,
+                LEADS_COLLECTION_ID,
+                ID.unique(),
+                {
+                    venueId: v.$id,
+                    name,
+                    phone,
+                    email: email || '',
+                    eventType,
+                    guests: typeof guests === 'string' ? (parseInt(guests.split('-').pop()) || 0) : parseInt(guests),
+                    notes: notes || (targetPincode ? `Distributed Lead (${targetPincode})` : ''),
+                    status: 'New',
+                    createdAt: new Date().toISOString()
+                }
+            );
+
+            // Send push notification to this venue
+            if (v.expoPushToken) {
+                try {
+                    await sendPushNotification(
+                        v.expoPushToken,
+                        'New Local Lead! 🎊',
+                        `Inquiry from ${name} for ${eventType} in your area.`,
+                        { leadId: leadInstance.$id, type: 'NEW_LEAD' },
+                        `Guests: ${guests}`
+                    );
+                } catch (pe) {}
+            }
+            return leadInstance;
+        });
+
+        const results = await Promise.all(leadPromises);
 
         return res.status(201).json({
             status: 'success',
-            message: 'Lead submitted successfully',
-            data: lead
+            message: `Lead distributed to ${results.length} venues successfully`,
+            data: results[0]
         });
+
     } catch (error) {
-        console.error('Error submitting lead:', error);
+        console.error('Error submitting distributed lead:', error);
         return res.status(500).json({
             status: 'error',
             message: error.message || 'Error occurred while submitting lead'

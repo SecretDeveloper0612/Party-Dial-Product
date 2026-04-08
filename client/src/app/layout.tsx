@@ -8,6 +8,7 @@ import PopupInquiry from "@/shared/components/PopupInquiry";
 export const metadata: Metadata = {
   title: "PartyDial | Dial Up Your Next Event",
   description: "The ultimate platform for planning and managing your perfect party. Dial up the excitement with PartyDial.",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
