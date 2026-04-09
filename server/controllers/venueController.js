@@ -1,6 +1,8 @@
 const { databases, DATABASE_ID, VENUES_COLLECTION_ID, LEADS_COLLECTION_ID, REVIEWS_COLLECTION_ID } = require('../config/appwrite');
 const { ID, Query } = require('node-appwrite');
 const { sendPushNotification } = require('../utils/notifications');
+const { sendProfileStatusEmail } = require('../utils/emailService');
+
 
 // Get all venues
 // ... (omitting unchanged getAllVenues for brevity but keeping logic)
@@ -24,6 +26,73 @@ exports.getAllVenues = async (req, res) => {
         });
     }
 };
+
+// Approve a venue listing (set isVerified: true, status: 'active')
+exports.approveVenue = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updated = await databases.updateDocument(
+            DATABASE_ID,
+            VENUES_COLLECTION_ID,
+            id,
+            { isVerified: true, status: 'active' }
+        );
+
+        // Send Approval Email (Non-blocking but logged)
+        if (updated.contactEmail) {
+            sendProfileStatusEmail(updated.contactEmail, updated.ownerName || updated.venueName, true)
+                .then(() => console.log(`Approval email triggered for ${updated.contactEmail}`))
+                .catch(err => console.error(`Failed to send approval email to ${updated.contactEmail}:`, err.message));
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Venue approved and activated successfully',
+            data: updated
+        });
+    } catch (error) {
+        console.error('Error approving venue:', error);
+        return res.status(500).json({
+            status: 'error',
+            message: error.message || 'Error approving venue'
+        });
+    }
+};
+
+// Reject a venue listing (set isVerified: false, status: 'rejected')
+exports.rejectVenue = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { reason } = req.body;
+        const updated = await databases.updateDocument(
+            DATABASE_ID,
+            VENUES_COLLECTION_ID,
+            id,
+            { isVerified: false, status: 'rejected' }
+        );
+
+        // Send Rejection Email (Non-blocking but logged)
+        if (updated.contactEmail) {
+            sendProfileStatusEmail(updated.contactEmail, updated.ownerName || updated.venueName, false, reason || 'Profile does not meet our guidelines.')
+                .then(() => console.log(`Rejection email triggered for ${updated.contactEmail}`))
+                .catch(err => console.error(`Failed to send rejection email to ${updated.contactEmail}:`, err.message));
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Venue listing rejected',
+            data: updated,
+            reason: reason || ''
+        });
+    } catch (error) {
+        console.error('Error rejecting venue:', error);
+        return res.status(500).json({
+            status: 'error',
+            message: error.message || 'Error rejecting venue'
+        });
+    }
+};
+
 
 // Get single venue
 exports.getVenueById = async (req, res) => {
@@ -52,12 +121,16 @@ exports.submitLead = async (req, res) => {
     try {
         const { venueId, pincode: rawPincode, name, phone, email, eventType, guests, notes } = req.body;
 
-        if (!name || !phone || !eventType || !guests) {
+        if (!name || !phone || !eventType || (guests === undefined || guests === null || guests === '')) {
             return res.status(400).json({
                 status: 'error',
                 message: 'Please provide required fields: name, phone, eventType, guests'
             });
         }
+
+        const safeGuests = typeof guests === 'string' 
+            ? (parseInt(guests.split('-').pop()) || 0) 
+            : (parseInt(guests) || 0);
 
         let targetPincode = rawPincode;
         
@@ -105,7 +178,7 @@ exports.submitLead = async (req, res) => {
                     phone,
                     email: email || '',
                     eventType,
-                    guests: typeof guests === 'string' ? (parseInt(guests.split('-').pop()) || 0) : parseInt(guests),
+                    guests: safeGuests,
                     notes: notes || (rawPincode ? `Pincode: ${rawPincode}` : ''),
                     status: 'New',
                     createdAt: new Date().toISOString()
@@ -126,7 +199,7 @@ exports.submitLead = async (req, res) => {
                     phone,
                     email: email || '',
                     eventType,
-                    guests: typeof guests === 'string' ? (parseInt(guests.split('-').pop()) || 0) : parseInt(guests),
+                    guests: safeGuests,
                     notes: notes || (targetPincode ? `Distributed Lead (${targetPincode})` : ''),
                     status: 'New',
                     createdAt: new Date().toISOString()
@@ -169,11 +242,22 @@ exports.submitLead = async (req, res) => {
 exports.getVenueLeads = async (req, res) => {
     try {
         const { venueId } = req.params;
+
+        // Fetch venue to get its creation date
+        const venue = await databases.getDocument(
+            DATABASE_ID,
+            VENUES_COLLECTION_ID,
+            venueId
+        );
+
+        const registrationDate = venue.createdAt || venue.$createdAt;
+
         const leads = await databases.listDocuments(
             DATABASE_ID,
             LEADS_COLLECTION_ID,
             [
                 Query.equal('venueId', venueId),
+                Query.greaterThan('$createdAt', registrationDate),
                 Query.orderDesc('$createdAt')
             ]
         );
@@ -346,5 +430,30 @@ exports.proxyImage = async (req, res) => {
     } catch (error) {
         console.error('Error proxying image:', error);
         return res.status(404).send('Image not found');
+    }
+};
+
+// POST notify document submission
+exports.notifyDocSubmission = async (req, res) => {
+    try {
+        const { venueId } = req.body;
+        if (!venueId) {
+            return res.status(400).json({ status: 'error', message: 'Venue ID is required' });
+        }
+
+        const venue = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
+        
+        const { sendDocVerificationEmail } = require('../utils/emailService');
+        if (venue.contactEmail) {
+            await sendDocVerificationEmail(venue.contactEmail, venue.ownerName || venue.venueName);
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Document submission notification email sent'
+        });
+    } catch (error) {
+        console.error('Error in notifyDocSubmission:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
     }
 };

@@ -144,8 +144,23 @@ export default function SubscriptionPage() {
   const [selectedPlan, setSelectedPlan] = useState('trial_30');
   const [isSaving, setIsSaving] = useState(false);
   const [venueName, setVenueName] = useState('');
+  const [razorpayKeyId, setRazorpayKeyId] = useState('');
 
   React.useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+        const res = await fetch(`${serverUrl}/config`);
+        const result = await res.json();
+        if (result.status === 'success' && result.razorpayKeyId) {
+          setRazorpayKeyId(result.razorpayKeyId);
+        }
+      } catch (err) {
+        console.error('Fetch config error:', err);
+      }
+    };
+    fetchConfig();
+
     const fetchVenue = async () => {
       const userJson = localStorage.getItem('user');
       if (!userJson) return;
@@ -192,7 +207,8 @@ export default function SubscriptionPage() {
           {
             subscriptionPlan: selectedPlan,
             onboardingComplete: true,
-            status: 'active'
+            status: 'pending',
+            isVerified: false
           }
         );
       }
@@ -250,7 +266,7 @@ export default function SubscriptionPage() {
       const order = await orderRes.json();
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_Sb1MDU5xx48aKw',
+        key: razorpayKeyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_Sb1MDU5xx48aKw',
         amount: order.amount,
         currency: order.currency,
         name: "PartyDial Partner",
@@ -259,7 +275,26 @@ export default function SubscriptionPage() {
         order_id: order.id,
         handler: async function (response: any) {
           if (response.razorpay_payment_id) {
-            // Optional: Verify signature on server here
+            try {
+              // Verify on server + store payment record
+              await fetch(`${serverUrl}/payments/verify-payment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  venueId: '', // filled server-side via updateProfile
+                  venueName: venueName,
+                  ownerEmail: user.email,
+                  planId: selectedPlan,
+                  planName: plan?.name || selectedPlan,
+                  amount: totalAmount,
+                }),
+              });
+            } catch (e) {
+              console.warn('Payment record sync failed:', e);
+            }
             await updateProfile();
           }
         },

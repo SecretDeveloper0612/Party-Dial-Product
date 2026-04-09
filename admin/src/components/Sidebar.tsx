@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -31,18 +32,62 @@ const Activity = ({ size, className }: { size?: number, className?: string }) =>
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: Target, label: "CRM", path: "/crm" },
   { icon: CreditCard, label: "Billing", path: "/billing" },
   { icon: Building2, label: "Venue Management", path: "/venues" },
   { icon: CheckSquare, label: "Approve Listings", path: "/approvals" },
+  { icon: Target, label: "Lead Distribution", path: "/lead-distribution" },
+  { icon: Table, label: "Lead Matrix", path: "/crm/leads" },
   { icon: Users, label: "User & Role Management", path: "/users" },
   { icon: GitGraph, label: "Team Structure", path: "/team-tree" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const sessionStr = localStorage.getItem("party_admin_session");
+    if (sessionStr) {
+      try {
+        const session = JSON.parse(sessionStr);
+        setUser(session.user);
+      } catch (e) {
+        console.error("Sidebar user parse error", e);
+      }
+    }
+  }, []);
 
   if (pathname === "/login") return null;
+
+  // Module Access Filtering
+  let moduleAccess: string[] = [];
+  try {
+    moduleAccess = JSON.parse(user?.prefs?.moduleAccess || "[]");
+  } catch {}
+
+  const filteredMenuItems = menuItems.filter(item => {
+    const role = user?.prefs?.role;
+    if (role === "Super Admin") return true;
+    if (item.label === "Dashboard") return true; // Always show dashboard
+    
+    // EXPLICIT BLOCK: BDE users cannot see Lead Distribution
+    if (role === "BDE" && item.label === "Lead Distribution") return false;
+
+    const moduleMap: Record<string, string> = {
+       "Billing": "Billing",
+       "Venue Management": "Venues",
+       "Approve Listings": "Approvals",
+       "Lead Distribution": "Leads",
+       "Lead Matrix": "Leads",
+       "User & Role Management": "Users",
+       "Team Structure": "Users"
+    };
+    
+    const requiredModule = moduleMap[item.label];
+    return moduleAccess.includes(requiredModule);
+  });
+
+  const initials = user?.name ? user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase() : "PD";
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-[var(--sidebar-w)] bg-white flex flex-col z-[60] border-r border-slate-100 shadow-sm overflow-hidden group">
@@ -62,16 +107,14 @@ export default function Sidebar() {
         <div className="px-6 mb-8">
            <div className="flex items-center gap-4 group/profile">
               <div className="relative">
-                 <img 
-                   src="https://secure.gravatar.com/avatar/60783ae419e75df676450686411cdb0e?s=128" 
-                   alt="Profile" 
-                   className="w-12 h-12 rounded-full border-2 border-white shadow-md"
-                 />
+                 <div className="w-12 h-12 rounded-full grad-brand text-white flex items-center justify-center font-black text-sm shadow-md">
+                    {initials}
+                 </div>
                  <div className="absolute -right-0.5 bottom-0 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full" />
               </div>
               <div className="flex-1 min-w-0">
-                 <h4 className="text-sm font-bold text-slate-700 m-0 truncate">David Grey. H</h4>
-                 <p className="text-[11px] text-slate-400 font-medium m-0 truncate mt-0.5">Project Manager</p>
+                 <h4 className="text-sm font-bold text-slate-700 m-0 truncate">{user?.name || "Loading..."}</h4>
+                 <p className="text-[11px] text-slate-400 font-medium m-0 truncate mt-0.5">{user?.prefs?.role || "System User"}</p>
               </div>
               <div className="text-emerald-400">
                 <CheckCircle size={14} />
@@ -81,7 +124,7 @@ export default function Sidebar() {
 
         {/* Dynamic Nav Items */}
         <nav className="space-y-0.5">
-          {menuItems.map((item, idx) => {
+          {filteredMenuItems.map((item, idx) => {
             const isActive = item.path === "/" 
               ? pathname === "/" 
               : pathname.startsWith(item.path);

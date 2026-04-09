@@ -7,6 +7,7 @@ router.post('/login', authController.login);
 router.get('/google', authController.googleLogin);
 router.post('/logout', authController.logout);
 router.post('/update-token', authController.updatePushToken);
+router.post('/forgot-password', authController.forgotPassword);
 
 
 

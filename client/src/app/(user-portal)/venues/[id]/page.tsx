@@ -161,6 +161,14 @@ export default function VenueDetailPage() {
 
         if (result.status === 'success') {
           const doc = result.data;
+          
+          // CRITICAL: Only allow approved venues on client-side
+          if (!doc.isVerified) {
+             setVenue(null);
+             setIsLoading(false);
+             return;
+          }
+
           const { getAppwriteImageUrl, parsePhotos } = await import('@/shared/utils/image');
           const photoIds = parsePhotos(doc.photos);
           
@@ -436,7 +444,7 @@ export default function VenueDetailPage() {
     <div className="min-h-screen bg-slate-50">
       
       {/* 1. IMAGE GALLERY HERO */}
-      <section className="relative h-[65vh] bg-slate-900 overflow-hidden">
+      <section className="relative h-[45vh] md:h-[65vh] bg-slate-900 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div 
             key={activeImage}
@@ -538,27 +546,27 @@ export default function VenueDetailPage() {
                </div>
             </div>
             
-            <div className="grid grid-cols-3 md:flex w-full md:w-auto gap-4 md:gap-8 md:px-10 md:border-l border-slate-100 pt-8 md:pt-0 border-t md:border-t-0 mt-8 md:mt-0 divide-x md:divide-x-0 divide-slate-100">
-               <div className="text-center md:text-left flex flex-col px-1">
-                 <p className="text-[7px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] lg:tracking-[0.2em] mb-2 min-h-[3em] md:min-h-0 flex items-center justify-center md:justify-start">Guest Capacity</p>
-                 <div className="flex flex-col items-center md:items-start gap-1">
-                   <Users size={14} className="text-pd-purple md:w-5 md:h-5" />
-                   <span className="text-xs md:text-lg font-black text-slate-900">{venue.capacity}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 w-full lg:w-auto gap-4 md:gap-8 lg:px-10 lg:border-l border-slate-100 pt-8 lg:pt-0 border-t lg:border-t-0 mt-8 lg:mt-0 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
+               <div className="flex sm:flex-col items-center sm:items-start justify-between sm:justify-center px-1 py-3 sm:py-0">
+                 <div className="flex items-center gap-2 mb-0 sm:mb-2">
+                    <Users size={16} className="text-pd-purple" />
+                    <p className="text-[10px] sm:text-[10px] font-black uppercase text-slate-400 tracking-widest">Guest Capacity</p>
                  </div>
+                 <span className="text-sm md:text-lg font-black text-slate-900">{venue.capacity}</span>
                </div>
-               <div className="text-center md:text-left flex flex-col px-1">
-                 <p className="text-[7px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] lg:tracking-[0.2em] mb-2 min-h-[3em] md:min-h-0 flex items-center justify-center md:justify-start">Veg Plate</p>
-                 <div className="flex flex-col items-center md:items-start gap-1">
-                   <Utensils size={14} className="text-emerald-500 md:w-5 md:h-5" />
-                   <span className="text-xs md:text-lg font-black text-slate-900">₹{venue.pricePerPlate}</span>
+               <div className="flex sm:flex-col items-center sm:items-start justify-between sm:justify-center px-1 py-3 sm:py-0 sm:pl-6">
+                 <div className="flex items-center gap-2 mb-0 sm:mb-2">
+                    <Utensils size={16} className="text-emerald-500" />
+                    <p className="text-[10px] sm:text-[10px] font-black uppercase text-slate-400 tracking-widest">Veg Plate</p>
                  </div>
+                 <span className="text-sm md:text-lg font-black text-slate-900">₹{venue.pricePerPlate}</span>
                </div>
-               <div className="text-center md:text-left flex flex-col px-1">
-                 <p className="text-[7px] md:text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] lg:tracking-[0.2em] mb-2 min-h-[3em] md:min-h-0 flex items-center justify-center md:justify-start">Non-Veg Plate</p>
-                 <div className="flex flex-col items-center md:items-start gap-1">
-                   <Utensils size={14} className="text-pd-red md:w-5 md:h-5" />
-                   <span className="text-xs md:text-lg font-black text-slate-900">₹{venue.pricePerPlateNonVeg}</span>
+               <div className="flex sm:flex-col items-center sm:items-start justify-between sm:justify-center px-1 py-3 sm:py-0 sm:pl-6">
+                 <div className="flex items-center gap-2 mb-0 sm:mb-2">
+                    <Utensils size={16} className="text-pd-red" />
+                    <p className="text-[10px] sm:text-[10px] font-black uppercase text-slate-400 tracking-widest">Non-Veg Plate</p>
                  </div>
+                 <span className="text-sm md:text-lg font-black text-slate-900">₹{venue.pricePerPlateNonVeg}</span>
                </div>
             </div>
           </div>

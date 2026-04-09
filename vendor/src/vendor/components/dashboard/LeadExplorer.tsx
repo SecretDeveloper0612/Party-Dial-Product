@@ -107,7 +107,7 @@ const LeadExplorer = ({
                 <div>
                   <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900 mb-6 font-pd">Status Categorization</h4>
                   <div className="space-y-2">
-                    {['All', 'New', 'In-Progress', 'Booked', 'Archived'].map(status => (
+                    {['All', 'New', 'In-Progress', 'Booked', 'Lost Leads', 'Archived'].map(status => (
                       <button 
                         key={status}
                         onClick={() => setLeadFilter(status)}

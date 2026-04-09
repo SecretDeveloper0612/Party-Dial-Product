@@ -14,7 +14,14 @@ const dataRoutes = require('./routes/dataRoutes');
 const venueRoutes = require('./routes/venueRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const userRoutes = require('./routes/userRoutes');
+const leadRoutes = require('./routes/leadRoutes');
 const configController = require('./controllers/configController');
+const { automateLeadStatus } = require('./utils/cronJobs');
+
+// Initialize Cron Jobs
+// Run once on startup
+automateLeadStatus();
 
 const app = express();
 const PORT = process.env.PORT || 5005;
@@ -35,6 +42,8 @@ app.use('/api/data', dataRoutes);
 app.use('/api/venues', venueRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/leads', leadRoutes);
 app.get('/api/config', configController.getPublicConfig);
 
 // Optional: Fallback for undefined routes

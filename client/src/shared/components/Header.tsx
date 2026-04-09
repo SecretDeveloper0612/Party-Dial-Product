@@ -192,10 +192,10 @@ export default function Header() {
 
       {/* 2. MAIN HEADER */}
       <header className="bg-white/95 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
-        <nav className="max-w-7xl mx-auto px-6 h-20 sm:h-24 flex items-center justify-between gap-10">
-          <Link href="/" className="flex items-center gap-4 shrink-0">
-             <div className="relative w-36 h-12 cursor-pointer hover:scale-105 transition-transform flex items-center">
-                <img src="/logo.jpg" alt="PartyDial" width={140} height={48} style={{ objectFit: 'contain' }} />
+        <nav className="max-w-7xl mx-auto px-4 md:px-6 h-16 sm:h-24 flex items-center justify-between gap-4 md:gap-10">
+          <Link href="/" className="flex items-center gap-2 md:gap-4 shrink-0">
+             <div className="relative w-28 sm:w-36 h-10 sm:h-12 cursor-pointer hover:scale-105 transition-transform flex items-center">
+                <img src="/logo.jpg" alt="PartyDial" width={140} height={48} className="object-contain" />
              </div>
           </Link>
 
@@ -278,7 +278,7 @@ export default function Header() {
             </Link>
           </div>
 
-          <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
              <button className="hidden lg:flex items-center gap-3 pd-btn-primary !px-7 !py-3.5 !text-xs tracking-wider uppercase active:scale-95 shadow-pd-soft">
                <Download size={18} /> <span>Download App</span>
              </button>
@@ -288,8 +288,8 @@ export default function Header() {
              >
                 <User size={18} /> <span>Sign In</span>
              </button>
-             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 text-slate-900 hover:bg-slate-50 rounded-xl border border-slate-100 shadow-sm active:scale-95 transition-all">
-                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2.5 text-slate-900 hover:bg-slate-50 rounded-xl border border-slate-100 shadow-sm active:scale-95 transition-all">
+                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
              </button>
           </div>
         </nav>
@@ -301,9 +301,9 @@ export default function Header() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white border-t border-slate-100 overflow-hidden"
+              className="md:hidden bg-white border-t border-slate-100 overflow-hidden shadow-2xl"
             >
-              <div className="p-6 space-y-6">
+              <div className="p-5 space-y-5">
                 {/* Mobile Search & Category */}
                 <div className="space-y-3">
                   <div className="relative">

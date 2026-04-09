@@ -307,9 +307,9 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       {/* HERO SECTION */}
-      <section className="relative pt-12 lg:pt-16 pb-12 lg:pb-16 px-4 md:px-6 bg-white border-b border-slate-50">
+      <section className="relative pt-8 lg:pt-16 pb-8 lg:pb-16 px-4 md:px-6 bg-white border-b border-slate-50">
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
             {/* Hero Text */}
             <div className="w-full lg:w-1/2 text-left">
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -490,23 +490,23 @@ export default function Home() {
       {/* COMPACT STATS BAR - Optimized for single-screen visibility */}
       <section className="py-6 border-y border-slate-50 bg-white/80 backdrop-blur-sm relative">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-3 divide-x divide-slate-100">
+          <div className="flex flex-wrap md:grid md:grid-cols-3 divide-x divide-slate-100 md:divide-x">
             
             {/* Stat Item 1 */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="flex flex-col items-center justify-center text-center gap-2 px-1"
+              className="flex-1 min-w-[33%] md:min-w-0 flex flex-col items-center justify-center text-center gap-1 px-1"
             >
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-pd-red/5 flex items-center justify-center text-pd-red shrink-0 mb-1">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-pd-red/5 flex items-center justify-center text-pd-red shrink-0 mb-0.5">
                  <Building2 size={16} className="md:size-[18px]" />
               </div>
-              <div>
-                 <h3 className="text-sm md:text-xl font-black text-slate-900 tracking-tight leading-none mb-1">
+              <div className="flex flex-col items-center">
+                 <h3 className="text-xs md:text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">
                    <AnimatedCounter end={500} suffix="+" />
                  </h3>
-                 <p className="text-[7px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Venues</p>
+                 <p className="text-[6px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Venues</p>
               </div>
             </motion.div>
             
@@ -516,16 +516,16 @@ export default function Home() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="flex flex-col items-center justify-center text-center gap-2 px-1"
+              className="flex-1 min-w-[33%] md:min-w-0 border-l border-slate-100 md:border-none flex flex-col items-center justify-center text-center gap-1 px-1"
             >
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-pd-purple/5 flex items-center justify-center text-pd-purple shrink-0 mb-1">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-pd-purple/5 flex items-center justify-center text-pd-purple shrink-0 mb-0.5">
                  <Users size={16} className="md:size-[18px]" />
               </div>
-              <div>
-                 <h3 className="text-sm md:text-xl font-black text-slate-900 tracking-tight leading-none mb-1">
+              <div className="flex flex-col items-center">
+                 <h3 className="text-xs md:text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">
                    <AnimatedCounter end={10000} suffix="+" />
                  </h3>
-                 <p className="text-[7px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Inquiries</p>
+                 <p className="text-[6px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Inquiries</p>
               </div>
             </motion.div>
             
@@ -535,16 +535,16 @@ export default function Home() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="flex flex-col items-center justify-center text-center gap-2 px-1"
+              className="flex-1 min-w-[33%] md:min-w-0 border-l border-slate-100 md:border-none flex flex-col items-center justify-center text-center gap-1 px-1"
             >
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-pd-blue/5 flex items-center justify-center text-pd-blue shrink-0 mb-1">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-pd-blue/5 flex items-center justify-center text-pd-blue shrink-0 mb-0.5">
                  <Globe size={16} className="md:size-[18px]" />
               </div>
-              <div>
-                 <h3 className="text-sm md:text-xl font-black text-slate-900 tracking-tight leading-none mb-1">
+              <div className="flex flex-col items-center">
+                 <h3 className="text-xs md:text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">
                    <AnimatedCounter end={7} suffix="" />
                  </h3>
-                 <p className="text-[7px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Cities</p>
+                 <p className="text-[6px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Cities</p>
               </div>
             </motion.div>
 

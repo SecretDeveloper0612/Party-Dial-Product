@@ -249,6 +249,9 @@ function VenuesContent() {
 
   const filteredVenues = useMemo(() => {
     return allVenues.filter(venue => {
+      // 0. Only show verified (approved) venues to visitors
+      if (!venue.verified) return false;
+      
       // 1. City Filtering
       if (selectedCities.length > 0) {
         const venueCity = (venue.city || "").toLowerCase();
@@ -688,12 +691,19 @@ function VenuesContent() {
       </div>
 
       {/* MOBILE TRIGGER & DRAWER */}
-      <div className="lg:hidden fixed bottom-10 left-6 z-[200]">
+      <div className="lg:hidden fixed bottom-6 right-6 z-[200]">
          <button 
            onClick={() => setShowMobileFilters(true)}
-           className="bg-white text-slate-900 w-16 h-16 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex items-center justify-center active:scale-90 transition-all border border-slate-100"
+           className="bg-slate-900 text-white px-6 py-4 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-3 active:scale-95 transition-all border border-white/10"
          >
-            <Filter size={24} />
+            <Filter size={20} />
+            <span className="text-xs font-black uppercase tracking-widest italic">Filters</span>
+            {/* Show filter count if active */}
+            {(selectedCities.length > 0 || selectedEvent || selectedCapacity > 0) && (
+              <span className="bg-pd-red w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
+                {(selectedCities.length > 0 ? 1 : 0) + (selectedEvent ? 1 : 0) + (selectedCapacity > 0 ? 1 : 0)}
+              </span>
+            )}
          </button>
       </div>
 

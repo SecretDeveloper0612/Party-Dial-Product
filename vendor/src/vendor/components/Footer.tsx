@@ -79,7 +79,6 @@ export default function Footer() {
             </h4>
             <ul className="space-y-5">
               {[
-                { name: 'Benefits', href: '/#features' },
                 { name: 'How it Works', href: '/process' },
                 { name: 'Pricing Plans', href: '/pricing' },
                 { name: 'Merchant App', href: '/signup' },
@@ -101,9 +100,8 @@ export default function Footer() {
             </h4>
             <ul className="space-y-5">
               {[
-                { name: 'Partner FAQ', href: '/#faq' },
-                { name: 'Success Stories', href: '/#stories' },
-                { name: 'Community', href: '/signup' },
+                { name: 'Privacy Policy', href: '/privacy-policy' },
+                { name: 'Terms of Service', href: '/terms-of-service' },
                 { name: 'Contact Us', href: '/contact' }
               ].map((link) => (
                 <li key={link.name}>

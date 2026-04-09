@@ -153,7 +153,7 @@ export default function VendorDashboard() {
     ).length;
 
     // 2. Today's Leads calculation
-    const today = new Date().toLocaleDateString('en-GB');
+    const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     const todayLeadsCount = recentLeads.filter(l => l.date === today).length;
 
     // 3. Average Rating
@@ -377,7 +377,7 @@ export default function VendorDashboard() {
     { id: 'Followups', color: 'bg-amber-500', text: 'text-amber-600', icon: <CalendarDays size={14} /> },
     { id: 'Quotation Send', color: 'bg-pink-500', text: 'text-pink-600', icon: <IndianRupee size={14} /> },
     { id: 'Booked', color: 'bg-emerald-500', text: 'text-emerald-600', icon: <CheckCircle2 size={14} /> },
-    { id: 'Lost', color: 'bg-red-500', text: 'text-red-600', icon: <XCircle size={14} /> }
+    { id: 'Lost Leads', color: 'bg-red-500', text: 'text-red-600', icon: <XCircle size={14} /> }
   ];
 
   const updateLeadStatus = async (leadId: string, newStatus: string) => {
@@ -531,7 +531,7 @@ export default function VendorDashboard() {
               date: formatLeadDate(doc.$createdAt),
               time: formatLeadTime(doc.$createdAt),
               rawDate: doc.$createdAt,
-              status: doc.status === 'Quoted' ? 'Quotation Send' : (doc.status === 'In-Progress' ? 'Contacted' : (doc.status || 'New')),
+              status: doc.status === 'Quoted' ? 'Quotation Send' : (doc.status === 'In-Progress' ? 'Contacted' : (doc.status === 'Lost' ? 'Lost Leads' : (doc.status || 'New'))),
               location: doc.city || 'Haldwani',
               email: doc.email || 'client@mail.com',
               title: 'Direct Inquiry',
@@ -597,7 +597,7 @@ export default function VendorDashboard() {
                   date: formatLeadDate(payload.$createdAt),
                   time: formatLeadTime(payload.$createdAt),
                   rawDate: payload.$createdAt,
-                  status: payload.status === 'Quoted' ? 'Quotation Send' : (payload.status === 'In-Progress' ? 'Contacted' : (payload.status || 'New')),
+                  status: payload.status === 'Quoted' ? 'Quotation Send' : (payload.status === 'In-Progress' ? 'Contacted' : (payload.status === 'Lost' || payload.status === 'Lost Leads' ? 'Lost Leads' : (payload.status || 'New'))),
                   location: payload.city || 'Haldwani',
                   email: payload.email || 'client@mail.com',
                   title: 'Direct Inquiry',
@@ -928,6 +928,36 @@ export default function VendorDashboard() {
 
          {/* DASHBOARD CONTENT */}
          <div className="p-4 lg:p-8">
+            
+            {/* Profile Status Indicator */}
+            {venueProfile && (
+               <div className="mb-8 flex">
+                 {(() => {
+                   const status = venueProfile.isVerified 
+                     ? { label: "Approved Profile", color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20", icon: <ShieldCheck size={14} className="text-emerald-500" /> }
+                     : venueProfile.status === 'rejected'
+                     ? { label: "Rejected – Please Update Your Profile", color: "bg-rose-500/10 text-rose-600 border-rose-500/20", icon: <XCircle size={14} className="text-rose-500" /> }
+                     : { label: "Waiting for Approval", color: "bg-amber-500/10 text-amber-600 border-amber-500/20", icon: <Clock size={14} className="text-amber-500" /> };
+                   
+                   return (
+                     <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`flex items-center gap-3 px-5 py-3 rounded-[20px] border ${status.color} backdrop-blur-sm shadow-sm transition-all group hover:scale-[1.02] cursor-default`}
+                     >
+                        <div className="flex items-center justify-center">
+                           {status.icon}
+                        </div>
+                        <div className="flex flex-col">
+                           <span className="text-[8px] font-black opacity-60 uppercase tracking-[0.2em] leading-none mb-1">Listing Status</span>
+                           <p className="text-[10px] font-black uppercase tracking-widest italic">{status.label}</p>
+                        </div>
+                     </motion.div>
+                   );
+                 })()}
+               </div>
+            )}
+
             {activeTab === 'overview' && (
               <DashboardOverview 
                 venueProfile={venueProfile}

@@ -65,14 +65,59 @@ export default function CRMLeads() {
     attachments: []
   });
 
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLeads(getLeads());
-      setTeam(getUsers());
-      setLoading(false);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchLeads = async () => {
+      setLoading(true);
+      try {
+        const sessionStr = localStorage.getItem("party_admin_session");
+        if (!sessionStr) {
+          setLoading(false);
+          return;
+        }
+
+        const session = JSON.parse(sessionStr);
+        const user = session.user;
+        const isAdmin = user.prefs?.role === "Super Admin";
+        
+        // If employee, fetch only their leads. If Admin, fetch all logs.
+        let url = `${serverUrl}/leads/distribution-logs`; 
+        if (!isAdmin) {
+          url = `${serverUrl}/leads/user/${user.$id}`;
+        }
+
+        const res = await fetch(url);
+        const result = await res.json();
+        
+        if (result.status === "success") {
+          const normalizedLeads = result.data.map((l: any) => ({
+            id: l.$id,
+            customerName: l.name,
+            email: l.email,
+            phone: l.phone,
+            eventType: l.eventType,
+            status: l.status || "New",
+            priority: l.priority || "Warm",
+            source: l.source || "Bulk Distribution",
+            ownerId: l.venueId,
+            createdAt: l.createdAt || l.$createdAt,
+            city: l.city || "",
+            notes: [l.notes || ""],
+            attachments: []
+          }));
+          setLeads(normalizedLeads);
+        }
+      } catch (err) {
+        console.error("Failed to fetch leads", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeads();
+    setTeam(getUsers()); 
+  }, [serverUrl]);
 
   const handleAction = (type: "create" | "edit", lead?: Lead) => {
     setModalType(type);

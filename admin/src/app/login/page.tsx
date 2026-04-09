@@ -23,21 +23,72 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+  
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    setTimeout(() => {
-      // Specified Credentials
-      if (username === "ADMIN" && password === "admin123") {
-        localStorage.setItem("party_admin_session", "authenticated_" + Date.now());
+    try {
+      // ── MASTER ADMIN FALLBACK ──
+      // This allows initial access to create real employees in the database
+      if (username === "admin@partydial.com" && password === "Admin123") {
+        const masterUser = {
+          $id: "master_admin",
+          name: "Master Administrator",
+          email: "admin@partydial.com",
+          prefs: {
+            role: "Super Admin",
+            moduleAccess: JSON.stringify(["Dashboard", "Venues", "Users", "Leads", "Billing", "Approvals"])
+          }
+        };
+        
+        localStorage.setItem("party_admin_session", JSON.stringify({
+          token: "master_session_bypass",
+          user: masterUser,
+          timestamp: Date.now()
+        }));
+        
+        router.push("/");
+        return;
+      }
+
+      const res = await fetch(`${serverUrl}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: username, password }),
+      });
+
+      const result = await res.json();
+
+      if (result.status === "success") {
+        // Check if user has admin panel access (must have a role in prefs)
+        const user = result.user;
+        const role = user.prefs?.role;
+        
+        if (!role) {
+          setError("Access Denied: You do not have an assigned administrative role.");
+          setLoading(false);
+          return;
+        }
+
+        localStorage.setItem("party_admin_session", JSON.stringify({
+          token: result.session.$id,
+          user: user,
+          timestamp: Date.now()
+        }));
+        
         router.push("/");
       } else {
-        setError("Invalid Administrative Credentials");
+        setError(result.message || "Invalid Credentials");
         setLoading(false);
       }
-    }, 100);
+    } catch (err) {
+      console.error("Login reach error:", err);
+      setError("Cannot connect to security server. Please try again later.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,22 +114,22 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
-           <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Administrative ID</label>
-              <div className="relative group">
-                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#b66dff] transition-colors">
-                    <User size={18} />
-                 </div>
-                 <input 
-                   required
-                   type="text" 
-                   value={username}
-                   onChange={(e) => setUsername(e.target.value)}
-                   className="w-full bg-slate-50/50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-purple-500/5 focus:border-[#b66dff] transition-all bg-white"
-                   placeholder="Enter System User ID"
-                 />
-              </div>
-           </div>
+            <div className="space-y-2">
+               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Email Address</label>
+               <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#b66dff] transition-colors">
+                     <User size={18} />
+                  </div>
+                  <input 
+                    required
+                    type="email" 
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full bg-slate-50/50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-purple-500/5 focus:border-[#b66dff] transition-all bg-white"
+                    placeholder="name@partydial.com"
+                  />
+               </div>
+            </div>
 
            <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Access Password</label>

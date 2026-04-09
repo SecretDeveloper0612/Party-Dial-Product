@@ -638,7 +638,8 @@ const QuotationManager = ({
                       {(() => {
                          let photos = [];
                          try {
-                            photos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : (Array.isArray(venueProfile?.photos) ? venueProfile.photos : []);
+                            const rawPhotos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : (Array.isArray(venueProfile?.photos) ? venueProfile.photos : []);
+                            photos = rawPhotos.map((p: any) => typeof p === 'string' ? { id: p, category: 'All Photos' } : p);
                          } catch (e) { photos = []; }
                          
                          const galleryPhotos = photos.filter((p: any) => p.category !== 'Profile');
@@ -657,11 +658,11 @@ const QuotationManager = ({
                             );
                          }
 
-                         return galleryPhotos.map((photo: any) => {
+                         return galleryPhotos.map((photo: any, idx: number) => {
                             const isSelected = quoteData.selectedImages?.includes(photo.id);
                             return (
                                <button
-                                  key={photo.id}
+                                  key={photo.id || idx}
                                   onClick={() => {
                                      const current = quoteData.selectedImages || [];
                                      const updated = isSelected 
@@ -797,8 +798,9 @@ const QuotationManager = ({
                             </div>
                             <div className="w-16 h-16 bg-white rounded-xl border border-slate-100 p-2 shadow-sm flex items-center justify-center overflow-hidden">
                                {(() => {
-                                  const photos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
-                                  const avatar = Array.isArray(photos) ? photos.find((p: any) => p.category === 'Profile') : null;
+                                  const rawPhotos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
+                                  const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => typeof p === 'string' ? { id: p, category: 'All Photos' } : p) : [];
+                                  const avatar = photos.find((p: any) => p.category === 'Profile');
                                   if (avatar) {
                                      return (
                                         <Image 
@@ -845,8 +847,9 @@ const QuotationManager = ({
 
                           {/* Venue Gallery */}
                           {(() => {
-                             const photos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
-                             const gallery = Array.isArray(photos) ? photos.filter(p => quoteData.selectedImages?.includes(p.id)) : [];
+                             const rawPhotos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
+                             const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => typeof p === 'string' ? { id: p, category: 'All Photos' } : p) : [];
+                             const gallery = photos.filter(p => quoteData.selectedImages?.includes(p.id));
                              
                              if (gallery.length === 0) return null;
 
@@ -854,8 +857,8 @@ const QuotationManager = ({
                                 <div className="space-y-6">
                                    <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] border-l-4 border-blue-500 pl-4 py-1">Venue Gallery</h4>
                                    <div className="grid grid-cols-3 gap-4">
-                                      {gallery.map((photo, i) => (
-                                         <div key={photo.id} className="aspect-[4/3] rounded-2xl bg-slate-50 overflow-hidden relative border border-slate-100 shadow-sm">
+                                      {gallery.map((photo: any, i) => (
+                                         <div key={photo.id || i} className="aspect-[4/3] rounded-2xl bg-slate-50 overflow-hidden relative border border-slate-100 shadow-sm">
                                             <Image 
                                               src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${photo.id}/view?project=69ae84bc001ca4edf8c2`} 
                                               alt={`View ${i}`} 
@@ -882,7 +885,7 @@ const QuotationManager = ({
                                   </thead>
                                   <tbody className="divide-y divide-slate-100">
                                      {quoteData.lineItems.map((item, i) => (
-                                        <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                                        <tr key={item.id || i} className="hover:bg-slate-50/50 transition-colors">
                                            <td className="p-4 py-5">
                                               <p className="text-xs font-bold text-slate-800 tracking-tight">{item.label}</p>
                                            </td>

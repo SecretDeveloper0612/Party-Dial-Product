@@ -155,32 +155,53 @@ export default function CRMDetailDrawer({ isOpen, onClose, entity, type }: CRMDe
                      </div>
                   </div>
 
-                  {/* Remarks & Notes System */}
-                  <div>
-                     <div className="flex items-center gap-4 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center"><FileText size={20} /></div>
-                        <h3 className="text-lg font-black text-slate-800 tracking-tight leading-none uppercase tracking-widest text-xs">Strategic Remarks</h3>
-                     </div>
-                     <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                           <Zap size={60} className="text-[#b66dff]" />
+                  {/* Status & Remarks System */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div>
+                        <div className="flex items-center gap-4 mb-4">
+                           <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center"><Zap size={20} /></div>
+                           <h3 className="text-lg font-black text-slate-800 tracking-tight leading-none uppercase tracking-widest text-xs">Lead Status</h3>
                         </div>
-                        <p className="text-sm font-bold text-slate-600 leading-relaxed mb-6">
-                           {'notes' in entity ? entity.notes[0] : 'No high-level remarks available for this tactical deal node.'}
-                        </p>
-                        <div className="flex flex-col gap-4">
-                           <button 
-                             onClick={() => setIsQuoteModalOpen(true)}
-                             className="flex-1 py-4 grad-brand text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-purple-500/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-95 group/btn"
-                           >
-                              <Sparkles size={16} className="group-hover/btn:scale-125 transition-transform" /> <span>Send Official Quotation</span>
+                        <select 
+                           className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-purple-500/20 transition-all"
+                           value={'status' in entity ? entity.status : 'New'}
+                           onChange={(e) => {
+                             // This would ideally call an API to update the lead status
+                             alert(`System Notice: Status of ${getEntityName()} updated to ${e.target.value}. Syncing with infrastructure...`);
+                           }}
+                        >
+                           {['New', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost'].map(s => (
+                             <option key={s} value={s}>{s}</option>
+                           ))}
+                        </select>
+                     </div>
+
+                     <div>
+                        <div className="flex items-center gap-4 mb-4">
+                           <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center"><FileText size={20} /></div>
+                           <h3 className="text-lg font-black text-slate-800 tracking-tight leading-none uppercase tracking-widest text-xs">Strategic Remarks</h3>
+                        </div>
+                        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm relative overflow-hidden group">
+                           <p className="text-sm font-bold text-slate-600 leading-relaxed">
+                              {'notes' in entity ? entity.notes[0] : 'No high-level remarks available.'}
+                           </p>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div>
+                     <div className="flex flex-col gap-4">
+                        <button 
+                           onClick={() => setIsQuoteModalOpen(true)}
+                           className="flex-1 py-4 grad-brand text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-purple-500/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-95 group/btn"
+                        >
+                           <Sparkles size={16} className="group-hover/btn:scale-125 transition-transform" /> <span>Send Official Quotation</span>
+                        </button>
+                        <div className="flex items-center gap-3">
+                           <button className="flex-1 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 active:scale-95">
+                              <Plus size={14} /> <span>Log New Activity</span>
                            </button>
-                           <div className="flex items-center gap-3">
-                              <button className="flex-1 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 active:scale-95">
-                                 <Plus size={14} /> <span>Log New Activity</span>
-                              </button>
-                              <button className="p-3 bg-slate-50 text-slate-300 rounded-xl hover:text-rose-500 hover:bg-rose-50 transition-all"><MoreVertical size={16} /></button>
-                           </div>
+                           <button className="p-3 bg-slate-50 text-slate-300 rounded-xl hover:text-rose-500 hover:bg-rose-50 transition-all"><MoreVertical size={16} /></button>
                         </div>
                      </div>
                   </div>

@@ -230,42 +230,39 @@ export default function VenueSignupPage() {
         </div>
 
         {/* Content Over Image */}
-        <div className="relative h-full flex flex-col justify-end p-8 lg:p-16 text-white z-10">
+        <div className="relative h-full flex flex-col justify-end p-6 sm:p-10 lg:p-16 text-white z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="max-w-xl"
+            className="max-w-xl pt-20"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-bold uppercase tracking-widest mb-6">
-              <Sparkles size={12} className="text-pd-pink" /> 
-              <span>Preferred Venue Partner</span>
-            </div>
+
             
-            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
-              Register Your <span className="text-pd-pink">Venue</span> <br />
-              & Start Receiving <br />
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-tight mb-4 sm:mb-6 tracking-tight">
+              Register Your <span className="text-pd-pink">Venue</span> <br className="hidden sm:block" />
+              & Start Receiving <br className="hidden sm:block" />
               <span className="pd-gradient-text uppercase">Event Leads</span>
             </h1>
             
-            <p className="text-base lg:text-lg text-slate-300 font-medium leading-relaxed mb-10 max-w-lg">
+            <p className="text-sm sm:text-base lg:text-lg text-slate-300 font-medium leading-relaxed mb-6 sm:mb-10 max-w-lg">
               Unlock a world of opportunities. Connect with thousands of customers searching for the perfect banquet halls, hotels, and resorts for their special celebrations.
             </p>
 
             <div className="grid grid-cols-2 gap-8 mb-12">
-               <div className="space-y-2">
-                 <div className="text-2xl font-bold flex items-center gap-2">
-                    <CheckCircle2 className="text-emerald-400" size={24} />
+               <div className="space-y-1 sm:space-y-2">
+                 <div className="text-lg sm:text-2xl font-bold flex items-center gap-2">
+                    <CheckCircle2 className="text-emerald-400 sm:w-6 sm:h-6" size={20} />
                     <span>Verified</span>
                  </div>
-                 <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">Inquiry System</p>
+                 <p className="text-[9px] sm:text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">Inquiry System</p>
                </div>
-               <div className="space-y-2">
-                 <div className="text-2xl font-bold flex items-center gap-2">
-                    <Zap className="text-amber-400" size={24} />
+               <div className="space-y-1 sm:space-y-2">
+                 <div className="text-lg sm:text-2xl font-bold flex items-center gap-2">
+                    <Zap className="text-amber-400 sm:w-6 sm:h-6" size={20} />
                     <span>Instant</span>
                  </div>
-                 <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">Lead Delivery</p>
+                 <p className="text-[9px] sm:text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">Lead Delivery</p>
                </div>
             </div>
 
@@ -285,13 +282,16 @@ export default function VenueSignupPage() {
         </div>
 
         {/* Logo Overlay */}
-        <div className="absolute top-8 left-8 lg:top-12 lg:left-12 z-20">
+        <div className="absolute top-6 left-6 lg:top-12 lg:left-12 z-20 flex items-center gap-3">
            <Link href="/">
              <div className="flex items-center gap-2 group cursor-pointer bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20">
                 <div className="w-8 h-8 rounded-lg bg-pd-pink flex items-center justify-center text-white font-black italic shadow-lg group-hover:scale-110 transition-transform">P</div>
                <span className="text-sm font-black text-white italic tracking-tighter uppercase group-hover:tracking-widest transition-all">PARTYDIAL</span>
              </div>
            </Link>
+           <div className="bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20">
+             <span className="text-[10px] font-black text-white italic tracking-[0.2em] uppercase">Partner</span>
+           </div>
         </div>
       </section>
 
@@ -304,9 +304,9 @@ export default function VenueSignupPage() {
           className="w-full max-w-[520px]"
         >
           <div className="mb-6">
-            <div className="mb-10 text-center lg:text-left">
-               <h2 className="text-3xl font-black text-slate-900 uppercase italic mb-2 tracking-tight">Venue Registration</h2>
-               <p className="text-sm text-slate-500 font-medium">Get started with PartyDial & grow your venue business.</p>
+            <div className="mb-6 lg:mb-10 text-center lg:text-left">
+               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase italic mb-2 tracking-tight">Venue Registration</h2>
+               <p className="text-xs sm:text-sm text-slate-500 font-medium">Get started with PartyDial & grow your venue business.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">

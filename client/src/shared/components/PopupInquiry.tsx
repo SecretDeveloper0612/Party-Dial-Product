@@ -451,24 +451,28 @@ export default function PopupInquiry() {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
           <PopupBackdrop onClick={closePopup} />
           
           <motion.div 
-            initial={{ opacity: 0, y: 10, scale: 0.99 }}
+            initial={{ opacity: 0, y: "100%", scale: 1 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.99 }}
+            exit={{ opacity: 0, y: "100%", scale: 1 }}
             transition={{ 
               type: "spring",
-              damping: 25,
-              stiffness: 300
+              damping: 30,
+              stiffness: 300,
+              mass: 0.8
             }}
             style={{ willChange: "transform, opacity" }}
-            className="relative w-full max-w-lg bg-white rounded-[2rem] shadow-2xl border border-slate-100"
+            className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2rem] shadow-2xl border border-slate-100 max-h-[92vh] sm:max-h-[95vh] flex flex-col overflow-hidden"
           >
+            {/* Mobile Handle Bar */}
+            <div className="sm:hidden w-12 h-1.5 bg-slate-200 rounded-full mx-auto mt-4 mb-1 shrink-0" />
+            
             <PopupHeader onClose={closePopup} />
 
-            <div className="p-6 lg:p-10">
+            <div className="p-5 sm:p-10 overflow-y-auto no-scrollbar flex-1 pb-10 sm:pb-10">
               <InquiryForm 
                 formData={formData} 
                 onChange={handleChange} 
@@ -477,8 +481,6 @@ export default function PopupInquiry() {
                 isSubmitting={isSubmitting}
               />
             </div>
-            
-{/* Removed footer with phone and location */}
           </motion.div>
         </div>
       )}
