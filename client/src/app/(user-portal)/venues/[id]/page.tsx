@@ -107,7 +107,8 @@ export default function VenueDetailPage() {
     setIsSubmittingLead(true);
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
       const response = await fetch(`${baseUrl}/venues/leads`, {
         method: 'POST',
         headers: {
@@ -155,7 +156,8 @@ export default function VenueDetailPage() {
     const fetchVenue = async () => {
       setIsLoading(true);
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+        const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+        const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
         const response = await fetch(`${baseUrl}/venues/${id}`);
         const result = await response.json();
 
@@ -215,6 +217,8 @@ export default function VenueDetailPage() {
 
           // Fetch Similar Venues based on Pincode/City
           try {
+            const baseS = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+            const baseUrl = baseS.endsWith('/api') ? baseS : `${baseS}/api`;
             const allResp = await fetch(`${baseUrl}/venues`);
             const allResult = await allResp.json();
             if (allResult.status === 'success') {
@@ -311,7 +315,8 @@ export default function VenueDetailPage() {
     if (!id) return;
     setIsLoadingReviews(true);
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
       const response = await fetch(`${baseUrl}/venues/${id}/reviews`);
       const result = await response.json();
       if (result.status === 'success') {
@@ -368,7 +373,8 @@ export default function VenueDetailPage() {
     
     setIsSubmittingReview(true);
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
       const response = await fetch(`${baseUrl}/venues/reviews`, {
         method: 'POST',
         headers: {

@@ -180,7 +180,8 @@ function VenuesContent() {
         
         const fetchVenues = async () => {
           try {
-            const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+            const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+            const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
             const response = await fetch(`${baseUrl}/venues`);
             const result = await response.json();
             

@@ -201,7 +201,8 @@ export default function Home() {
   useEffect(() => {
     const fetchTopVenues = async () => {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+        const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+        const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
         const response = await fetch(`${baseUrl}/venues`);
         const result = await response.json();
         
@@ -241,7 +242,8 @@ export default function Home() {
                try {
                   const photos = JSON.parse(doc.photos);
                   const firstId = typeof photos[0] === 'string' ? photos[0] : photos[0].id;
-                  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+                  const baseSrv = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+                  const serverUrl = baseSrv.endsWith('/api') ? baseSrv : `${baseSrv}/api`;
                   return `${serverUrl}/venues/proxy/image/venues_photos/${firstId}`;
                } catch(e) { return "/venues/palace-hotel.png"; }
             })() : "/venues/palace-hotel.png"

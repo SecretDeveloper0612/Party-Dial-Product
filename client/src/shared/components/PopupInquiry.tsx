@@ -407,7 +407,8 @@ export default function PopupInquiry() {
       }
 
       // Call Server API for Distributed Leads
-      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
       const response = await fetch(`${baseUrl}/venues/leads`, {
         method: 'POST',
         headers: {
