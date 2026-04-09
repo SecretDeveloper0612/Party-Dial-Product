@@ -260,7 +260,8 @@ export default function VendorDashboard() {
 
   const handleLogout = async () => {
     try {
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const serverUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
       await fetch(`${serverUrl}/auth/logout`, { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

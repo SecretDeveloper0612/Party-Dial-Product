@@ -83,8 +83,8 @@ function VenueManagementContent() {
     setLoading(true);
     setError(null);
     try {
-      const serverUrl =
-        process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+      const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
       const res = await fetch(`${serverUrl}/venues`, { cache: "no-store" });
       const result = await res.json();
 
@@ -239,13 +239,11 @@ function VenueManagementContent() {
                         <ShieldCheck
                           size={16}
                           className="text-[#b66dff]"
-                          title="Verified"
                         />
                       ) : (
                         <ShieldAlert
                           size={16}
                           className="text-amber-400"
-                          title="Unverified"
                         />
                       )}
                       {venue.onboardingComplete ? (

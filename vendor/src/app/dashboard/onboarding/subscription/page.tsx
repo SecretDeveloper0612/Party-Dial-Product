@@ -149,7 +149,8 @@ export default function SubscriptionPage() {
   React.useEffect(() => {
     const fetchConfig = async () => {
       try {
-        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+        const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+        const serverUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
         const res = await fetch(`${serverUrl}/config`);
         const result = await res.json();
         if (result.status === 'success' && result.razorpayKeyId) {
@@ -251,7 +252,8 @@ export default function SubscriptionPage() {
 
     try {
       setIsSaving(true);
-      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const serverUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
       
       const orderRes = await fetch(`${serverUrl}/payments/create-order`, {
         method: 'POST',

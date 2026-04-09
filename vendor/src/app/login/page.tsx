@@ -67,7 +67,8 @@ export default function VenueLoginPage() {
   const handleGoogleLogin = () => {
     const successUrl = `${window.location.origin}/dashboard`;
     const failureUrl = `${window.location.origin}/login`;
-    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+    const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+    const serverUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
     window.location.href = `${serverUrl}/auth/google?successUrl=${encodeURIComponent(successUrl)}&failureUrl=${encodeURIComponent(failureUrl)}`;
   };
 

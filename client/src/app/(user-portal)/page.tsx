@@ -817,8 +817,8 @@ export default function Home() {
             <p className="text-slate-500 font-medium max-w-2xl mx-auto">Find the best event services in your city</p>
           </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-x-8 gap-y-12">
-            {["Delhi", "Mumbai", "Bangalore", "Hyderabad", "Pune", "Chennai", "Kolkata", "Ahmedabad", "Gurgaon", "Noida", "Jaipur", "Lucknow", "Chandigarh", "Indore", "Surat", "Patna", "Nagpur", "Vadodara"].map((city, idx) => (
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-x-8 gap-y-12">
+            {["Haldwani", "Dehradun", "Haridwar", "Nainital", "Rudrapur", "Rishikesh", "Roorkee", "Kashipur", "Ramnagar", "Bhowali"].map((city, idx) => (
               <motion.div 
                 key={city} 
                 initial={{ opacity: 0, y: 20 }}
@@ -861,7 +861,7 @@ export default function Home() {
             </div>
             <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-pd-red mb-6">Explore All Locations</h5>
             <p className="text-[11px] md:text-[12px] font-bold text-slate-500 uppercase tracking-widest leading-[2.2] relative z-10 max-w-5xl mx-auto">
-              Serving 1000+ Locations including Kanpur, Bhopal, Visakhapatnam, Pimpri-Chinchwad, Ghaziabad, Ludhiana, Agra, Nashik, Faridabad, Meerut, Rajkot, Varanasi, Srinagar, Aurangabad, Dhanbad, Amritsar, Navi Mumbai, Allahabad, Ranchi, Howrah, Coimbatore, Jabalpur, Gwalior, Vijayawada, Jodhpur, Madurai, Raipur, Kota, Guwahati, Solapur, Bareilly, Moradabad, Mysore, Gurgaon, Aligarh, Jalandhar, Bhubaneswar, Salem, Warangal, and many more.
+              serving over 500+ micro-locations across Uttarakhand including Bhimtal, Almora, Pithoragarh, Mukteshwar, Ranikhet, Ramgarh, Dhari, Jeolikote, Tanakpur, Banbasa, Khatima, Sitarganj, Kichha, Gadarpur, Bajpur, Sultanpur, Jaspur, Corbett, Kotdwar, Srinagar Garhwal, Tehri, Uttarkashi, Chamoli, and many more.
             </p>
           </motion.div>
         </div>

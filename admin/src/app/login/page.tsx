@@ -23,7 +23,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+  const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
   
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
