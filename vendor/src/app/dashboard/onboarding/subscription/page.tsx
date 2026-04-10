@@ -23,14 +23,14 @@ import Script from 'next/script';
 const plans = [
   {
     id: 'trial_30',
-    name: '1-Month Trial',
-    packName: 'INTRO PACK',
-    pax: '30-DAY ACCESS',
+    name: 'Introductory Offer',
+    packName: 'LIMITED TIME',
+    pax: 'EXPIRES 30 APRIL',
     mrp: '11',
     price: '11',
     save: '0%',
-    desc: 'One month introductory offer',
-    features: ['Offer Available Till 30 April', 'Full Platform Access', 'Direct Lead Alerts', 'Max 3 Photos'],
+    desc: 'Special offer valid until April 30, 2026',
+    features: ['Offer Purchase Till 20 April', 'Full Platform Access', 'Valid Until 30 April 2026', 'Direct Lead Alerts'],
     color: 'bg-white border-pd-pink/20 text-slate-900',
     btnColor: 'bg-pd-pink shadow-pd-pink/20',
     isTrial: true
@@ -42,11 +42,13 @@ export default function SubscriptionPage() {
   const router = useRouter();
   const [selectedPlan, setSelectedPlan] = useState('trial_30');
   const [isSaving, setIsSaving] = useState(false);
-   const [venueName, setVenueName] = useState('');
+  const [venueName, setVenueName] = useState('');
+  const [venueId, setVenueId] = useState('');
+  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
   const [razorpayKeyId, setRazorpayKeyId] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const isOfferValid = new Date() < new Date('2026-04-30T23:59:59');
+  const isOfferValid = new Date() < new Date('2026-04-20T23:59:59');
 
   React.useEffect(() => {
     const fetchConfig = async () => {
@@ -76,7 +78,10 @@ export default function SubscriptionPage() {
           Query.equal('userId', user.$id)
         ]);
         if (result.documents.length > 0) {
-          setVenueName(result.documents[0].venueName || '');
+          const doc = result.documents[0];
+          setVenueName(doc.venueName || '');
+          setVenueId(doc.$id);
+          setCurrentPlan(doc.subscriptionPlan || null);
         }
       } catch (err) {
         console.error('Fetch venue error:', err);
@@ -145,7 +150,7 @@ export default function SubscriptionPage() {
 
     let totalAmount = 0;
     if (selectedPlan === 'trial_30') {
-      totalAmount = 11; // Flat 11 rupee for 1 month trial
+      totalAmount = 11; // Flat 11 rupee for introductory offer
     } else {
       totalAmount = parseInt(plan.price.replace(',', '')) * 365;
     }
@@ -162,6 +167,7 @@ export default function SubscriptionPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           amount: amountInPaise, 
+          venueId: venueId,
           receipt: `sub_${user.$id.slice(-6)}_${Date.now()}` 
         })
       });
@@ -174,7 +180,7 @@ export default function SubscriptionPage() {
         amount: order.amount,
         currency: order.currency,
         name: "PartyDial Partner",
-        description: `${plan.name} - Annual Subscription`,
+        description: `${plan.name} - Valid until 30 April`,
         image: "https://partydial.com/logo.png",
         order_id: order.id,
         handler: async function (response: any) {
@@ -297,11 +303,11 @@ export default function SubscriptionPage() {
                 <div className="mb-10">
                    <div className="flex items-baseline gap-1 mb-1">
                       <span className="text-4xl font-black italic">₹{plan.price}</span>
-                      <span className={`text-[10px] font-bold uppercase tracking-widest ${plan.id === 'pax_100_200' ? 'text-white/40' : 'text-slate-400'}`}>/ {plan.id === 'trial_30' ? 'Month' : 'Day'}</span>
+                      <span className={`text-[10px] font-bold uppercase tracking-widest ${plan.id === 'pax_100_200' ? 'text-white/40' : 'text-slate-400'}`}>/ {plan.id === 'trial_30' ? 'Package' : 'Day'}</span>
                    </div>
                    {plan.id !== 'free' && (
                      <p className={`text-[9px] font-black uppercase tracking-widest opacity-60 ${plan.id === 'pax_100_200' ? 'text-white' : 'text-slate-400'}`}>
-                        Total: ₹{plan.id === 'trial_30' ? '11' : (parseInt(plan.price.replace(',', '')) * 365).toLocaleString('en-IN')} {plan.id === 'trial_30' ? '/ Month' : '/ Year'}{plan.id !== 'trial_30' && <span className="text-[7px] italic"> (Incl. 18% GST)</span>}
+                        Total: ₹{plan.id === 'trial_30' ? '11' : (parseInt(plan.price.replace(',', '')) * 365).toLocaleString('en-IN')} {plan.id === 'trial_30' ? 'Fixed' : '/ Year'}{plan.id !== 'trial_30' && <span className="text-[7px] italic"> (Incl. 18% GST)</span>}
                      </p>
                    )}
                 </div>
@@ -314,7 +320,7 @@ export default function SubscriptionPage() {
                     </span>
                   </div>
                   <p className={`text-xl font-black italic leading-none ${plan.id === 'pax_100_200' ? 'text-white' : 'bg-gradient-to-r from-red-500 to-purple-600 bg-clip-text text-transparent'}`}>
-                     {plan.id === 'trial_30' ? 'Offer Available Till 30 April' : 'Unlimited Leads'}
+                     {plan.id === 'trial_30' ? 'Offer Available Till 20 April' : 'Unlimited Leads'}
                   </p>
                 </div>
 
@@ -332,20 +338,26 @@ export default function SubscriptionPage() {
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
+                    if (currentPlan === plan.id) {
+                      router.push('/dashboard');
+                      return;
+                    }
                     if (isOfferValid) {
                       setShowConfirmModal(true);
                     } else {
-                      alert("This offer has expired as of April 30th.");
+                      alert("This offer has expired as of April 20th.");
                     }
                   }}
-                  disabled={!isOfferValid}
+                  disabled={!isOfferValid && currentPlan !== plan.id}
                   className={`w-full py-5 rounded-[22px] text-[10px] font-black uppercase tracking-[0.25em] italic transition-all active:scale-95 ${
-                    !isOfferValid 
-                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed' 
-                      : 'bg-slate-900 text-white'
+                    currentPlan === plan.id
+                      ? 'bg-emerald-500 text-white'
+                      : !isOfferValid 
+                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed' 
+                        : 'bg-slate-900 text-white'
                   } shadow-xl`}
                 >
-                   {isOfferValid ? `Select ${plan.name}` : "OFFER EXPIRED"}
+                   {currentPlan === plan.id ? "Plan Active - Go to Dashboard" : (isOfferValid ? `Select ${plan.name}` : "OFFER EXPIRED")}
                 </button>
              </motion.div>
            ))}

@@ -175,6 +175,19 @@ export default function VenueDetailPage() {
           const { getAppwriteImageUrl, parsePhotos } = await import('@/shared/utils/image');
           const photoIds = parsePhotos(doc.photos);
           
+          // Unified storage parsing
+          let p_data: any = { packages: [], halls: [] };
+          try {
+             if (doc.packages) {
+                const parsed = JSON.parse(doc.packages);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                   p_data = parsed;
+                } else {
+                   p_data.packages = Array.isArray(parsed) ? parsed : [];
+                }
+             }
+          } catch(e) {}
+
           const mappedVenue: any = {
             id: doc.$id,
             name: doc.venueName || "Unnamed Venue",
@@ -202,9 +215,7 @@ export default function VenueDetailPage() {
                 icon: data.icon
               };
             }),
-            halls: [
-              { name: "Grand Imperial Hall", capacity: `${getCapacityLabel(doc.capacity)} Guests`, area: "12,000 sq ft" }
-            ],
+            halls: p_data.halls && p_data.halls.length > 0 ? p_data.halls : [{ name: "Primary Event Space", capacity: `${getCapacityLabel(doc.capacity)} Guests`, area: "Main Hall" }],
             policies: [
               "Advance Payment: 25% at the time of booking.",
               "Cancellation: Non-refundable if cancelled within 30 days of event.",
@@ -213,7 +224,8 @@ export default function VenueDetailPage() {
               "Music: Allowed till 11:00 PM as per local guidelines."
             ],
             reviews: [],
-            similarVenues: []
+            similarVenues: [],
+            packages: p_data.packages || []
           };
 
           // Fetch Similar Venues based on Pincode/City
@@ -637,6 +649,37 @@ export default function VenueDetailPage() {
                  ))}
                </div>
             </div>
+ 
+            {/* Custom Packages Section */}
+            {venue.packages && venue.packages.length > 0 && (
+               <div>
+                  <h2 className="text-xl font-black text-slate-900 mb-8 border-l-4 border-pd-pink pl-4 uppercase tracking-widest">Special Packages</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     {venue.packages.map((pkg: any, i: number) => (
+                        <motion.div 
+                           key={i}
+                           whileHover={{ y: -5 }}
+                           className="bg-white p-8 rounded-[35px] border border-slate-100 shadow-pd-soft relative overflow-hidden group"
+                        >
+                           <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink/5 rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                           
+                           <div className="relative z-10">
+                              <div className="flex justify-between items-start mb-4">
+                                 <h4 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter leading-none">{pkg.name}</h4>
+                                 <div className="flex items-center text-pd-pink font-black text-xl italic leading-none">
+                                    <span className="text-sm mr-0.5">₹</span>{pkg.price}
+                                 </div>
+                              </div>
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6 leading-relaxed">
+                                 {pkg.desc}
+                              </p>
+                           </div>
+                        </motion.div>
+                     ))}
+                  </div>
+               </div>
+            )}
+
 
 
              {/* Venue Gallery Section */}

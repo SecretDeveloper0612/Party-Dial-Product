@@ -223,8 +223,9 @@ const DashboardSettings = ({
              {[
                 { id: 'profile', label: 'Venue Identity', icon: <Building2 size={18} />, color: 'text-blue-500', sub: 'Branding & Details' },
                 { id: 'photos', label: 'Media Gallery', icon: <ImageIcon size={18} />, color: 'text-purple-500', sub: 'Photos & Videos' },
+                { id: 'halls_section', label: 'Venue Spaces', icon: <Building size={18} />, color: 'text-emerald-500', sub: 'Halls & Lawns' },
                 { id: 'pricing_section', label: 'Event Pricing', icon: <IndianRupee size={18} />, color: 'text-rose-500', sub: 'Plate rates & Fees' },
-                { id: 'billing', label: 'Plan & Billing', icon: <CreditCard size={18} />, color: 'text-emerald-500', sub: 'Subscription status' },
+
              ].map(section => (
                 <button 
                   key={section.id}
@@ -244,32 +245,7 @@ const DashboardSettings = ({
                 </button>
              ))}
 
-             <div className="mt-4 lg:mt-10 p-6 lg:p-8 bg-slate-900 rounded-[30px] lg:rounded-[35px] text-white relative overflow-hidden group shadow-2xl shadow-slate-900/30">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink opacity-20 blur-3xl group-hover:opacity-40 transition-opacity"></div>
-                <Sparkles className="text-pd-pink mb-3 lg:mb-4 scale-90 lg:scale-100" size={24} />
-                <h4 className="text-xs lg:text-sm font-black italic uppercase mb-2">
-                   {(() => {
-                      const id = venueProfile?.subscriptionPlan;
-                      if (id === 'pax_0_50') return 'Starter Pack';
-                      if (id === 'pax_50_100') return 'Growth Pack';
-                      if (id === 'pax_100_200') return 'Priority Pack';
-                      if (id === 'pax_200_500') return 'Featured Pack';
-                      if (id === 'pax_500_1000') return 'Premium Pack';
-                      if (id === 'pax_1000_2000') return 'Elite Pack';
-                      if (id === 'pax_2000_5000') return 'Platinum Pack';
-                      if (id === 'pax_5000') return 'Enterprise Pack';
-                      if (id === 'trial_30') return '1-Month Trial';
-                      if (id === 'free') return 'Free Starter';
-                      return 'Free Starter';
-                    })()} Status
-                </h4>
-                <p className="text-[9px] lg:text-[10px] text-slate-400 uppercase tracking-widest mb-4 lg:mb-6 leading-none italic">
-                  Valid for {venueProfile?.subscriptionPlan === 'trial_30' ? '30 Days' : '1 Year (365 Days)'}
-                </p>
-                <Link href="/dashboard/onboarding/subscription">
-                  <button className="w-full py-3 bg-white text-slate-900 rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink hover:text-white transition-all shadow-xl">MANAGE PLAN</button>
-                </Link>
-             </div>
+
           </aside>
 
           {/* Content Area */}
@@ -457,15 +433,15 @@ const DashboardSettings = ({
                                                   alt="Venue Gallery" 
                                                   fill 
                                                   className="object-cover group-hover:scale-110 transition-transform duration-500" 
-                                               />
-                                            ) : (
-                                               <div className="absolute inset-0 flex items-center justify-center bg-slate-50">
-                                                  <ImageIcon className="text-slate-200" size={20} />
-                                               </div>
-                                            )}
-                                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                               <ImageIcon className="text-white" size={20} />
-                                            </div>
+                                                />
+                                             ) : (
+                                                <div className="absolute inset-0 flex items-center justify-center bg-slate-50">
+                                                   <ImageIcon className="text-slate-200" size={20} />
+                                                </div>
+                                             )}
+                                             <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <ImageIcon className="text-white" size={20} />
+                                             </div>
                                           </div>
                                        );
                                    })}
@@ -494,55 +470,116 @@ const DashboardSettings = ({
                    </motion.div>
                 )}
 
-                {settingsSection === 'billing' && (
-                     <motion.div 
-                       key="billing"
-                       layout
-                       initial={{ opacity: 0, scale: 0.98 }}
-                       animate={{ opacity: 1, scale: 1 }}
-                       exit={{ opacity: 0, scale: 0.98 }}
-                       transition={{ duration: 0.2 }}
-                       className="space-y-10"
-                     >
-                        <div className="p-10 bg-slate-900 rounded-[50px] text-white relative overflow-hidden shadow-2xl shadow-slate-900/40">
-                           <div className="absolute top-[-50px] right-[-50px] w-64 h-64 bg-pd-pink opacity-20 blur-3xl rounded-full"></div>
-                           <div className="relative z-10">
-                              <div className="flex items-center gap-4 mb-10">
-                                 <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
-                                    <CreditCard size={24} className="text-pd-pink" />
-                                 </div>
-                                 <div>
-                                    <h3 className="text-xl font-black italic uppercase leading-none mb-1">
-                                       {venueProfile?.subscriptionPlan === 'premium' ? 'Premium Partner' : 
-                                        venueProfile?.subscriptionPlan === 'platinum' ? 'Platinum Plus' : 
-                                        venueProfile?.subscriptionPlan === 'trial_30' ? '1-Month Trial' :
-                                        'Free Starter'} Active
-                                    </h3>
-                                    <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Member Since Jan 2026</p>
-                                 </div>
-                              </div>
-                              
-                              <div className="grid grid-cols-2 gap-10">
-                                 <div>
-                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 block">Monthly Charge</span>
-                                    <p className="text-3xl font-black italic tracking-tighter leading-none mb-1">
-                                       ₹{venueProfile?.subscriptionPlan === 'premium' ? '1,499' : 
-                                         venueProfile?.subscriptionPlan === 'platinum' ? '2,999' : 
-                                         venueProfile?.subscriptionPlan === 'trial_30' ? '11' : '0'}
-                                    </p>
-                                    <p className="text-[10px] text-pd-pink font-bold uppercase tracking-widest italic">Renewal: Next Month</p>
-                                 </div>
-                                 <div className="flex flex-col justify-end">
-                                    <Link href="/dashboard/onboarding/subscription">
-                                       <button className="pd-btn-primary py-4 px-6 text-[10px] font-black uppercase">Change Current Plan</button>
-                                    </Link>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-
-
-                     </motion.div>
+                {settingsSection === 'halls_section' && (
+                   <motion.div 
+                     key="halls"
+                     layout
+                     initial={{ opacity: 0, scale: 0.98 }}
+                     animate={{ opacity: 1, scale: 1 }}
+                     exit={{ opacity: 0, scale: 0.98 }}
+                     transition={{ duration: 0.2 }}
+                     className="space-y-10"
+                   >
+                      <header className="flex items-center justify-between">
+                         <div>
+                            <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter leading-none mb-2">Available <span className="text-emerald-500">Spaces</span></h3>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">List all individual halls, lawns, or dining areas available at your venue.</p>
+                         </div>
+                         <button 
+                           onClick={() => {
+                              const current = Array.isArray(venueProfile?.halls) ? venueProfile.halls : [];
+                              const updated = [...current, { id: Date.now(), name: 'Main Banquet Hall', capacity: venueProfile.capacity || '500', area: '5000 SQ FT' }];
+                              handleProfileUpdate('halls', updated);
+                           }}
+                           className="bg-slate-900 text-white px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 transition-all flex items-center gap-2"
+                         >
+                            Add New Hall/Space
+                            <Plus className="text-white" size={14} />
+                         </button>
+                      </header>
+ 
+                      <div className="space-y-4">
+                         {(() => {
+                            const halls = Array.isArray(venueProfile?.halls) ? venueProfile.halls : [];
+                            
+                            if (halls.length === 0) {
+                               return (
+                                  <div className="py-20 text-center bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
+                                     <Building className="mx-auto text-slate-300 mb-4" size={48} />
+                                     <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">No spaces defined yet</h4>
+                                     <p className="text-[10px] font-medium text-slate-400 mt-2 mb-6">Add your banquet halls, lawns, or poolside areas here.</p>
+                                  </div>
+                               );
+                            }
+ 
+                            return halls.map((hall: any) => (
+                               <div key={hall.id} className="p-8 bg-white border border-slate-100 rounded-[30px] flex flex-col md:flex-row md:items-center justify-between group hover:border-emerald-500 shadow-sm transition-all gap-6">
+                                  <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
+                                     <div className="space-y-1.5">
+                                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Space Name</label>
+                                        <input 
+                                           value={hall.name}
+                                           onChange={(e) => {
+                                              const updated = halls.map((h: any) => h.id === hall.id ? { ...h, name: e.target.value } : h);
+                                              handleProfileUpdate('halls', updated);
+                                           }}
+                                           className="text-sm font-black text-slate-900 uppercase italic bg-slate-50 rounded-xl px-4 py-3 outline-none w-full focus:bg-white border border-transparent focus:border-emerald-500/20"
+                                           placeholder="e.g. Royal Ballroom"
+                                        />
+                                     </div>
+                                     <div className="space-y-1.5">
+                                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Capacity (Guests)</label>
+                                        <div className="relative">
+                                           <Users size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                                           <input 
+                                              value={hall.capacity}
+                                              onChange={(e) => {
+                                                 const updated = halls.map((h: any) => h.id === hall.id ? { ...h, capacity: e.target.value } : h);
+                                                 handleProfileUpdate('halls', updated);
+                                              }}
+                                              className="text-sm font-black text-slate-900 bg-slate-50 rounded-xl pl-10 pr-4 py-3 outline-none w-full focus:bg-white border border-transparent focus:border-emerald-500/20"
+                                              placeholder="500"
+                                           />
+                                        </div>
+                                     </div>
+                                     <div className="space-y-1.5">
+                                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Area (SQ FT/Size)</label>
+                                        <input 
+                                           value={hall.area}
+                                           onChange={(e) => {
+                                              const updated = halls.map((h: any) => h.id === hall.id ? { ...h, area: e.target.value } : h);
+                                              handleProfileUpdate('halls', updated);
+                                           }}
+                                           className="text-sm font-black text-slate-900 bg-slate-50 rounded-xl px-4 py-3 outline-none w-full focus:bg-white border border-transparent focus:border-emerald-500/20"
+                                           placeholder="12,000 SQ FT"
+                                        />
+                                     </div>
+                                  </div>
+                                  <button 
+                                     onClick={() => {
+                                        const updated = halls.filter((h: any) => h.id !== hall.id);
+                                        handleProfileUpdate('halls', updated);
+                                     }}
+                                     className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-300 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-all shrink-0"
+                                  >
+                                     <Trash2 size={20} />
+                                  </button>
+                               </div>
+                            ));
+                         })()}
+                      </div>
+ 
+                      <div className="pt-10 border-t border-slate-100 flex items-center justify-between">
+                         <p className="text-[10px] font-medium text-slate-400 italic">Define each space so clients can estimate fit for their guest list.</p>
+                         <button 
+                           onClick={saveProfileSettings}
+                           disabled={isUpdatingProfile}
+                           className="px-12 py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-900/10 disabled:opacity-50"
+                         >
+                            {isUpdatingProfile ? 'SYNCHRONIZING...' : 'SAVE ALL SPACES'}
+                         </button>
+                      </div>
+                   </motion.div>
                 )}
 
                 {settingsSection === 'photos' && (
@@ -643,7 +680,7 @@ const DashboardSettings = ({
                                <Sparkles size={24} />
                             </div>
                             <div>
-                               <h4 className="text-sm font-black italic uppercase italic leading-none mb-1">HD Gallery optimization</h4>
+                               <h4 className="text-sm font-black italic uppercase leading-none mb-1">HD Gallery optimization</h4>
                                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Our AI processes your photos for maximum brilliance.</p>
                             </div>
                          </div>
@@ -727,12 +764,9 @@ const DashboardSettings = ({
                              </div>
                              <button 
                                 onClick={() => {
-                                   let current = [];
-                                   try {
-                                      current = typeof venueProfile?.packages === 'string' ? JSON.parse(venueProfile.packages) : (Array.isArray(venueProfile?.packages) ? venueProfile.packages : []);
-                                   } catch (e) { current = []; }
+                                   const current = Array.isArray(venueProfile?.packages) ? venueProfile.packages : [];
                                    const updated = [...current, { id: Date.now(), name: 'New Elite Package', price: '0', desc: 'Brief summary of package inclusions...' }];
-                                   handleProfileUpdate('packages', JSON.stringify(updated));
+                                   handleProfileUpdate('packages', updated);
                                 }}
                                 className="px-6 py-3 bg-pd-pink/10 text-pd-pink rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink hover:text-white transition-all flex items-center gap-2"
                              >
@@ -742,10 +776,7 @@ const DashboardSettings = ({
 
                           <div className="grid grid-cols-1 gap-4">
                              {(() => {
-                                let packs = [];
-                                try {
-                                   packs = typeof venueProfile?.packages === 'string' ? JSON.parse(venueProfile.packages) : (Array.isArray(venueProfile?.packages) ? venueProfile.packages : []);
-                                } catch (e) { packs = []; }
+                                const packs = Array.isArray(venueProfile?.packages) ? venueProfile.packages : [];
                                 
                                 return packs.map((pkg: any) => (
                                    <div key={pkg.id} className="p-8 bg-slate-50 border border-slate-100 rounded-[30px] flex items-center justify-between group hover:border-pd-pink hover:bg-white transition-all">
@@ -754,7 +785,7 @@ const DashboardSettings = ({
                                             value={pkg.name}
                                             onChange={(e) => {
                                                const updated = packs.map((p: any) => p.id === pkg.id ? { ...p, name: e.target.value } : p);
-                                               handleProfileUpdate('packages', JSON.stringify(updated));
+                                               handleProfileUpdate('packages', updated);
                                             }}
                                             className="text-sm font-black text-slate-900 uppercase italic bg-transparent outline-none w-full"
                                             placeholder="Package Name"
@@ -763,7 +794,7 @@ const DashboardSettings = ({
                                             value={pkg.desc}
                                             onChange={(e) => {
                                                const updated = packs.map((p: any) => p.id === pkg.id ? { ...p, desc: e.target.value } : p);
-                                               handleProfileUpdate('packages', JSON.stringify(updated));
+                                               handleProfileUpdate('packages', updated);
                                             }}
                                             className="text-[10px] font-medium text-slate-400 uppercase tracking-widest bg-transparent outline-none w-full"
                                             placeholder="Package Description"
@@ -777,7 +808,7 @@ const DashboardSettings = ({
                                                   value={pkg.price}
                                                   onChange={(e) => {
                                                      const updated = packs.map((p: any) => p.id === pkg.id ? { ...p, price: e.target.value } : p);
-                                                     handleProfileUpdate('packages', JSON.stringify(updated));
+                                                     handleProfileUpdate('packages', updated);
                                                   }}
                                                   className="w-20 bg-transparent text-lg font-black italic outline-none text-right"
                                                   placeholder="000"
@@ -788,7 +819,7 @@ const DashboardSettings = ({
                                          <button 
                                             onClick={() => {
                                                const updated = packs.filter((p: any) => p.id !== pkg.id);
-                                               handleProfileUpdate('packages', JSON.stringify(updated));
+                                               handleProfileUpdate('packages', updated);
                                             }}
                                             className="w-10 h-10 rounded-xl bg-white border border-slate-100 text-slate-300 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 transition-all shadow-sm"
                                          >

@@ -45,7 +45,7 @@ exports.register = async (req, res) => {
                                         cap = cap.replace('+', '').trim();
                                     }
                                     const parsed = parseInt(cap);
-                                    return !isNaN(parsed) ? Math.max(0, Math.min(100000, parsed)) : 0;
+                                    return !isNaN(parsed) ? Math.max(1, Math.min(10000, parsed)) : 1;
                                 })(),
                                 onboardingComplete: false,
                                 isVerified: false,

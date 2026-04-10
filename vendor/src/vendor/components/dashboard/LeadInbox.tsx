@@ -147,25 +147,7 @@ const LeadInbox = ({
                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
                        Update Pipeline
                     </button>
-                    <button 
-                      onClick={() => {
-                          setQuoteData((prev: any) => ({ 
-                            ...prev, 
-                            client: lead.name, 
-                            contact: lead.phone,
-                            email: lead.email || 'client@mail.com',
-                            event: lead.event || 'Special Event',
-                            guestCount: lead.guests || '0',
-                            eventDate: lead.date ? new Date(lead.date).toISOString().split('T')[0] : prev.eventDate,
-                            leadId: lead.id
-                          }));
-                         setActiveTab('quotation');
-                      }}
-                      className="flex items-center gap-2 text-xs font-black text-slate-600 hover:text-slate-900 transition-colors z-10 relative"
-                    >
-                       <FileText size={16} strokeWidth={2.5} />
-                       Send Quote
-                    </button>
+
                  </div>
               </motion.div>
             ))}

@@ -14,7 +14,7 @@ const QuickSupport = () => {
        
        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <a 
-            href="https://wa.me/919058988455?text=Hi%20PartyDial%20Support,%20I%20need%20help%20with%20my%20venue%20listing." 
+            href="https://wa.me/918864959977?text=Hi%20PartyDial%20Support,%20I%20need%20help%20with%20my%20venue%20listing." 
             target="_blank" 
             rel="noopener noreferrer"
             className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-pd-soft flex items-center gap-6 hover:border-emerald-500 transition-all cursor-pointer group hover:scale-[1.02]"

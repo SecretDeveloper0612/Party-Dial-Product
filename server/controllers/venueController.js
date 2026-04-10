@@ -31,11 +31,20 @@ exports.getAllVenues = async (req, res) => {
 exports.approveVenue = async (req, res) => {
     try {
         const { id } = req.params;
+        // Fetch current doc to check for missing required fields (like capacity)
+        const currentDoc = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, id);
+        
+        const updatePayload = { isVerified: true, status: 'active' };
+        // If capacity is missing (required in new schema), add a default
+        if (currentDoc.capacity === undefined || currentDoc.capacity === null || currentDoc.capacity < 1) {
+            updatePayload.capacity = 1;
+        }
+
         const updated = await databases.updateDocument(
             DATABASE_ID,
             VENUES_COLLECTION_ID,
             id,
-            { isVerified: true, status: 'active' }
+            updatePayload
         );
 
         // Send Approval Email (Non-blocking but logged)
@@ -64,11 +73,21 @@ exports.rejectVenue = async (req, res) => {
     try {
         const { id } = req.params;
         const { reason } = req.body;
+
+        // Fetch current doc to check for missing required fields (like capacity)
+        const currentDoc = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, id);
+        
+        const updatePayload = { isVerified: false, status: 'rejected' };
+        // If capacity is missing (required in new schema), add a default
+        if (currentDoc.capacity === undefined || currentDoc.capacity === null || currentDoc.capacity < 1) {
+            updatePayload.capacity = 1;
+        }
+
         const updated = await databases.updateDocument(
             DATABASE_ID,
             VENUES_COLLECTION_ID,
             id,
-            { isVerified: false, status: 'rejected' }
+            updatePayload
         );
 
         // Send Rejection Email (Non-blocking but logged)

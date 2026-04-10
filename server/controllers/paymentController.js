@@ -1,6 +1,6 @@
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
-const { databases, DATABASE_ID } = require('../config/appwrite');
+const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = require('../config/appwrite');
 const { ID, Query } = require('node-appwrite');
 const { sendPaymentConfirmationEmail } = require('../utils/emailService');
 
@@ -15,7 +15,23 @@ const razorpay = new Razorpay({
 
 exports.createOrder = async (req, res) => {
   try {
-    const { amount, currency = 'INR', receipt } = req.body;
+    const { amount, currency = 'INR', receipt, venueId } = req.body;
+
+    // ── DUPLICATE PURCHASE CHECK ──
+    // If it's a trial plan (1100 paise), check if venue already has it
+    if (venueId && parseInt(String(amount)) === 1100) {
+      try {
+        const venue = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
+        if (venue.subscriptionPlan) {
+          return res.status(403).json({ 
+            status: 'error', 
+            message: "You already have an active subscription and cannot purchase the trial pack again." 
+          });
+        }
+      } catch (e) {
+        console.warn('Venue check failed during order creation:', e.message);
+      }
+    }
 
     const options = {
       amount: amount,
@@ -24,9 +40,9 @@ exports.createOrder = async (req, res) => {
     };
 
     // ── PROMOTIONAL DEADLINE CHECK ──
-    // The ₹11 trial plan (1100 paise) is only valid until April 30th, 2026.
+    // The ₹11 trial plan (1100 paise) is only valid until April 20th, 2026.
     if (parseInt(String(amount)) === 1100) {
-        const deadline = new Date('2026-04-30T23:59:59');
+        const deadline = new Date('2026-04-20T23:59:59');
         if (new Date() > deadline) {
             return res.status(403).json({ 
                 status: 'error', 

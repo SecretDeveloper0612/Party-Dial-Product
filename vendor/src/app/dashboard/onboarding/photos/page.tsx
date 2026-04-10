@@ -129,7 +129,7 @@ export default function UploadPhotosPage() {
           state: '',
           pincode: '',
           venueType: 'Banquet Hall',
-          capacity: '0',
+          capacity: 1,
           onboardingComplete: false,
           isVerified: false,
           status: 'active',

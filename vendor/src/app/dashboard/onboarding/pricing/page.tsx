@@ -77,8 +77,8 @@ export default function SetPricingPage() {
       }
       
       const payload = {
-        perPlateVeg: String(perPlateVeg || '0'),
-        perPlateNonVeg: String(perPlateNonVeg || '0'),
+        perPlateVeg: String(parseInt(String(perPlateVeg)) || 0),
+        perPlateNonVeg: String(parseInt(String(perPlateNonVeg)) || 0),
         packages: JSON.stringify(packages),
         // If creating new, add required defaults
         ...(docId ? {} : {
@@ -86,6 +86,7 @@ export default function SetPricingPage() {
           venueName: user.name || 'My Venue',
           ownerName: user.name || 'Owner',
           contactEmail: user.email || '',
+          capacity: 1,
           onboardingComplete: false,
           isVerified: false,
           status: 'active',

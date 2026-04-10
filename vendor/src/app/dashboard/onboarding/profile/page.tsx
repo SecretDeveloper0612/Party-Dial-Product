@@ -192,6 +192,7 @@ export default function CompleteProfilePage() {
           venueName: userData?.name || 'My Venue',
           ownerName: userData?.name || 'Owner',
           contactEmail: userData?.email || '',
+          capacity: 1,
           onboardingComplete: false,
           isVerified: false,
           status: 'active',

@@ -75,7 +75,6 @@ import DashboardOverview from '@/vendor/components/dashboard/DashboardOverview';
 import LeadInbox from '@/vendor/components/dashboard/LeadInbox';
 import LeadPipeline from '@/vendor/components/dashboard/LeadPipeline';
 import ReviewManager from '@/vendor/components/dashboard/ReviewManager';
-import QuotationManager from '@/vendor/components/dashboard/QuotationManager';
 import FinanceHub from '@/vendor/components/dashboard/FinanceHub';
 import AnalyticsCenter from '@/vendor/components/dashboard/AnalyticsCenter';
 import QuickSupport from '@/vendor/components/dashboard/QuickSupport';
@@ -84,6 +83,7 @@ import DashboardSettings from '@/vendor/components/dashboard/DashboardSettings';
 import VenueCalendar from '@/vendor/components/dashboard/VenueCalendar';
 import LeadExplorer from '@/vendor/components/dashboard/LeadExplorer';
 import NotificationDropdown from '@/vendor/components/dashboard/NotificationDropdown';
+import PaymentReminderPopup from '@/vendor/components/PaymentReminderPopup';
 
 import logo from '../logo.jpg';
 
@@ -92,7 +92,6 @@ const tabs = [
   { id: 'leads', label: 'Leads', icon: <Zap size={18} /> },
   { id: 'pipeline', label: 'Pipeline', icon: <Target size={18} /> },
   { id: 'reviews', label: 'Reviews', icon: <MessageSquareQuote size={18} /> },
-  { id: 'quotation', label: 'Quotation', icon: <Calculator size={18} /> },
 ];
 
 const secondaryTabs = [
@@ -117,7 +116,7 @@ const planLabels: {[key: string]: string} = {
   'pax_1000_2000': 'Elite Live',
   'pax_2000_5000': 'Platinum Live',
   'pax_5000': 'Enterprise Live',
-  'trial_30': '1-Month Trial',
+  'trial_30': 'Introductory Offer',
   'free': 'Free Live'
 };
 
@@ -127,6 +126,7 @@ export default function VendorDashboard() {
   const [settingsSection, setSettingsSection] = useState('profile');
   const [leadFilter, setLeadFilter] = useState('All');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showPaymentReminder, setShowPaymentReminder] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [venueProfile, setVenueProfile] = useState<any>(null);
@@ -211,6 +211,41 @@ export default function VendorDashboard() {
       },
     ];
   }, [recentLeads, venueProfile]);
+
+  // Subscription Expiry Calculation
+  const expiryInfo = useMemo(() => {
+    if (!venueProfile) return null;
+    const now = new Date();
+    
+    // Trial Plan specific logic (Expires April 30, 2026)
+    if (venueProfile.subscriptionPlan === 'trial_30') {
+      const end = new Date('2026-04-30T23:59:59');
+      // If today is past April 30, it should have been caught in initializeDashboard, 
+      // but we handle it here for safety.
+      const diffTime = end.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      // Calculate percentage assuming a window that ends April 30
+      const percent = Math.max(0, Math.min(100, (diffDays / 30) * 100));
+      return { daysLeft: diffDays, percent, label: 'Introductory Offer' };
+    }
+    
+    // Paid Plans (Assuming 1 Year duration from creation/verification)
+    if (venueProfile.subscriptionPlan && venueProfile.subscriptionPlan !== 'free') {
+      const start = new Date(venueProfile.$createdAt);
+      const end = new Date(start);
+      end.setFullYear(end.getFullYear() + 1);
+      
+      const totalTime = end.getTime() - start.getTime();
+      const remainingTime = end.getTime() - now.getTime();
+      const diffDays = Math.ceil(remainingTime / (1000 * 60 * 60 * 24));
+      const percent = Math.max(0, Math.min(100, (remainingTime / totalTime) * 100));
+      
+      return { daysLeft: diffDays, percent, label: 'Live Pack' };
+    }
+
+    return null;
+  }, [venueProfile]);
 
   // Automatic Onboarding Completion Check
   const isOnboardingComplete = useMemo(() => {
@@ -435,12 +470,14 @@ export default function VendorDashboard() {
       const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
       await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueProfile.$id, {
         venueName: venueProfile.venueName,
-        capacity: Math.max(1, Math.min(10000, parseInt(String(venueProfile.capacity)))), 
-        perPlateVeg: parseInt(String(venueProfile.perPlateVeg || 0)),
-        perPlateNonVeg: parseInt(String(venueProfile.perPlateNonVeg || 0)),
+        capacity: !isNaN(parseInt(String(venueProfile.capacity))) ? Math.max(1, Math.min(10000, parseInt(String(venueProfile.capacity)))) : 1, 
+        perPlateVeg: String(parseInt(String(venueProfile.perPlateVeg || 0)) || 0),
         amenities: venueProfile.amenities,
         eventTypes: venueProfile.eventTypes,
-        packages: venueProfile.packages
+        packages: JSON.stringify({
+           packages: Array.isArray(venueProfile.packages) ? venueProfile.packages : [],
+           halls: Array.isArray(venueProfile.halls) ? venueProfile.halls : []
+        })
       });
       showToast('Profile successfully synchronized with the portal.', 'success');
     } catch (err) {
@@ -513,7 +550,34 @@ export default function VendorDashboard() {
 
         if (result.documents.length > 0) {
           const profile = result.documents[0];
-          setVenueProfile(profile);
+          
+          // Unified packages/halls storage workaround
+          let p_data: any = { packages: [], halls: [] };
+          try {
+             if (profile.packages) {
+                const parsed = JSON.parse(profile.packages);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                   p_data = parsed;
+                } else {
+                   p_data.packages = Array.isArray(parsed) ? parsed : [];
+                }
+             }
+          } catch(e) { console.warn('Failed to parse merged packages data'); }
+          
+          setVenueProfile({
+             ...profile,
+             packages: p_data.packages || [],
+             halls: p_data.halls || []
+          });
+
+          // Hard expiry check for Trial Plan (Expires April 30th)
+          if (profile.subscriptionPlan === 'trial_30') {
+            const trialDeadline = new Date('2026-04-30T23:59:59');
+            if (new Date() > trialDeadline) {
+              router.push('/dashboard/onboarding/subscription?expired=true');
+              return;
+            }
+          }
           
           setIsLoadingLeads(true);
           const leadsResult = await databases.listDocuments(DATABASE_ID, LEADS_COLLECTION_ID, [
@@ -544,9 +608,14 @@ export default function VendorDashboard() {
             setIsLoadingLeads(false);
           }
 
-          // Handle Onboarding
+          // Handle Onboarding & Payment Status
           const alreadyDismissed = localStorage.getItem('onboardingComplete') === 'true';
-          if (!profile.onboardingComplete && !alreadyDismissed) setShowOnboarding(true);
+          if (!profile.onboardingComplete && !alreadyDismissed) {
+            setShowOnboarding(true);
+          } else if (profile.onboardingComplete && !profile.subscriptionPlan) {
+            // Priority 2: Onboarding done but Payment pending
+            setShowPaymentReminder(true);
+          }
         } else {
           setShowOnboarding(true);
           setIsLoadingLeads(false);
@@ -588,6 +657,8 @@ export default function VendorDashboard() {
           if (response.events.some(e => e.includes('databases.*.collections.' + VENUES_COLLECTION_ID))) {
             setVenueProfile(payload);
             setShowOnboarding(!payload.onboardingComplete);
+            // Auto-hide payment reminder if payment is now complete
+            if (payload.subscriptionPlan) setShowPaymentReminder(false);
           } else if (response.events.some(e => e.includes('databases.*.collections.' + LEADS_COLLECTION_ID))) {
             if (payload.venueId === venueProfile?.$id || payload.venueId === 'BROADCAST') {
                const mapped = {
@@ -686,6 +757,13 @@ export default function VendorDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 font-pd flex relative">
       
+      {/* PAYMENT REMINDER POPUP */}
+      <PaymentReminderPopup 
+        isOpen={showPaymentReminder} 
+        onClose={() => setShowPaymentReminder(false)} 
+        venueName={venueProfile?.venueName}
+      />
+
       {/* MOBILE OVERLAY */}
       <AnimatePresence>
         {isMobile && sidebarOpen && (
@@ -836,10 +914,44 @@ export default function VendorDashboard() {
                </div>
             </div>
 
-            {/* Center Section: Command Search */}
+            {/* Center Section: Plan Validity Status */}
+            <div className="hidden xl:flex flex-col items-center gap-1.5 min-w-[320px] px-6">
+               {expiryInfo ? (
+                  <>
+                    <div className="flex items-center justify-between w-full px-1">
+                       <div className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-pd-pink animate-pulse"></span>
+                          <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                             {expiryInfo.label} <span className="text-slate-900 italic">Validity</span>
+                          </span>
+                       </div>
+                       <span className="text-[10px] font-black text-slate-900 italic tracking-tighter">
+                          {expiryInfo.daysLeft > 0 ? `${expiryInfo.daysLeft} Days Left` : 'Expired'}
+                       </span>
+                    </div>
+                    <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/40 p-0.5 shadow-inner">
+                       <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${expiryInfo.percent}%` }}
+                          transition={{ duration: 1.5, ease: "circOut", delay: 0.5 }}
+                          className={`h-full rounded-full shadow-sm ${
+                             expiryInfo.daysLeft < 7 
+                               ? 'bg-gradient-to-r from-red-500 to-rose-600' 
+                               : 'bg-gradient-to-r from-emerald-400 via-pd-pink to-purple-600'
+                          }`}
+                       />
+                    </div>
+                  </>
+               ) : (
+                  <div className="flex flex-col items-center opacity-40">
+                     <span className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400">Premium Partnership Active</span>
+                     <div className="flex gap-1 mt-1">
+                        {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-6 h-1 bg-slate-200 rounded-full"></div>)}
+                     </div>
+                  </div>
+               )}
+            </div>
 
-
-            {/* Right Section: System Actions & Profile */}
             <div className="flex items-center gap-2 lg:gap-4">
                <div className="hidden sm:flex items-center gap-3 bg-slate-50 p-1.5 px-3 rounded-[20px] border border-slate-100/50 mr-1 lg:mr-2">
                   <div className="flex items-center gap-2 pr-2 border-r border-slate-200">
@@ -869,9 +981,7 @@ export default function VendorDashboard() {
                     />
                   </div>
 
-                  <button className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-slate-400 hover:text-pd-pink hover:bg-pd-pink/5 transition-all relative border border-slate-100 shadow-sm">
-                    <HelpCircle size={18} />
-                  </button>
+
                </div>
                
                <div className="hidden lg:block h-8 w-[1px] bg-slate-200/50 mx-1"></div>
@@ -1044,24 +1154,7 @@ export default function VendorDashboard() {
               />
             )}
 
-            {activeTab === 'quotation' && (
-              <QuotationManager 
-                setActiveTab={setActiveTab}
-                handleFinalize={handleFinalize}
-                isFinalizing={isFinalizing}
-                qtnSuccess={qtnSuccess}
-                quoteData={quoteData}
-                setQuoteData={setQuoteData}
-                subtotal={subtotal}
-                gstAmount={gstAmount}
-                totalWithTax={totalWithTax}
-                handleDownload={handleDownload}
-                handleSend={handleSend}
-                logo={logo}
-                venueProfile={venueProfile}
-                showToast={showToast}
-              />
-            )}
+
           </div>
 
       </main>
