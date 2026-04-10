@@ -22,7 +22,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
     if (!venueId) return;
     setIsLoading(true);
     try {
-      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
       const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
       const response = await fetch(`${baseUrl}/venues/${venueId}/reviews`);
       const result = await response.json();
@@ -83,7 +83,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
     if (!replyTarget || !replyText.trim()) return;
     setIsSubmittingReply(true);
     try {
-      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
       const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
       const response = await fetch(`${baseUrl}/venues/reviews/${replyTarget.$id}/reply`, {
         method: 'PATCH',

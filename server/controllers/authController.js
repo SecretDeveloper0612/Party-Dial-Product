@@ -177,8 +177,8 @@ exports.login = async (req, res) => {
 // Google Login
 exports.googleLogin = async (req, res) => {
     try {
-        const successUrl = req.query.successUrl || 'http://localhost:3000';
-        const failureUrl = req.query.failureUrl || 'http://localhost:3000/login';
+        const successUrl = req.query.successUrl || process.env.FRONTEND_URL || 'http://localhost:3000';
+        const failureUrl = req.query.failureUrl || `${process.env.FRONTEND_URL}/login` || 'http://localhost:3000/login';
 
         const project = process.env.APPWRITE_PROJECT_ID;
         const endpoint = process.env.APPWRITE_ENDPOINT;

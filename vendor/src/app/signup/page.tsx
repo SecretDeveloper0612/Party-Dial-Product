@@ -153,7 +153,7 @@ export default function VenueSignupPage() {
     setErrors({});
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
       const serverUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
       const response = await fetch(`${serverUrl}/auth/register`, {
         method: 'POST',

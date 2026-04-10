@@ -107,7 +107,7 @@ export default function VenueDetailPage() {
     setIsSubmittingLead(true);
 
     try {
-      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
       const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
       const response = await fetch(`${baseUrl}/venues/leads`, {
         method: 'POST',
@@ -156,7 +156,7 @@ export default function VenueDetailPage() {
     const fetchVenue = async () => {
       setIsLoading(true);
       try {
-        const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+        const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
         const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
         const fetchUrl = `${baseUrl}/venues/${id}`;
         const response = await fetch(fetchUrl);
@@ -218,7 +218,7 @@ export default function VenueDetailPage() {
 
           // Fetch Similar Venues based on Pincode/City
           try {
-            const baseS = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+            const baseS = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
             const baseUrl = baseS.endsWith('/api') ? baseS : `${baseS}/api`;
             const allResp = await fetch(`${baseUrl}/venues`);
             const allResult = await allResp.json();
@@ -251,7 +251,7 @@ export default function VenueDetailPage() {
           return;
         }
       } catch (err) {
-        const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+        const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
         const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
         console.warn(`API Fetch failed from ${baseUrl}/venues/${id}, trying mock data:`, err);
       }
@@ -318,7 +318,7 @@ export default function VenueDetailPage() {
     if (!id) return;
     setIsLoadingReviews(true);
     try {
-      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
       const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
       const fetchUrl = `${baseUrl}/venues/${id}/reviews`;
       const response = await fetch(fetchUrl, { cache: 'no-store' });
@@ -327,7 +327,7 @@ export default function VenueDetailPage() {
         setReviews(result.data || []);
       }
     } catch (err) {
-      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
       const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
       console.error(`Failed to fetch reviews from ${baseUrl}/venues/${id}/reviews:`, err);
     } finally {
@@ -379,7 +379,7 @@ export default function VenueDetailPage() {
     
     setIsSubmittingReview(true);
     try {
-      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
       const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
       const response = await fetch(`${baseUrl}/venues/reviews`, {
         method: 'POST',
