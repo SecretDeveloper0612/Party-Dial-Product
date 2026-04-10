@@ -217,7 +217,7 @@ const TermsOfService = () => {
             </div>
             <div className="mt-16 text-[10px] font-black pointer-events-none text-slate-300 uppercase tracking-[0.4em] space-y-2">
                <p>© 2026 PARTYDIAL</p>
-               <p>A Platform by Preet Tech OPC PVT. LTD.</p>
+               <p>A Platform by Preet Tech</p>
                <p>All billing and operations managed exclusively by Preet Tech</p>
             </div>
         </div>

@@ -443,6 +443,24 @@ export default function AboutUs() {
         </div>
       </section>
 
+      {/* CORPORATE OWNERSHIP */}
+      <section className="py-16 md:py-24 bg-slate-50 border-y border-slate-100 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+           <Building2 size={40} className="text-pd-red mx-auto mb-6" />
+           <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 mb-6">Corporate <span className="text-pd-red">Foundation</span></h2>
+           <p className="text-sm md:text-lg text-slate-600 font-medium leading-relaxed mb-10 italic">
+             PartyDial is a flagship discovery engine owned and operated by <strong>Preet Tech (OPC) Private Limited</strong>. 
+             We are committed to building a transparent digital ecosystem for India's event industry. 
+             All billing, compliance, and platform operations are managed exclusively by Preet Tech, ensuring a secure and reliable experience for all our users and partners.
+           </p>
+           <div className="flex flex-wrap justify-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <span className="px-4 py-2 bg-white rounded-full border border-slate-200">Preet Tech (OPC) Pvt. Ltd.</span>
+              <span className="px-4 py-2 bg-white rounded-full border border-slate-200">ISO Standard Tracking</span>
+              <span className="px-4 py-2 bg-white rounded-full border border-slate-200">Corporate HQ: Dehradun</span>
+           </div>
+        </div>
+      </section>
+
       {/* 9. FAQ */}
       <section className="py-10 md:py-16 px-6 bg-white">
         <div className="max-w-2xl mx-auto">

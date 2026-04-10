@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -226,7 +226,139 @@ const GridBackground = () => (
   </div>
 );
 
-const PricingCard = ({ plan }: { plan: typeof pricingPlans[0] }) => {
+const InquiryPopup = ({ plan, isOpen, onClose }: { plan: typeof pricingPlans[0] | null, isOpen: boolean, onClose: () => void }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    venueName: '',
+    city: '',
+    selectedPlanId: plan?.id || pricingPlans[0].id
+  });
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (plan) {
+      setFormData(prev => ({ ...prev, selectedPlanId: plan.id }));
+    }
+  }, [plan]);
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ type: "spring", duration: 0.4, bounce: 0 }}
+        className="relative w-full max-w-lg bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl overflow-hidden will-change-transform"
+      >
+        {/* Simplified Background Ornaments for Performance */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+        
+        <button 
+           onClick={onClose} 
+           className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all z-20"
+        >
+          <Plus className="rotate-45" size={20} />
+        </button>
+
+        {!isSubmitted ? (
+          <div className="relative z-10 text-left">
+            <div className="mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-pink-50 rounded-full text-pink-500 text-[10px] font-black uppercase tracking-widest mb-3 border border-pink-100">
+                <Sparkle size={10} fill="currentColor" /> Quick Enquiry
+              </div>
+              <h2 className="text-2xl font-[900] text-slate-900 tracking-tight leading-none uppercase italic">Partner <span className="text-pd-purple">Enquiry</span></h2>
+              <p className="mt-2 text-slate-500 font-bold text-[10px] uppercase tracking-widest leading-none">Complete the form to get started</p>
+            </div>
+
+            <form onSubmit={(e) => { e.preventDefault(); setIsSubmitted(true); }} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
+                  <input 
+                    required 
+                    type="text" 
+                    placeholder="Rahul Sharma"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number</label>
+                  <input 
+                    required 
+                    type="tel" 
+                    placeholder="9876543210"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Preferred Plan</label>
+                <div className="relative">
+                  <select 
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none appearance-none cursor-pointer pr-10"
+                    value={formData.selectedPlanId}
+                    onChange={(e) => setFormData(prev => ({ ...prev, selectedPlanId: parseInt(e.target.value) }))}
+                  >
+                    {pricingPlans.map(p => (
+                      <option key={p.id} value={p.id}>{p.name} ({p.packName})</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Venue Details</label>
+                <input 
+                  required 
+                  type="text" 
+                  placeholder="Venue Name, City"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
+                />
+              </div>
+
+              <button className={`w-full mt-4 py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg text-white ${gradientStyle} hover:translate-y-[-2px] active:translate-y-[0]`}>
+                Submit Inquiry
+              </button>
+            </form>
+          </div>
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-8"
+          >
+            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 size={32} />
+            </div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic mb-2">Success!</h2>
+            <p className="text-slate-500 text-xs font-bold leading-relaxed px-4">
+              Our team will reach out to you within <span className="text-pink-600">4 working hours</span>.
+            </p>
+            <button 
+              onClick={onClose}
+              className="mt-8 px-8 py-3 bg-slate-900 text-white rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-slate-800 transition-colors"
+            >
+              Close
+            </button>
+          </motion.div>
+        )}
+      </motion.div>
+    </div>
+  );
+};
+
+const PricingCard = ({ plan, onSelect }: { plan: typeof pricingPlans[0], onSelect: (plan: typeof pricingPlans[0]) => void }) => {
   const discount = Math.round(((plan.mrp - plan.price) / plan.mrp) * 100);
   
   return (
@@ -284,11 +416,14 @@ const PricingCard = ({ plan }: { plan: typeof pricingPlans[0] }) => {
           ))}
         </div>
 
-        <button className={`w-full py-4 rounded-full text-sm font-bold uppercase tracking-widest transition-all ${
-          plan.popular 
-            ? `${gradientStyle} text-white shadow-lg shadow-pink-500/20 hover:scale-[1.02] hover:shadow-pink-500/40`
-            : 'bg-slate-900 text-white hover:bg-slate-800'
-        }`}>
+        <button 
+          onClick={() => onSelect(plan)}
+          className={`w-full py-4 rounded-full text-sm font-bold uppercase tracking-widest transition-all ${
+            plan.popular 
+              ? `${gradientStyle} text-white shadow-lg shadow-pink-500/20 hover:scale-[1.02] hover:shadow-pink-500/40`
+              : 'bg-slate-900 text-white hover:bg-slate-800'
+          }`}
+        >
           {plan.cta}
         </button>
       </div>
@@ -340,11 +475,22 @@ const FaqItem = ({ item }: { item: typeof faqs[0] }) => {
 
 export default function PricingPage() {
   const [selectedAddon, setSelectedAddon] = useState<number | null>(null);
+  const [inquiryPlan, setInquiryPlan] = useState<typeof pricingPlans[0] | null>(null);
 
   return (
     <div className="bg-slate-50 min-h-screen text-slate-900 selection:bg-pink-500 selection:text-white font-sans antialiased">
       
-      {/* 1. BRAND-ALIGNED COMPACT HERO */}
+      <AnimatePresence>
+        {inquiryPlan && (
+          <InquiryPopup 
+            plan={inquiryPlan} 
+            isOpen={!!inquiryPlan} 
+            onClose={() => setInquiryPlan(null)} 
+          />
+        )}
+      </AnimatePresence>
+
+      {/* 1. BRAND-ALIGNED COMPARE HERO */}
       <section className="relative py-8 bg-white overflow-hidden border-b border-slate-50">
         <GridBackground />
         <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
@@ -381,7 +527,10 @@ export default function PricingPage() {
             </p>
 
             <div className="flex justify-center">
-               <button className={`${gradientStyle} text-white px-14 py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all shadow-2xl shadow-pink-500/20 hover:scale-[1.05] active:scale-95`}>
+               <button 
+                 onClick={() => setInquiryPlan(pricingPlans[2])}
+                 className={`${gradientStyle} text-white px-14 py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all shadow-2xl shadow-pink-500/20 hover:scale-[1.05] active:scale-95`}
+               >
                   Start Getting Enquiries
                </button>
             </div>
@@ -423,7 +572,7 @@ export default function PricingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {pricingPlans.map((plan) => (
-              <PricingCard key={plan.id} plan={plan} />
+              <PricingCard key={plan.id} plan={plan} onSelect={setInquiryPlan} />
             ))}
           </div>
         </div>

@@ -61,7 +61,7 @@ const getBaseTemplate = (content, previewText) => `
         </div>
         <div class="footer">
             <p style="margin-bottom: 10px; color: #64748b;">&copy; ${new Date().getFullYear()} PARTYDIAL</p>
-            <p style="margin-bottom: 5px; color: #64748b;">A Platform by Preet Tech OPC PVT. LTD.</p>
+            <p style="margin-bottom: 5px; color: #64748b;">A Platform by Preet Tech</p>
             <p style="font-size: 10px; opacity: 0.8; color: #94a3b8;">All billing and operations managed exclusively by Preet Tech</p>
         </div>
     </div>

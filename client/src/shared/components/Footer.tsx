@@ -70,7 +70,7 @@ export default function Footer() {
                         </div>
                         <div>
                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Corporate Email</p>
-                           <p className="text-sm font-black italic text-slate-200">hello@partydial.com</p>
+                           <p className="text-sm font-black italic text-slate-200">support@partydial.com</p>
                         </div>
                      </div>
                      <div className="flex items-start gap-4">
@@ -91,12 +91,13 @@ export default function Footer() {
             <div className="mt-20 lg:mt-32 pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
                <div className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] space-y-2 text-center md:text-left">
                   <p>© 2026 PARTYDIAL</p>
-                  <p className="opacity-70">A Platform by Preet Tech OPC PVT. LTD.</p>
+                  <p className="opacity-70">A Platform by Preet Tech</p>
                   <p className="opacity-50">All billing and operations managed exclusively by Preet Tech</p>
                </div>
                <div className="flex items-center gap-8">
                   <Link href="/privacy-policy" className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 hover:text-white transition-colors">Privacy Policy</Link>
                   <Link href="/terms-of-service" className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 hover:text-white transition-colors">Terms of Service</Link>
+                  <Link href="/refund-policy" className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 hover:text-white transition-colors">Refund / Return Policy</Link>
                </div>
             </div>
          </div>

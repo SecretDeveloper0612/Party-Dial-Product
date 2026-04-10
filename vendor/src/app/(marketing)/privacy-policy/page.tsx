@@ -225,7 +225,7 @@ const PrivacyPolicy = () => {
             </Link>
             <div className="mt-20 text-[9px] font-black text-white/20 uppercase tracking-[0.4em] space-y-2 pointer-events-none">
                <p>© 2026 PARTYDIAL</p>
-               <p>A Platform by Preet Tech OPC PVT. LTD.</p>
+               <p>A Platform by Preet Tech</p>
                <p>All billing and operations managed exclusively by Preet Tech</p>
             </div>
         </div>

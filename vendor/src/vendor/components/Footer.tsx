@@ -79,6 +79,7 @@ export default function Footer() {
             </h4>
             <ul className="space-y-5">
               {[
+                { name: 'About Us', href: '/about' },
                 { name: 'How it Works', href: '/process' },
                 { name: 'Pricing Plans', href: '/pricing' },
                 { name: 'Merchant App', href: '/signup' },
@@ -102,6 +103,7 @@ export default function Footer() {
               {[
                 { name: 'Privacy Policy', href: '/privacy-policy' },
                 { name: 'Terms of Service', href: '/terms-of-service' },
+                { name: 'Refund / Return Policy', href: '/refund-policy' },
                 { name: 'Contact Us', href: '/contact' }
               ].map((link) => (
                 <li key={link.name}>
@@ -141,7 +143,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-center md:text-left">
             <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">© 2026 PARTYDIAL</p>
             <div className="hidden md:block w-[1px] h-4 bg-white/10"></div>
-            <p className="text-[10px] font-black text-pd-red uppercase tracking-[0.2em]">A Platform by Preet Tech OPC PVT. LTD.</p>
+            <p className="text-[10px] font-black text-pd-red uppercase tracking-[0.2em]">A Platform by Preet Tech</p>
             <div className="hidden md:block w-[1px] h-4 bg-white/10"></div>
             <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] italic">All billing and operations managed exclusively by Preet Tech</p>
           </div>
