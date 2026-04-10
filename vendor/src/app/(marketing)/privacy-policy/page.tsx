@@ -223,7 +223,11 @@ const PrivacyPolicy = () => {
             <Link href="/contact" className="inline-block">
                 <button className="bg-pd-blue text-white px-10 py-4 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-pd-blue/80 transition-all active:scale-95 shadow-xl italic leading-none">Merchant Support Desk</button>
             </Link>
-            <p className="mt-20 text-[9px] font-black text-white/20 uppercase tracking-[0.6em] pointer-events-none">© 2026 PARTYDIAL MERCHANT ASSURANCE</p>
+            <div className="mt-20 text-[9px] font-black text-white/20 uppercase tracking-[0.4em] space-y-2 pointer-events-none">
+               <p>© 2026 PARTYDIAL</p>
+               <p>A Platform by Preet Tech OPC PVT. LTD.</p>
+               <p>All billing and operations managed exclusively by Preet Tech</p>
+            </div>
         </div>
       </section>
     </main>

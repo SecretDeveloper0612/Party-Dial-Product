@@ -215,7 +215,11 @@ const TermsOfService = () => {
                 <button className="w-full sm:w-auto bg-white border border-slate-200 text-slate-400 px-8 py-4 rounded-xl font-bold text-xs uppercase tracking-widest hover:border-pd-red hover:text-pd-red transition-all active:scale-95 italic">Back to Home</button>
               </Link>
             </div>
-            <p className="mt-16 text-[10px] font-black pointer-events-none text-slate-300 uppercase tracking-[0.5em]">© 2026 PARTYDIAL LEGAL DIVISION</p>
+            <div className="mt-16 text-[10px] font-black pointer-events-none text-slate-300 uppercase tracking-[0.4em] space-y-2">
+               <p>© 2026 PARTYDIAL</p>
+               <p>A Platform by Preet Tech OPC PVT. LTD.</p>
+               <p>All billing and operations managed exclusively by Preet Tech</p>
+            </div>
         </div>
       </section>
     </main>

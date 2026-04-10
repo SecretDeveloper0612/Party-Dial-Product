@@ -89,9 +89,11 @@ export default function Footer() {
 
             {/* Bottom Bar */}
             <div className="mt-20 lg:mt-32 pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-               <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.4em]">
-                  © 2026 PARTYDIAL LTD • CRAFTED WITH PASSION BY <span className="text-slate-400">CELEBRATION TECH</span>
-               </p>
+               <div className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] space-y-2 text-center md:text-left">
+                  <p>© 2026 PARTYDIAL</p>
+                  <p className="opacity-70">A Platform by Preet Tech OPC PVT. LTD.</p>
+                  <p className="opacity-50">All billing and operations managed exclusively by Preet Tech</p>
+               </div>
                <div className="flex items-center gap-8">
                   <Link href="/privacy-policy" className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 hover:text-white transition-colors">Privacy Policy</Link>
                   <Link href="/terms-of-service" className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 hover:text-white transition-colors">Terms of Service</Link>

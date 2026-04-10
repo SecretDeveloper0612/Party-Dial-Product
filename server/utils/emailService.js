@@ -58,8 +58,9 @@ const getBaseTemplate = (content, previewText) => `
             ${content}
         </div>
         <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Partydial.com. All rights reserved.</p>
-            <p>Making every event extraordinary.</p>
+            <p>&copy; ${new Date().getFullYear()} PARTYDIAL</p>
+            <p>A Platform by Preet Tech OPC PVT. LTD.</p>
+            <p style="font-size: 10px; opacity: 0.6;">All billing and operations managed exclusively by Preet Tech</p>
         </div>
     </div>
 </body>
