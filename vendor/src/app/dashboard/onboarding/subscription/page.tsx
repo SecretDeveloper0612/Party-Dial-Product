@@ -11,8 +11,11 @@ import {
   ShieldCheck,
   Zap,
   Star,
-  ZapOff
+  ZapOff,
+  X,
+  CreditCard as CardIcon
 } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
@@ -32,119 +35,18 @@ const plans = [
     btnColor: 'bg-pd-pink shadow-pd-pink/20',
     isTrial: true
   },
-  {
-    id: 'pax_0_50',
-    name: 'UPTO 50 PAX',
-    packName: 'STARTER PACK',
-    pax: 'UPTO 50 PAX',
-    mrp: '41',
-    price: '33',
-    save: '20%',
-    desc: 'Billed annually',
-    features: ['Basic listing visibility', 'Standard search placement', 'Lead notifications (App + Email)', 'Upload up to 10 photos', 'Basic customer support'],
-    color: 'bg-white border-slate-100 text-slate-900',
-    btnColor: 'bg-slate-900 shadow-slate-900/10'
-  },
-  {
-    id: 'pax_50_100',
-    name: '50–100 PAX',
-    packName: 'GROWTH PACK',
-    pax: '50–100 PAX',
-    mrp: '55',
-    price: '44',
-    save: '20%',
-    desc: 'Billed annually',
-    features: ['Improved listing visibility', 'WhatsApp lead alerts', 'Standard placement in search', 'Upload up to 20 photos', 'Basic analytics dashboard'],
-    color: 'bg-white border-slate-100 text-slate-900',
-    btnColor: 'bg-slate-900 shadow-slate-900/10'
-  },
-  {
-    id: 'pax_100_200',
-    name: '100–200 PAX',
-    packName: 'PRIORITY PACK',
-    pax: '100–200 PAX',
-    mrp: '96',
-    price: '77',
-    save: '20%',
-    desc: 'Billed annually',
-    features: ['Priority listing in search results', 'WhatsApp notifications', 'Lead insights dashboard', 'Faster lead delivery', 'Upload up to 30 photos'],
-    popular: true,
-    color: 'pd-gradient border-transparent text-white',
-    btnColor: 'bg-white text-pd-pink shadow-white/20',
-  },
-  {
-    id: 'pax_200_500',
-    name: '200–500 PAX',
-    packName: 'FEATURED PACK',
-    pax: '200–500 PAX',
-    mrp: '156',
-    price: '123',
-    save: '21%',
-    desc: 'Billed annually',
-    features: ['Featured placement in listings', 'Priority visibility in search', 'Lead filtering system', 'Priority customer support', 'Upload up to 40 photos'],
-    color: 'bg-white border-slate-100 text-slate-900',
-    btnColor: 'bg-slate-900 shadow-slate-900/10'
-  },
-  {
-    id: 'pax_500_1000',
-    name: '500–1000 PAX',
-    packName: 'PREMIUM PACK',
-    pax: '500–1000 PAX',
-    mrp: '219',
-    price: '179',
-    save: '18%',
-    desc: 'Billed annually',
-    features: ['Premium placement in listings', 'High visibility ranking', 'Faster lead routing', 'Advanced analytics', 'Upload up to 50 photos'],
-    color: 'bg-white border-slate-100 text-slate-900',
-    btnColor: 'bg-slate-900 shadow-slate-900/10'
-  },
-  {
-    id: 'pax_1000_2000',
-    name: '1000–2000 PAX',
-    packName: 'ELITE PACK',
-    pax: '1000–2000 PAX',
-    mrp: '301',
-    price: '249',
-    save: '17%',
-    desc: 'Billed annually',
-    features: ['Top city visibility', 'Premium ranking placement', 'Advanced lead analytics', 'Priority lead routing', 'Upload up to 60 photos'],
-    color: 'bg-white border-slate-100 text-slate-900',
-    btnColor: 'bg-slate-900 shadow-slate-900/10'
-  },
-  {
-    id: 'pax_2000_5000',
-    name: '2000–5000 PAX',
-    packName: 'PLATINUM PACK',
-    pax: '2000–5000 PAX',
-    mrp: '493',
-    price: '379',
-    save: '23%',
-    desc: 'Billed annually',
-    features: ['High priority ranking', 'Dedicated support assistance', 'Premium listing visibility', 'Advanced reporting dashboard', 'Upload up to 75 photos'],
-    color: 'bg-white border-slate-100 text-slate-900',
-    btnColor: 'bg-slate-900 shadow-slate-900/10'
-  },
-  {
-    id: 'pax_5000',
-    name: '5000+ PAX',
-    packName: 'ENTERPRISE PACK',
-    pax: '5000+ PAX',
-    mrp: '822',
-    price: '599',
-    save: '27%',
-    desc: 'Billed annually',
-    features: ['Exclusive lead priority', 'Dedicated account manager', 'Highest visibility ranking', 'Custom promotional support', 'Unlimited photo uploads'],
-    color: 'bg-white border-slate-100 text-slate-900',
-    btnColor: 'bg-slate-900 shadow-slate-900/10'
-  }
 ];
+
 
 export default function SubscriptionPage() {
   const router = useRouter();
   const [selectedPlan, setSelectedPlan] = useState('trial_30');
   const [isSaving, setIsSaving] = useState(false);
-  const [venueName, setVenueName] = useState('');
+   const [venueName, setVenueName] = useState('');
   const [razorpayKeyId, setRazorpayKeyId] = useState('');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  const isOfferValid = new Date() < new Date('2026-04-20T23:59:59');
 
   React.useEffect(() => {
     const fetchConfig = async () => {
@@ -248,7 +150,7 @@ export default function SubscriptionPage() {
       totalAmount = parseInt(plan.price.replace(',', '')) * 365;
     }
 
-    const amountInPaise = Math.round(totalAmount * (selectedPlan === 'trial_30' ? 1 : 1.18) * 100);
+    const amountInPaise = Math.round(totalAmount * 1.18 * 100);
 
     try {
       setIsSaving(true);
@@ -353,14 +255,16 @@ export default function SubscriptionPage() {
                 <h2 className="text-4xl font-black text-slate-900 uppercase italic tracking-tighter bg-blue-50 px-8 py-4 rounded-2xl border border-blue-100/50 shadow-sm">{venueName}</h2>
              </div>
            )}
-           <div className="mt-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-6 italic">
-              <ShieldCheck size={14} /> 1-Month Trial & Annual Premium plans available
-           </div>
            <h1 className="text-4xl font-extrabold text-slate-900 uppercase italic mb-4 tracking-tighter">Choose Your <span className="pd-gradient-text uppercase">Success Plan</span></h1>
-           <p className="text-slate-500 font-medium max-w-lg mx-auto leading-relaxed italic">Select a package that fits your business goals. You can upgrade or downgrade anytime.</p>
+           <p className="text-slate-500 font-medium max-w-lg mx-auto leading-relaxed italic">
+             {isOfferValid 
+               ? "Select a package that fits your business goals. You can upgrade or downgrade anytime."
+               : "This introductory offer has expired. Please contact support for regular plans."
+             }
+           </p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 max-w-lg mx-auto gap-8 mb-12">
            {plans.map((plan, i) => (
              <motion.div
                 key={plan.id}
@@ -395,14 +299,13 @@ export default function SubscriptionPage() {
                 </div>
 
                 <div className="mb-10">
-                   {plan.mrp !== '0' && <p className="text-sm text-slate-400 line-through font-medium leading-none mb-1">₹{plan.mrp}</p>}
                    <div className="flex items-baseline gap-1 mb-1">
                       <span className="text-4xl font-black italic">₹{plan.price}</span>
                       <span className={`text-[10px] font-bold uppercase tracking-widest ${plan.id === 'pax_100_200' ? 'text-white/40' : 'text-slate-400'}`}>/ {plan.id === 'trial_30' ? 'Month' : 'Day'}</span>
                    </div>
                    {plan.id !== 'free' && (
                      <p className={`text-[9px] font-black uppercase tracking-widest opacity-60 ${plan.id === 'pax_100_200' ? 'text-white' : 'text-slate-400'}`}>
-                        Total: ₹{plan.id === 'trial_30' ? '11' : (parseInt(plan.price.replace(',', '')) * 365).toLocaleString('en-IN')} {plan.id === 'trial_30' ? '/ Month' : '/ Year'} <span className="text-[7px] italic">(Excl. GST)</span>
+                        Total: ₹{plan.id === 'trial_30' ? (11 * 1.18).toFixed(2) : (parseInt(plan.price.replace(',', '')) * 365).toLocaleString('en-IN')} {plan.id === 'trial_30' ? '/ Month' : '/ Year'} <span className="text-[7px] italic">(Incl. 18% GST)</span>
                      </p>
                    )}
                 </div>
@@ -430,66 +333,112 @@ export default function SubscriptionPage() {
                    ))}
                 </ul>
 
-                <button className={`w-full py-5 rounded-[22px] text-[10px] font-black uppercase tracking-[0.25em] italic transition-all active:scale-95 ${
-                  plan.id === 'pax_100_200' ? 'bg-white text-pd-pink' : 'bg-slate-900 text-white'
-                } shadow-xl`}>
-                   Select {plan.name}
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isOfferValid) {
+                      setShowConfirmModal(true);
+                    } else {
+                      alert("This offer has expired as of April 20th.");
+                    }
+                  }}
+                  disabled={!isOfferValid}
+                  className={`w-full py-5 rounded-[22px] text-[10px] font-black uppercase tracking-[0.25em] italic transition-all active:scale-95 ${
+                    !isOfferValid 
+                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed' 
+                      : (plan.id === 'pax_100_200' ? 'bg-white text-pd-pink' : 'bg-slate-900 text-white')
+                  } shadow-xl`}
+                >
+                   {isOfferValid ? `Select ${plan.name}` : "OFFER EXPIRED"}
                 </button>
              </motion.div>
            ))}
         </div>
 
-        {/* Comparison Summary / Bottom CTA */}
-        <div className="bg-white rounded-[40px] border border-slate-100 p-8 lg:p-12 flex flex-col lg:flex-row items-center justify-between gap-10 shadow-pd-soft">
-           <div className="flex items-center gap-8">
-              <div className="flex -space-x-4">
-                 {[1,2,3,4].map(i => (
-                    <div key={i} className="w-12 h-12 rounded-2xl border-4 border-white bg-slate-100 overflow-hidden shadow-pd-soft">
-                       <img src={`https://i.pravatar.cc/100?u=${i + 60}`} alt="User" />
-                    </div>
-                 ))}
-              </div>
-              <div>
-                 <p className="text-sm font-black text-slate-900 italic mb-1 uppercase tracking-tighter">Secured with SSL Encryption</p>
-                 <p className="text-xs text-slate-500 font-medium italic">Payments are processed through a 100% secure gateway.</p>
-              </div>
-           </div>
-           
-            <div className="flex items-center gap-6">
-                 <div className="flex flex-col items-end">
-                    {selectedPlan !== 'trial_30' && (
-                      <div className="flex items-center gap-4 text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1.5 opacity-60">
-                        <span>Daily: ₹{plans.find(p => p.id === selectedPlan)?.price}</span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                        <span>Annual Total: ₹{(parseInt(plans.find(p => p.id === selectedPlan)?.price.replace(',', '') || '0') * 365).toLocaleString('en-IN')}</span>
-                      </div>
-                    )}
-                    <div className="flex items-baseline gap-2">
-                       <span className="text-4xl font-black italic text-slate-900">
-                          ₹{selectedPlan === 'trial_30' ? '11' : Math.round(parseInt(plans.find(p => p.id === selectedPlan)?.price.replace(',', '') || '0') * 365 * 1.18).toLocaleString('en-IN')}
-                       </span>
-                       <span className={`text-[10px] font-black uppercase tracking-widest ${selectedPlan === 'trial_30' ? 'text-slate-400' : 'text-emerald-500'}`}>
-                          {selectedPlan === 'trial_30' ? 'Flat Fee (No GST)' : 'Incl. 18% GST (Annual)'}
-                       </span>
-                    </div>
-                 </div>
-               <button 
-                  onClick={handleActivate}
-                  disabled={isSaving}
-                  className="pd-btn-primary min-w-[240px] flex items-center justify-center gap-3 italic tracking-normal uppercase text-[11px] font-black h-14"
-               >
-                  {isSaving ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  ) : (
-                    <>
-                      Activate Account
-                      <Zap size={18} />
-                    </>
-                  )}
-               </button>
-            </div>
+        {/* Confirmation Modal */}
+        <AnimatePresence>
+          {showConfirmModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowConfirmModal(false)}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="bg-white w-full max-w-lg rounded-[40px] shadow-2xl relative overflow-hidden flex flex-col pt-12"
+              >
+                <button 
+                  onClick={() => setShowConfirmModal(false)}
+                  className="absolute top-8 right-8 text-slate-400 hover:text-slate-900 transition-colors"
+                >
+                  <X size={24} />
+                </button>
 
-        </div>
+                <div className="px-10 pb-10">
+                  <header className="mb-10">
+                    <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 mb-6">
+                      <ShieldCheck size={32} />
+                    </div>
+                    <h2 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter mb-2">Confirm Order</h2>
+                    <p className="text-slate-500 font-medium italic">You are subscribing to the {plans[0].name}.</p>
+                  </header>
+
+                  <div className="space-y-6 mb-10">
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Base Subscription Fee</span>
+                        <span className="text-xl font-black italic text-slate-900">₹{plans[0].price}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-slate-400 mb-4">
+                        <span className="text-[10px] font-black uppercase tracking-widest italic">GST (18%)</span>
+                        <span className="text-sm font-bold italic">₹{(parseFloat(plans[0].price) * 0.18).toFixed(2)}</span>
+                      </div>
+                      <div className="h-px bg-slate-200 mb-4" />
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-900 italic">Total Payable</span>
+                        <span className="text-2xl font-black italic text-pd-pink">₹{(parseFloat(plans[0].price) * 1.18).toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+                      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-blue-500 shadow-sm">
+                        <CardIcon size={20} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-900 leading-none mb-1">Secure Checkout</p>
+                        <p className="text-[9px] font-bold text-blue-700/60 uppercase tracking-widest leading-none">Powered by Razorpay</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      setShowConfirmModal(false);
+                      handleActivate();
+                    }}
+                    disabled={isSaving}
+                    className="w-full h-16 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] italic hover:bg-pd-pink transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95"
+                  >
+                    {isSaving ? (
+                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        Pay Now & Activate
+                        <ArrowRight size={18} />
+                      </>
+                    )}
+                  </button>
+                  <p className="text-center mt-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">100% Refundable within 24 hours if unsatisfied.</p>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

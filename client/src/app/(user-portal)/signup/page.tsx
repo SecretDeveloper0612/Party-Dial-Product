@@ -55,6 +55,23 @@ export default function SignupPage() {
     setTimeout(() => setIsLoading(false), 2000);
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      const { account } = await import('@/lib/appwrite');
+      const { OAuthProvider } = await import('appwrite');
+      
+      const currentUrl = window.location.origin;
+      
+      await account.createOAuth2Session(
+        OAuthProvider.Google,
+        `${currentUrl}/`,
+        `${currentUrl}/signup`
+      );
+    } catch (error) {
+      console.error('Google signup failed:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row overflow-hidden">
       
@@ -111,7 +128,10 @@ export default function SignupPage() {
             <p className="text-slate-400 font-semibold">Start your journey to a perfect event.</p>
           </div>
 
-          <button className="w-full h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-3 hover:bg-slate-50 transition-all font-black text-slate-700 text-[10px] uppercase tracking-[0.2em] mb-8 active:scale-95">
+          <button 
+            onClick={handleGoogleLogin}
+            className="w-full h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-3 hover:bg-slate-50 transition-all font-black text-slate-700 text-[10px] uppercase tracking-[0.2em] mb-8 active:scale-95"
+          >
              <Chrome size={20} className="text-pd-purple" />
              Continue with Google
           </button>

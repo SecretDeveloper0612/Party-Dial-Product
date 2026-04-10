@@ -128,20 +128,25 @@ export default function Home() {
 
         if (data[0].Status === 'Success') {
           const offices = data[0].PostOffice;
-          const formattedSuggestions = offices.map((office: any) => ({
-            display: `${office.Name}-${office.Pincode}`,
-            name: office.Name,
-            pincode: office.Pincode,
-            district: office.District,
-            state: office.State
-          }));
-          // Remove duplicates
-          const uniqueSuggestions = Array.from(new Set(formattedSuggestions.map((s: any) => s.display)))
-            .map(display => formattedSuggestions.find((s: any) => s.display === display));
+          const formattedSuggestions = offices
+            .filter((office: any) => office.State === 'Uttarakhand')
+            .map((office: any) => ({
+              display: `${office.Name}-${office.Pincode}`,
+              name: office.Name,
+              pincode: office.Pincode,
+              district: office.District,
+              state: office.State
+            }));
           
-          setSuggestions(uniqueSuggestions);
+          if (formattedSuggestions.length === 0 && offices.length > 0) {
+            setSuggestions([{ isError: true, message: 'Only Uttarakhand Pincodes allowed' }]);
+          } else {
+            const uniqueSuggestions = Array.from(new Set(formattedSuggestions.map((s: any) => s.display)))
+              .map(display => formattedSuggestions.find((s: any) => s.display === display));
+            setSuggestions(uniqueSuggestions);
+          }
         } else {
-          setSuggestions([]);
+          setSuggestions([{ isError: true, message: 'No matching pincode found' }]);
         }
       } catch (error) {
         console.error('Error fetching locations:', error);
@@ -426,14 +431,20 @@ export default function Home() {
                                 </div>
                               ) : (
                                 suggestions.map((s: any, i) => (
-                                  <button
-                                    key={i}
-                                    onClick={() => addLocation(s)}
-                                    className="w-full text-left px-5 py-3.5 hover:bg-slate-50 text-sm font-bold text-slate-700 transition-colors border-b border-slate-50 last:border-none flex items-center justify-between"
-                                  >
-                                    <span>{s.display}</span>
-                                    <span className="text-[10px] text-slate-400 uppercase">{s.state}</span>
-                                  </button>
+                                  s.isError ? (
+                                    <div key={i} className="p-4 text-center text-[10px] text-pd-red font-black uppercase tracking-widest italic">
+                                      {s.message}
+                                    </div>
+                                  ) : (
+                                    <button
+                                      key={i}
+                                      onClick={() => addLocation(s)}
+                                      className="w-full text-left px-5 py-3.5 hover:bg-slate-50 text-sm font-bold text-slate-700 transition-colors border-b border-slate-50 last:border-none flex items-center justify-between"
+                                    >
+                                      <span>{s.display}</span>
+                                      <span className="text-[10px] text-slate-400 uppercase">{s.state}</span>
+                                    </button>
+                                  )
                                 ))
                               )}
                             </motion.div>

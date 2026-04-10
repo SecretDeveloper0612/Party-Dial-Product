@@ -258,11 +258,14 @@ const DashboardSettings = ({
                       if (id === 'pax_1000_2000') return 'Elite Pack';
                       if (id === 'pax_2000_5000') return 'Platinum Pack';
                       if (id === 'pax_5000') return 'Enterprise Pack';
+                      if (id === 'trial_30') return '1-Month Trial';
                       if (id === 'free') return 'Free Starter';
                       return 'Free Starter';
                     })()} Status
                 </h4>
-                <p className="text-[9px] lg:text-[10px] text-slate-400 uppercase tracking-widest mb-4 lg:mb-6 leading-none italic">Valid for 1 Year (365 Days)</p>
+                <p className="text-[9px] lg:text-[10px] text-slate-400 uppercase tracking-widest mb-4 lg:mb-6 leading-none italic">
+                  Valid for {venueProfile?.subscriptionPlan === 'trial_30' ? '30 Days' : '1 Year (365 Days)'}
+                </p>
                 <Link href="/dashboard/onboarding/subscription">
                   <button className="w-full py-3 bg-white text-slate-900 rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink hover:text-white transition-all shadow-xl">MANAGE PLAN</button>
                 </Link>
@@ -478,6 +481,7 @@ const DashboardSettings = ({
                                     <h3 className="text-xl font-black italic uppercase leading-none mb-1">
                                        {venueProfile?.subscriptionPlan === 'premium' ? 'Premium Partner' : 
                                         venueProfile?.subscriptionPlan === 'platinum' ? 'Platinum Plus' : 
+                                        venueProfile?.subscriptionPlan === 'trial_30' ? '1-Month Trial' :
                                         'Free Starter'} Active
                                     </h3>
                                     <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Member Since Jan 2026</p>
@@ -489,7 +493,8 @@ const DashboardSettings = ({
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 block">Monthly Charge</span>
                                     <p className="text-3xl font-black italic tracking-tighter leading-none mb-1">
                                        ₹{venueProfile?.subscriptionPlan === 'premium' ? '1,499' : 
-                                         venueProfile?.subscriptionPlan === 'platinum' ? '2,999' : '0'}
+                                         venueProfile?.subscriptionPlan === 'platinum' ? '2,999' : 
+                                         venueProfile?.subscriptionPlan === 'trial_30' ? '11' : '0'}
                                     </p>
                                     <p className="text-[10px] text-pd-pink font-bold uppercase tracking-widest italic">Renewal: Next Month</p>
                                  </div>

@@ -28,6 +28,25 @@ export default function LoginPage() {
     setTimeout(() => setIsLoading(false), 2000);
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      const { account } = await import('@/lib/appwrite');
+      const { OAuthProvider } = await import('appwrite');
+      
+      // Get current URL to redirect back
+      const currentUrl = window.location.origin;
+      
+      await account.createOAuth2Session(
+        OAuthProvider.Google,
+        `${currentUrl}/`, // Success redirect
+        `${currentUrl}/login` // Failure redirect
+      );
+    } catch (error) {
+      console.error('Google login failed:', error);
+      alert('Google login failed. Please try again.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row overflow-hidden">
       
@@ -97,7 +116,10 @@ export default function LoginPage() {
           </div>
 
           {/* SOCIAL LOGIN */}
-          <button className="w-full h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-3 hover:bg-slate-50 transition-all font-black text-slate-700 text-xs uppercase tracking-widest mb-8 active:scale-95">
+          <button 
+            onClick={handleGoogleLogin}
+            className="w-full h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-3 hover:bg-slate-50 transition-all font-black text-slate-700 text-xs uppercase tracking-widest mb-8 active:scale-95"
+          >
              <Chrome size={20} className="text-pd-purple" />
              Continue with Google
           </button>

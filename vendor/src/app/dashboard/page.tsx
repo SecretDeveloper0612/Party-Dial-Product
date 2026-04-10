@@ -117,6 +117,7 @@ const planLabels: {[key: string]: string} = {
   'pax_1000_2000': 'Elite Live',
   'pax_2000_5000': 'Platinum Live',
   'pax_5000': 'Enterprise Live',
+  'trial_30': '1-Month Trial',
   'free': 'Free Live'
 };
 

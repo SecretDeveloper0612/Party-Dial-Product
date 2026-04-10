@@ -149,11 +149,18 @@ function VenuesContent() {
         const data = await response.json();
 
         if (data[0].Status === "Success") {
-          const suggestions = data[0].PostOffice.map((po: any) => `${po.Name}-${po.Pincode}`);
-          // Remove duplicates
-          setCitySuggestions(Array.from(new Set(suggestions as string[])));
+          const offices = data[0].PostOffice;
+          const filtered = offices
+            .filter((po: any) => po.State === 'Uttarakhand')
+            .map((po: any) => `${po.Name}-${po.Pincode}`);
+          
+          if (filtered.length === 0 && offices.length > 0) {
+            setCitySuggestions(['ERROR: Only Uttarakhand Pincodes allowed']);
+          } else {
+            setCitySuggestions(Array.from(new Set(filtered as string[])));
+          }
         } else {
-          setCitySuggestions([]);
+          setCitySuggestions(['ERROR: No results found']);
         }
       } catch (error) {
         console.error("Error fetching cities:", error);

@@ -122,13 +122,15 @@ const InquiryForm = memo(({
 
         if (data[0].Status === 'Success') {
           const offices = data[0].PostOffice;
-          const formattedSuggestions = offices.map((office: any) => ({
-            display: `${office.Name}-${office.Pincode}`,
-            name: office.Name,
-            pincode: office.Pincode,
-            district: office.District,
-            state: office.State
-          }));
+          const formattedSuggestions = offices
+            .filter((office: any) => office.State === 'Uttarakhand')
+            .map((office: any) => ({
+              display: `${office.Name}-${office.Pincode}`,
+              name: office.Name,
+              pincode: office.Pincode,
+              district: office.District,
+              state: office.State
+            }));
           const uniqueSuggestions = Array.from(new Set(formattedSuggestions.map((s: any) => s.display)))
             .map(display => formattedSuggestions.find((s: any) => s.display === display));
           

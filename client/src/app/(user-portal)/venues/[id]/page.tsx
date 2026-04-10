@@ -158,7 +158,8 @@ export default function VenueDetailPage() {
       try {
         const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
         const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
-        const response = await fetch(`${baseUrl}/venues/${id}`);
+        const fetchUrl = `${baseUrl}/venues/${id}`;
+        const response = await fetch(fetchUrl);
         const result = await response.json();
 
         if (result.status === 'success') {
@@ -250,7 +251,9 @@ export default function VenueDetailPage() {
           return;
         }
       } catch (err) {
-        console.warn('API Fetch failed, trying mock data:', err);
+        const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+        const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
+        console.warn(`API Fetch failed from ${baseUrl}/venues/${id}, trying mock data:`, err);
       }
 
       // Fallback to MOCK_VENUES
@@ -317,13 +320,16 @@ export default function VenueDetailPage() {
     try {
       const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
       const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
-      const response = await fetch(`${baseUrl}/venues/${id}/reviews`);
+      const fetchUrl = `${baseUrl}/venues/${id}/reviews`;
+      const response = await fetch(fetchUrl, { cache: 'no-store' });
       const result = await response.json();
       if (result.status === 'success') {
-        setReviews(result.data);
+        setReviews(result.data || []);
       }
     } catch (err) {
-      console.error('Failed to fetch reviews:', err);
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
+      const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
+      console.error(`Failed to fetch reviews from ${baseUrl}/venues/${id}/reviews:`, err);
     } finally {
       setIsLoadingReviews(false);
     }
