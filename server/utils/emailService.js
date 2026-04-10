@@ -31,19 +31,21 @@ const getBaseTemplate = (content, previewText) => `
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${APP_NAME}</title>
     <style>
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #E2E8F0; background-color: #020617; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 20px auto; background: #0F172A; border-radius: 16px; overflow: hidden; border: 1px solid #1E293B; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #000000; background-color: #f8fafc; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
         .header { background: linear-gradient(135deg, ${BRAND_COLOR}, ${SECONDARY_COLOR}); padding: 40px 20px; text-align: center; }
         .header h1 { margin: 0; color: white; font-size: 28px; font-weight: 800; letter-spacing: -0.025em; }
-        .content { padding: 40px 30px; }
-        .footer { padding: 20px; text-align: center; color: #94A3B8; font-size: 12px; background: #1E293B; }
-        .button { display: inline-block; padding: 12px 24px; background: ${BRAND_COLOR}; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; transition: opacity 0.2s; }
-        .highlight { color: ${SECONDARY_COLOR}; font-weight: 700; }
-        p { margin-bottom: 20px; color: #CBD5E1; }
-        .card { background: #1E293B; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #334155; }
-        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-        .status-success { background: #065F46; color: #34D399; }
-        .status-error { background: #7F1D1D; color: #F87171; }
+        .content { padding: 40px 30px; color: #000000; }
+        .footer { padding: 20px; text-align: center; color: #64748b; font-size: 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+        .button { display: inline-block; padding: 12px 24px; background: ${BRAND_COLOR}; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; }
+        .highlight { color: ${BRAND_COLOR}; font-weight: 700; }
+        p { margin-bottom: 20px; color: #334155; }
+        .card { background: #f8fafc; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #e2e8f0; color: #000000; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .status-success { background: #dcfce7; color: #166534; }
+        .status-error { background: #fee2e2; color: #991b1b; }
+        ul { color: #334155; }
+        li { margin-bottom: 8px; }
     </style>
 </head>
 <body>
@@ -52,15 +54,15 @@ const getBaseTemplate = (content, previewText) => `
     </div>
     <div class="container">
         <div class="header">
-            <h1>${APP_NAME}</h1>
+            <h1 style="color: white !important;">${APP_NAME}</h1>
         </div>
         <div class="content">
             ${content}
         </div>
         <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} PARTYDIAL</p>
-            <p>A Platform by Preet Tech OPC PVT. LTD.</p>
-            <p style="font-size: 10px; opacity: 0.6;">All billing and operations managed exclusively by Preet Tech</p>
+            <p style="margin-bottom: 10px; color: #64748b;">&copy; ${new Date().getFullYear()} PARTYDIAL</p>
+            <p style="margin-bottom: 5px; color: #64748b;">A Platform by Preet Tech OPC PVT. LTD.</p>
+            <p style="font-size: 10px; opacity: 0.8; color: #94a3b8;">All billing and operations managed exclusively by Preet Tech</p>
         </div>
     </div>
 </body>
@@ -158,7 +160,7 @@ exports.sendDocVerificationEmail = (to, name) => {
         <p>Hi ${name}, we've received your business documents for verification.</p>
         <div class="card">
             <p>Our team is currently reviewing them. This process usually takes <strong>24-48 hours</strong>.</p>
-            <p>Verification Status: <span class="status-badge" style="background: #1E293B; color: #94A3B8;">Pending Review</span></p>
+            <p>Verification Status: <span class="status-badge" style="background: #e0e7ff; color: #4338ca;">Pending Review</span></p>
         </div>
         <p>Once verified, your venue will gain the <span class="highlight">"Verified Vendor"</span> badge, boosting your trust among customers.</p>
     `, "We've received your documents and they are under review.");
