@@ -210,14 +210,7 @@ export default function VenueSignupPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    // Redirect to the backend Google auth endpoint
-    const successUrl = `${window.location.origin}/dashboard/onboarding/profile`;
 
-    const failureUrl = `${window.location.origin}/signup`;
-    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-server-koo2.onrender.com/api';
-    window.location.href = `${serverUrl}/auth/google?successUrl=${encodeURIComponent(successUrl)}&failureUrl=${encodeURIComponent(failureUrl)}`;
-  };
 
 
   return (
@@ -599,20 +592,7 @@ export default function VenueSignupPage() {
                 )}
               </button>
 
-              {/* Quick Registration Option */}
-              <div className="relative py-4">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
-                <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest"><span className="bg-white px-4 text-slate-400">or quick signup</span></div>
-              </div>
 
-              <button
-                type="button"
-                onClick={handleGoogleLogin}
-                className="w-full h-14 bg-white border border-slate-100 rounded-[16px] flex items-center justify-center gap-3 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm"
-              >
-                <Image src="https://www.vectorlogo.zone/logos/google/google-icon.svg" alt="Google" width={18} height={18} />
-                Continue with Google
-              </button>
 
             </form>
           </div>
