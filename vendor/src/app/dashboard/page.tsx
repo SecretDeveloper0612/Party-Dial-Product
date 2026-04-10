@@ -331,21 +331,21 @@ export default function VendorDashboard() {
   }, [activeTab]);
   
   const [quoteData, setQuoteData] = useState({
-    client: 'Aditya Raj',
-    contact: '9876543210',
-    email: 'client@mail.com',
+    client: '',
+    contact: '',
+    email: '',
     event: 'Wedding Ceremony',
     eventDate: new Date().toISOString().split('T')[0],
-    guestCount: '500',
-    specialRequests: 'Need premium floral decoration and valet parking.',
+    guestCount: '0',
+    specialRequests: '',
     gstRate: 18,
     discountType: 'percentage' as 'percentage' | 'fixed',
     discountValue: 0,
     extraCharges: 0,
     lineItems: [
-       { id: 1, label: 'Grand Ballroom Rental', amount: 150000 },
-       { id: 2, label: 'Standard Catering (500 pax)', amount: 450000 },
-       { id: 3, label: 'Floral Arrangement & Decor', amount: 75000 },
+       { id: 1, label: 'Venue Rental', amount: 0 },
+       { id: 2, label: 'Catering Service', amount: 0 },
+       { id: 3, label: 'Decoration & Setup', amount: 0 },
     ],
     selectedImages: [] as string[],
     leadId: ''
@@ -435,9 +435,9 @@ export default function VendorDashboard() {
       const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
       await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueProfile.$id, {
         venueName: venueProfile.venueName,
-        capacity: parseInt(String(venueProfile.capacity || '0')), 
-        perPlateVeg: String(venueProfile.perPlateVeg || '0'),
-        perPlateNonVeg: String(venueProfile.perPlateNonVeg || '0'),
+        capacity: Math.max(1, Math.min(10000, parseInt(String(venueProfile.capacity)))), 
+        perPlateVeg: parseInt(String(venueProfile.perPlateVeg || 0)),
+        perPlateNonVeg: parseInt(String(venueProfile.perPlateNonVeg || 0)),
         amenities: venueProfile.amenities,
         eventTypes: venueProfile.eventTypes,
         packages: venueProfile.packages

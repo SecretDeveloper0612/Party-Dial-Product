@@ -30,7 +30,7 @@ const plans = [
     price: '11',
     save: '0%',
     desc: 'One month introductory offer',
-    features: ['Valid for 30 Days', 'Full Platform Access', 'Direct Lead Alerts', 'Max 3 Photos'],
+    features: ['Offer Available Till 30 April', 'Full Platform Access', 'Direct Lead Alerts', 'Max 3 Photos'],
     color: 'bg-white border-pd-pink/20 text-slate-900',
     btnColor: 'bg-pd-pink shadow-pd-pink/20',
     isTrial: true
@@ -46,7 +46,7 @@ export default function SubscriptionPage() {
   const [razorpayKeyId, setRazorpayKeyId] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const isOfferValid = new Date() < new Date('2026-04-20T23:59:59');
+  const isOfferValid = new Date() < new Date('2026-04-30T23:59:59');
 
   React.useEffect(() => {
     const fetchConfig = async () => {
@@ -150,7 +150,7 @@ export default function SubscriptionPage() {
       totalAmount = parseInt(plan.price.replace(',', '')) * 365;
     }
 
-    const amountInPaise = Math.round(totalAmount * 1.18 * 100);
+    const amountInPaise = selectedPlan === 'trial_30' ? 1100 : Math.round(totalAmount * 1.18 * 100);
 
     try {
       setIsSaving(true);
@@ -301,7 +301,7 @@ export default function SubscriptionPage() {
                    </div>
                    {plan.id !== 'free' && (
                      <p className={`text-[9px] font-black uppercase tracking-widest opacity-60 ${plan.id === 'pax_100_200' ? 'text-white' : 'text-slate-400'}`}>
-                        Total: ₹{plan.id === 'trial_30' ? (11 * 1.18).toFixed(2) : (parseInt(plan.price.replace(',', '')) * 365).toLocaleString('en-IN')} {plan.id === 'trial_30' ? '/ Month' : '/ Year'} <span className="text-[7px] italic">(Incl. 18% GST)</span>
+                        Total: ₹{plan.id === 'trial_30' ? '11' : (parseInt(plan.price.replace(',', '')) * 365).toLocaleString('en-IN')} {plan.id === 'trial_30' ? '/ Month' : '/ Year'}{plan.id !== 'trial_30' && <span className="text-[7px] italic"> (Incl. 18% GST)</span>}
                      </p>
                    )}
                 </div>
@@ -314,7 +314,7 @@ export default function SubscriptionPage() {
                     </span>
                   </div>
                   <p className={`text-xl font-black italic leading-none ${plan.id === 'pax_100_200' ? 'text-white' : 'bg-gradient-to-r from-red-500 to-purple-600 bg-clip-text text-transparent'}`}>
-                     {plan.id === 'trial_30' ? '30 Full Days' : 'Unlimited Leads'}
+                     {plan.id === 'trial_30' ? 'Offer Available Till 30 April' : 'Unlimited Leads'}
                   </p>
                 </div>
 
@@ -335,14 +335,14 @@ export default function SubscriptionPage() {
                     if (isOfferValid) {
                       setShowConfirmModal(true);
                     } else {
-                      alert("This offer has expired as of April 20th.");
+                      alert("This offer has expired as of April 30th.");
                     }
                   }}
                   disabled={!isOfferValid}
                   className={`w-full py-5 rounded-[22px] text-[10px] font-black uppercase tracking-[0.25em] italic transition-all active:scale-95 ${
                     !isOfferValid 
                       ? 'bg-slate-200 text-slate-400 cursor-not-allowed' 
-                      : (plan.id === 'pax_100_200' ? 'bg-white text-pd-pink' : 'bg-slate-900 text-white')
+                      : 'bg-slate-900 text-white'
                   } shadow-xl`}
                 >
                    {isOfferValid ? `Select ${plan.name}` : "OFFER EXPIRED"}
@@ -391,13 +391,13 @@ export default function SubscriptionPage() {
                         <span className="text-xl font-black italic text-slate-900">₹{plans[0].price}</span>
                       </div>
                       <div className="flex justify-between items-center text-slate-400 mb-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest italic">GST (18%)</span>
-                        <span className="text-sm font-bold italic">₹{(parseFloat(plans[0].price) * 0.18).toFixed(2)}</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest italic">{selectedPlan === 'trial_30' ? 'Tax' : 'GST (18%)'}</span>
+                        <span className="text-sm font-bold italic">₹{selectedPlan === 'trial_30' ? '0.00' : (parseFloat(plans[0].price) * 0.18).toFixed(2)}</span>
                       </div>
                       <div className="h-px bg-slate-200 mb-4" />
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-900 italic">Total Payable</span>
-                        <span className="text-2xl font-black italic text-pd-pink">₹{(parseFloat(plans[0].price) * 1.18).toFixed(2)}</span>
+                        <span className="text-2xl font-black italic text-pd-pink">₹{selectedPlan === 'trial_30' ? '11.00' : (parseFloat(plans[0].price) * 1.18).toFixed(2)}</span>
                       </div>
                     </div>
 
@@ -429,7 +429,7 @@ export default function SubscriptionPage() {
                       </>
                     )}
                   </button>
-                  <p className="text-center mt-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">100% Refundable within 24 hours if unsatisfied.</p>
+                  <p className="text-center mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Secure & SSL Encrypted Payment Process</p>
                 </div>
               </motion.div>
             </div>

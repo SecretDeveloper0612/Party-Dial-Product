@@ -135,6 +135,7 @@ export default function VenueSignupPage() {
     if (!formData.city) newErrors.city = 'City is required';
     if (!formData.pincode) newErrors.pincode = 'Pincode is required';
     if (!formData.venueType) newErrors.venueType = 'Venue type is required';
+    if (!formData.capacity) newErrors.capacity = 'Guest capacity is required';
     if (!formData.password) newErrors.password = 'Password is required';
     else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
@@ -499,6 +500,7 @@ export default function VenueSignupPage() {
                       {capacityRanges.map(r => <option key={r} value={r}>{r} guests</option>)}
                     </select>
                   </div>
+                  {errors.capacity && <p className="text-[9px] text-red-500 font-bold pl-1">{errors.capacity}</p>}
                 </div>
 
                 {/* Dummy spacer for grid balance if needed */}

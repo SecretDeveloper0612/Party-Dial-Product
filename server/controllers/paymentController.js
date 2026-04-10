@@ -23,6 +23,18 @@ exports.createOrder = async (req, res) => {
       receipt,
     };
 
+    // ── PROMOTIONAL DEADLINE CHECK ──
+    // The ₹11 trial plan (1100 paise) is only valid until April 30th, 2026.
+    if (parseInt(String(amount)) === 1100) {
+        const deadline = new Date('2026-04-30T23:59:59');
+        if (new Date() > deadline) {
+            return res.status(403).json({ 
+                status: 'error', 
+                message: "The ₹11 promotional offer has expired. Please select a standard subscription plan." 
+            });
+        }
+    }
+
     const order = await razorpay.orders.create(options);
     res.json(order);
   } catch (error) {

@@ -342,12 +342,46 @@ const DashboardSettings = ({
                                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">Guest Capacity Range</label>
                                      <div className="relative group">
                                         <Users className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-pd-pink transition-colors" size={18} />
-                                        <input 
-                                          type="text" 
-                                          value={venueProfile?.capacity || ""} 
-                                          onChange={(e) => handleProfileUpdate('capacity', e.target.value)}
-                                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-5 pl-16 pr-8 text-sm font-black italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner" 
-                                        />
+                                        <select 
+                                          value={(() => {
+                                             const cap = parseInt(venueProfile?.capacity);
+                                             if (cap >= 5001) return '5000+';
+                                             if (cap >= 2001) return '2000-5000';
+                                             if (cap >= 1001) return '1000-2000';
+                                             if (cap >= 501)  return '500-1000';
+                                             if (cap >= 201)  return '200-500';
+                                             if (cap >= 101)  return '100-200';
+                                             if (cap >= 51)   return '50-100';
+                                             if (cap >= 1)    return '0-50';
+                                             return '';
+                                          })()} 
+                                          onChange={(e) => {
+                                             const val = e.target.value;
+                                             if (!val) {
+                                                handleProfileUpdate('capacity', 0);
+                                                return;
+                                             }
+                                             let numericCap = 0;
+                                             if (val === '5000+') {
+                                                numericCap = 10000;
+                                             } else if (val.includes('-')) {
+                                                const parts = val.split('-');
+                                                numericCap = parseInt(parts[parts.length - 1]) || 0;
+                                             }
+                                             handleProfileUpdate('capacity', numericCap);
+                                          }}
+                                          className="w-full h-16 bg-slate-50 border border-slate-100 rounded-2xl pl-16 pr-8 text-sm font-black italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner appearance-none"
+                                        >
+                                           <option value="">Select Capacity</option>
+                                           <option value="0-50">0-50 Guests</option>
+                                           <option value="50-100">50-100 Guests</option>
+                                           <option value="100-200">100-200 Guests</option>
+                                           <option value="200-500">200-500 Guests</option>
+                                           <option value="500-1000">500-1000 Guests</option>
+                                           <option value="1000-2000">1000-2000 Guests</option>
+                                           <option value="2000-5000">2000-5000 Guests</option>
+                                           <option value="5000+">5000+ Guests</option>
+                                        </select>
                                      </div>
                                   </div>
                                </div>
@@ -507,30 +541,7 @@ const DashboardSettings = ({
                            </div>
                         </div>
 
-                        <section>
-                           <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Transaction Trail</h3>
-                           <div className="space-y-4">
-                              {[
-                                 { date: 'Dec 24, 2025', amount: '₹14,999', status: 'Success' },
-                                 { date: 'Nov 24, 2025', amount: '₹14,999', status: 'Success' },
-                                 { date: 'Oct 24, 2025', amount: '₹14,999', status: 'Success' }
-                              ].map((inv, i) => (
-                                 <div key={i} className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl hover:bg-white border border-transparent hover:border-slate-100 transition-all cursor-pointer group">
-                                    <div className="flex items-center gap-6">
-                                       <FileText size={20} className="text-slate-300 group-hover:text-slate-900" />
-                                       <div>
-                                          <p className="text-xs font-black italic text-slate-900">{inv.date}</p>
-                                          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Elite Subscription Auto-Renewal</p>
-                                       </div>
-                                    </div>
-                                    <div className="text-right">
-                                       <p className="text-sm font-black italic text-slate-900 mb-1">{inv.amount}</p>
-                                       <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded-full">{inv.status}</span>
-                                    </div>
-                                 </div>
-                              ))}
-                           </div>
-                        </section>
+
                      </motion.div>
                 )}
 

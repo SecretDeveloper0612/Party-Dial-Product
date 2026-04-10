@@ -458,7 +458,7 @@ const QuotationManager = ({
                                   value={quoteData.guestCount}
                                   onChange={(e) => setQuoteData({ ...quoteData, guestCount: e.target.value })}
                                   className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl py-4 px-6 text-[13px] font-bold text-slate-900 outline-none focus:border-pink-500 focus:bg-white transition-all shadow-sm"
-                                  placeholder="500"
+                                  placeholder="Guests Pax"
                                />
                                <Users size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300" />
                             </div>

@@ -32,28 +32,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // ── MASTER ADMIN FALLBACK ──
-      // This allows initial access to create real employees in the database
-      if (username === "admin@partydial.com" && password === "Admin123") {
-        const masterUser = {
-          $id: "master_admin",
-          name: "Master Administrator",
-          email: "admin@partydial.com",
-          prefs: {
-            role: "Super Admin",
-            moduleAccess: JSON.stringify(["Dashboard", "Venues", "Users", "Leads", "Billing", "Approvals"])
-          }
-        };
-        
-        localStorage.setItem("party_admin_session", JSON.stringify({
-          token: "master_session_bypass",
-          user: masterUser,
-          timestamp: Date.now()
-        }));
-        
-        router.push("/");
-        return;
-      }
+      // Backend will handle the master admin bypass if credentials match process.env.ADMIN_EMAIL/PASS
 
       const res = await fetch(`${serverUrl}/auth/login`, {
         method: "POST",

@@ -157,7 +157,29 @@ exports.submitLead = async (req, res) => {
                 VENUES_COLLECTION_ID,
                 [Query.equal('pincode', targetPincode)]
             );
-            venuesToNotify = result.documents;
+            
+            // Filter by guest capacity (if lead has guests and venue has capacity)
+            venuesToNotify = result.documents.filter(v => {
+                // Handle range strings like '500-1000' by taking the max value
+                let capacityStr = String(v.capacity || '10000');
+                if (capacityStr.includes('-')) {
+                    capacityStr = capacityStr.split('-').pop(); // Take the upper bound
+                } else if (capacityStr.includes('+')) {
+                    capacityStr = capacityStr.replace('+', ''); // Handle '5000+'
+                }
+                const venueMaxCapacity = parseInt(capacityStr) || 10000;
+                // We assume venue can handle if lead guests <= venue capacity
+                // You could also add a min-pax check if available: (v.minPax || 0) <= safeGuests
+                return safeGuests <= venueMaxCapacity;
+            });
+
+            // Fallback: If no venues match capacity but some match pincode, maybe notify them anyway?
+            // Actually, for lead quality, let's keep it strict or return the closest match.
+            // But if strict capacity is requested:
+            if (venuesToNotify.length === 0 && result.documents.length > 0) {
+                console.log(`Pincode ${targetPincode} match found but capacity ${safeGuests} exceeded all venues. Selecting largest available.`);
+                venuesToNotify = [result.documents.sort((a,b) => (parseInt(b.capacity)||0) - (parseInt(a.capacity)||0))[0]];
+            }
         } else if (venueId && venueId !== 'BROADCAST') {
             // Fallback to specific venue if no pincode found
             try {

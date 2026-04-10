@@ -185,7 +185,7 @@ export default function CompleteProfilePage() {
         state: userData?.state || 'Uttarakhand',
         pincode: userData?.pincode || '263139',
         venueType: userData?.venueType || 'Banquet Hall',
-        capacity: parseInt(userData?.capacity || '500', 10),
+        // Removed capacity from here to avoid overwriting signup data
         // If creating new, add required defaults
         ...(docId ? {} : {
           userId: userData?.$id,
