@@ -276,11 +276,7 @@ export default function SubscriptionPage() {
                   selectedPlan === plan.id ? 'ring-2 ring-pd-pink ring-offset-8 ring-offset-slate-50 shadow-2xl' : 'shadow-pd-soft'
                 }`}
              >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-10 bg-pd-pink text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1 rounded-full shadow-lg italic z-10">
-                     <Star size={12} fill="currentColor" className="inline mr-1" /> Most Popular
-                  </div>
-                )}
+
 
                 {plan.save && plan.save !== '0%' && (
                   <div className="absolute top-6 right-6">
