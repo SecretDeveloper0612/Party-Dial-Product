@@ -82,6 +82,16 @@ export default function SubscriptionPage() {
           setVenueName(doc.venueName || '');
           setVenueId(doc.$id);
           setCurrentPlan(doc.subscriptionPlan || null);
+
+          // ── TRIGGER DAY 0 PAYMENT REMINDER ──
+          // Triggered immediately when reaching this step
+          const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+          const serverUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+          fetch(`${serverUrl}/venues/notify-onboarding`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ venueId: doc.$id })
+          }).catch(e => console.error('Onboarding notify error:', e));
         }
       } catch (err) {
         console.error('Fetch venue error:', err);
@@ -116,7 +126,8 @@ export default function SubscriptionPage() {
             subscriptionPlan: selectedPlan,
             onboardingComplete: true,
             status: 'pending',
-            isVerified: false
+            isVerified: false,
+            isPaid: selectedPlan !== 'free'
           }
         );
       }
@@ -194,7 +205,7 @@ export default function SubscriptionPage() {
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_signature: response.razorpay_signature,
-                  venueId: '', // filled server-side via updateProfile
+                  venueId: venueId,
                   venueName: venueName,
                   ownerEmail: user.email,
                   planId: selectedPlan,

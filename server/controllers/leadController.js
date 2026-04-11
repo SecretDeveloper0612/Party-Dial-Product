@@ -1,5 +1,6 @@
-const { databases, DATABASE_ID, LEADS_COLLECTION_ID, users } = require('../config/appwrite');
+const { databases, DATABASE_ID, LEADS_COLLECTION_ID, VENUES_COLLECTION_ID, users } = require('../config/appwrite');
 const { ID, Query } = require('node-appwrite');
+const axios = require('axios');
 
 /**
  * Distribute leads bulk logic
@@ -168,7 +169,7 @@ exports.getDistributionLogs = async (req, res) => {
             );
             return res.status(200).json({
                 status: 'success',
-                data: result.documents.filter(d => d.isBulk || d.notes?.includes('Bulk Lead'))
+                data: result.documents.filter(d => d.isBulk || d.notes?.includes('Bulk Lead') || d.notes?.includes('GSheet Sync'))
             });
         }
 
@@ -219,5 +220,220 @@ exports.getLeadsForUser = async (req, res) => {
             status: 'error',
             message: error.message || 'Failed to fetch assigned leads'
         });
+    }
+};
+
+/**
+ * Distribute leads to Venues (Partners)
+ * Logic:
+ * 1. Filter leads by pincode
+ * 2. Find venues in that pincode (excluding free plan)
+ * 3. Equal distribution (Round Robin)
+ */
+exports.distributeLeadsToVenues = async (req, res) => {
+    try {
+        const { leads, pincode: filterPincode } = req.body;
+
+        if (!leads || !Array.isArray(leads) || leads.length === 0) {
+            return res.status(400).json({ status: 'error', message: 'No leads provided' });
+        }
+
+        const stats = { distributed: 0, skipped: 0, noVenues: 0 };
+        const results = [];
+
+        // Fetch all verified active venues once to save API calls
+        const venueResult = await databases.listDocuments(
+            DATABASE_ID,
+            VENUES_COLLECTION_ID,
+            [
+                Query.equal('isVerified', true),
+                Query.equal('status', 'active'),
+                Query.limit(100)
+            ]
+        );
+
+        const allVenues = venueResult.documents;
+
+        for (const leadData of leads) {
+            const leadPincode = (leadData.pincode || filterPincode || "").toString().trim();
+            if (!leadPincode) {
+                stats.skipped++;
+                continue;
+            }
+
+            // Filter for pincode matching (handles comma-separated and multiple pincodes)
+            const targetVenues = allVenues.filter(v => {
+                const hasPaidPlan = v.subscriptionPlan && v.subscriptionPlan !== 'free';
+                if (!hasPaidPlan) return false;
+
+                const leadPin = (leadPincode || "").toString().trim();
+                const venuePincodes = (v.pincode || "").toString().split(',').map(p => p.trim()).filter(p => p);
+                
+                return venuePincodes.some(p => p === leadPin || p.includes(leadPin) || leadPin.includes(p));
+            });
+
+            if (targetVenues.length === 0) {
+                stats.noVenues++;
+                // Still create a 'Broadcast' lead if no venue matches
+                await databases.createDocument(
+                    DATABASE_ID,
+                    LEADS_COLLECTION_ID,
+                    ID.unique(),
+                    {
+                        venueId: 'BROADCAST',
+                        name: leadData.name,
+                        phone: leadData.phone?.toString() || '',
+                        email: leadData.email || '',
+                        eventType: leadData.eventType || 'Event',
+                        guests: parseInt(leadData.pax) || 0,
+                        notes: (leadData.notes || "") + ` | GSheet Sync | Pincode: ${leadPincode} (No matching venues)`,
+                        status: 'New',
+                        createdAt: new Date().toISOString()
+                    }
+                );
+                continue;
+            }
+
+            // Equal Distribution logic (Round Robin)
+            const venueCount = targetVenues.length;
+            const targetVenue = targetVenues[stats.distributed % venueCount];
+
+            // Deduplication logic (Don't send same lead to same venue twice)
+            try {
+                const existing = await databases.listDocuments(
+                    DATABASE_ID,
+                    LEADS_COLLECTION_ID,
+                    [
+                        Query.equal('venueId', targetVenue.$id),
+                        Query.equal('phone', leadData.phone?.toString().trim() || 'NOMATCH'),
+                        Query.limit(1)
+                    ]
+                );
+                if (existing.total > 0) {
+                    stats.skipped++;
+                    continue; // Skip this lead for this venue
+                }
+            } catch (dupErr) {
+                console.warn('Deduplication check failed, proceeding anyway:', dupErr.message);
+            }
+
+            // Safely prepare the document using only verified attributes
+            const leadDoc = {
+                venueId: targetVenue.$id,
+                name: leadData.name,
+                phone: leadData.phone?.toString() || '',
+                email: leadData.email || '',
+                eventType: leadData.eventType || 'Event',
+                guests: parseInt(leadData.pax) || 0,
+                // Embed extra metadata in notes since they might not exist as schema attributes
+                notes: `GSheet Sync | Area: ${leadData.city || 'N/A'} | Pin: ${leadPincode} | ` + (leadData.notes || `Distributed to ${targetVenue.venueName}`),
+                status: 'New',
+                createdAt: new Date().toISOString()
+            };
+
+            await databases.createDocument(
+                DATABASE_ID,
+                LEADS_COLLECTION_ID,
+                ID.unique(),
+                leadDoc
+            );
+
+            stats.distributed++;
+            results.push({ lead: leadData.name, pincode: leadPincode, assignedTo: targetVenue.venueName });
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            message: `Processed ${leads.length} leads. Distributed: ${stats.distributed}, No Venues found: ${stats.noVenues}, Skipped: ${stats.skipped}`,
+            data: results
+        });
+
+    } catch (error) {
+        console.error('Error in distributeLeadsToVenues:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+/**
+ * Internal helper for GSheet sync
+ */
+const performGSheetSync = async (sheetUrl, pincodeFilter = null) => {
+    let fetchUrl = sheetUrl.trim();
+    
+    // Support standard viewer links by converting them to export CSV links
+    // Handles /d/ID/edit, /d/ID/view, etc.
+    if (fetchUrl.includes('docs.google.com/spreadsheets') && !fetchUrl.includes('/export') && !fetchUrl.includes('/pub')) {
+        const sheetId = fetchUrl.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+        if (sheetId) {
+            fetchUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+        }
+    }
+
+    const response = await axios.get(fetchUrl);
+    const contentType = response.headers['content-type'] || '';
+    
+    // If we're getting HTML instead of CSV, it's likely a login page or error
+    if (contentType.includes('text/html') || (typeof response.data === 'string' && response.data.trim().startsWith('<!DOCTYPE html>'))) {
+        throw new Error('Google Sheet access denied. Ensure the sheet is Public or use "File -> Share -> Publish to web" and use the CSV link.');
+    }
+
+    const csvData = response.data;
+    if (typeof csvData !== 'string') {
+        throw new Error('Invalid data format received from Google Sheets.');
+    }
+    
+    // Simple CSV Parser
+    const lines = csvData.split(/\r?\n/).filter(line => line.trim());
+    if (lines.length <= 1) return { status: 'success', message: 'Sheet is empty', leads: [] };
+
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const leads = lines.slice(1).map(line => {
+        // More robust CSV splitting using regex to handle quoted commas
+        const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
+        const cleanValues = values.map(v => v.replace(/^"|"$/g, '').trim());
+        
+        const lead = {};
+        // Map headers to fields
+        headers.forEach((header, index) => {
+            const val = cleanValues[index] || "";
+            if (header.includes('name')) lead.name = val;
+            else if (header.includes('phone')) lead.phone = val;
+            else if (header.includes('event type')) lead.eventType = val;
+            else if (header.includes('event date')) lead.eventDate = val;
+            else if (header.includes('pax')) lead.pax = val;
+            else if (header.includes('pincode')) lead.pincode = val;
+            else if (header.includes('city') || header.includes('location')) lead.city = val;
+        });
+        return lead;
+    }).filter(l => l.name && l.phone);
+
+    // Optional: Filter by pincode
+    const filteredLeads = pincodeFilter ? leads.filter(l => (l.pincode || "").toString().includes(pincodeFilter.toString())) : leads;
+
+    return filteredLeads;
+};
+
+exports.performGSheetSync = performGSheetSync;
+
+/**
+ * Sync leads from Google Sheet (API endpoint)
+ */
+exports.syncGoogleSheetLeads = async (req, res) => {
+    try {
+        const { sheetUrl, pincodeFilter } = req.body;
+        if (!sheetUrl) return res.status(400).json({ status: 'error', message: 'Sheet URL or ID is required' });
+
+        const leads = await performGSheetSync(sheetUrl, pincodeFilter);
+        
+        if (Array.isArray(leads)) {
+            req.body.leads = leads;
+            return exports.distributeLeadsToVenues(req, res);
+        } else {
+            return res.status(200).json(leads);
+        }
+
+    } catch (error) {
+        console.error('Error syncing GSheet:', error);
+        return res.status(500).json({ status: 'error', message: error.message || 'Failed to fetch or parse Google Sheet. Ensure it is public or published to web.' });
     }
 };

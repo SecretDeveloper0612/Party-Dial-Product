@@ -17,11 +17,13 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const leadRoutes = require('./routes/leadRoutes');
 const configController = require('./controllers/configController');
-const { automateLeadStatus } = require('./utils/cronJobs');
+const { automateLeadStatus, automatePaymentReminders, automateProfileReminders, automateGSheetSync } = require('./utils/cronJobs');
 
 // Initialize Cron Jobs
-// Run once on startup
 automateLeadStatus();
+automatePaymentReminders();
+automateProfileReminders();
+automateGSheetSync();
 
 const app = express();
 const PORT = process.env.PORT || 5005;

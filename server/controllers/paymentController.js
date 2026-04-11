@@ -117,6 +117,33 @@ exports.verifyPayment = async (req, res) => {
       console.warn('Could not store payment record (collection may not exist):', dbErr.message);
     }
 
+    // ── UPDATE VENUE SUBSCRIPTION STATUS ──
+    try {
+      if (venueId) {
+        // Calculate expiry: ₹11 plan expires April 30, 2026. Others are 1 Year.
+        let expiryDate = new Date();
+        if (parseInt(String(amount)) === 1100) {
+            expiryDate = new Date('2026-04-30T23:59:59');
+        } else {
+            expiryDate.setFullYear(expiryDate.getFullYear() + 1); // 1-year standard
+        }
+
+        await databases.updateDocument(
+          DATABASE_ID,
+          VENUES_COLLECTION_ID,
+          venueId,
+          {
+            subscriptionPlan: planName || 'Standard',
+            subscriptionExpiry: expiryDate.toISOString(),
+            isPaid: true
+          }
+        );
+        console.log(`Venue ${venueId} updated to ${planName} plan until ${expiryDate.toISOString()}`);
+      }
+    } catch (venueErr) {
+      console.error('Failed to update venue subscription status:', venueErr.message);
+    }
+
     // Send payment confirmation email (Non-blocking but logged)
     if (ownerEmail) {
       sendPaymentConfirmationEmail(

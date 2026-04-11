@@ -135,20 +135,24 @@ exports.sendWelcomeEmail = (to, name) => {
 exports.sendProfileReminder = (to, name) => {
     const html = getBaseTemplate(`
         <h2>Almost there, ${name}! 🚀</h2>
-        <p>Your profile is looking good, but it's not quite complete yet. Completed profiles get <strong>5x more inquiries</strong> than incomplete ones.</p>
+        <p>Your registration is successful, but your venue profile is not yet visible to potential customers.</p>
+        <div class="card" style="border-left: 4px solid #f59e0b; background-color: #fffbeb;">
+            <p><strong>⚠️ Visibility Alert:</strong> Incomplete profiles will not be visible on PartyDial until all required information is completed.</p>
+        </div>
+        <p>Completed profiles get <strong>5x more inquiries</strong> than incomplete ones. Make sure to complete your profile to start receiving leads!</p>
         <div class="card">
-            <p>Missing details often include:</p>
+            <p><strong>Missing details often include:</strong></p>
             <ul>
-                <li>Cover & Gallery Photos</li>
-                <li>Clear Pricing Details</li>
-                <li>Detailed Description</li>
+                <li>High-quality Gallery Photos</li>
+                <li>Clear Pricing & Package Details</li>
+                <li>Detailed Venue Description</li>
             </ul>
         </div>
-        <p>Jump back in and finish your setup to start receiving leads!</p>
+        <p>Jump back in and finish your setup now!</p>
         <a href="https://partner.partydial.com/dashboard/onboarding" class="button">Complete My Profile</a>
-    `, "Your profile is almost complete! Finish it now to get 5x more leads.");
+    `, "Incomplete profiles will not be visible on PartyDial until completed.");
 
-    return sendEmail(to, "Boost Your Reach - Complete Your Profile! 🚀", html, "Complete your profile on PartyDial.");
+    return sendEmail(to, "Action Required: Complete your profile to go live 🚀", html, "Your profile is incomplete and not yet visible on PartyDial.");
 };
 
 /**
@@ -249,4 +253,28 @@ exports.sendProfileStatusEmail = (to, name, approved, reason = '') => {
     `, `Your venue profile has been ${statusText}.`);
 
     return sendEmail(to, `Venue Profile ${statusText}`, html, `Your venue profile status: ${statusText}`);
+};
+
+/**
+ * 9. Payment Reminder (Automated)
+ */
+exports.sendPaymentReminderEmail = (to, name) => {
+    const html = getBaseTemplate(`
+        <h2>Don't Miss Out on Your Next Booking! 📈</h2>
+        <p>Hi ${name},</p>
+        <p>Your venue profile is ready, but you're currently missing out on business. To start receiving direct leads and appearing in customer searches, you need to active your subscription.</p>
+        <div class="card">
+            <p><strong>Standard Benefits:</strong></p>
+            <ul>
+                <li>Direct leads on WhatsApp/Phone</li>
+                <li>Visibility to 1000+ monthly visitors</li>
+                <li>"Verified Partner" badge upon approval</li>
+                <li>Full control over pricing & packages</li>
+            </ul>
+        </div>
+        <p>Upgrade now and start growing your venue business today.</p>
+        <a href="https://partner.partydial.com/dashboard/pricing" class="button">Activate My Plan</a>
+    `, "Active your subscription to start receiving leads and growing your business.");
+
+    return sendEmail(to, "Action Required: Active Your Venue Subscription 📈", html, "Active your subscription on PartyDial to start receiving leads.");
 };

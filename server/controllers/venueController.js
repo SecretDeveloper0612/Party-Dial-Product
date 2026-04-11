@@ -5,12 +5,24 @@ const { sendProfileStatusEmail } = require('../utils/emailService');
 
 
 // Get all venues
-// ... (omitting unchanged getAllVenues for brevity but keeping logic)
 exports.getAllVenues = async (req, res) => {
     try {
+        const { verified, city } = req.query;
+        const queries = [Query.orderDesc('$createdAt')];
+
+        if (verified === 'true') {
+            queries.push(Query.equal('isVerified', true));
+            queries.push(Query.equal('status', 'active'));
+        }
+
+        if (city) {
+            queries.push(Query.equal('city', city));
+        }
+
         const venues = await databases.listDocuments(
             DATABASE_ID,
-            VENUES_COLLECTION_ID
+            VENUES_COLLECTION_ID,
+            queries
         );
 
         return res.status(200).json({
@@ -108,6 +120,75 @@ exports.rejectVenue = async (req, res) => {
         return res.status(500).json({
             status: 'error',
             message: error.message || 'Error rejecting venue'
+        });
+    }
+};
+
+// Update a venue
+exports.updateVenue = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updateData = req.body;
+
+        // Fields allowed to be updated by admin/authorized user
+        const allowedFields = [
+            'venueName',
+            'businessName',
+            'description',
+            'address',
+            'city',
+            'state',
+            'pincode',
+            'amenities',
+            'services',
+            'images',
+            'contactNumber',
+            'contactEmail',
+            'pricing',
+            'capacity',
+            'venueType',
+            'usp',
+            'foodType',
+            'location',
+            'gallery',
+            'socialLinks'
+        ];
+
+        const payload = {};
+        allowedFields.forEach(field => {
+            if (updateData[field] !== undefined) {
+                // Ensure capacity is a number if provided
+                if (field === 'capacity') {
+                    payload[field] = parseInt(updateData[field]) || 0;
+                } else if (typeof updateData[field] === 'object') {
+                    // For things like arrays (amenities, images) that might come as objects
+                    // Appwrite expects them in a specific format if it's a string attribute, 
+                    // but if it's an array attribute it's fine. 
+                    // Assuming standard attributes here based on existing code patterns.
+                    payload[field] = updateData[field];
+                } else {
+                    payload[field] = updateData[field];
+                }
+            }
+        });
+
+        const updated = await databases.updateDocument(
+            DATABASE_ID,
+            VENUES_COLLECTION_ID,
+            id,
+            payload
+        );
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Venue profile updated successfully',
+            data: updated
+        });
+    } catch (error) {
+        console.error('Error updating venue:', error);
+        return res.status(500).json({
+            status: 'error',
+            message: error.message || 'Error updating venue'
         });
     }
 };
@@ -512,6 +593,35 @@ exports.notifyDocSubmission = async (req, res) => {
         });
     } catch (error) {
         console.error('Error in notifyDocSubmission:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+// POST notify onboarding completion (Day 0 Reminder)
+exports.notifyOnboardingComplete = async (req, res) => {
+    try {
+        const { venueId } = req.body;
+        if (!venueId) {
+            return res.status(400).json({ status: 'error', message: 'Venue ID is required' });
+        }
+
+        const venue = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
+        
+        // Only send if not already on a paid plan
+        const hasActiveSubscription = venue.subscriptionPlan && venue.subscriptionPlan !== 'free' && venue.isPaid === true;
+        
+        if (!hasActiveSubscription && venue.contactEmail) {
+            const { sendPaymentReminderEmail } = require('../utils/emailService');
+            await sendPaymentReminderEmail(venue.contactEmail, venue.ownerName || venue.venueName);
+            console.log(`Day 0 Payment reminder sent to ${venue.contactEmail}`);
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Onboarding completion notification processed'
+        });
+    } catch (error) {
+        console.error('Error in notifyOnboardingComplete:', error);
         return res.status(500).json({ status: 'error', message: error.message });
     }
 };

@@ -234,7 +234,7 @@ export default function VenueDetailPage() {
           try {
             const baseS = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
             const baseUrl = baseS.endsWith('/api') ? baseS : `${baseS}/api`;
-            const allResp = await fetch(`${baseUrl}/venues`);
+            const allResp = await fetch(`${baseUrl}/venues?verified=true`);
             const allResult = await allResp.json();
             if (allResult.status === 'success') {
               const similar = allResult.data

@@ -55,6 +55,7 @@ interface LiveUser {
     pincode?: string;
     reportingTo?: string;
     moduleAccess?: string; // JSON string
+    assignedVenues?: string; // JSON string [id1, id2]
     status?: string;
   };
   registration: string;
@@ -71,6 +72,7 @@ interface FormData {
   pincode: string;
   reportingTo: string;
   moduleAccess: string[];
+  assignedVenues: string[];
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -159,6 +161,7 @@ function HierarchyNode({ node, allUsers }: { node: any; allUsers: LiveUser[] }) 
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function UserRoleManagement() {
   const [users, setUsers] = useState<LiveUser[]>([]);
+  const [allVenues, setAllVenues] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -175,6 +178,7 @@ export default function UserRoleManagement() {
     name: "", email: "", password: "",
     role: "BDE", region: "", state: "", city: "", pincode: "",
     reportingTo: "", moduleAccess: ["Dashboard"],
+    assignedVenues: [],
   });
 
   const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
@@ -185,7 +189,6 @@ export default function UserRoleManagement() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  // ── Fetch users ──────────────────────────────────────────────────────────────
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -204,7 +207,20 @@ export default function UserRoleManagement() {
     }
   }, [serverUrl]);
 
-  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+  const fetchVenues = useCallback(async () => {
+    try {
+      const res = await fetch(`${serverUrl}/venues`);
+      const result = await res.json();
+      if (result.status === "success") setAllVenues(result.data || []);
+    } catch (e) {
+      console.error("Failed to fetch venues", e);
+    }
+  }, [serverUrl]);
+
+  useEffect(() => { 
+    fetchUsers();
+    fetchVenues();
+  }, [fetchUsers, fetchVenues]);
 
   // ── Open modal ───────────────────────────────────────────────────────────────
   const openModal = (type: "create" | "edit", user?: LiveUser) => {
@@ -224,9 +240,10 @@ export default function UserRoleManagement() {
         pincode: user.prefs?.pincode || "",
         reportingTo: user.prefs?.reportingTo || "",
         moduleAccess: mods,
+        assignedVenues: JSON.parse(user.prefs?.assignedVenues || "[]"),
       });
     } else {
-      setForm({ name: "", email: "", password: "", role: "BDE", region: "", state: "", city: "", pincode: "", reportingTo: "", moduleAccess: ["Dashboard"] });
+      setForm({ name: "", email: "", password: "", role: "BDE", region: "", state: "", city: "", pincode: "", reportingTo: "", moduleAccess: ["Dashboard"], assignedVenues: [] });
     }
     setIsModalOpen(true);
   };
@@ -311,6 +328,10 @@ export default function UserRoleManagement() {
   const buildHierarchy = (parentId: string | null = null): any[] => {
     return users
       .filter(u => {
+        const role = u.prefs?.role;
+        const isEmployee = role && (ROLES_LIST.includes(role as any) || role === "Super Admin");
+        if (!isEmployee) return false;
+
         const rTo = u.prefs?.reportingTo || "";
         return parentId === null ? !rTo : rTo === parentId;
       })
@@ -600,9 +621,15 @@ export default function UserRoleManagement() {
                     <select value={form.reportingTo} onChange={e => setForm({ ...form, reportingTo: e.target.value })}
                       className="w-full bg-white border border-slate-100 rounded-xl p-3 text-sm font-semibold outline-none focus:border-[#b66dff] transition-all">
                       <option value="">No Manager (Top Level)</option>
-                      {users.filter(u => u.$id !== selectedUser?.$id).map(u => (
-                        <option key={u.$id} value={u.$id}>{u.name} ({u.prefs?.role || "—"})</option>
-                      ))}
+                      {users
+                        .filter(u => u.$id !== selectedUser?.$id)
+                        .filter(u => {
+                          const role = u.prefs?.role;
+                          return role && (ROLES_LIST.includes(role as any) || role === "Super Admin");
+                        })
+                        .map(u => (
+                          <option key={u.$id} value={u.$id}>{u.name} ({u.prefs?.role || "—"})</option>
+                        ))}
                     </select>
                   </div>
                 </div>
@@ -662,6 +689,60 @@ export default function UserRoleManagement() {
                       );
                     })}
                   </div>
+                </div>
+
+                {/* Venue Assignment (New Feature) */}
+                <div className="bg-slate-50 rounded-2xl p-5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Assigned Venues (Rights)</p>
+                    <span className="text-[9px] font-black text-[#b66dff] bg-purple-50 px-2 py-0.5 rounded">
+                      {form.assignedVenues.length} Selected
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                    {allVenues.length === 0 ? (
+                       <p className="text-[10px] italic text-slate-400">No venues available to assign.</p>
+                    ) : (
+                      allVenues.map(venue => {
+                        const isAssigned = form.assignedVenues.includes(venue.$id);
+                        return (
+                          <button
+                            key={venue.$id}
+                            type="button"
+                            onClick={() => {
+                              const newList = isAssigned 
+                                ? form.assignedVenues.filter(id => id !== venue.$id)
+                                : [...form.assignedVenues, venue.$id];
+                              setForm({ ...form, assignedVenues: newList });
+                            }}
+                            className={cn(
+                              "w-full p-3 rounded-xl border flex items-center gap-3 transition-all text-left",
+                              isAssigned ? "border-[#b66dff] bg-purple-50" : "border-slate-100 bg-white hover:border-purple-200"
+                            )}
+                          >
+                            <div className={cn(
+                              "w-5 h-5 rounded-md flex items-center justify-center border shrink-0",
+                              isAssigned ? "bg-[#b66dff] border-transparent shadow-lg shadow-purple-200" : "bg-white border-slate-200"
+                            )}>
+                              {isAssigned && <Check size={12} className="text-white" strokeWidth={4} />}
+                            </div>
+                            <div className="min-w-0">
+                               <p className={cn("text-xs font-bold truncate", isAssigned ? "text-slate-800" : "text-slate-500")}>
+                                 {venue.venueName || venue.businessName}
+                               </p>
+                               <p className="text-[9px] font-medium text-slate-400 uppercase tracking-tighter">
+                                 {venue.city} • {venue.$id.slice(-6).toUpperCase()}
+                               </p>
+                            </div>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                  <p className="text-[9px] text-slate-400 font-medium leading-relaxed italic">
+                    Note: Assigned users can view and edit the complete profile of these venues even if they aren't the primary owner.
+                  </p>
                 </div>
 
                 {/* Submit */}

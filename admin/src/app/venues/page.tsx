@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -22,7 +22,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
-  Mail
+  Mail,
+  Save
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -78,6 +79,40 @@ function VenueManagementContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedVenue, setSelectedVenue] = useState<LiveVenue | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<any>({});
+  const [updating, setUpdating] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  const fetchCurrentUser = useCallback(async () => {
+    const sessionStr = localStorage.getItem("party_admin_session");
+    if (!sessionStr) return;
+    
+    try {
+      const session = JSON.parse(sessionStr);
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+      const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
+      
+      const res = await fetch(`${serverUrl}/users/${session.user.$id}`);
+      const result = await res.json();
+      
+      if (result.status === "success") {
+        setCurrentUser(result.data);
+        localStorage.setItem("party_admin_session", JSON.stringify({
+          ...session,
+          user: result.data
+        }));
+      } else {
+        setCurrentUser(session.user);
+      }
+    } catch (e) {
+      console.error("Failed to fetch fresh user data", e);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
 
   const fetchVenues = async () => {
     setLoading(true);
@@ -109,16 +144,81 @@ function VenueManagementContent() {
     }
   };
 
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedVenue) return;
+    setUpdating(true);
+    try {
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+      const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
+      
+      const res = await fetch(`${serverUrl}/venues/${selectedVenue.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+      });
+      const result = await res.json();
+      if (result.status === "success") {
+        setVenues(prev => prev.map(v => v.id === selectedVenue.id ? mapDoc(result.data) : v));
+        setSelectedVenue(mapDoc(result.data));
+        setIsEditing(false);
+        // show success message?
+      }
+    } catch (e) {
+      console.error("Update failed", e);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedVenue) {
+      setEditForm({
+        venueName: selectedVenue.raw.venueName || selectedVenue.name,
+        description: selectedVenue.raw.description || "",
+        address: selectedVenue.raw.address || "",
+        city: selectedVenue.city,
+        state: selectedVenue.state,
+        pincode: selectedVenue.pincode,
+        capacity: selectedVenue.capacity,
+        venueType: selectedVenue.venueType,
+        contactNumber: selectedVenue.contactNumber,
+        contactEmail: selectedVenue.ownerEmail,
+        pricing: selectedVenue.raw.pricing || "",
+        amenities: selectedVenue.raw.amenities || [],
+        services: selectedVenue.raw.services || [],
+        images: selectedVenue.raw.images || [],
+      });
+    }
+  }, [selectedVenue]);
+
   useEffect(() => {
     fetchVenues();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialFilter]);
 
   const filteredVenues = venues.filter(
-    (v) =>
-      v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      v.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      v.ownerEmail.toLowerCase().includes(searchQuery.toLowerCase())
+    (v) => {
+      const matchesSearch = 
+        v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        v.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        v.ownerEmail.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      // If user is Super Admin, show all.
+      // Otherwise, show only if they have access via assignedVenues or territorial scope.
+      const userRole = currentUser?.prefs?.role;
+      if (userRole === "Super Admin") return matchesSearch;
+
+      const assignedVenues = JSON.parse(currentUser?.prefs?.assignedVenues || "[]");
+      const hasDirectAccess = assignedVenues.includes(v.id);
+      
+      // Territorial Check
+      const userCity = currentUser?.prefs?.city;
+      const userState = currentUser?.prefs?.state;
+      const hasTerritorialAccess = (userCity && v.city === userCity) || (userState && v.state === userState);
+
+      return matchesSearch && (hasDirectAccess || hasTerritorialAccess);
+    }
   );
 
   return (
@@ -309,6 +409,27 @@ function VenueManagementContent() {
                 {/* Actions */}
                 <div className="flex items-center gap-3 shrink-0">
                   <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      const endpoint = venue.isVerified ? 'reject' : 'approve';
+                      try {
+                        const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+                        const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
+                        const res = await fetch(`${serverUrl}/venues/${venue.id}/${endpoint}`, { method: 'PATCH' });
+                        if (res.ok) fetchVenues();
+                      } catch (err) { console.error("Toggle failed", err); }
+                    }}
+                    className={cn(
+                      "p-3 rounded-xl transition-all shadow-sm",
+                      venue.isVerified 
+                        ? "bg-emerald-50 text-emerald-600 hover:bg-rose-50 hover:text-rose-600" 
+                        : "bg-amber-50 text-amber-600 hover:bg-emerald-50 hover:text-emerald-600"
+                    )}
+                    title={venue.isVerified ? "Deactivate / Hide Profile" : "Approve / Show Profile"}
+                  >
+                    {venue.isVerified ? <ShieldCheck size={18} /> : <ShieldAlert size={18} />}
+                  </button>
+                  <button
                     onClick={() => setSelectedVenue(venue)}
                     className="p-3 rounded-xl bg-slate-50 text-[#b66dff] hover:bg-[#b66dff] hover:text-white transition-all shadow-sm"
                     title="View Details"
@@ -353,24 +474,204 @@ function VenueManagementContent() {
                   </div>
                   <div>
                     <h2 className="text-base font-black text-slate-800">
-                      {selectedVenue.name}
+                      {isEditing ? `Editing: ${selectedVenue.name}` : selectedVenue.name}
                     </h2>
                     <p className="text-xs text-slate-400 font-medium">
                       {selectedVenue.city}
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => setSelectedVenue(null)}
-                  className="p-2 hover:bg-slate-50 rounded-full transition-colors"
-                >
-                  <XCircle size={22} className="text-slate-300" />
-                </button>
+                <div className="flex items-center gap-2">
+                  {!isEditing && (
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="px-4 py-2 bg-purple-50 text-[#b66dff] rounded-lg text-xs font-black uppercase tracking-widest hover:bg-[#b66dff] hover:text-white transition-all"
+                    >
+                      Edit Profile
+                    </button>
+                  )}
+                  <button
+                    onClick={() => { setSelectedVenue(null); setIsEditing(false); }}
+                    className="p-2 hover:bg-slate-50 rounded-full transition-colors"
+                  >
+                    <XCircle size={22} className="text-slate-300" />
+                  </button>
+                </div>
               </div>
 
-              {/* Drawer Body: raw fields */}
+              {/* Drawer Body */}
               <div className="p-8 space-y-6">
-                {/* Status badges */}
+                {isEditing ? (
+                  <form onSubmit={handleUpdate} className="space-y-6 pb-20">
+                    <div className="grid grid-cols-1 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Venue Name</label>
+                        <input 
+                          type="text" 
+                          value={editForm.venueName} 
+                          onChange={e => setEditForm({...editForm, venueName: e.target.value})}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Description</label>
+                        <textarea 
+                          rows={4}
+                          value={editForm.description} 
+                          onChange={e => setEditForm({...editForm, description: e.target.value})}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Venue Type</label>
+                          <input 
+                            type="text" 
+                            value={editForm.venueType} 
+                            onChange={e => setEditForm({...editForm, venueType: e.target.value})}
+                            className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Capacity (PAX)</label>
+                          <input 
+                            type="number" 
+                            value={editForm.capacity} 
+                            onChange={e => setEditForm({...editForm, capacity: e.target.value})}
+                            className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Street Address</label>
+                        <input 
+                          type="text" 
+                          value={editForm.address} 
+                          onChange={e => setEditForm({...editForm, address: e.target.value})}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">City</label>
+                          <input 
+                            type="text" 
+                            value={editForm.city} 
+                            onChange={e => setEditForm({...editForm, city: e.target.value})}
+                            className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">State</label>
+                          <input 
+                            type="text" 
+                            value={editForm.state} 
+                            onChange={e => setEditForm({...editForm, state: e.target.value})}
+                            className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pincode</label>
+                          <input 
+                            type="text" 
+                            value={editForm.pincode} 
+                            onChange={e => setEditForm({...editForm, pincode: e.target.value})}
+                            className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Contact Number</label>
+                          <input 
+                            type="text" 
+                            value={editForm.contactNumber} 
+                            onChange={e => setEditForm({...editForm, contactNumber: e.target.value})}
+                            className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Contact Email</label>
+                          <input 
+                            type="email" 
+                            value={editForm.contactEmail} 
+                            onChange={e => setEditForm({...editForm, contactEmail: e.target.value})}
+                            className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pricing Details (Starting From)</label>
+                        <input 
+                          type="text" 
+                          value={editForm.pricing} 
+                          onChange={e => setEditForm({...editForm, pricing: e.target.value})}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                          placeholder="e.g. ₹800 per plate"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Amenities (Comma separated)</label>
+                        <textarea 
+                          rows={2}
+                          value={Array.isArray(editForm.amenities) ? editForm.amenities.join(", ") : (editForm.amenities || "")} 
+                          onChange={e => setEditForm({...editForm, amenities: e.target.value.split(",").map((s: string) => s.trim()).filter((s: string) => s !== "")})}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                          placeholder="AC, Parking, Power Backup..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Services (Comma separated)</label>
+                        <textarea 
+                          rows={2}
+                          value={Array.isArray(editForm.services) ? editForm.services.join(", ") : (editForm.services || "")} 
+                          onChange={e => setEditForm({...editForm, services: e.target.value.split(",").map((s: string) => s.trim()).filter((s: string) => s !== "")})}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                          placeholder="Catering, Decoration, Security..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Image Gallery (Comma separated URLs)</label>
+                        <textarea 
+                          rows={3}
+                          value={Array.isArray(editForm.images) ? editForm.images.join(", ") : (editForm.images || "")} 
+                          onChange={e => setEditForm({...editForm, images: e.target.value.split(",").map((s: string) => s.trim()).filter((s: string) => s !== "")})}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                          placeholder="https://image1.jpg, https://image2.jpg..."
+                        />
+                      </div>
+                    </div>
+
+                    <div className="fixed bottom-0 right-0 w-full max-w-xl p-6 bg-white border-t border-slate-100 flex gap-3 z-20">
+                      <button 
+                        type="button"
+                        onClick={() => setIsEditing(false)}
+                        className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-xl font-black text-xs uppercase tracking-widest"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        type="submit" 
+                        disabled={updating}
+                        className="flex-[2] py-4 grad-brand text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-2"
+                      >
+                        {updating ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                        {updating ? "Saving..." : "Save Venue Profile"}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    {/* Status badges */}
                 <div className="flex flex-wrap gap-2">
                   <span
                     className={cn(
@@ -406,6 +707,32 @@ function VenueManagementContent() {
                       ? "✓ Onboarded"
                       : "⏳ Onboarding Pending"}
                   </span>
+                  <button
+                    onClick={async () => {
+                      const endpoint = selectedVenue.isVerified ? 'reject' : 'approve';
+                      setUpdating(true);
+                      try {
+                        const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+                        const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
+                        const res = await fetch(`${serverUrl}/venues/${selectedVenue.id}/${endpoint}`, { method: 'PATCH' });
+                        if (res.ok) {
+                          const result = await res.json();
+                          setVenues(prev => prev.map(v => v.id === selectedVenue.id ? mapDoc(result.data) : v));
+                          setSelectedVenue(mapDoc(result.data));
+                        }
+                      } catch (err) { console.error("Toggle failed", err); }
+                      finally { setUpdating(false); }
+                    }}
+                    disabled={updating}
+                    className={cn(
+                      "px-3 py-1 rounded-full text-[10px] font-black uppercase border transition-all active:scale-95",
+                      selectedVenue.isVerified
+                        ? "bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-600 hover:text-white"
+                        : "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/20"
+                    )}
+                  >
+                    {updating ? "Processing..." : selectedVenue.isVerified ? "Remove Permission" : "Grant Approval"}
+                  </button>
                 </div>
 
                 {/* Key Details */}
@@ -450,12 +777,14 @@ function VenueManagementContent() {
                     {JSON.stringify(selectedVenue.raw, null, 2)}
                   </pre>
                 </details>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </div>
+              </>
+            )}
+          </div>
+        </motion.div>
+      </>
+    )}
+  </AnimatePresence>
+</div>
   );
 }
 

@@ -44,6 +44,7 @@ exports.createUser = async (req, res) => {
       pincode: pincode || '',
       reportingTo: reportingTo || '',
       moduleAccess: JSON.stringify(moduleAccess || ['Dashboard']),
+      assignedVenues: JSON.stringify(req.body.assignedVenues || []),
       status: 'Active',
     });
 
@@ -74,6 +75,7 @@ exports.updateUser = async (req, res) => {
       pincode: pincode || '',
       reportingTo: reportingTo || '',
       moduleAccess: JSON.stringify(moduleAccess || ['Dashboard']),
+      assignedVenues: JSON.stringify(req.body.assignedVenues || []),
       status: status || 'Active',
     });
 

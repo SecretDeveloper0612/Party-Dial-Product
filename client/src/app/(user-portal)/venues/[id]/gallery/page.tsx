@@ -37,6 +37,13 @@ export default function VenueGalleryPage() {
 
         if (result.status === 'success') {
           const doc = result.data;
+
+          if (!doc.isVerified) {
+             setVenue(null);
+             setIsLoading(false);
+             return;
+          }
+
           const { getAppwriteImageUrl, parsePhotos } = await import('@/shared/utils/image');
           const photoIds = parsePhotos(doc.photos);
           

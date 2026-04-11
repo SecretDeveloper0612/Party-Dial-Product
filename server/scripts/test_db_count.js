@@ -20,7 +20,7 @@ async function checkCounts() {
         console.log('--- DB Check ---');
         console.log('Total Venues:', venues.total);
         venues.documents.slice(0, 5).forEach(doc => {
-            console.log(`- ${doc.venueName || doc.businessName}: Verified=${doc.isVerified}, OnboardingComplete=${doc.onboardingComplete}, Status=${doc.status}`);
+            console.log(`- ${doc.venueName || doc.businessName}: Verified=${doc.isVerified}, OnboardingComplete=${doc.onboardingComplete}, Plan=${doc.subscriptionPlan}, isPaid=${doc.isPaid}`);
         });
     } catch (error) {
         console.error('Error:', error.message);

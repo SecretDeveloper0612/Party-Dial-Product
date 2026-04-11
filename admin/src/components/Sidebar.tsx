@@ -36,6 +36,7 @@ const menuItems = [
   { icon: Building2, label: "Venue Management", path: "/venues" },
   { icon: CheckSquare, label: "Approve Listings", path: "/approvals" },
   { icon: Target, label: "Lead Distribution", path: "/lead-distribution" },
+  { icon: Target, label: "Lead Dist. (Venues)", path: "/lead-distribution-venues" },
   { icon: Table, label: "Lead Matrix", path: "/crm/leads" },
   { icon: Users, label: "User & Role Management", path: "/users" },
   { icon: GitGraph, label: "Team Structure", path: "/team-tree" },
@@ -78,6 +79,7 @@ export default function Sidebar() {
        "Venue Management": "Venues",
        "Approve Listings": "Approvals",
        "Lead Distribution": "Leads",
+       "Lead Dist. (Venues)": "Leads",
        "Lead Matrix": "Leads",
        "User & Role Management": "Users",
        "Team Structure": "Users"

@@ -580,7 +580,7 @@ export default function VendorDashboard() {
           }
           
           setIsLoadingLeads(true);
-          let leadsDocuments = [];
+          let leadsDocuments: any[] = [];
           
           // Only fetch leads for active paid subscriptions
           if (profile.subscriptionPlan && profile.subscriptionPlan !== 'free') {
@@ -621,10 +621,14 @@ export default function VendorDashboard() {
 
           // Handle Onboarding & Payment Status
           const alreadyDismissed = localStorage.getItem('onboardingComplete') === 'true';
+          const isPaid = profile.isPaid === true;
+          const plan = profile.subscriptionPlan || '';
+          const needsPayment = !isPaid && (plan !== 'free');
+
           if (!profile.onboardingComplete && !alreadyDismissed) {
             setShowOnboarding(true);
-          } else if (profile.onboardingComplete && !profile.subscriptionPlan) {
-            // Priority 2: Onboarding done but Payment pending
+          } else if (profile.onboardingComplete && needsPayment) {
+            // Priority 2: Onboarding done but Payment pending or not verified
             setShowPaymentReminder(true);
           }
         } else {
@@ -669,7 +673,7 @@ export default function VendorDashboard() {
             setVenueProfile(payload);
             setShowOnboarding(!payload.onboardingComplete);
             // Auto-hide payment reminder if payment is now complete
-            if (payload.subscriptionPlan) setShowPaymentReminder(false);
+            if (payload.isPaid) setShowPaymentReminder(false);
           } else if (response.events.some(e => e.includes('databases.*.collections.' + LEADS_COLLECTION_ID))) {
             const isPaid = venueProfile?.subscriptionPlan && venueProfile?.subscriptionPlan !== 'free';
             if (isPaid && (payload.venueId === venueProfile?.$id || payload.venueId === 'BROADCAST')) {
@@ -1032,7 +1036,7 @@ export default function VendorDashboard() {
                               } catch (e) { console.error('Failed to parse avatar:', e); }
                               return (
                                  <Image 
-                                    src={`https://i.pravatar.cc/100?u=${venueProfile?.venueName || 'partner'}`} 
+                                    src={`https://i.pravatar.cc/100?u=${encodeURIComponent((venueProfile?.venueName || 'partner').trim())}`} 
                                     alt="Default Profile" 
                                     width={44} 
                                     height={44} 

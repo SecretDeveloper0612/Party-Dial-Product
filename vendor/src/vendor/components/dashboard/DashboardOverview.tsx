@@ -27,6 +27,9 @@ interface Lead {
 
 interface VenueProfile {
   venueName?: string;
+  subscriptionPlan?: string;
+  isVerified?: boolean;
+  onboardingComplete?: boolean;
 }
 
 interface Stat {
