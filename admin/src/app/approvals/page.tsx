@@ -84,7 +84,7 @@ function mapDoc(doc: any): LiveVenue {
   };
 }
 
-type FilterTab = "all" | "pending" | "approved" | "rejected";
+type FilterTab = "all" | "pending" | "approved" | "rejected" | "incomplete";
 
 export default function ApprovalsQueue() {
   const [allVenues, setAllVenues] = useState<LiveVenue[]>([]);
@@ -136,6 +136,7 @@ export default function ApprovalsQueue() {
     let list = activeTab === "pending" ? pendingVenues
       : activeTab === "approved" ? approvedVenues
       : activeTab === "rejected" ? rejectedVenues
+      : activeTab === "incomplete" ? incompleteVenues
       : allVenues;
 
     if (searchQuery) {
@@ -206,6 +207,7 @@ export default function ApprovalsQueue() {
     { id: "pending", label: "Pending Approval", count: pendingVenues.length, color: "bg-amber-500" },
     { id: "approved", label: "Approved", count: approvedVenues.length, color: "bg-emerald-500" },
     { id: "rejected", label: "Rejected", count: rejectedVenues.length, color: "bg-rose-500" },
+    { id: "incomplete", label: "Incomplete", count: incompleteVenues.length, color: "bg-indigo-500" },
     { id: "all", label: "All Venues", count: allVenues.length, color: "bg-slate-400" },
   ];
 

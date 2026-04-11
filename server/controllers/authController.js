@@ -50,8 +50,7 @@ exports.register = async (req, res) => {
                                 onboardingComplete: false,
                                 isVerified: false,
                                 status: 'active',
-                                registrationDate: new Date().toISOString(),
-                                createdAt: new Date().toISOString()
+                                registrationDate: new Date().toISOString()
                             }
                         );
             }
