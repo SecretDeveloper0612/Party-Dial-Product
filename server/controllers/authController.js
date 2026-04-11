@@ -254,23 +254,29 @@ exports.updatePushToken = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
+        console.log(`Password reset request received for: ${email}`);
+
         if (!email) {
             return res.status(400).json({ status: 'error', message: 'Email is required' });
         }
 
         // 1. Find the user by email
+        console.log('Searching for user in Appwrite...');
         const userList = await users.list([Query.equal('email', email)]);
         
         if (userList.total === 0) {
+            console.log(`User not found: ${email}`);
             // For security, don't reveal if user exists. Just return success.
             return res.status(200).json({ 
                 status: 'success', 
                 message: 'Check your email for the reset link.' 
+                // Wait, if it doesn't exist, we still say success to avoid enumeration
             });
         }
 
         const user = userList.users[0];
         const userId = user.$id;
+        console.log(`User found: ${userId}`);
 
         // 2. Generate a secure random token
         const crypto = require('crypto');
@@ -278,6 +284,7 @@ exports.forgotPassword = async (req, res) => {
         const expiresAt = Date.now() + 3600000; // 1 hour
 
         // 3. Store token in user preferences (fastest way without new collection)
+        console.log('Updating user preferences with reset token...');
         const currentPrefs = await users.getPrefs(userId);
         await users.updatePrefs(userId, {
             ...currentPrefs,
@@ -287,10 +294,17 @@ exports.forgotPassword = async (req, res) => {
 
         // 4. Send Custom Email
         const { sendPasswordResetEmail } = require('../utils/emailService');
-        const baseUrl = process.env.FRONTEND_URL || 'https://partner.partydial.com';
+        // fallback to live domain if localhost is found in production environment
+        let baseUrl = process.env.FRONTEND_URL || 'https://partner.partydial.com';
+        if (process.env.NODE_ENV === 'production' && baseUrl.includes('localhost')) {
+            baseUrl = 'https://partner.partydial.com';
+        }
+        
         const resetLink = `${baseUrl}/reset-password?userId=${userId}&token=${token}`;
+        console.log(`Sending reset email with link: ${resetLink}`);
         
         await sendPasswordResetEmail(email, resetLink);
+        console.log('Reset email sent successfully');
 
         return res.status(200).json({ 
             status: 'success', 
@@ -298,7 +312,10 @@ exports.forgotPassword = async (req, res) => {
         });
     } catch (error) {
         console.error('Error in forgotPassword:', error);
-        return res.status(500).json({ status: 'error', message: error.message });
+        return res.status(error.code || 500).json({ 
+            status: 'error', 
+            message: error.message || 'An error occurred while processing your request' 
+        });
     }
 };
 

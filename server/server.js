@@ -27,9 +27,38 @@ const app = express();
 const PORT = process.env.PORT || 5005;
 
 // Routes
-app.use(cors());
+const allowedOrigins = [
+  'https://partner.partydial.com',
+  'https://admin.partydial.com',
+  'https://partydial.com',
+  'http://localhost:3000',
+  'http://localhost:5173'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('partydial.com')) {
+      return callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      return callback(null, true); // Temporarily allow all in production to debug
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
+}));
+
 app.use(express.json());
 app.use(morgan('dev'));
+
+// Debug middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url} - Origin: ${req.headers.origin}`);
+  next();
+});
 
 // Routes
 app.get('/', (req, res) => {
