@@ -134,8 +134,7 @@ exports.verifyPayment = async (req, res) => {
           venueId,
           {
             subscriptionPlan: planName || 'Standard',
-            subscriptionExpiry: expiryDate.toISOString(),
-            isPaid: true
+            subscriptionExpiry: expiryDate.toISOString()
           }
         );
         console.log(`Venue ${venueId} updated to ${planName} plan until ${expiryDate.toISOString()}`);

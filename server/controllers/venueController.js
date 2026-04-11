@@ -608,7 +608,7 @@ exports.notifyOnboardingComplete = async (req, res) => {
         const venue = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
         
         // Only send if not already on a paid plan
-        const hasActiveSubscription = venue.subscriptionPlan && venue.subscriptionPlan !== 'free' && venue.isPaid === true;
+        const hasActiveSubscription = venue.subscriptionPlan && venue.subscriptionPlan !== 'free';
         
         if (!hasActiveSubscription && venue.contactEmail) {
             const { sendPaymentReminderEmail } = require('../utils/emailService');

@@ -126,8 +126,7 @@ export default function SubscriptionPage() {
             subscriptionPlan: selectedPlan,
             onboardingComplete: true,
             status: 'pending',
-            isVerified: false,
-            isPaid: selectedPlan !== 'free'
+            isVerified: false
           }
         );
       }

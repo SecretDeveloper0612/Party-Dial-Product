@@ -621,9 +621,9 @@ export default function VendorDashboard() {
 
           // Handle Onboarding & Payment Status
           const alreadyDismissed = localStorage.getItem('onboardingComplete') === 'true';
-          const isPaid = profile.isPaid === true;
           const plan = profile.subscriptionPlan || '';
-          const needsPayment = !isPaid && (plan !== 'free');
+          const isPaidStatus = !!(plan && plan !== 'free');
+          const needsPayment = !isPaidStatus;
 
           if (!profile.onboardingComplete && !alreadyDismissed) {
             setShowOnboarding(true);
