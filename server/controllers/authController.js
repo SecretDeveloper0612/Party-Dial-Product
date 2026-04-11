@@ -259,33 +259,83 @@ exports.forgotPassword = async (req, res) => {
             return res.status(400).json({ status: 'error', message: 'Email is required' });
         }
 
-        const project = process.env.APPWRITE_PROJECT_ID;
-        const endpoint = process.env.APPWRITE_ENDPOINT;
+        // 1. Find the user by email
+        const userList = await users.list([Query.equal('email', email)]);
         
-        // Use Appwrite to create a recovery
-        // The recovery link should point to your frontend
-        const redirectUrl = process.env.RESET_PASSWORD_URL || 'https://vendor.partydial.in/reset-password';
-        
-        // We use a temporary account service to create the recovery
-        // Note: For backend SDK, we might need a different approach if we want to send the email OURSELVES
-        // But Appwrite's createRecovery sends its own email.
-        // If the user wants to use OUR email system, we can't easily get the 'secret' from Appwrite via API
-        // unless we use a custom token system or Appwrite's internal API.
-        
-        // Let's assume for now we just provide the structure for manual email if they had a token.
-        // For now, I'll just implement the email trigger logic if they provide a token.
+        if (userList.total === 0) {
+            // For security, don't reveal if user exists. Just return success.
+            return res.status(200).json({ 
+                status: 'success', 
+                message: 'Check your email for the reset link.' 
+            });
+        }
+
+        const user = userList.users[0];
+        const userId = user.$id;
+
+        // 2. Generate a secure random token
+        const crypto = require('crypto');
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiresAt = Date.now() + 3600000; // 1 hour
+
+        // 3. Store token in user preferences (fastest way without new collection)
+        const currentPrefs = await users.getPrefs(userId);
+        await users.updatePrefs(userId, {
+            ...currentPrefs,
+            resetToken: token,
+            resetExpires: expiresAt
+        });
+
+        // 4. Send Custom Email
         const { sendPasswordResetEmail } = require('../utils/emailService');
+        const baseUrl = process.env.FRONTEND_URL || 'https://partner.partydial.com';
+        const resetLink = `${baseUrl}/reset-password?userId=${userId}&token=${token}`;
         
-        // Mocking the recovery link for demonstration as requested by the user's specific scenario list
-        const mockResetLink = `${redirectUrl}?userId=MOCK_ID&secret=MOCK_SECRET`;
-        await sendPasswordResetEmail(email, mockResetLink);
+        await sendPasswordResetEmail(email, resetLink);
 
         return res.status(200).json({ 
             status: 'success', 
-            message: 'If an account exists with this email, a reset link has been sent.' 
+            message: 'Password reset link has been sent to your email.' 
         });
     } catch (error) {
         console.error('Error in forgotPassword:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+// Reset Password (Verify Token & Update)
+exports.resetPassword = async (req, res) => {
+    try {
+        const { userId, token, password } = req.body;
+        
+        if (!userId || !token || !password) {
+            return res.status(400).json({ status: 'error', message: 'All fields are required' });
+        }
+
+        // 1. Get user preferences
+        const prefs = await users.getPrefs(userId);
+        
+        // 2. Validate token and expiry
+        if (!prefs.resetToken || prefs.resetToken !== token || Date.now() > prefs.resetExpires) {
+            return res.status(400).json({ 
+                status: 'error', 
+                message: 'Invalid or expired reset link. Please request a new one.' 
+            });
+        }
+
+        // 3. Update password (using Admin SDK users service)
+        await users.updatePassword(userId, password);
+
+        // 4. Clear the reset token
+        const { resetToken, resetExpires, ...remainingPrefs } = prefs;
+        await users.updatePrefs(userId, remainingPrefs);
+
+        return res.status(200).json({ 
+            status: 'success', 
+            message: 'Password has been reset successfully.' 
+        });
+    } catch (error) {
+        console.error('Error in resetPassword:', error);
         return res.status(500).json({ status: 'error', message: error.message });
     }
 };

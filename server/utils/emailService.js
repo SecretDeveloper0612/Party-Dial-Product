@@ -123,7 +123,7 @@ exports.sendWelcomeEmail = (to, name) => {
                 <li>Add your menu and pricing</li>
             </ul>
         </div>
-        <a href="https://vendor.partydial.com/dashboard" class="button">Go to Dashboard</a>
+        <a href="https://partner.partydial.com/dashboard" class="button">Go to Dashboard</a>
     `, "Welcome to PartyDial! Let's get started on showcasing your venue.");
 
     return sendEmail(to, `Welcome to ${APP_NAME}! 🎊`, html, `Welcome to ${APP_NAME}, ${name}!`);
@@ -145,7 +145,7 @@ exports.sendProfileReminder = (to, name) => {
             </ul>
         </div>
         <p>Jump back in and finish your setup to start receiving leads!</p>
-        <a href="https://vendor.partydial.com/dashboard/onboarding" class="button">Complete My Profile</a>
+        <a href="https://partner.partydial.com/dashboard/onboarding" class="button">Complete My Profile</a>
     `, "Your profile is almost complete! Finish it now to get 5x more leads.");
 
     return sendEmail(to, "Boost Your Reach - Complete Your Profile! 🚀", html, "Complete your profile on PartyDial.");
@@ -186,7 +186,7 @@ exports.sendDocStatusEmail = (to, name, status, reason = '') => {
                 `<p>Unfortunately, we couldn't verify your documents at this time.</p><p><strong>Reason:</strong> ${reason}</p>`
             }
         </div>
-        ${!isApproved ? '<a href="https://vendor.partydial.com/dashboard/onboarding" class="button">Re-upload Documents</a>' : ''}
+        ${!isApproved ? '<a href="https://partner.partydial.com/dashboard/onboarding" class="button">Re-upload Documents</a>' : ''}
     `, `Your verification status has been updated to ${statusText}.`);
 
     return sendEmail(to, `Verification Update: ${statusText}`, html, `Your verification status: ${statusText}`);
@@ -221,7 +221,7 @@ exports.sendPaymentConfirmationEmail = (to, name, planName, amount) => {
             <p>Date: ${new Date().toLocaleDateString()}</p>
         </div>
         <p>Your subscription is now active. You can now access all premium features of ${planName}.</p>
-        <a href="https://vendor.partydial.com/dashboard" class="button">Go to Dashboard</a>
+        <a href="https://partner.partydial.com/dashboard" class="button">Go to Dashboard</a>
     `, `Payment of ₹${amount} for ${planName} was successful.`);
 
     return sendEmail(to, `Payment Confirmation - ${planName} 💰`, html, `Payment successful for ${planName}.`);
@@ -245,7 +245,7 @@ exports.sendProfileStatusEmail = (to, name, approved, reason = '') => {
                 `<p>Your venue listing was not approved at this time.</p><p><strong>Reason:</strong> ${reason}</p>`
             }
         </div>
-        ${!approved ? '<a href="https://vendor.partydial.com/dashboard/profile" class="button">Update Profile</a>' : ''}
+        ${!approved ? '<a href="https://partner.partydial.com/dashboard/profile" class="button">Update Profile</a>' : ''}
     `, `Your venue profile has been ${statusText}.`);
 
     return sendEmail(to, `Venue Profile ${statusText}`, html, `Your venue profile status: ${statusText}`);
