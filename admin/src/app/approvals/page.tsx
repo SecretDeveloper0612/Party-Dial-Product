@@ -84,6 +84,20 @@ function mapDoc(doc: any): LiveVenue {
   };
 }
 
+const getCapacityLabel = (capacity: any) => {
+  const cap = parseInt(capacity);
+  if (isNaN(cap)) return "0";
+  if (cap >= 5001) return "5000+";
+  if (cap >= 2001) return "2000-5000";
+  if (cap >= 1001) return "1000-2000";
+  if (cap >= 501)  return "500-1000";
+  if (cap >= 201)  return "200-500";
+  if (cap >= 101)  return "100-200";
+  if (cap >= 51)   return "50-100";
+  if (cap >= 1)    return "0-50";
+  return "0-50";
+};
+
 type FilterTab = "all" | "pending" | "approved" | "rejected" | "incomplete";
 
 export default function ApprovalsQueue() {
@@ -109,8 +123,12 @@ export default function ApprovalsQueue() {
   const fetchVenues = useCallback(async () => {
     setLoading(true);
     setError(null);
+    console.log('Fetching venues from:', `${serverUrl}/venues`);
     try {
       const res = await fetch(`${serverUrl}/venues`, { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+      }
       const result = await res.json();
       if (result.status === "success") {
         setAllVenues((result.data || []).map(mapDoc));
@@ -151,13 +169,22 @@ export default function ApprovalsQueue() {
 
   const handleApprove = async (venue: LiveVenue) => {
     setProcessingId(venue.id);
+    const targetUrl = `${serverUrl}/venues/${venue.id}/approve`;
+    console.log('Attempting approval at:', targetUrl);
     try {
-      const res = await fetch(`${serverUrl}/venues/${venue.id}/approve`, {
+      const res = await fetch(targetUrl, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
       });
-      const result = await res.json();
-      if (result.status === "success") {
+      
+      let result;
+      try {
+        result = await res.json();
+      } catch (e) {
+        throw new Error(`Failed to parse server response as JSON. Status: ${res.status}`);
+      }
+
+      if (res.ok && result.status === "success") {
         setAllVenues(prev => prev.map(v => v.id === venue.id
           ? { ...v, isVerified: true, status: "active" }
           : v
@@ -165,10 +192,11 @@ export default function ApprovalsQueue() {
         showToast(`✓ ${venue.name} has been approved and activated!`, "success");
         if (selectedVenue?.id === venue.id) setSelectedVenue({ ...selectedVenue, isVerified: true, status: "active" });
       } else {
-        showToast(result.message || "Approval failed.", "error");
+        showToast(result.message || `Approval failed (Status: ${res.status})`, "error");
       }
-    } catch {
-      showToast("Server error during approval.", "error");
+    } catch (err: any) {
+      console.error('Approval request failed:', err);
+      showToast(`Network or Server error: ${err.message}`, "error");
     } finally {
       setProcessingId(null);
     }
@@ -414,7 +442,7 @@ export default function ApprovalsQueue() {
                         <span className="text-[9px] font-bold text-slate-400">· {venue.venueType}</span>
                       )}
                       {venue.capacity > 0 && (
-                        <span className="text-[9px] font-bold text-slate-400">· {venue.capacity} PAX</span>
+                        <span className="text-[9px] font-bold text-slate-400">· {getCapacityLabel(venue.capacity)} Guests</span>
                       )}
                     </div>
                   </div>
@@ -516,7 +544,7 @@ export default function ApprovalsQueue() {
                     { label: "Venue Type", val: selectedVenue.venueType },
                     { label: "City", val: `${selectedVenue.city}${selectedVenue.state ? `, ${selectedVenue.state}` : ""}` },
                     { label: "Pincode", val: selectedVenue.pincode },
-                    { label: "Capacity", val: selectedVenue.capacity > 0 ? `${selectedVenue.capacity} PAX` : "—" },
+                    { label: "Capacity", val: selectedVenue.capacity > 0 ? getCapacityLabel(selectedVenue.capacity) : "—" },
                     { label: "Contact", val: selectedVenue.contactNumber },
                     { label: "Email", val: selectedVenue.ownerEmail },
                     { label: "Plan", val: selectedVenue.subscriptionPlan || "Free" },
@@ -636,6 +664,15 @@ export default function ApprovalsQueue() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Debug Info (Only in dev or for troubleshooting) */}
+      <div className="mt-20 pt-8 border-t border-slate-100 flex items-center justify-between opacity-30 hover:opacity-100 transition-opacity">
+        <p className="text-[10px] font-medium text-slate-400 italic">
+          Target API: <span className="font-bold text-[#b66dff]">{serverUrl}</span> | 
+          Env Base: <span className="font-bold">{process.env.NEXT_PUBLIC_SERVER_URL || 'NONE (Using Fallback)'}</span>
+        </p>
+        <p className="text-[10px] font-medium text-slate-400">Admin Panel v2.1.0</p>
+      </div>
 
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }

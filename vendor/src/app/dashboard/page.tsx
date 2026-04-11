@@ -580,15 +580,26 @@ export default function VendorDashboard() {
           }
           
           setIsLoadingLeads(true);
-          const leadsResult = await databases.listDocuments(DATABASE_ID, LEADS_COLLECTION_ID, [
-            Query.or([
-              Query.equal('venueId', profile.$id),
-              Query.equal('venueId', 'BROADCAST')
-            ]),
-            Query.orderDesc('$createdAt')
-          ]);
+          let leadsDocuments = [];
+          
+          // Only fetch leads for active paid subscriptions
+          if (profile.subscriptionPlan && profile.subscriptionPlan !== 'free') {
+            try {
+              const leadsResult = await databases.listDocuments(DATABASE_ID, LEADS_COLLECTION_ID, [
+                Query.or([
+                  Query.equal('venueId', profile.$id),
+                  Query.equal('venueId', 'BROADCAST')
+                ]),
+                Query.orderDesc('$createdAt')
+              ]);
+              leadsDocuments = leadsResult.documents;
+            } catch (leadFetchErr) {
+              console.warn('Failed to fetch leads:', leadFetchErr);
+            }
+          }
+
           if (isMounted) {
-            setRecentLeads(leadsResult.documents.map(doc => ({
+            setRecentLeads(leadsDocuments.map(doc => ({
               id: doc.$id,
               name: doc.name,
               phone: doc.phone || '+91 98765 43210',
@@ -660,7 +671,8 @@ export default function VendorDashboard() {
             // Auto-hide payment reminder if payment is now complete
             if (payload.subscriptionPlan) setShowPaymentReminder(false);
           } else if (response.events.some(e => e.includes('databases.*.collections.' + LEADS_COLLECTION_ID))) {
-            if (payload.venueId === venueProfile?.$id || payload.venueId === 'BROADCAST') {
+            const isPaid = venueProfile?.subscriptionPlan && venueProfile?.subscriptionPlan !== 'free';
+            if (isPaid && (payload.venueId === venueProfile?.$id || payload.venueId === 'BROADCAST')) {
                const mapped = {
                   id: payload.$id,
                   name: payload.name,
@@ -1081,23 +1093,66 @@ export default function VendorDashboard() {
             )}
 
             {activeTab === 'leads' && (
-              <LeadInbox 
-                filteredAdvancedLeads={filteredAdvancedLeads}
-                leadFilter={leadFilter}
-                setLeadFilter={setLeadFilter}
-                updateLeadStatus={updateLeadStatus}
-                setActiveTab={setActiveTab}
-                setQuoteData={setQuoteData}
-              />
+              (venueProfile?.subscriptionPlan && venueProfile?.subscriptionPlan !== 'free') ? (
+                <LeadInbox 
+                  filteredAdvancedLeads={filteredAdvancedLeads}
+                  leadFilter={leadFilter}
+                  setLeadFilter={setLeadFilter}
+                  updateLeadStatus={updateLeadStatus}
+                  setActiveTab={setActiveTab}
+                  setQuoteData={setQuoteData}
+                />
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center justify-center min-h-[500px] bg-white rounded-[40px] border border-slate-100 shadow-pd-soft p-12 text-center"
+                >
+                   <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mb-8 mx-auto shadow-inner">
+                      <Zap size={45} className="fill-amber-500 animate-pulse" />
+                   </div>
+                   <h3 className="text-3xl font-[900] text-slate-900 uppercase italic tracking-tighter mb-4">Direct Leads Restricted</h3>
+                   <p className="text-slate-500 font-medium italic max-w-md mx-auto mb-12 leading-relaxed">
+                      Your profile is currently on the <span className="text-slate-900 font-bold">Free Plan</span>. Purchase a subscription to unlock real-time inquiries, lead management tools, and customer contact details.
+                   </p>
+                   <div className="flex flex-col sm:flex-row gap-4 items-center">
+                      <Link href="/dashboard/onboarding/subscription" className="px-10 py-5 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest rounded-3xl hover:bg-pd-pink transition-all shadow-2xl active:scale-95 flex items-center gap-3">
+                         Unlock All Features <ArrowUpRight size={18} />
+                      </Link>
+                      <button onClick={() => setActiveTab('support')} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors">
+                         Talk to Support
+                      </button>
+                   </div>
+                </motion.div>
+              )
             )}
 
             {activeTab === 'pipeline' && (
-              <LeadPipeline 
-                recentLeads={recentLeads}
-                pipelineStages={PIPELINE_STAGES}
-                updateLeadStatus={updateLeadStatus}
-                setLeadView={setLeadView}
-              />
+              (venueProfile?.subscriptionPlan && venueProfile?.subscriptionPlan !== 'free') ? (
+                <LeadPipeline 
+                  recentLeads={recentLeads}
+                  pipelineStages={PIPELINE_STAGES}
+                  updateLeadStatus={updateLeadStatus}
+                  setLeadView={setLeadView}
+                />
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center justify-center min-h-[500px] bg-white rounded-[40px] border border-white shadow-pd-soft p-12 text-center"
+                >
+                   <div className="w-24 h-24 bg-pd-purple/5 rounded-full flex items-center justify-center text-pd-purple mb-8 mx-auto">
+                      <Target size={45} className="animate-bounce" />
+                   </div>
+                   <h3 className="text-3xl font-[900] text-slate-900 uppercase italic tracking-tighter mb-4">Pipeline Locked</h3>
+                   <p className="text-slate-500 font-medium italic max-w-md mx-auto mb-12 leading-relaxed">
+                      Managing your sales pipeline and booking flow requires an active subscription. Upgrade today to start converting inquiries into bookings.
+                   </p>
+                   <Link href="/dashboard/onboarding/subscription" className="px-10 py-5 bg-pd-purple text-white text-[11px] font-black uppercase tracking-widest rounded-3xl hover:bg-slate-900 transition-all shadow-2xl active:scale-95 flex items-center gap-3">
+                      Activate Sales Pipeline <Sparkles size={18} />
+                   </Link>
+                </motion.div>
+              )
             )}
             {activeTab === 'calendar' && (
               <VenueCalendar 

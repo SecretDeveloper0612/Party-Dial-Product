@@ -33,13 +33,29 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
     }
   }, [isOpen, entityId]);
 
-  const accounts = [
-    { id: "acc1", name: "Imperial Palace Resorts", city: "Gurgaon" },
-    { id: "acc2", name: "Grand Hyatt Regency", city: "Mumbai" },
-    { id: "acc3", name: "Mehta Wedding Group", city: "Delhi" },
-    { id: "acc4", name: "The Oberoi Grand", city: "Kolkata" },
-    { id: "acc5", name: "Zaffron Banquet & Lawns", city: "Ahmedabad" },
-  ];
+  const [accounts, setAccounts] = useState<{ id: string; name: string; city: string }[]>([]);
+
+  useEffect(() => {
+    const fetchVenues = async () => {
+      try {
+        const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+        const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
+        const res = await fetch(`${serverUrl}/venues`);
+        const result = await res.json();
+        if (result.status === 'success') {
+          const mapped = result.data.map((v: any) => ({
+            id: v.$id,
+            name: v.venueName || v.name || "Unnamed Venue",
+            city: v.city || "Unknown City"
+          }));
+          setAccounts(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to fetch venues for quotation:", err);
+      }
+    };
+    if (isOpen) fetchVenues();
+  }, [isOpen]);
 
   const basePlans = [
     { id: 'bp50', name: '0-50 PAX Membership', mrp: 41, price: 33, mrpAnnual: 14965, annual: 12045, pax: 50 },

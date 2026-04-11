@@ -19,24 +19,42 @@ import {
 import { cn } from "@/lib/utils";
 import SendQuotationModal from "@/components/SendQuotationModal";
 
-const mockQuotations = [
-  { id: "QO-7842", client: "Grand Hyatt Regency", event: "Corporate Gala 2024", amount: 45000, date: "2024-03-15", status: "Sent", items: 12 },
-  { id: "QO-7843", client: "Mehta Wedding", event: "Sangeet & Wedding", amount: 125000, date: "2024-03-18", status: "Accepted", items: 45 },
-  { id: "QO-7844", client: "Tech Mahindra", event: "Annual Tech Summit", amount: 85000, date: "2024-03-20", status: "Draft", items: 8 },
-  { id: "QO-7845", client: "Oberoi International", event: "Foundation Day", amount: 32000, date: "2024-03-22", status: "Expired", items: 15 },
-  { id: "QO-7846", client: "Kapoor Family", event: "Birthday Bash", amount: 18000, date: "2024-03-25", status: "Sent", items: 5 },
-];
-
 export default function QuotationsPage() {
-  const [quotations, setQuotations] = useState(mockQuotations);
+  const [quotations, setQuotations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
+
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 100);
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchRealData = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${serverUrl}/payments`);
+        const result = await res.json();
+        if (result.status === "success") {
+          // Map payments to quotations structure for the UI
+          const mapped = (result.data || []).map((p: any) => ({
+            id: (p.razorpayPaymentId || p.$id || "").slice(-8).toUpperCase(),
+            client: p.venueName || p.ownerEmail || "Private Client",
+            event: p.planName || "Venue Subscription",
+            amount: p.amount || 0,
+            date: p.paidAt ? new Date(p.paidAt).toISOString().split('T')[0] : "—",
+            status: p.status === 'captured' ? 'Accepted' : p.status === 'failed' ? 'Expired' : 'Sent',
+            items: p.planId?.includes('pax') ? p.planId.replace('pax_', '').replace('_', '-') : "PRO"
+          }));
+          setQuotations(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to fetch billing data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRealData();
+  }, [serverUrl]);
 
   const filteredQuotations = quotations.filter(q => 
     q.client.toLowerCase().includes(searchQuery.toLowerCase()) ||

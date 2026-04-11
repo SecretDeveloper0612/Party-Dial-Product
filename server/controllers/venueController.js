@@ -177,9 +177,13 @@ exports.submitLead = async (req, res) => {
                 [Query.equal('pincode', targetPincode)]
             );
             
-            // Filter by guest capacity (if lead has guests and venue has capacity)
+            // Filter by guest capacity AND active subscription
             venuesToNotify = result.documents.filter(v => {
-                // Handle range strings like '500-1000' by taking the max value
+                // 1. Subscription Check (Paid vendors only)
+                const hasActiveSubscription = v.subscriptionPlan && v.subscriptionPlan !== 'free';
+                if (!hasActiveSubscription) return false;
+
+                // 2. Capacity Check
                 let capacityStr = String(v.capacity || '10000');
                 if (capacityStr.includes('-')) {
                     capacityStr = capacityStr.split('-').pop(); // Take the upper bound
@@ -187,27 +191,30 @@ exports.submitLead = async (req, res) => {
                     capacityStr = capacityStr.replace('+', ''); // Handle '5000+'
                 }
                 const venueMaxCapacity = parseInt(capacityStr) || 10000;
-                // We assume venue can handle if lead guests <= venue capacity
-                // You could also add a min-pax check if available: (v.minPax || 0) <= safeGuests
                 return safeGuests <= venueMaxCapacity;
             });
 
-            // Fallback: If no venues match capacity but some match pincode, maybe notify them anyway?
-            // Actually, for lead quality, let's keep it strict or return the closest match.
-            // But if strict capacity is requested:
+            // Fallback: If no paid venues match capacity but some exist, pick largest (must still be paid)
             if (venuesToNotify.length === 0 && result.documents.length > 0) {
-                console.log(`Pincode ${targetPincode} match found but capacity ${safeGuests} exceeded all venues. Selecting largest available.`);
-                venuesToNotify = [result.documents.sort((a,b) => (parseInt(b.capacity)||0) - (parseInt(a.capacity)||0))[0]];
+                const paidVenues = result.documents.filter(v => v.subscriptionPlan && v.subscriptionPlan !== 'free');
+                if (paidVenues.length > 0) {
+                    console.log(`Pincode ${targetPincode} match found but capacity ${safeGuests} exceeded all venues. Selecting largest available.`);
+                    venuesToNotify = [paidVenues.sort((a,b) => (parseInt(b.capacity)||0) - (parseInt(a.capacity)||0))[0]];
+                }
             }
         } else if (venueId && venueId !== 'BROADCAST') {
             // Fallback to specific venue if no pincode found
             try {
                 const v = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
-                venuesToNotify = [v];
+                // Even if specific venue requested, it must be paid
+                if (v.subscriptionPlan && v.subscriptionPlan !== 'free') {
+                    venuesToNotify = [v];
+                }
             } catch (e) {}
         }
 
-        // If no venues found (rare but possible), still save a single lead for global tracking
+        // If no venues found (rare or none paid), still save a single lead for global tracking
+        // This ensures the customer request isn't lost, even if no vendor is immediately eligible
         if (venuesToNotify.length === 0) {
             const lead = await databases.createDocument(
                 DATABASE_ID,
@@ -220,7 +227,7 @@ exports.submitLead = async (req, res) => {
                     email: email || '',
                     eventType,
                     guests: safeGuests,
-                    notes: notes || (rawPincode ? `Pincode: ${rawPincode}` : ''),
+                    notes: notes || (rawPincode ? `Pincode: ${rawPincode} (No Paid Venues Found)` : ''),
                     status: 'New',
                     createdAt: new Date().toISOString()
                 }
@@ -284,12 +291,22 @@ exports.getVenueLeads = async (req, res) => {
     try {
         const { venueId } = req.params;
 
-        // Fetch venue to get its creation date
+        // Fetch venue to get its creation date and subscription status
         const venue = await databases.getDocument(
             DATABASE_ID,
             VENUES_COLLECTION_ID,
             venueId
         );
+
+        // Security Check: Hide leads from free accounts
+        if (!venue.subscriptionPlan || venue.subscriptionPlan === 'free') {
+            return res.status(200).json({
+                status: 'success',
+                results: 0,
+                data: [],
+                message: 'Leads are only visible to venues with an active subscription plan.'
+            });
+        }
 
         const registrationDate = venue.createdAt || venue.$createdAt;
 

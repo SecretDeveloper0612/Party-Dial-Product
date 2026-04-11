@@ -73,15 +73,16 @@ const AMENITY_DATA: Record<string, { label: string, icon: React.ReactNode }> = {
 // Helper to map capacity integer to range label
 const getCapacityLabel = (capacity: any) => {
   const cap = parseInt(capacity);
-  if (cap === 2000) return "2000-5000";
-  if (cap === 1000) return "1000-2000";
-  if (cap === 500) return "500-1000";
-  if (cap === 200) return "200-500";
-  if (cap === 100) return "100-200";
-  if (cap === 50) return "50-100";
-  if (cap === 0) return "0-50";
-  if (cap === 5000) return "5000+";
-  return capacity?.toString() || "0";
+  if (isNaN(cap)) return "0";
+  if (cap >= 5001) return "5000+";
+  if (cap >= 2001) return "2000-5000";
+  if (cap >= 1001) return "1000-2000";
+  if (cap >= 501)  return "500-1000";
+  if (cap >= 201)  return "200-500";
+  if (cap >= 101)  return "100-200";
+  if (cap >= 51)   return "50-100";
+  if (cap >= 1)    return "0-50";
+  return "0-50";
 };
 
 export default function VenueDetailPage() {
@@ -225,7 +226,8 @@ export default function VenueDetailPage() {
             ],
             reviews: [],
             similarVenues: [],
-            packages: p_data.packages || []
+            packages: p_data.packages || [],
+            isPaid: !!doc.subscriptionPlan && doc.subscriptionPlan !== 'free'
           };
 
           // Fetch Similar Venues based on Pincode/City
@@ -295,7 +297,8 @@ export default function VenueDetailPage() {
               "Alcohol: Allowed with valid license."
             ],
             reviews: [],
-            similarVenues: []
+            similarVenues: [],
+            isPaid: true // Mock venues are treated as paid for demo purposes
           };
           setVenue(mappedMock);
       }
@@ -552,22 +555,24 @@ export default function VenueDetailPage() {
                  <span>{venue.location}</span>
                </div>
                
-               <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                 <a 
-                   href={`tel:${venue.contactNumber}`}
-                   className="flex-1 px-4 py-4 bg-pd-red text-white text-[11px] md:text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-900 transition-all flex items-center justify-center gap-3 shadow-lg shadow-pd-red/20 active:scale-95 shadow-sm"
-                 >
-                   <Phone size={16} className="shrink-0" /> <span>Call Now</span>
-                 </a>
-                 <a 
-                   href={`https://wa.me/${venue.contactNumber}?text=Hi, I am interested in ${venue.name} from PartyDial.`}
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   className="flex-1 px-4 py-4 bg-green-500 text-white text-[11px] md:text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-900 transition-all flex items-center justify-center gap-3 shadow-lg shadow-green-500/20 active:scale-95 shadow-sm"
-                 >
-                   <MessageCircle size={16} className="shrink-0" /> <span>WhatsApp</span>
-                 </a>
-               </div>
+               {venue.isPaid && (
+                 <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                   <a 
+                     href={`tel:${venue.contactNumber}`}
+                     className="flex-1 px-4 py-4 bg-pd-red text-white text-[11px] md:text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-900 transition-all flex items-center justify-center gap-3 shadow-lg shadow-pd-red/20 active:scale-95 shadow-sm"
+                   >
+                     <Phone size={16} className="shrink-0" /> <span>Call Now</span>
+                   </a>
+                   <a 
+                     href={`https://wa.me/${venue.contactNumber}?text=Hi, I am interested in ${venue.name} from PartyDial.`}
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     className="flex-1 px-4 py-4 bg-green-500 text-white text-[11px] md:text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-900 transition-all flex items-center justify-center gap-3 shadow-lg shadow-green-500/20 active:scale-95 shadow-sm"
+                   >
+                     <MessageCircle size={16} className="shrink-0" /> <span>WhatsApp</span>
+                   </a>
+                 </div>
+               )}
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 w-full lg:w-auto gap-4 md:gap-8 lg:px-10 lg:border-l border-slate-100 pt-8 lg:pt-0 border-t lg:border-t-0 mt-8 lg:mt-0 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
@@ -825,6 +830,23 @@ export default function VenueDetailPage() {
                                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{new Date(sortedReviews[idx].$createdAt).toLocaleDateString()}</p>
                                   </div>
                                </div>
+
+                               {sortedReviews[idx].vendorReply && (
+                                 <motion.div 
+                                   initial={{ opacity: 0, scale: 0.95 }}
+                                   animate={{ opacity: 1, scale: 1 }}
+                                   className="mt-6 p-5 bg-slate-900 rounded-3xl relative overflow-hidden group/reply shadow-lg"
+                                 >
+                                   <div className="absolute top-0 right-0 w-20 h-20 bg-pd-red/10 rounded-full blur-2xl -mr-8 -mt-8" />
+                                   <div className="flex items-center gap-2 mb-2 relative z-10">
+                                     <CheckCircle2 size={12} className="text-pd-red" />
+                                     <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white">Owner's Reply</span>
+                                   </div>
+                                   <p className="text-[10px] md:text-xs text-slate-300 font-medium italic leading-relaxed relative z-10">
+                                     &ldquo;{sortedReviews[idx].vendorReply}&rdquo;
+                                   </p>
+                                 </motion.div>
+                               )}
                             </div>
                           ))}
                        </motion.div>

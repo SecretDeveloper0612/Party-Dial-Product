@@ -122,36 +122,55 @@ const DashboardOverview = ({
              </div>
              
              <div className="grid grid-cols-1 gap-4">
-                {[...recentLeads].slice(0, 4).map((lead, i) => (
-                  <motion.div 
-                    key={lead.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="group p-5 bg-white border border-slate-50 rounded-[20px] flex items-center justify-between hover:border-pd-pink transition-all cursor-pointer"
-                  >
-                     <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-pd-pink/10 group-hover:text-pd-pink transition-all border border-slate-100 group-hover:border-pd-pink/20">
-                           <Users size={20} />
-                        </div>
-                        <div>
-                           <h4 className="text-sm font-black italic uppercase tracking-tight text-slate-900 leading-none mb-1.5">{lead.name}</h4>
-                           <div className="flex items-center gap-2">
-                              <span className="text-[9px] font-bold text-slate-400 flex items-center gap-1 italic lowercase">
-                                 <Clock size={10} /> {lead.date}
-                              </span>
-                              <span className="w-1 h-1 rounded-full bg-slate-200"></span>
-                              <span className="text-[8px] font-black text-pd-pink uppercase tracking-widest leading-none">{lead.event}</span>
-                           </div>
-                        </div>
+                {recentLeads.length > 0 ? (
+                  [...recentLeads].slice(0, 4).map((lead, i) => (
+                    <motion.div 
+                      key={lead.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="group p-5 bg-white border border-slate-50 rounded-[20px] flex items-center justify-between hover:border-pd-pink transition-all cursor-pointer"
+                    >
+                       <div className="flex items-center gap-5">
+                          <div className="w-12 h-12 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-pd-pink/10 group-hover:text-pd-pink transition-all border border-slate-100 group-hover:border-pd-pink/20">
+                             <Users size={20} />
+                          </div>
+                          <div>
+                             <h4 className="text-sm font-black italic uppercase tracking-tight text-slate-900 leading-none mb-1.5">{lead.name}</h4>
+                             <div className="flex items-center gap-2">
+                                <span className="text-[9px] font-bold text-slate-400 flex items-center gap-1 italic lowercase">
+                                   <Clock size={10} /> {lead.date}
+                                </span>
+                                <span className="w-1 h-1 rounded-full bg-slate-200"></span>
+                                <span className="text-[8px] font-black text-pd-pink uppercase tracking-widest leading-none">{lead.event}</span>
+                             </div>
+                          </div>
+                       </div>
+                       <div className="flex flex-col items-end gap-2">
+                          <span className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest ${lead.color}`}>
+                             {lead.status}
+                          </span>
+                       </div>
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 px-6 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                     <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-slate-300 mb-4 shadow-sm">
+                        <Zap size={20} />
                      </div>
-                     <div className="flex flex-col items-end gap-2">
-                        <span className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest ${lead.color}`}>
-                           {lead.status}
-                        </span>
-                     </div>
-                  </motion.div>
-                ))}
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6">No Leads Available</p>
+                     {venueProfile?.subscriptionPlan === 'free' || !venueProfile?.subscriptionPlan ? (
+                        <button 
+                          onClick={() => (window as any).location.href = '/dashboard/onboarding/subscription'}
+                          className="px-6 py-3 bg-white border border-slate-200 text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm"
+                        >
+                           Upgrade to receive leads
+                        </button>
+                     ) : (
+                        <p className="text-[9px] font-bold text-slate-400 italic">Waiting for your first inquiry...</p>
+                     )}
+                  </div>
+                )}
              </div>
           </div>
 

@@ -7,7 +7,7 @@ export default function RefundPolicy() {
       <h1 className="text-3xl font-bold mb-8 border-b-2 border-slate-100 pb-4 uppercase tracking-tight">
         Refund / Cancellation / Return Policy
       </h1>
-      
+
       <div className="space-y-8">
         <section>
           <h2 className="text-xl font-bold mb-4 text-red-600">1. No Refund Policy</h2>
@@ -22,7 +22,7 @@ export default function RefundPolicy() {
         <section>
           <h2 className="text-xl font-bold mb-4">2. Subscription Services</h2>
           <p>
-            For venue owners and partners, all subscription fees and promotional offers are strictly non-refundable. 
+            For venue owners and partners, all subscription fees and promotional offers are strictly non-refundable.
           </p>
           <ul className="list-disc ml-6 mt-4 space-y-2">
             <li>Immediate access to platform features is granted upon payment, which constitutes completion of the service.</li>
@@ -58,12 +58,12 @@ export default function RefundPolicy() {
         <div className="mt-12 p-8 bg-slate-50 rounded-xl border border-slate-200">
           <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4 italic">Management Information:</h2>
           <p className="text-sm text-slate-700 leading-relaxed mb-4">
-            This platform and all its financial operations are managed exclusively by <strong>Preet Tech</strong> 
+            This platform and all its financial operations are managed exclusively by <strong>Preet Tech</strong>
           </p>
           <p className="text-sm text-slate-600">
             For any billing-related clarifications, please contact us at: <br />
             <strong>Email:</strong> support@partydial.com <br />
-            <strong>Helpline:</strong> +91 90589 88455
+            <strong>Helpline:</strong> +91 88649 59977
           </p>
         </div>
 

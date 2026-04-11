@@ -10,6 +10,20 @@ interface VenueCardProps {
   index: number;
 }
 
+const getCapacityLabel = (capacity: any) => {
+  const cap = parseInt(capacity);
+  if (isNaN(cap)) return "0";
+  if (cap >= 5001) return "5000+";
+  if (cap >= 2001) return "2000-5000";
+  if (cap >= 1001) return "1000-2000";
+  if (cap >= 501)  return "500-1000";
+  if (cap >= 201)  return "200-500";
+  if (cap >= 101)  return "100-200";
+  if (cap >= 51)   return "50-100";
+  if (cap >= 1)    return "0-50";
+  return "0-50";
+};
+
 export default function VenueCard({ venue: v, index: i }: VenueCardProps) {
   return (
     <motion.div 
@@ -68,7 +82,7 @@ export default function VenueCard({ venue: v, index: i }: VenueCardProps) {
              <div className="flex flex-col border-l border-slate-100 pl-6">
                 <span className="text-[7px] md:text-[8px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">Guest Cap.</span>
                 <span className="text-sm md:text-lg font-black text-slate-900 italic">
-                  {v.capacity?.toString().includes('-') ? v.capacity : `${v.capacity}+`}
+                  {getCapacityLabel(v.capacity)}
                 </span>
              </div>
           </div>

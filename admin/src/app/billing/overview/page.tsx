@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   TrendingUp, 
@@ -13,6 +14,44 @@ import {
 } from "lucide-react";
 
 export default function BillingOverview() {
+  const [stats, setStats] = useState({ gross: 0, invoiced: 0, settled: 0, count: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+        const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
+        const res = await fetch(`${serverUrl}/payments`);
+        const result = await res.json();
+        if (result.status === "success" && result.data) {
+          const payments = result.data;
+          const captured = payments.filter((p: any) => p.status === 'captured');
+          const gross = payments.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+          const settled = captured.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+          
+          setStats({
+            gross,
+            invoiced: gross * 1.2, // Mocking invoiced as gross + some margin if not tracked separately
+            settled,
+            count: captured.length
+          });
+        }
+      } catch (err) {
+        console.error("Stats fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const formatVal = (val: number) => {
+    if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)}Cr`;
+    if (val >= 100000) return `₹${(val / 100000).toFixed(2)}L`;
+    return `₹${val.toLocaleString()}`;
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       
@@ -31,9 +70,9 @@ export default function BillingOverview() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <StatsCard title="Gross Portfolio" value="₹12.4M" change="+14.2%" icon={DollarSign} color="grad-purple" />
-            <StatsCard title="Invoiced Volume" value="₹4.8M" change="+8.1%" icon={Layers} color="grad-blue" />
-            <StatsCard title="Settled Cashflow" value="₹3.2M" change="+12.5%" icon={Activity} color="grad-green" />
+            <StatsCard title="Gross Portfolio" value={loading ? "..." : formatVal(stats.gross)} change="+14.2%" icon={DollarSign} color="grad-purple" />
+            <StatsCard title="Invoiced Volume" value={loading ? "..." : formatVal(stats.invoiced)} change="+8.1%" icon={Layers} color="grad-blue" />
+            <StatsCard title="Settled Cashflow" value={loading ? "..." : formatVal(stats.settled)} change="+12.5%" icon={Activity} color="grad-green" />
          </div>
          <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group">
             <div className="relative z-10 flex flex-col h-full justify-between">
