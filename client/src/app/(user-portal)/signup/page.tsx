@@ -17,6 +17,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import { cn } from '@/lib/utils';
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);

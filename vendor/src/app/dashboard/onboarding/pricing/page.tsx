@@ -16,13 +16,20 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+interface Package {
+  id: number;
+  name: string;
+  price: string;
+  desc: string;
+}
+
 export default function SetPricingPage() {
   const router = useRouter();
   const [perPlateVeg, setPerPlateVeg] = useState('');
   const [perPlateNonVeg, setPerPlateNonVeg] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [docId, setDocId] = useState<string | null>(null);
-  const [packages, setPackages] = useState([]);
+  const [packages, setPackages] = useState<Package[]>([]);
 
   React.useEffect(() => {
     const fetchProfile = async () => {
@@ -127,7 +134,7 @@ export default function SetPricingPage() {
     setPackages(prev => prev.filter(p => p.id !== id));
   };
 
-  const updatePackage = (id: number, field: string, value: string) => {
+  const updatePackage = (id: number, field: keyof Package, value: string) => {
     setPackages(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
   };
 
