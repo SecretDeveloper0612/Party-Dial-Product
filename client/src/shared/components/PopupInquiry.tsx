@@ -55,14 +55,20 @@ const InquiryForm = memo(({
   formData, 
   onChange, 
   onSubmit, 
-  isSubmitted,
-  isSubmitting
+  isSubmitted, 
+  isSubmitting,
+  selectedLocations,
+  onAddLocation,
+  onRemoveLocation
 }: { 
   formData: any; 
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void; 
   onSubmit: (e: React.FormEvent) => void;
   isSubmitted: boolean;
   isSubmitting: boolean;
+  selectedLocations: any[];
+  onAddLocation: (loc: any) => void;
+  onRemoveLocation: (display: string) => void;
 }) => {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
@@ -279,22 +285,32 @@ const InquiryForm = memo(({
           </div>
           <div className="space-y-1 relative" ref={pincodeRef}>
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Pincode / Location</label>
-            <div className="relative">
+            <div className={`w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 flex flex-wrap items-center gap-2 transition-all focus-within:ring-2 focus-within:ring-pd-red/20`}>
+                <MapPin size={14} className="text-slate-300 shrink-0" />
+                
+                {/* Location Tags */}
+                {selectedLocations.map((loc: any, i: number) => (
+                  <div key={i} className="flex items-center gap-1 bg-pd-red/10 text-pd-red px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider animate-in fade-in zoom-in duration-200">
+                    <span>{loc.display}</span>
+                    <button type="button" onClick={() => onRemoveLocation(loc.display)} className="hover:text-slate-900 transition-colors">
+                      <X size={10} />
+                    </button>
+                  </div>
+                ))}
+
                 <input 
                   type="text" 
                   name="pincode"
                   autoComplete="off"
-                  required
                   value={formData.pincode}
                   onChange={(e) => {
                     onChange(e);
                     setShowSuggestions(true);
                   }}
                   onFocus={() => setShowSuggestions(true)}
-                  placeholder="263139"
-                  className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-9 pr-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-pd-red/20 transition-colors placeholder:text-slate-300"
+                  placeholder={selectedLocations.length === 0 ? "263139" : "Add..."}
+                  className="flex-1 bg-transparent border-none text-sm font-medium focus:outline-none placeholder:text-slate-300 min-w-[80px] py-1"
                 />
-                <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
             </div>
 
             {/* Suggestions Dropdown */}
@@ -316,10 +332,7 @@ const InquiryForm = memo(({
                                     key={i}
                                     type="button"
                                     onClick={() => {
-                                        const syntheticEvent = {
-                                            target: { name: 'pincode', value: s.display }
-                                        } as any;
-                                        onChange(syntheticEvent);
+                                        onAddLocation(s);
                                         setShowSuggestions(false);
                                     }}
                                     className="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors border-b border-slate-50 last:border-none flex items-center justify-between"
@@ -366,7 +379,8 @@ export default function PopupInquiry() {
     guests: '',
     date: '',
     pincode: '',
-    message: ''
+    message: '',
+    selectedLocations: [] as any[]
   });
 
   useEffect(() => {
@@ -418,7 +432,9 @@ export default function PopupInquiry() {
         },
         body: JSON.stringify({
           venueId: venueId || 'BROADCAST',
-          pincode: formData.pincode,
+          pincode: formData.selectedLocations.length > 0 
+            ? formData.selectedLocations.map(l => l.display).join(',')
+            : formData.pincode,
           name: formData.name,
           phone: formData.phone,
           eventType: formData.eventType,
@@ -447,6 +463,23 @@ export default function PopupInquiry() {
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  }, []);
+
+  const handleAddLocation = useCallback((loc: any) => {
+    setFormData(prev => ({
+      ...prev,
+      pincode: '', // Clear current input
+      selectedLocations: prev.selectedLocations.find(l => l.display === loc.display) 
+        ? prev.selectedLocations 
+        : [...prev.selectedLocations, loc]
+    }));
+  }, []);
+
+  const handleRemoveLocation = useCallback((display: string) => {
+    setFormData(prev => ({
+      ...prev,
+      selectedLocations: prev.selectedLocations.filter(l => l.display !== display)
+    }));
   }, []);
 
   const closePopup = useCallback(() => setIsOpen(false), []);
@@ -482,6 +515,9 @@ export default function PopupInquiry() {
                 onSubmit={handleSubmit} 
                 isSubmitted={isSubmitted} 
                 isSubmitting={isSubmitting}
+                selectedLocations={formData.selectedLocations}
+                onAddLocation={handleAddLocation}
+                onRemoveLocation={handleRemoveLocation}
               />
             </div>
           </motion.div>

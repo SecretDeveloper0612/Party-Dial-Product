@@ -29,6 +29,11 @@ export default function SignupPage() {
     confirmPassword: '',
     agreeTerms: false
   });
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [showOtpField, setShowOtpField] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [phoneError, setPhoneError] = useState('');
 
   const passwordStrength = useMemo(() => {
     const pass = formData.password;
@@ -50,9 +55,50 @@ export default function SignupPage() {
       alert("Passwords do not match");
       return;
     }
+    if (!isPhoneVerified) {
+      alert("Please verify your phone number first");
+      return;
+    }
     setIsLoading(true);
     // Simulate signup
-    setTimeout(() => setIsLoading(false), 2000);
+    setTimeout(() => {
+      setIsLoading(false);
+      alert("Account created successfully!");
+    }, 2000);
+  };
+
+  const validatePhone = (phone: string) => {
+    // Basic Indian phone validation
+    const regex = /^[6-9]\d{9}$/;
+    if (!phone) return "Phone number is required";
+    if (!regex.test(phone)) return "Please enter a valid 10-digit Indian phone number";
+    return "";
+  };
+
+  const handleSendOtp = () => {
+    const error = validatePhone(formData.phone);
+    if (error) {
+      setPhoneError(error);
+      return;
+    }
+    setPhoneError("");
+    setIsVerifying(true);
+    // Simulate sending OTP
+    setTimeout(() => {
+      setIsVerifying(false);
+      setShowOtpField(true);
+      alert("OTP sent to your mobile number (Mock: 123456)");
+    }, 1500);
+  };
+
+  const handleVerifyOtp = () => {
+    if (otp === "123456") {
+      setIsPhoneVerified(true);
+      setShowOtpField(false);
+      alert("Phone number verified successfully!");
+    } else {
+      alert("Invalid OTP. Try 123456");
+    }
   };
 
   const handleGoogleLogin = async () => {
@@ -171,22 +217,88 @@ export default function SignupPage() {
                    />
                  </div>
                </div>
-               <div className="space-y-2">
-                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Phone</label>
-                 <div className="relative group">
-                   <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-red transition-colors">
-                      <Phone size={18} />
-                   </div>
-                   <input 
-                     type="tel" 
-                     value={formData.phone}
-                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                     placeholder="Number" 
-                     className="w-full h-14 pl-14 bg-slate-100/50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:bg-white focus:border-pd-red transition-all"
-                     required
-                   />
-                 </div>
-               </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center px-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
+                    {isPhoneVerified && (
+                      <span className="text-[9px] font-black text-green-500 uppercase flex items-center gap-1">
+                        <CheckCircle2 size={10} /> Verified
+                      </span>
+                    )}
+                  </div>
+                  <div className="relative group">
+                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-red transition-colors">
+                       <Phone size={18} />
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <input 
+                          type="tel" 
+                          disabled={isPhoneVerified || showOtpField}
+                          value={formData.phone}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                            setFormData({...formData, phone: val});
+                            if (phoneError) setPhoneError("");
+                          }}
+                          placeholder="10-digit Mobile Number" 
+                          className={cn(
+                            "w-full h-14 pl-14 bg-slate-100/50 border rounded-2xl text-xs font-bold outline-none transition-all",
+                            phoneError ? "border-red-400 focus:border-red-500" : "border-slate-100 focus:bg-white focus:border-pd-red",
+                            isPhoneVerified && "bg-green-50 border-green-100 text-green-700"
+                          )}
+                          required
+                        />
+                        <span className="absolute left-9 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">+91</span>
+                      </div>
+                      {!isPhoneVerified && !showOtpField && (
+                        <button 
+                          type="button"
+                          onClick={handleSendOtp}
+                          disabled={isVerifying || !formData.phone}
+                          className="px-4 h-14 bg-pd-red text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-pd-red/90 transition-all disabled:opacity-50 shrink-0 shadow-lg shadow-pd-red/20"
+                        >
+                          {isVerifying ? "..." : "Verify"}
+                        </button>
+                      )}
+                    </div>
+                    {phoneError && <p className="text-[9px] font-bold text-red-500 mt-1 ml-2 italic">{phoneError}</p>}
+                  </div>
+
+                  {showOtpField && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="mt-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3"
+                    >
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Enter 6-Digit OTP</p>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text"
+                          value={otp}
+                          maxLength={6}
+                          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                          placeholder="••••••"
+                          className="flex-1 h-12 px-4 bg-white border border-slate-200 rounded-xl text-center tracking-[0.5em] font-black text-lg outline-none focus:border-pd-red transition-all"
+                        />
+                        <button 
+                          type="button"
+                          onClick={handleVerifyOtp}
+                          className="px-6 h-12 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all"
+                        >
+                          Verify
+                        </button>
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={() => setShowOtpField(false)}
+                        className="text-[9px] font-bold text-slate-400 uppercase hover:text-pd-red transition-colors px-1"
+                      >
+                        Change Number
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
             </div>
 
             <div className="space-y-2">

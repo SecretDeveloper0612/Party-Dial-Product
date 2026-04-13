@@ -439,7 +439,7 @@ export default function UserRoleManagement() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {loading ? (
-                  <tr><td colSpan={6} className="py-20 text-center"><Loader2 className="animate-spin text-[#b66dff] mx-auto mb-3" size={32} /></td></tr>
+                  <tr><td colSpan={6} className="py-20 text-center"><Loader2 className="text-[#b66dff] mx-auto mb-3" size={32} /></td></tr>
                 ) : error ? (
                   <tr><td colSpan={6} className="py-16 text-center">
                     <div className="w-14 h-14 rounded-2xl bg-rose-50 mx-auto flex items-center justify-center text-rose-400 mb-3"><AlertCircle size={24} /></div>
@@ -510,13 +510,13 @@ export default function UserRoleManagement() {
                           </button>
 
                           {/* Toggle Status */}
-                          <button
-                            onClick={() => handleToggleStatus(user)}
-                            disabled={processingId === user.$id}
-                            className={cn("p-2.5 rounded-lg transition-all border", isActive ? "text-rose-500 bg-rose-50 border-rose-100 hover:bg-rose-500 hover:text-white" : "text-emerald-500 bg-emerald-50 border-emerald-100 hover:bg-emerald-500 hover:text-white", "disabled:opacity-50")}
-                          >
-                            {processingId === user.$id ? <Loader2 size={15} className="animate-spin" /> : isActive ? <UserX size={15} /> : <UserCheck size={15} />}
-                          </button>
+                           <button
+                             onClick={() => handleToggleStatus(user)}
+                             disabled={processingId === user.$id}
+                             className={cn("p-2.5 rounded-lg transition-all border", isActive ? "text-rose-500 bg-rose-50 border-rose-100 hover:bg-rose-500 hover:text-white" : "text-emerald-500 bg-emerald-50 border-emerald-100 hover:bg-emerald-500 hover:text-white", "disabled:opacity-50")}
+                           >
+                             {processingId === user.$id ? <span className="text-[10px] font-bold">...</span> : isActive ? <UserX size={15} /> : <UserCheck size={15} />}
+                           </button>
 
                           {/* Delete */}
                           <button onClick={() => setDeleteConfirm(user)} className="p-2.5 rounded-lg text-slate-400 bg-slate-50 border border-slate-100 hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all">
@@ -542,7 +542,7 @@ export default function UserRoleManagement() {
         // ── Hierarchy View ──────────────────────────────────────────────────────
         <div className="bg-white rounded-2xl p-10 border border-slate-100 min-h-[400px] overflow-x-auto">
           {loading ? (
-            <div className="flex items-center justify-center py-20"><Loader2 className="animate-spin text-[#b66dff]" size={32} /></div>
+            <div className="flex items-center justify-center py-20"><Loader2 className="text-[#b66dff]" size={32} /></div>
           ) : buildHierarchy().length === 0 ? (
             <div className="text-center py-16">
               <div className="w-14 h-14 bg-slate-100 rounded-2xl mx-auto flex items-center justify-center text-slate-300 mb-3"><GitBranch size={24} /></div>
@@ -748,8 +748,7 @@ export default function UserRoleManagement() {
                 {/* Submit */}
                 <button type="submit" disabled={saving}
                   className="w-full py-4 grad-brand text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-[1.01] transition-all flex items-center justify-center gap-3 disabled:opacity-60">
-                  {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                  {saving ? "Saving..." : modalType === "create" ? "Create User" : "Save Changes"}
+                  {saving ? "Synchronizing..." : <><Save size={16} /> {modalType === "create" ? "Create User" : "Save Changes"}</>}
                 </button>
               </form>
             </motion.div>

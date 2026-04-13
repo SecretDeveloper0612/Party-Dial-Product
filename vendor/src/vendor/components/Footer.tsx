@@ -12,7 +12,8 @@ import {
   AtSign,
   ArrowRight,
   Mail,
-  ChevronRight
+  ChevronRight,
+  Facebook
 } from 'lucide-react';
 
 export default function Footer() {
@@ -46,7 +47,18 @@ export default function Footer() {
 
             <div className="flex flex-wrap gap-3 justify-center md:justify-start">
               {[
-                { Icon: Instagram, color: 'hover:bg-pink-600' },
+                { 
+                  Icon: Facebook, 
+                  color: 'hover:bg-blue-600', 
+                  href: 'https://www.facebook.com/partydial',
+                  label: 'Facebook'
+                },
+                { 
+                  Icon: Instagram, 
+                  color: 'hover:bg-pink-600', 
+                  href: 'https://www.instagram.com/partydial_/',
+                  label: 'Instagram'
+                },
                 { 
                   Icon: () => (
                     <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] fill-current" aria-hidden="true">
@@ -54,15 +66,18 @@ export default function Footer() {
                     </svg>
                   ), 
                   color: 'hover:bg-black', 
+                  href: '#',
                   label: 'X' 
                 },
-                { Icon: Linkedin, color: 'hover:bg-blue-700' },
-                { Icon: AtSign, color: 'hover:bg-white hover:text-black', label: 'Threads' },
-                { Icon: Youtube, color: 'hover:bg-red-600' }
+                { Icon: Linkedin, color: 'hover:bg-blue-700', href: '#', label: 'LinkedIn' },
+                { Icon: AtSign, color: 'hover:bg-white hover:text-black', href: '#', label: 'Threads' },
+                { Icon: Youtube, color: 'hover:bg-red-600', href: '#', label: 'YouTube' }
               ].map((social, i) => (
                 <Link 
                   key={i} 
-                  href="#" 
+                  href={social.href || '#'} 
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`w-11 h-11 rounded-[16px] bg-white/5 border border-white/5 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg ${social.color} group`}
                   title={social.label}
                 >

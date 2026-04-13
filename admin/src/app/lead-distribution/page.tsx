@@ -332,7 +332,7 @@ export default function LeadDistributionPage() {
                   )}
                 >
                   {loading ? (
-                    <Loader2 className="animate-spin" size={20} />
+                    <Loader2  size={20} />
                   ) : (
                     <>
                       <Target size={20} />
@@ -519,7 +519,7 @@ export default function LeadDistributionPage() {
               onClick={fetchLogs}
               className="p-2 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-indigo-600 transition-all shadow-sm"
             >
-              <RefreshCw size={16} className={cn(logsLoading && "animate-spin")} />
+              <RefreshCw size={16} className={cn(logsLoading && "")} />
             </button>
           </div>
 
@@ -537,7 +537,7 @@ export default function LeadDistributionPage() {
                 {logsLoading ? (
                   <tr>
                     <td colSpan={4} className="py-24 text-center">
-                      <Loader2 className="animate-spin text-indigo-500 mx-auto mb-4" size={32} />
+                      <Loader2 className=" text-indigo-500 mx-auto mb-4" size={32} />
                       <p className="text-xs font-black uppercase tracking-widest text-slate-400">Syncing with server...</p>
                     </td>
                   </tr>

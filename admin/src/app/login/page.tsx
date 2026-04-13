@@ -76,8 +76,8 @@ export default function LoginPage() {
       
       {/* Abstract Background Ornaments */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-         <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#b66dff]/10 rounded-full blur-3xl animate-pulse" />
-         <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl animate-pulse" />
+         <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#b66dff]/10 rounded-full blur-3xl" />
+         <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl" />
       </div>
 
       <motion.div 
@@ -153,7 +153,7 @@ export default function LoginPage() {
            >
               {loading ? (
                  <>
-                    <Loader2 className="animate-spin" size={20} />
+                    <Loader2  size={20} />
                     <span>Verifying...</span>
                  </>
               ) : (

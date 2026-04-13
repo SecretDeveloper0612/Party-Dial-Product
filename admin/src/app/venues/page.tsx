@@ -47,6 +47,39 @@ interface LiveVenue {
   raw: any;
 }
 
+const eventTypesList = [
+  "Birthday Party",
+  "Wedding Events",
+  "Pre-Wedding Events",
+  "Anniversary Party",
+  "Corporate Events",
+  "Kitty Party",
+  "Family Functions",
+  "Festival Parties",
+  "Social Gatherings",
+  "Kids Parties",
+  "Bachelor / Bachelorette Party",
+  "Housewarming Party",
+  "Baby Shower",
+  "Engagement Ceremony",
+  "Entertainment / Theme Parties"
+];
+
+const amenitiesList = [
+  { id: 'ac', name: 'Air Conditioning' },
+  { id: 'parking', name: 'Parking Available' },
+  { id: 'power', name: 'Power Backup' },
+  { id: 'indoor', name: 'Indoor Hall' },
+  { id: 'outdoor', name: 'Outdoor Lawn' },
+  { id: 'catering_in', name: 'In-House Catering' },
+  { id: 'catering_out', name: 'Outside Catering Allowed' },
+  { id: 'dj', name: 'DJ Allowed' },
+  { id: 'decoration', name: 'Decoration Available' },
+  { id: 'bridal', name: 'Bridal Room' },
+  { id: 'security', name: 'Security Available' },
+  { id: 'wifi', name: 'Wi-Fi Available' },
+];
+
 // Map raw Appwrite doc → LiveVenue
 function mapDoc(doc: any): LiveVenue {
   const sub = doc.subscriptionPlan || "";
@@ -83,6 +116,12 @@ function VenueManagementContent() {
   const [editForm, setEditForm] = useState<any>({});
   const [updating, setUpdating] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+  const showToast = (msg: string, type: "success" | "error") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const fetchCurrentUser = useCallback(async () => {
     const sessionStr = localStorage.getItem("party_admin_session");
@@ -152,17 +191,26 @@ function VenueManagementContent() {
       const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
       const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
       
+      // Prepare payload - ensuring arrays are strings if that's how they are stored
+      const payload = {
+        ...editForm,
+        amenities: Array.isArray(editForm.amenities) ? JSON.stringify(editForm.amenities) : editForm.amenities,
+        services: Array.isArray(editForm.services) ? JSON.stringify(editForm.services) : editForm.services,
+        eventTypes: Array.isArray(editForm.eventTypes) ? JSON.stringify(editForm.eventTypes) : editForm.eventTypes,
+        images: Array.isArray(editForm.images) ? JSON.stringify(editForm.images) : editForm.images,
+      };
+
       const res = await fetch(`${serverUrl}/venues/${selectedVenue.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editForm),
+        body: JSON.stringify(payload),
       });
       const result = await res.json();
       if (result.status === "success") {
         setVenues(prev => prev.map(v => v.id === selectedVenue.id ? mapDoc(result.data) : v));
         setSelectedVenue(mapDoc(result.data));
         setIsEditing(false);
-        // show success message?
+        showToast("✓ Venue Profile Updated Successfully", "success");
       }
     } catch (e) {
       console.error("Update failed", e);
@@ -173,6 +221,17 @@ function VenueManagementContent() {
 
   useEffect(() => {
     if (selectedVenue) {
+      const parseField = (val: any) => {
+        if (!val) return [];
+        if (Array.isArray(val)) return val;
+        try {
+          const parsed = JSON.parse(val);
+          return Array.isArray(parsed) ? parsed : [parsed];
+        } catch (e) {
+          return val.split(",").map((s: string) => s.trim()).filter((s: string) => s !== "");
+        }
+      };
+
       setEditForm({
         venueName: selectedVenue.raw.venueName || selectedVenue.name,
         description: selectedVenue.raw.description || "",
@@ -185,9 +244,11 @@ function VenueManagementContent() {
         contactNumber: selectedVenue.contactNumber,
         contactEmail: selectedVenue.ownerEmail,
         pricing: selectedVenue.raw.pricing || "",
-        amenities: selectedVenue.raw.amenities || [],
-        services: selectedVenue.raw.services || [],
-        images: selectedVenue.raw.images || [],
+        landmark: selectedVenue.raw.landmark || "",
+        amenities: parseField(selectedVenue.raw.amenities),
+        services: parseField(selectedVenue.raw.services),
+        eventTypes: parseField(selectedVenue.raw.eventTypes),
+        images: parseField(selectedVenue.raw.images),
       });
     }
   }, [selectedVenue]);
@@ -223,6 +284,24 @@ function VenueManagementContent() {
 
   return (
     <div className="space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={cn(
+              "fixed top-6 right-6 z-[200] px-6 py-4 rounded-2xl text-white text-sm font-bold shadow-2xl flex items-center gap-3",
+              toast.type === "success" ? "bg-emerald-500" : "bg-rose-500"
+            )}
+          >
+            {toast.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+            {toast.msg}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-3">
@@ -278,9 +357,9 @@ function VenueManagementContent() {
       <div className="space-y-4">
         {loading ? (
           <div className="py-20 text-center flex flex-col items-center gap-4">
-            <Loader2 className="animate-spin text-[#b66dff]" size={40} />
+            <Loader2 className="text-[#b66dff]" size={40} />
             <p className="text-xs font-black text-slate-400 tracking-widest uppercase">
-              Fetching Live Partners...
+              Partners Synchronized
             </p>
           </div>
         ) : error ? (
@@ -585,6 +664,17 @@ function VenueManagementContent() {
                         </div>
                       </div>
 
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Key Landmark</label>
+                        <input 
+                          type="text" 
+                          value={editForm.landmark} 
+                          onChange={e => setEditForm({...editForm, landmark: e.target.value})}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                          placeholder="e.g. Near City Center Mall"
+                        />
+                      </div>
+
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Contact Number</label>
@@ -618,36 +708,113 @@ function VenueManagementContent() {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Amenities (Comma separated)</label>
-                        <textarea 
-                          rows={2}
-                          value={Array.isArray(editForm.amenities) ? editForm.amenities.join(", ") : (editForm.amenities || "")} 
-                          onChange={e => setEditForm({...editForm, amenities: e.target.value.split(",").map((s: string) => s.trim()).filter((s: string) => s !== "")})}
-                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
-                          placeholder="AC, Parking, Power Backup..."
-                        />
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Amenities & Services</label>
+                        <div className="flex flex-wrap gap-2">
+                          {amenitiesList.map(amenity => {
+                            const isSelected = editForm.amenities.includes(amenity.id);
+                            return (
+                              <button
+                                key={amenity.id}
+                                type="button"
+                                onClick={() => {
+                                  const newAmenities = isSelected 
+                                    ? editForm.amenities.filter((a: string) => a !== amenity.id)
+                                    : [...editForm.amenities, amenity.id];
+                                  setEditForm({ ...editForm, amenities: newAmenities });
+                                }}
+                                className={cn(
+                                  "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all",
+                                  isSelected 
+                                    ? "bg-slate-900 border-slate-900 text-white shadow-md" 
+                                    : "bg-white border-slate-100 text-slate-500 hover:border-purple-300"
+                                )}
+                              >
+                                {amenity.name}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Services (Comma separated)</label>
-                        <textarea 
-                          rows={2}
-                          value={Array.isArray(editForm.services) ? editForm.services.join(", ") : (editForm.services || "")} 
-                          onChange={e => setEditForm({...editForm, services: e.target.value.split(",").map((s: string) => s.trim()).filter((s: string) => s !== "")})}
-                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
-                          placeholder="Catering, Decoration, Security..."
-                        />
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Event Types Hosted</label>
+                        <div className="flex flex-wrap gap-2">
+                          {eventTypesList.map(type => {
+                            const isSelected = editForm.eventTypes.includes(type);
+                            return (
+                              <button
+                                key={type}
+                                type="button"
+                                onClick={() => {
+                                  const newTypes = isSelected 
+                                    ? editForm.eventTypes.filter((t: string) => t !== type)
+                                    : [...editForm.eventTypes, type];
+                                  setEditForm({ ...editForm, eventTypes: newTypes });
+                                }}
+                                className={cn(
+                                  "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all",
+                                  isSelected 
+                                    ? "bg-[#b66dff] border-[#b66dff] text-white shadow-md" 
+                                    : "bg-white border-slate-100 text-slate-400 hover:border-purple-300"
+                                )}
+                              >
+                                {type}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Image Gallery (Comma separated URLs)</label>
-                        <textarea 
-                          rows={3}
-                          value={Array.isArray(editForm.images) ? editForm.images.join(", ") : (editForm.images || "")} 
-                          onChange={e => setEditForm({...editForm, images: e.target.value.split(",").map((s: string) => s.trim()).filter((s: string) => s !== "")})}
-                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
-                          placeholder="https://image1.jpg, https://image2.jpg..."
-                        />
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Image Gallery</label>
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                          {editForm.images.map((url: string, idx: number) => (
+                            <div key={idx} className="relative group/img aspect-video rounded-xl overflow-hidden border border-slate-100 shadow-sm">
+                              <img src={url} alt={`Venue ${idx}`} className="w-full h-full object-cover" />
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                  const newImages = editForm.images.filter((_: any, i: number) => i !== idx);
+                                  setEditForm({ ...editForm, images: newImages });
+                                }}
+                                className="absolute top-2 right-2 p-1.5 bg-rose-500 text-white rounded-lg opacity-0 group-hover/img:opacity-100 transition-all shadow-lg"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex gap-2">
+                          <input 
+                            type="text" 
+                            id="new_image_url"
+                            placeholder="Paste image URL here..."
+                            className="flex-1 bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const input = e.target as HTMLInputElement;
+                                if (input.value) {
+                                  setEditForm({ ...editForm, images: [...editForm.images, input.value] });
+                                  input.value = "";
+                                }
+                              }
+                            }}
+                          />
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              const input = document.getElementById('new_image_url') as HTMLInputElement;
+                              if (input?.value) {
+                                setEditForm({ ...editForm, images: [...editForm.images, input.value] });
+                                input.value = "";
+                              }
+                            }}
+                            className="p-3 bg-purple-50 text-[#b66dff] rounded-xl font-black text-xs uppercase"
+                          >
+                            Add
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -664,8 +831,7 @@ function VenueManagementContent() {
                         disabled={updating}
                         className="flex-[2] py-4 grad-brand text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-2"
                       >
-                        {updating ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                        {updating ? "Saving..." : "Save Venue Profile"}
+                        {updating ? <span className="opacity-50">Saving Profile...</span> : <><Save size={16} /> Save Venue Profile</>}
                       </button>
                     </div>
                   </form>
@@ -763,9 +929,50 @@ function VenueManagementContent() {
                   />
                   <DetailRow label="Email" value={selectedVenue.ownerEmail} />
                   <DetailRow
-                    label="Total Leads"
-                    value={`${selectedVenue.totalLeads}`}
+                    label="Leads"
+                    value={`${selectedVenue.totalLeads} Total`}
                   />
+                  {selectedVenue.raw.landmark && (
+                    <DetailRow label="Landmark" value={selectedVenue.raw.landmark} />
+                  )}
+                  {selectedVenue.raw.pricing && (
+                    <DetailRow label="Pricing" value={selectedVenue.raw.pricing} />
+                  )}
+                </div>
+
+                {/* Amenities & Event Types Preview */}
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    Amenities & Services
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {parseField(selectedVenue.raw.amenities).length > 0 ? (
+                      parseField(selectedVenue.raw.amenities).map((a: string) => (
+                        <span key={a} className="px-2 py-1 bg-white border border-slate-100 rounded-lg text-[10px] font-bold text-slate-500">
+                          {amenitiesList.find(al => al.id === a)?.name || a}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs italic text-slate-300">None specified</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    Events Hosted
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {parseField(selectedVenue.raw.eventTypes).length > 0 ? (
+                      parseField(selectedVenue.raw.eventTypes).map((e: string) => (
+                        <span key={e} className="px-2 py-1 bg-purple-50 text-[#b66dff] border border-purple-100 rounded-lg text-[10px] font-bold">
+                          {e}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs italic text-slate-300">None specified</span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Raw Data Accordion */}
@@ -801,12 +1008,26 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function parseField(val: any) {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  try {
+    const parsed = JSON.parse(val);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch (e) {
+    if (typeof val === 'string') {
+        return val.split(",").map((s: string) => s.trim()).filter((s: string) => s !== "");
+    }
+    return [];
+  }
+}
+
 export default function VenueManagement() {
   return (
     <Suspense
       fallback={
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="animate-spin text-[#b66dff]" size={40} />
+          <Loader2 className=" text-[#b66dff]" size={40} />
         </div>
       }
     >

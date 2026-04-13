@@ -256,7 +256,7 @@ export default function PaymentsPage() {
               {loading ? (
                 <tr>
                   <td colSpan={7} className="py-20 text-center">
-                    <Loader2 className="animate-spin text-[#b66dff] mx-auto mb-3" size={32} />
+                    <Loader2 className=" text-[#b66dff] mx-auto mb-3" size={32} />
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading payment records...</p>
                   </td>
                 </tr>

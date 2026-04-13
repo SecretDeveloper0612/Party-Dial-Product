@@ -99,14 +99,6 @@ const secondaryTabs = [
   { id: 'settings', label: 'Settings', icon: <Settings size={18} /> },
 ];
 
-const pastActivities = [
-  { id: 1, type: 'Payout Released', title: '₹45,000 sent to Bank Account (****9821)', time: '2 hours ago', icon: <Wallet className="text-emerald-500" size={16} /> },
-  { id: 2, type: 'Lead Received', title: 'New inquiry for Wedding (Rohan Varma)', time: '5 hours ago', icon: <Zap className="text-pd-pink" size={16} /> },
-  { id: 3, type: 'Booking Completed', title: 'Payment for Royal Suite confirmed', time: 'Yesterday', icon: <CheckCircle2 className="text-emerald-500" size={16} /> },
-  { id: 4, type: 'Charge Deducted', title: 'Premium Plan Monthly Renewal (₹1,500)', time: '2 days ago', icon: <Minus className="text-slate-900" size={16} /> },
-  { id: 5, type: 'Refund Processed', title: 'Security deposit returned to cliente #PD-882', time: '3 days ago', icon: <ArrowDownRight className="text-amber-500" size={16} /> },
-];
-
 const planLabels: {[key: string]: string} = {
   'pax_0_50': 'Starter Live',
   'pax_50_100': 'Growth Live',
@@ -133,6 +125,7 @@ export default function VendorDashboard() {
   const [userData, setUserData] = useState<any>(null);
   const [recentLeads, setRecentLeads] = useState<any[]>([]);
   const [isLoadingLeads, setIsLoadingLeads] = useState(true);
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
 
   // Helper to format date consistent with dashboard design
   const formatLeadDate = (isoDate: string) => {
@@ -162,10 +155,10 @@ export default function VendorDashboard() {
 
     // 4. Total Sales calculation (Booked leads * Estimated Revenue)
     const bookedLeads = recentLeads.filter(l => l.status === 'Booked');
-    const avgPlatePrice = ((venueProfile?.perPlateVeg || 800) + (venueProfile?.perPlateNonVeg || 1200)) / 2;
+    const avgPlatePrice = ((venueProfile?.perPlateVeg || 0) + (venueProfile?.perPlateNonVeg || 0)) / 2 || 0;
     
     const estimatedTotalSales = bookedLeads.reduce((acc, lead) => {
-       const pax = parseInt(lead.guests) || 200;
+       const pax = parseInt(lead.guests) || 0;
        return acc + (pax * avgPlatePrice);
     }, 0);
 
@@ -246,6 +239,17 @@ export default function VendorDashboard() {
 
     return null;
   }, [venueProfile]);
+ 
+  // Unified Activity History Generation
+  const pastActivities = useMemo(() => {
+    return recentLeads.map((lead, idx) => ({
+      id: idx + 1,
+      type: lead.status === 'Booked' ? 'Booking Confirmed' : (lead.status === 'Quotation Send' ? 'Proposal Dispatched' : 'Inquiry Received'),
+      title: lead.status === 'Booked' ? `Event booked for ${lead.name}` : `${lead.name} requested details for ${lead.event}`,
+      time: `${lead.date} • ${lead.time}`,
+      icon: lead.status === 'Booked' ? <CheckCircle2 size={18} className="text-emerald-500" /> : (lead.status === 'Quotation Send' ? <FileText size={18} className="text-blue-500" /> : <Zap size={18} className="text-pd-pink" />)
+    }));
+  }, [recentLeads]);
 
   // Automatic Onboarding Completion Check
   const isOnboardingComplete = useMemo(() => {
@@ -599,7 +603,7 @@ export default function VendorDashboard() {
           }
 
           if (isMounted) {
-            setRecentLeads(leadsDocuments.map(doc => ({
+            const leads = leadsDocuments.map(doc => ({
               id: doc.$id,
               name: doc.name,
               phone: doc.phone || '+91 98765 43210',
@@ -615,7 +619,25 @@ export default function VendorDashboard() {
               starred: false,
               unread: doc.status === 'New',
               color: doc.status === 'Booked' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
-            })));
+            }));
+            
+            setRecentLeads(leads);
+
+            // Deriving calendar events from booked leads for the current month
+            const events = leads
+              .filter(l => l.status === 'Booked' && l.rawDate)
+              .map(l => {
+                const leadDate = new Date(l.rawDate);
+                return {
+                  day: leadDate.getDate(),
+                  type: l.event || 'Event',
+                  host: l.name,
+                  pax: parseInt(l.guests) || 0,
+                  time: l.time || 'TBD',
+                  status: 'Confirmed'
+                };
+              });
+            setCalendarEvents(events);
             setIsLoadingLeads(false);
           }
 
@@ -628,8 +650,21 @@ export default function VendorDashboard() {
           if (!profile.onboardingComplete && !alreadyDismissed) {
             setShowOnboarding(true);
           } else if (profile.onboardingComplete && needsPayment) {
-            // Priority 2: Onboarding done but Payment pending or not verified
-            setShowPaymentReminder(true);
+            // Use localStorage for precise timing, fallback to $updatedAt for cross-device
+            const storedTime = localStorage.getItem('onboardingCompletedAt');
+            const completionTime = new Date(storedTime || profile.$updatedAt).getTime();
+            const thirtyMinutes = 30 * 60 * 1000;
+            const now = Date.now();
+
+            if (now - completionTime >= thirtyMinutes) {
+               setShowPaymentReminder(true);
+            } else {
+               // Schedule popup for later
+               const remaining = thirtyMinutes - (now - completionTime);
+               setTimeout(() => {
+                  setShowPaymentReminder(true);
+               }, remaining);
+            }
           }
         } else {
           setShowOnboarding(true);
@@ -737,14 +772,7 @@ export default function VendorDashboard() {
 
   const [selectedDay, setSelectedDay] = useState(20);
   const [currentMonth, setCurrentMonth] = useState('March');
-  const [calendarEvents, setCalendarEvents] = useState([
-     { day: 14, type: 'Wedding Reception', host: 'R. Malhotra', pax: 450, time: '04:00 PM - 12:00 AM', status: 'Confirmed' },
-     { day: 26, type: 'Marriage Anniversary', host: 'Aditya Gupta', pax: 200, time: '07:00 PM - 11:30 PM', status: 'Confirmed' },
-     { day: 6, type: 'Maintenance', host: 'Facility Team', pax: 0, time: '09:00 AM - 02:00 PM', status: 'Maintenance' },
-     { day: 20, type: 'Corporate Workshop', host: 'Google India', pax: 150, time: '10:00 AM - 02:00 PM', status: 'In-Progress' },
-     { day: 20, type: 'Engagement Party', host: 'Kapoor Family', pax: 300, time: '04:30 PM - 10:30 PM', status: 'Confirmed' },
-     { day: 20, type: 'Setup & Logistics', host: 'Operations', pax: 0, time: '09:00 PM - 11:00 PM', status: 'Pending' }
-  ]);
+  // Calendar events moved to state and derived from leads
 
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [newBookingDay, setNewBookingDay] = useState<number | null>(null);
@@ -753,6 +781,7 @@ export default function VendorDashboard() {
 
   const completeOnboarding = async () => {
     localStorage.setItem('onboardingComplete', 'true');
+    localStorage.setItem('onboardingCompletedAt', new Date().toISOString());
     setShowOnboarding(false);
     
     // Sync with database if profile exists
@@ -886,6 +915,64 @@ export default function VendorDashboard() {
                   </button>
                 ))}
              </div>
+
+             {/* Mobile Subscription Section */}
+             <div className="mt-8 mb-4 px-3 lg:hidden">
+                <div className="p-6 bg-slate-900 rounded-[32px] border border-white/10 shadow-2xl relative overflow-hidden group">
+                    {/* Background Glow */}
+                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-pd-pink/20 blur-[40px] rounded-full group-hover:bg-pd-pink/30 transition-all duration-700"></div>
+                    
+                    {expiryInfo ? (
+                      <>
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-2 mb-4">
+                               <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)] animate-pulse"></div>
+                               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 leading-none">{expiryInfo.label} ACTIVE</span>
+                            </div>
+                            
+                            <div className="flex items-end justify-between mb-5">
+                                <div className="flex flex-col">
+                                   <span className="text-[20px] font-black text-white italic tracking-tighter leading-none mb-1">{expiryInfo.daysLeft}</span>
+                                   <span className="text-[8px] font-black uppercase text-slate-500 tracking-[0.1em]">Days Remaining</span>
+                                </div>
+                                <div className="text-right">
+                                   <Zap size={16} className="text-pd-pink fill-pd-pink mb-1 ml-auto" />
+                                   <span className="text-[8px] font-black uppercase text-pd-pink tracking-widest italic leading-none">Renewal Required</span>
+                                </div>
+                            </div>
+
+                            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mb-6">
+                                <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${expiryInfo.percent}%` }}
+                                    className={`h-full rounded-full ${
+                                        expiryInfo.daysLeft < 7 
+                                        ? 'bg-gradient-to-r from-red-500 to-rose-600' 
+                                        : 'bg-gradient-to-r from-emerald-400 to-pd-pink'
+                                    }`}
+                                />
+                            </div>
+                        </div>
+                      </>
+                    ) : (
+                        <div className="mb-6 relative z-10 text-center">
+                           <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-400 block mb-2">Premium Partner</span>
+                           <div className="h-1 flex gap-1">
+                              {[1,2,3,4,5].map(i => <div key={i} className="flex-1 bg-white/10 rounded-full"></div>)}
+                           </div>
+                        </div>
+                    )}
+                    
+                    <Link 
+                      href="/dashboard/onboarding/subscription"
+                      onClick={() => setSidebarOpen(false)}
+                      className="relative z-10 w-full h-12 flex items-center justify-center gap-3 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink hover:text-white transition-all shadow-lg active:scale-95"
+                    >
+                      <CreditCard size={14} /> 
+                      Manage Plan
+                    </Link>
+                </div>
+             </div>
          </div>
 
          <div className="mt-auto p-6">
@@ -969,6 +1056,14 @@ export default function VendorDashboard() {
             </div>
 
             <div className="flex items-center gap-2 lg:gap-4">
+               <Link 
+                  href="/dashboard/onboarding/subscription"
+                  className="hidden md:flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-[14px] text-[10px] font-black uppercase tracking-[0.1em] hover:from-pd-pink hover:to-rose-600 transition-all shadow-md group border border-white/10"
+               >
+                  <CreditCard size={14} className="group-hover:rotate-12 transition-transform" /> 
+                  Manage <span className="text-white/50 group-hover:text-white/80">Plan</span>
+               </Link>
+
                <div className="hidden sm:flex items-center gap-3 bg-slate-50 p-1.5 px-3 rounded-[20px] border border-slate-100/50 mr-1 lg:mr-2">
                   <div className="flex items-center gap-2 pr-2 border-r border-slate-200">
                     <div className={`w-2 h-2 rounded-full ${isRealtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>

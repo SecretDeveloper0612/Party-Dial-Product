@@ -8,5 +8,6 @@ router.post('/distribute-venues', leadController.distributeLeadsToVenues);
 router.post('/sync-gsheet', leadController.syncGoogleSheetLeads);
 router.get('/distribution-logs', leadController.getDistributionLogs);
 router.get('/user/:userId', leadController.getLeadsForUser);
+router.post('/public-inquiry', leadController.processPublicInquiry);
 
 module.exports = router;

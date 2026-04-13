@@ -701,20 +701,39 @@ export default function Home() {
             <p className="text-slate-400 uppercase tracking-widest font-black text-[10px]">Real stories from our valued clients</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1,2,3].map(i => (
-              <div key={i} className="pd-card p-10 bg-slate-50 relative">
-                <Quote className="absolute top-6 right-8 text-slate-200" size={40} />
+            {[
+              {
+                name: "Rahul Malhotra",
+                role: "Wedding Host",
+                text: "PartyDial made our wedding planning so much easier! We received 5 quotes within 2 hours and booked a beautiful palace hotel that was right in our budget. Highly recommended!",
+                avatar: "1"
+              },
+              {
+                name: "Sneha Kapoor",
+                role: "Corporate Planner",
+                text: "As a corporate event planner, I need quick responses. PartyDial delivered! Found an amazing rooftop venue for our team's annual meet in just a day. Incredible service.",
+                avatar: "2"
+              },
+              {
+                name: "Amit Verma",
+                role: "Birthday Host",
+                text: "Found the perfect banquet hall for my son's 1st birthday. The zero brokerage promise is real – we saved a lot and got better deals than booking directly!",
+                avatar: "3"
+              }
+            ].map((t, i) => (
+              <div key={i} className="pd-card p-10 bg-slate-50 relative group hover:bg-white transition-colors duration-500">
+                <Quote className="absolute top-6 right-8 text-slate-200 group-hover:text-pd-red/10 group-hover:rotate-12 transition-all duration-500" size={40} />
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="w-14 h-14 rounded-full bg-slate-300 overflow-hidden ring-4 ring-white shadow-sm">
-                    <img src={`https://i.pravatar.cc/150?u=user${i}`} alt="user" />
+                  <div className="w-14 h-14 rounded-full bg-slate-200 overflow-hidden ring-4 ring-white shadow-sm group-hover:ring-pd-red/10 transition-all duration-500">
+                    <img src={`https://i.pravatar.cc/150?u=user${t.avatar}`} alt={t.name} />
                   </div>
                   <div>
-                    <h4 className="font-black text-slate-900 text-sm italic">Rahul Malhotra</h4>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest underline decoration-pd-red decoration-2">Wedding Host</p>
+                    <h4 className="font-black text-slate-900 text-sm italic">{t.name}</h4>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest underline decoration-pd-red decoration-2">{t.role}</p>
                   </div>
                 </div>
-                <p className="text-slate-600 font-medium leading-relaxed italic">
-                  "PartyDial made our wedding planning so much easier! We received 5 quotes within 2 hours and booked a beautiful palace hotel that was right in our budget. Highly recommended!"
+                <p className="text-slate-600 font-medium leading-relaxed italic relative z-10">
+                  "{t.text}"
                 </p>
               </div>
             ))}
@@ -807,78 +826,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* POPULAR CITIES DIRECTORY (pSEO Hub) */}
-      <section className="py-24 px-6 bg-white border-t border-slate-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16 px-4">
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-3xl md:text-4xl font-black text-slate-900 mb-4 uppercase italic"
-            >
-              Browse by <span className="pd-gradient-text">City</span>
-            </motion.h2>
-            <motion.div 
-              initial={{ width: 0 }}
-              whileInView={{ width: 80 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="h-1.5 bg-pd-red mx-auto rounded-full mb-6"
-            ></motion.div>
-            <p className="text-slate-500 font-medium max-w-2xl mx-auto">Find the best event services in your city</p>
-          </div>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-x-8 gap-y-12">
-            {["Haldwani", "Dehradun", "Haridwar", "Nainital", "Rudrapur", "Rishikesh", "Roorkee", "Kashipur", "Ramnagar", "Bhowali"].map((city, idx) => (
-              <motion.div 
-                key={city} 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: (idx % 6) * 0.1 }}
-                className="flex flex-col gap-4 group"
-              >
-                <div className="flex items-center gap-2 pb-2 border-b border-slate-50 group-hover:border-pd-red/20 transition-colors">
-                  <div className="w-1.5 h-1.5 rounded-full bg-pd-red opacity-40 group-hover:opacity-100 transition-opacity"></div>
-                  <h4 className="text-[12px] font-black text-slate-900 uppercase tracking-[0.15em]">{city}</h4>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <Link href={`/${city.toLowerCase()}/banquet-halls`} className="text-[11px] font-bold text-slate-400 hover:text-pd-red transition-all flex items-center gap-2 group/link uppercase tracking-wider">
-                    <span className="w-1 h-px bg-slate-200 group-hover/link:w-3 group-hover/link:bg-pd-red transition-all"></span>
-                    Banquet Halls
-                  </Link>
-                  <Link href={`/${city.toLowerCase()}/wedding-venues`} className="text-[11px] font-bold text-slate-400 hover:text-pd-red transition-all flex items-center gap-2 group/link uppercase tracking-wider">
-                    <span className="w-1 h-px bg-slate-200 group-hover/link:w-3 group-hover/link:bg-pd-red transition-all"></span>
-                    Wedding Venues
-                  </Link>
-                  <Link href={`/${city.toLowerCase()}/party-lawns`} className="text-[11px] font-bold text-slate-400 hover:text-pd-red transition-all flex items-center gap-2 group/link uppercase tracking-wider">
-                    <span className="w-1 h-px bg-slate-200 group-hover/link:w-3 group-hover/link:bg-pd-red transition-all"></span>
-                    Party Lawns
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-20 p-8 md:p-14 bg-slate-50 rounded-[2.5rem] md:rounded-[4rem] border border-slate-100 text-center relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-              <MapPin size={80} className="text-pd-red" />
-            </div>
-            <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-pd-red mb-6">Explore All Locations</h5>
-            <p className="text-[11px] md:text-[12px] font-bold text-slate-500 uppercase tracking-widest leading-[2.2] relative z-10 max-w-5xl mx-auto">
-              serving over 500+ micro-locations across Uttarakhand including Bhimtal, Almora, Pithoragarh, Mukteshwar, Ranikhet, Ramgarh, Dhari, Jeolikote, Tanakpur, Banbasa, Khatima, Sitarganj, Kichha, Gadarpur, Bajpur, Sultanpur, Jaspur, Corbett, Kotdwar, Srinagar Garhwal, Tehri, Uttarkashi, Chamoli, and many more.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+
 
     </main>
   );

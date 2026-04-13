@@ -119,7 +119,7 @@ export default function CRMFollowUps() {
       <div className="space-y-4">
          {loading ? (
             <div className="py-20 flex flex-col items-center gap-4">
-               <Loader2 className="animate-spin text-[#b66dff]" size={40} />
+               <Loader2 className=" text-[#b66dff]" size={40} />
                <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Compiling Deadlines...</p>
             </div>
          ) : filteredFollowUps.length === 0 ? (

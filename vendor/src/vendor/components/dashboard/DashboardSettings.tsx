@@ -756,80 +756,13 @@ const DashboardSettings = ({
                           </div>
                        </section>
 
-                       <section>
-                          <div className="flex items-center justify-between mb-8">
-                             <div>
-                                <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tight mb-2">Custom Packages</h3>
-                                <p className="text-xs text-slate-400 font-medium uppercase tracking-widest leading-relaxed">Create specialized bundles for specific event types.</p>
-                             </div>
-                             <button 
-                                onClick={() => {
-                                   const current = Array.isArray(venueProfile?.packages) ? venueProfile.packages : [];
-                                   const updated = [...current, { id: Date.now(), name: 'New Elite Package', price: '0', desc: 'Brief summary of package inclusions...' }];
-                                   handleProfileUpdate('packages', updated);
-                                }}
-                                className="px-6 py-3 bg-pd-pink/10 text-pd-pink rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink hover:text-white transition-all flex items-center gap-2"
-                             >
-                                <Plus size={14} /> Add Package
-                             </button>
-                          </div>
-
-                          <div className="grid grid-cols-1 gap-4">
-                             {(() => {
-                                const packs = Array.isArray(venueProfile?.packages) ? venueProfile.packages : [];
-                                
-                                return packs.map((pkg: any) => (
-                                   <div key={pkg.id} className="p-8 bg-slate-50 border border-slate-100 rounded-[30px] flex items-center justify-between group hover:border-pd-pink hover:bg-white transition-all">
-                                      <div className="flex-1 space-y-2">
-                                         <input 
-                                            value={pkg.name}
-                                            onChange={(e) => {
-                                               const updated = packs.map((p: any) => p.id === pkg.id ? { ...p, name: e.target.value } : p);
-                                               handleProfileUpdate('packages', updated);
-                                            }}
-                                            className="text-sm font-black text-slate-900 uppercase italic bg-transparent outline-none w-full"
-                                            placeholder="Package Name"
-                                         />
-                                         <input 
-                                            value={pkg.desc}
-                                            onChange={(e) => {
-                                               const updated = packs.map((p: any) => p.id === pkg.id ? { ...p, desc: e.target.value } : p);
-                                               handleProfileUpdate('packages', updated);
-                                            }}
-                                            className="text-[10px] font-medium text-slate-400 uppercase tracking-widest bg-transparent outline-none w-full"
-                                            placeholder="Package Description"
-                                         />
-                                      </div>
-                                      <div className="flex items-center gap-6">
-                                         <div className="text-right">
-                                            <div className="flex items-center text-slate-900 mb-1">
-                                               <span className="text-lg font-black italic">₹</span>
-                                               <input 
-                                                  value={pkg.price}
-                                                  onChange={(e) => {
-                                                     const updated = packs.map((p: any) => p.id === pkg.id ? { ...p, price: e.target.value } : p);
-                                                     handleProfileUpdate('packages', updated);
-                                                  }}
-                                                  className="w-20 bg-transparent text-lg font-black italic outline-none text-right"
-                                                  placeholder="000"
-                                               />
-                                            </div>
-                                            <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Base Rate</span>
-                                         </div>
-                                         <button 
-                                            onClick={() => {
-                                               const updated = packs.filter((p: any) => p.id !== pkg.id);
-                                               handleProfileUpdate('packages', updated);
-                                            }}
-                                            className="w-10 h-10 rounded-xl bg-white border border-slate-100 text-slate-300 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 transition-all shadow-sm"
-                                         >
-                                            <Trash2 size={16} />
-                                         </button>
-                                      </div>
-                                   </div>
-                                ));
-                             })()}
-                          </div>
+                       <section className="p-8 bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200 text-center">
+                          <Target className="mx-auto text-slate-300 mb-4" size={48} />
+                          <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">Subscription Managed</h4>
+                          <p className="text-[10px] font-medium text-slate-400 mt-2">
+                             Your pricing is currently managed via your platform subscription. <br/>
+                             Individual package definitions are currently disabled.
+                          </p>
                        </section>
 
                        <div className="pt-10 border-t border-slate-100 flex items-center justify-end">

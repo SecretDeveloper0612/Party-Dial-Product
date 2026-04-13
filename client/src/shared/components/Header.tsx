@@ -1,4 +1,5 @@
 'use client';
+import { account, ID } from '@/lib/appwrite';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -22,7 +23,8 @@ import {
   CheckCircle2,
   ChevronLeft,
   Phone,
-  ShieldCheck
+  ShieldCheck,
+  Building2
 } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 
@@ -33,39 +35,35 @@ const tickerTexts = [
   "Smart Matching for your Grand Celebrations."
 ];
 
-const categories = [
-  { name: "Birthday Party", icon: "🎂" },
-  { name: "Wedding Events", icon: "💍" },
-  { name: "Pre-Wedding Events", icon: "✨" },
-  { name: "Anniversary Party", icon: "🥂" },
-  { name: "Corporate Events", icon: "🏢" },
-  { name: "Kitty Party", icon: "👩‍🤝‍👩" },
-  { name: "Family Functions", icon: "🏠" },
-  { name: "Festival Parties", icon: "🎭" },
-  { name: "Social Gatherings", icon: "🎉" },
-  { name: "Kids Parties", icon: "🎈" },
-  { name: "Bachelor / Bachelorette Party", icon: "🕺" },
-  { name: "Housewarming Party", icon: "🏡" },
-  { name: "Baby Shower", icon: "🧸" },
-  { name: "Engagement Ceremony", icon: "💎" },
-  { name: "Entertainment / Theme Parties", icon: "🦁" }
-];
 
 export default function Header() {
-  const [selectedCategory, setSelectedCategory] = useState('Select Event');
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [tickerIndex, setTickerIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Auth Modal State
-  const [authModal, setAuthModal] = useState<{ isOpen: boolean, type: 'signin' | 'signup' }>({ isOpen: false, type: 'signin' });
+  const [authModal, setAuthModal] = useState<{ isOpen: boolean, type: 'signin' | 'signup' | 'otp' }>({ isOpen: false, type: 'signin' });
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [resendTimer, setResendTimer] = useState(45);
+  const [authUserId, setAuthUserId] = useState('');
+  const [authError, setAuthError] = useState('');
+  const otpRefs = [useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null)];
   
   // Sign Up Data
   const [signupData, setSignupData] = useState({
     name: '', email: '', phone: '', password: '', confirmPassword: '', agreeTerms: false
   });
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (authModal.type === 'otp' && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer(prev => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [authModal.type, resendTimer]);
 
   const pwStrength = useMemo(() => {
     const pass = signupData.password;
@@ -79,23 +77,8 @@ export default function Header() {
     return { label: 'Strong', color: 'bg-green-400' };
   }, [signupData.password]);
 
-  const handleGoogleLogin = async () => {
-    try {
-      const { account } = await import('@/lib/appwrite');
-      const { OAuthProvider } = await import('appwrite');
-      
-      const currentUrl = window.location.origin;
-      
-      await account.createOAuth2Session(
-        OAuthProvider.Google,
-        `${currentUrl}/`,
-        currentUrl
-      );
-    } catch (error) {
-      console.error('Google login failed:', error);
-    }
-  };
   
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [locationInput, setLocationInput] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
@@ -134,15 +117,19 @@ export default function Header() {
       try {
         const isPincode = /^\d+$/.test(locationInput);
         const url = isPincode 
-          ? `https://api.postalpincode.in/pincode/${locationInput}`
-          : `https://api.postalpincode.in/postoffice/${locationInput}`;
+          ? `/api/pincode/${locationInput}`
+          : `/api/postoffice/${locationInput}`;
         
         const response = await fetch(url);
         const data = await response.json();
 
         if (data[0].Status === 'Success') {
-          const offices = data[0].PostOffice;
-          const formattedSuggestions = offices.map((office: any) => ({
+          const offices = data[0].PostOffice || [];
+          const filteredOffices = offices.filter((office: any) => 
+            office.State && office.State.toLowerCase() === 'uttarakhand'
+          );
+          
+          const formattedSuggestions = filteredOffices.map((office: any) => ({
             display: `${office.Name}-${office.Pincode}`,
             name: office.Name,
             pincode: office.Pincode
@@ -202,7 +189,13 @@ export default function Header() {
               </motion.span>
             </AnimatePresence>
           </div>
-          <div className="flex items-center gap-3 md:gap-6 shrink-0 hidden">
+          <div className="flex items-center shrink-0">
+            <Link href="https://partner.partydial.com/signup">
+              <button className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg border border-white/30 backdrop-blur-sm transition-all flex items-center gap-1.5 text-[9px] md:text-[10px]">
+                <Building2 size={12} />
+                Register Your Venue
+              </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -217,49 +210,32 @@ export default function Header() {
           </Link>
 
           <div className="flex-1 max-w-3xl hidden md:flex items-center bg-slate-50 border border-slate-200 rounded-[12px] p-1 gap-1 focus-within:border-pd-purple focus-within:bg-white focus-within:shadow-xl focus-within:shadow-pd-pink/5 transition-all">
-            <div className="relative group">
-              <button 
-                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                className="flex items-center justify-between px-6 py-3.5 bg-white rounded-[10px] shadow-sm border border-slate-100 text-sm font-bold text-slate-800 hover:border-slate-300 transition-all min-w-[200px]"
-              >
-                <span className="truncate">{selectedCategory}</span>
-                <ChevronDown size={18} className={`text-slate-400 transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`} />
-              </button>
-              <AnimatePresence>
-                {isCategoryOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 5, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 5, scale: 0.95 }}
-                    className="absolute top-[115%] left-0 w-full bg-white border border-slate-100 rounded-[12px] shadow-pd-strong py-3 z-[100] max-h-[400px] overflow-y-auto no-scrollbar"
-                  >
-                    {categories.map((cat, i) => (
-                      <button 
-                        key={i}
-                        onClick={() => { setSelectedCategory(cat.name); setIsCategoryOpen(false); }}
-                        className="w-full text-left px-6 py-3 hover:bg-slate-50 text-sm font-semibold text-slate-600 hover:text-pd-red transition-colors"
-                      >
-                        {cat.name}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            <div className="h-8 w-[1px] bg-slate-200 mx-1"></div>
             <div className="flex-1 flex items-center gap-3 px-3 relative" ref={locationRef}>
-              <MapPin size={20} className="text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="City-Pincode (e.g. Haldwani-263139)" 
-                value={locationInput}
-                onChange={(e) => {
-                  setLocationInput(e.target.value);
-                  setShowSuggestions(true);
-                }}
-                onFocus={() => setShowSuggestions(true)}
-                className="bg-transparent border-none outline-none w-full text-sm font-semibold text-slate-800 placeholder:text-slate-300" 
-              />
+              <MapPin size={20} className="text-slate-400 shrink-0" />
+              <div className="flex-1 flex flex-wrap gap-2 items-center py-2">
+                {selectedLocations.map((loc, i) => (
+                  <div key={i} className="flex items-center gap-1.5 bg-pd-red/10 text-pd-red px-3 py-1.5 rounded-xl border border-pd-red/20 animate-in fade-in zoom-in duration-200">
+                    <span className="text-[10px] font-black uppercase tracking-wider">{loc}</span>
+                    <button 
+                      onClick={() => setSelectedLocations(selectedLocations.filter((_, idx) => idx !== i))}
+                      className="hover:text-slate-900 transition-colors"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+                <input 
+                  type="text" 
+                  placeholder={selectedLocations.length === 0 ? "City-Pincode (e.g. Haldwani-263139)" : "Add more..."}
+                  value={locationInput}
+                  onChange={(e) => {
+                    setLocationInput(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  className="flex-1 min-w-[120px] bg-transparent border-none outline-none py-2 text-sm font-semibold text-slate-800 placeholder:text-slate-400" 
+                />
+              </div>
               <AnimatePresence>
                 {showSuggestions && locationInput.length >= 3 && (
                   <motion.div
@@ -275,7 +251,10 @@ export default function Header() {
                         <button
                           key={i}
                           onClick={() => {
-                            setLocationInput(s.display);
+                            if (!selectedLocations.includes(s.display)) {
+                              setSelectedLocations([...selectedLocations, s.display]);
+                            }
+                            setLocationInput("");
                             setShowSuggestions(false);
                           }}
                           className="w-full text-left px-4 py-3 hover:bg-slate-50 text-xs font-bold text-slate-600 transition-colors border-b border-slate-50 last:border-0"
@@ -290,8 +269,8 @@ export default function Header() {
                 )}
               </AnimatePresence>
             </div>
-            <Link href="/venues">
-              <button className="pd-btn-primary !py-3.5 !px-5"><Search size={22} /></button>
+            <Link href={`/venues?location=${selectedLocations.join(',')}`}>
+              <button className="pd-btn-primary !py-4.5 !px-6"><Search size={22} /></button>
             </Link>
           </div>
 
@@ -300,10 +279,10 @@ export default function Header() {
                <Download size={18} /> <span>Download App</span>
              </button>
              <button 
-               onClick={() => setAuthModal({ isOpen: true, type: 'signin' })}
+               onClick={() => setAuthModal({ isOpen: true, type: 'signup' })}
                className="hidden md:flex items-center gap-2 text-sm font-black text-slate-600 hover:text-pd-red transition-all px-4 py-2 hover:bg-slate-50 rounded-xl"
              >
-                <User size={18} /> <span>Sign In</span>
+                <User size={18} /> <span>Signup</span>
              </button>
              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2.5 text-slate-900 hover:bg-slate-50 rounded-xl border border-slate-100 shadow-sm active:scale-95 transition-all">
                 {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -323,49 +302,39 @@ export default function Header() {
               <div className="p-5 space-y-5">
                 {/* Mobile Search & Category */}
                 <div className="space-y-3">
-                  <div className="relative">
-                    <button 
-                      onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                      className="w-full flex items-center justify-between px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800"
-                    >
-                      <span>{selectedCategory}</span>
-                      <ChevronDown size={18} className={`text-slate-400 transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`} />
-                    </button>
-                    <AnimatePresence>
-                      {isCategoryOpen && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="absolute top-full left-0 w-full bg-white border border-slate-100 rounded-xl shadow-xl py-2 z-[110] mt-2 max-h-[300px] overflow-y-auto"
-                        >
-                          {categories.map((cat, i) => (
-                            <button 
-                              key={i}
-                              onClick={() => { setSelectedCategory(cat.name); setIsCategoryOpen(false); }}
-                              className="w-full text-left px-5 py-3.5 hover:bg-slate-50 text-sm font-semibold text-slate-600 active:text-pd-red transition-colors border-b border-slate-50 last:border-0"
-                            >
-                              {cat.icon} <span className="ml-2">{cat.name}</span>
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
                   <div className="relative" ref={locationRef}>
-                    <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-4 py-1">
-                      <MapPin size={18} className="text-slate-400 mr-3" />
-                      <input 
-                        type="text" 
-                        placeholder="City-Pincode" 
-                        value={locationInput}
-                        onChange={(e) => {
-                          setLocationInput(e.target.value);
-                          setShowSuggestions(true);
-                        }}
-                        onFocus={() => setShowSuggestions(true)}
-                        className="bg-transparent border-none outline-none w-full py-3 text-sm font-semibold text-slate-800 placeholder:text-slate-300" 
-                      />
+                    <div className="flex flex-col gap-2 p-2 bg-slate-50 border border-slate-200 rounded-2xl">
+                        {selectedLocations.length > 0 && (
+                          <div className="flex flex-wrap gap-2 p-1">
+                            {selectedLocations.map((loc, i) => (
+                              <div key={i} className="flex items-center gap-1.5 bg-pd-red text-white pr-2 pl-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider animate-in fade-in zoom-in duration-200">
+                                {loc}
+                                <button onClick={() => setSelectedLocations(selectedLocations.filter((_, idx) => idx !== i))}>
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 px-2">
+                           <MapPin size={18} className="text-slate-400 shrink-0" />
+                           <input 
+                              type="text" 
+                              placeholder={selectedLocations.length === 0 ? "City-Pincode" : "Add more..."} 
+                              value={locationInput}
+                              onChange={(e) => {
+                                setLocationInput(e.target.value);
+                                setShowSuggestions(true);
+                              }}
+                              onFocus={() => setShowSuggestions(true)}
+                              className="bg-transparent border-none outline-none w-full py-4 text-sm font-bold text-slate-800 placeholder:text-slate-300" 
+                           />
+                           <Link href={`/venues?location=${selectedLocations.join(',')}`} onClick={() => setIsMobileMenuOpen(false)} className="shrink-0">
+                              <button className="pd-btn-primary !p-3 rounded-xl">
+                                <Search size={18} />
+                              </button>
+                           </Link>
+                        </div>
                     </div>
                     <AnimatePresence>
                       {showSuggestions && locationInput.length >= 3 && (
@@ -379,7 +348,10 @@ export default function Header() {
                             <button
                               key={i}
                               onClick={() => {
-                                setLocationInput(s.display);
+                                if (!selectedLocations.includes(s.display)) {
+                                  setSelectedLocations([...selectedLocations, s.display]);
+                                }
+                                setLocationInput("");
                                 setShowSuggestions(false);
                               }}
                               className="w-full text-left px-5 py-4 text-sm font-bold text-slate-600 border-b border-slate-50 last:border-0"
@@ -400,10 +372,10 @@ export default function Header() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <button 
-                    onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signin' }); }}
+                    onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
                     className="w-full flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl text-xs font-black uppercase tracking-widest text-slate-600 active:bg-slate-50"
                   >
-                    <User size={16} /> <span>Sign In</span>
+                    <User size={16} /> <span>Signup</span>
                   </button>
                   <button 
                     onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
@@ -434,14 +406,16 @@ export default function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setAuthModal({ ...authModal, isOpen: false })}
-              className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm"
+              className="fixed inset-0 bg-slate-950/60 backdrop-blur-md cursor-pointer"
             ></motion.div>
             
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-5xl bg-white rounded-[40px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px]"
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: "spring", duration: 0.4, bounce: 0 }}
+              style={{ willChange: "transform, opacity" }}
+              className="relative w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-pd-strong overflow-hidden flex flex-col md:flex-row min-h-[500px] md:min-h-[600px] z-[1001]"
             >
               {/* Left Visual Side */}
               <div className="hidden lg:block w-[45%] relative bg-slate-900 border-r border-slate-100 p-12 text-white">
@@ -480,27 +454,121 @@ export default function Header() {
                  <div className="max-w-md mx-auto">
                     <div className="mb-10">
                        <h3 className="text-3xl font-black text-slate-900 mb-2">
-                         {authModal.type === 'signin' ? "Sign In" : "Join PartyDial"}
+                         {authModal.type === 'signup' ? "Join PartyDial" : authModal.type === 'signin' ? "Sign In" : "Verify Phone"}
                        </h3>
                        <p className="text-slate-400 font-semibold italic">
-                         {authModal.type === 'signin' ? "Welcome back to your events dashboard." : "Start your journey to a perfect event."}
+                         {authModal.type === 'signup' ? "Start your journey to a perfect event." : authModal.type === 'signin' ? "Welcome back to your events dashboard." : `Enter the 6-digit code sent to ${signupData.phone || '+91 98765 00000'}`}
                        </p>
                     </div>
 
-                    <button 
-                      onClick={handleGoogleLogin}
-                      className="w-full h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-3 hover:bg-slate-50 transition-all font-black text-[10px] uppercase tracking-widest mb-8"
-                    >
-                       <svg width="18" height="18" viewBox="0 0 18 18">
-                         <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.56 2.69-3.86 2.69-6.62z" fill="#4285F4"/>
-                         <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.8.54-1.83.86-3.05.86-2.34 0-4.33-1.58-5.04-3.7H.95v2.32A8.99 8.99 0 0 0 9 18z" fill="#34A853"/>
-                         <path d="M3.96 10.72A5.41 5.41 0 0 1 3.6 9c0-.6.1-1.17.27-1.72V4.96H.95A8.99 8.99 0 0 0 0 9c0 1.45.35 2.82.95 4.04l3.01-2.32z" fill="#FBBC05"/>
-                         <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.47C13.46.99 11.43 0 9 0 5.48 0 2.44 2.02.95 4.96L3.96 7.28C4.67 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/>
-                       </svg>
-                       Continue with Google
-                    </button>
 
-                    <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setIsAuthLoading(true); setTimeout(() => { setIsAuthLoading(false); setAuthModal({...authModal, isOpen: false}); }, 1500); }}>
+                    {authModal.type === 'otp' ? (
+                      <div className="space-y-8">
+                        <div className="flex justify-between gap-2 md:gap-4">
+                          {otp.map((digit, idx) => (
+                            <input 
+                              key={idx}
+                              ref={otpRefs[idx]}
+                              type="text"
+                              maxLength={1}
+                              value={digit}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/\D/g, '');
+                                if (val) {
+                                  const newOtp = [...otp];
+                                  newOtp[idx] = val;
+                                  setOtp(newOtp);
+                                  if (idx < 5) otpRefs[idx + 1].current?.focus();
+                                }
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Backspace' && !otp[idx] && idx > 0) {
+                                  otpRefs[idx - 1].current?.focus();
+                                }
+                              }}
+                              className="w-full h-14 md:h-16 text-center text-xl md:text-2xl font-black bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:border-pd-red focus:ring-4 focus:ring-pd-red/5 outline-none transition-all"
+                            />
+                          ))}
+                        </div>
+
+                        <button 
+                          onClick={async () => {
+                            try {
+                              setIsAuthLoading(true);
+                              setAuthError('');
+                              await account.updatePhoneSession(authUserId, otp.join(''));
+                              
+                              // Update name if it was a signup
+                              if (signupData.name) {
+                                try { await account.updateName(signupData.name); } catch(e) {}
+                              }
+                              
+                              setAuthModal({ ...authModal, isOpen: false });
+                            } catch (error: any) {
+                              setAuthError(error.message || 'Invalid OTP. Please try again.');
+                            } finally {
+                              setIsAuthLoading(false);
+                            }
+                          }}
+                          className="w-full h-16 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl shadow-slate-900/10 hover:bg-pd-red transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                        >
+                          {isAuthLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Verify & Create Account <ArrowRight size={18}/></>}
+                        </button>
+
+                        {authError && (
+                          <p className="text-[10px] text-center text-pd-red font-bold uppercase tracking-widest">{authError}</p>
+                        )}
+
+                        <div className="text-center">
+                          <button 
+                            disabled={resendTimer > 0 || isAuthLoading}
+                            onClick={async () => {
+                              try {
+                                setIsAuthLoading(true);
+                                setAuthError('');
+                                const phone = '+91' + signupData.phone.replace(/\s/g, '');
+                                const token = await account.createPhoneToken(ID.unique(), phone);
+                                setAuthUserId(token.userId);
+                                setResendTimer(45);
+                              } catch(e: any) {
+                                setAuthError(e.message || 'Failed to resend OTP.');
+                              } finally {
+                                setIsAuthLoading(false);
+                              }
+                            }}
+                            className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-pd-red transition-colors disabled:opacity-50"
+                          >
+                            {resendTimer > 0 ? `Didn't receive code? Resend in ${resendTimer}s` : "Didn't receive code? Resend Now"}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                    <form className="space-y-6" onSubmit={async (e) => { 
+                      e.preventDefault(); 
+                      try {
+                        setIsAuthLoading(true);
+                        setAuthError('');
+                        
+                        const phone = '+91' + signupData.phone.replace(/\s/g, '');
+                        
+                        if (authModal.type === 'signup') {
+                           // For Appwrite, we just create a phone token.
+                           // If user already exists, it works fine too.
+                           const token = await account.createPhoneToken(ID.unique(), phone);
+                           setAuthUserId(token.userId);
+                           setAuthModal({...authModal, type: 'otp'});
+                        } else {
+                           // Sign In - also uses phone token
+                           const token = await account.createPhoneToken(ID.unique(), phone);
+                           setAuthUserId(token.userId);
+                           setAuthModal({...authModal, type: 'otp'});
+                        }
+                      } catch (error: any) {
+                        setAuthError(error.message || 'Authentication failed. Please check your number.');
+                      } finally {
+                        setIsAuthLoading(false);
+                      }
+                    }}>
                        {authModal.type === 'signup' && (
                          <div className="space-y-2">
                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Full Name</label>
@@ -568,13 +636,17 @@ export default function Header() {
                           </div>
                        </div>
 
-                       <button 
-                        type="submit" 
-                        disabled={isAuthLoading}
-                        className="w-full h-16 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
-                       >
+                       {authError && (
+                           <p className="text-[10px] text-center text-pd-red font-bold uppercase tracking-widest mt-4">{authError}</p>
+                        )}
+
+                        <button 
+                         type="submit" 
+                         disabled={isAuthLoading}
+                         className="w-full h-16 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+                        >
                           {isAuthLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>{authModal.type === 'signin' ? 'Sign In' : 'Create Account'} <ArrowRight size={18}/></>}
-                       </button>
+                        </button>
 
                        <p className="text-center text-sm font-bold text-slate-400">
                           {authModal.type === 'signin' ? "Don't have an account?" : "Already have an account?"}
@@ -587,6 +659,7 @@ export default function Header() {
                           </button>
                        </p>
                     </form>
+                    )}
                  </div>
               </div>
             </motion.div>

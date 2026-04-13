@@ -18,6 +18,18 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '127.0.0.1' }
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/pincode/:pincode',
+        destination: 'https://api.postalpincode.in/pincode/:pincode',
+      },
+      {
+        source: '/api/postoffice/:name',
+        destination: 'https://api.postalpincode.in/postoffice/:name',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

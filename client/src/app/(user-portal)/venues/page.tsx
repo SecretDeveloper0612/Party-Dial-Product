@@ -204,6 +204,7 @@ function VenuesContent() {
                   type: doc.venueType || "Banquet Hall",
                   capacity: parseInt(doc.capacity) || 500,
                   price: parseInt(doc.perPlateVeg) || 1200,
+                  pincode: doc.pincode?.toString() || "",
                   rating: 0,
                   reviews: 0,
                   img: photos.length > 0 ? getAppwriteImageUrl(photos[0]) : "/gallery/interior.png",
@@ -260,14 +261,20 @@ function VenuesContent() {
       // 0. Only show verified (approved) venues to visitors
       if (!venue.verified) return false;
       
-      // 1. City Filtering
+      // 1. Pincode/Location Filtering
       if (selectedCities.length > 0) {
+        const venuePincode = (venue.pincode || "").toLowerCase();
         const venueCity = (venue.city || "").toLowerCase();
-        const venueLocality = (venue.location || "").toLowerCase();
         
-        const hasMatch = selectedCities.some(city => {
-          const cityOnly = city.split('-')[0].toLowerCase();
-          return venueCity.includes(cityOnly) || cityOnly.includes(venueCity) || venueLocality.includes(cityOnly);
+        const hasMatch = selectedCities.some(searchQuery => {
+          const query = searchQuery.toLowerCase();
+          const parts = query.split('-');
+          const pincodeInQuery = parts.length > 1 ? parts[1] : (/\d{6}/.test(query) ? query : null);
+          const cityInQuery = parts[0];
+
+          if (pincodeInQuery && venuePincode === pincodeInQuery) return true;
+          if (venueCity.includes(cityInQuery) || venuePincode.includes(query)) return true;
+          return false;
         });
         
         if (!hasMatch) return false;
@@ -310,6 +317,25 @@ function VenuesContent() {
       return (b.popular ? 1 : 0) - (a.popular ? 1 : 0);
     });
   }, [allVenues, selectedCities, selectedEvent, selectedVenueTypes, budgetRange, selectedCapacity, selectedAmenities, foodPreference, minRating, quickFilters, sortBy]);
+
+  // Grouped results for multi-pincode UI
+  const resultsByLocation = useMemo(() => {
+    if (selectedCities.length === 0) return [{ location: "All Venues", venues: filteredVenues }];
+
+    return selectedCities.map(searchQuery => {
+      const venues = filteredVenues.filter(v => {
+        const query = searchQuery.toLowerCase();
+        const parts = query.split('-');
+        const pincodeInQuery = parts.length > 1 ? parts[1] : (/\d{6}/.test(query) ? query : null);
+        const cityInQuery = parts[0];
+
+        if (pincodeInQuery && v.pincode === pincodeInQuery) return true;
+        if (v.city.toLowerCase().includes(cityInQuery) || v.pincode === query) return true;
+        return false;
+      });
+      return { location: searchQuery, venues };
+    });
+  }, [selectedCities, filteredVenues]);
 
   const clearFilters = () => {
     setSelectedCities([]);
@@ -676,14 +702,33 @@ function VenuesContent() {
                 </div>
              </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+             <div className="space-y-16">
                 <AnimatePresence mode="popLayout">
-                {filteredVenues.length > 0 ? (
-                  filteredVenues.map((v, i) => (
-                    <VenueCard key={v.id} venue={v} index={i} />
+                {resultsByLocation.length > 0 && resultsByLocation.some(group => group.venues.length > 0) ? (
+                  resultsByLocation.map((group, gIdx) => (
+                    <div key={gIdx} className="space-y-6">
+                      {selectedCities.length > 1 && (
+                        <div className="flex items-center gap-4">
+                          <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] whitespace-nowrap">Venues in {group.location}</h2>
+                          <div className="h-px bg-slate-100 flex-1"></div>
+                        </div>
+                      )}
+                      
+                      {group.venues.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          {group.venues.map((v, i) => (
+                            <VenueCard key={v.id} venue={v} index={i} />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="bg-slate-50/50 rounded-[30px] p-8 border border-dashed border-slate-200 text-center">
+                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No venues available for {group.location}</p>
+                        </div>
+                      )}
+                    </div>
                   ))
                 ) : (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="col-span-full py-24 text-center">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-24 text-center">
                      <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
                         <Filter size={40} />
                      </div>

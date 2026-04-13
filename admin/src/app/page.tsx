@@ -229,8 +229,8 @@ export default function Dashboard() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-[#b66dff]/30 border-t-[#b66dff] rounded-full animate-spin" />
-          <p className="text-xs font-black uppercase tracking-widest text-slate-400">Loading Intelligence Dashboard...</p>
+          <div className="w-12 h-12 border-4 border-[#b66dff] rounded-full" />
+          <p className="text-xs font-black uppercase tracking-widest text-slate-400">Intelligence Dashboard</p>
         </div>
       </div>
     );
@@ -256,7 +256,7 @@ export default function Dashboard() {
               : "bg-slate-50 border-slate-100 text-slate-400"
           )}>
             {isRealtimeConnected ? (
-              <><div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /><Wifi size={11} /> Live</>
+              <><div className="w-2 h-2 rounded-full bg-emerald-400" /><Wifi size={11} /> Live</>
             ) : (
               <><div className="w-2 h-2 rounded-full bg-slate-300" /><WifiOff size={11} /> Connecting...</>
             )}
@@ -464,7 +464,7 @@ export default function Dashboard() {
               <h3 className="text-lg font-bold text-[#343a40]">Live Activity Feed</h3>
               {isRealtimeConnected && (
                 <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-widest border border-emerald-100">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   Realtime
                 </span>
               )}

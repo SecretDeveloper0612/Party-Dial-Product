@@ -99,7 +99,7 @@ export default function CRMContacts() {
                   {loading ? (
                     <tr>
                       <td colSpan={6} className="p-20 text-center">
-                         <Loader2 className="animate-spin text-[#b66dff] mx-auto mb-4" size={32} />
+                         <Loader2 className=" text-[#b66dff] mx-auto mb-4" size={32} />
                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Synchronizing Contacts...</p>
                       </td>
                     </tr>

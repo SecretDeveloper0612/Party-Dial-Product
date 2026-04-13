@@ -328,23 +328,6 @@ export default function ContactUs() {
         </div>
       </section>
 
-      {/* 4. FAQ SECTION */}
-      <section className="py-20 md:py-32 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div {...fadeUp}>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 uppercase italic tracking-tighter">Frequently Asked <span className="text-pd-red">Questions</span></h2>
-            <p className="text-slate-500 font-medium mb-12 max-w-2xl mx-auto italic">
-              Still have questions? Check out our FAQ section for common inquiries about venue booking, lead generation, and registration.
-            </p>
-            <Link href="/faq">
-              <button className="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-900 px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all inline-flex items-center gap-2 active:scale-95">
-                Go to FAQ Page
-                <ChevronRight size={18} />
-              </button>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
 
       {/* 5. CALL TO ACTION SECTION */}
       <section className="pb-16 md:pb-24 px-6 md:px-10">
@@ -362,14 +345,11 @@ export default function ContactUs() {
               Join India&apos;s leading platform and start receiving high-quality leads directly. List your banquet hall, hotel, or resort today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link href="/register-venue" className="w-full sm:w-auto">
+              <Link href="https://partner.partydial.com/signup" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto bg-pd-red hover:bg-red-600 text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-pd-red/20 active:scale-95">
                   Register Your Venue
                 </button>
               </Link>
-              <button className="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white border border-white/20 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all active:scale-95">
-                Partner Benefits
-              </button>
             </div>
           </div>
         </motion.div>

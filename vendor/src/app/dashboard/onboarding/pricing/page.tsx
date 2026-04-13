@@ -22,10 +22,7 @@ export default function SetPricingPage() {
   const [perPlateNonVeg, setPerPlateNonVeg] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [docId, setDocId] = useState<string | null>(null);
-  const [packages, setPackages] = useState([
-    { id: 1, name: 'Silver Package', price: '500', desc: 'Basic inclusions with food & decor.' },
-    { id: 2, name: 'Gold Package', price: '750', desc: 'Premium food variety & basic lighting.' },
-  ]);
+  const [packages, setPackages] = useState([]);
 
   React.useEffect(() => {
     const fetchProfile = async () => {

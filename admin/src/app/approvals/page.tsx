@@ -273,7 +273,7 @@ export default function ApprovalsQueue() {
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm">
-            <div className={cn("w-2 h-2 rounded-full animate-pulse", pendingVenues.length > 0 ? "bg-amber-500" : "bg-emerald-400")} />
+            <div className={cn("w-2 h-2 rounded-full ", pendingVenues.length > 0 ? "bg-amber-500" : "bg-emerald-400")} />
             <span className="text-xs font-black text-slate-800">{pendingVenues.length} Pending Actions</span>
           </div>
           <button
@@ -351,7 +351,7 @@ export default function ApprovalsQueue() {
       <div className="space-y-4">
         {loading ? (
           <div className="py-20 text-center flex flex-col items-center gap-4">
-            <Loader2 className="animate-spin text-[#b66dff]" size={40} />
+            <Loader2 className=" text-[#b66dff]" size={40} />
             <p className="text-xs font-black uppercase text-slate-400 tracking-widest">Loading venue queue...</p>
           </div>
         ) : error ? (
@@ -479,7 +479,7 @@ export default function ApprovalsQueue() {
                       className="px-6 py-3 grad-purple text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-purple-500/20 hover:scale-[1.02] transition-all relative active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {processingId === venue.id ? (
-                        <><Loader2 size={14} className="animate-spin" /> Activating...</>
+                        <><Loader2 size={14}  /> Activating...</>
                       ) : (
                         <><ShieldCheck size={14} /> Approve & Activate</>
                       )}
