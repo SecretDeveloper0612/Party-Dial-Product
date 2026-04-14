@@ -21,7 +21,9 @@ import {
   Sparkle,
   CheckCircle2,
   ChevronRight,
-  Eye
+  Eye,
+  Loader2,
+  MapPin
 } from 'lucide-react';
 
 // --- STYLES ---
@@ -226,22 +228,117 @@ const GridBackground = () => (
   </div>
 );
 
-const InquiryPopup = ({ plan, isOpen, onClose }: { plan: typeof pricingPlans[0] | null, isOpen: boolean, onClose: () => void }) => {
+const InquiryPopup = React.memo(({ plan, isOpen, onClose }: { plan: typeof pricingPlans[0] | null, isOpen: boolean, onClose: () => void }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     venueName: '',
     city: '',
+    pincode: '',
     selectedPlanId: plan?.id || pricingPlans[0].id
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  // Pincode/Location states
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoadingPincode, setIsLoadingPincode] = useState(false);
 
   useEffect(() => {
     if (plan) {
       setFormData(prev => ({ ...prev, selectedPlanId: plan.id }));
     }
   }, [plan]);
+
+  // Indian Post API Auto-suggest
+  useEffect(() => {
+    const fetchPincode = async () => {
+      const input = formData.pincode.trim();
+      if (input.length < 3) {
+        setSuggestions([]);
+        return;
+      }
+
+      setIsLoadingPincode(true);
+      try {
+        const url = /^\d+$/.test(input) 
+          ? `https://api.postalpincode.in/pincode/${input}`
+          : `https://api.postalpincode.in/postoffice/${input}`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data[0].Status === 'Success') {
+          const offices = data[0].PostOffice;
+          setSuggestions(offices.map((o: any) => ({
+            display: `${o.Name}, ${o.District}`,
+            city: o.Name,
+            district: o.District,
+            pincode: o.Pincode
+          })).slice(0, 5));
+        } else {
+          setSuggestions([]);
+        }
+      } catch (e) {
+        console.error('Pincode fetch error:', e);
+      } finally {
+        setIsLoadingPincode(false);
+      }
+    };
+
+    const timer = setTimeout(fetchPincode, 400);
+    return () => clearTimeout(timer);
+  }, [formData.pincode]);
+
+  const selectPincode = (suggestion: any) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      pincode: suggestion.pincode, 
+      city: `${suggestion.city}, ${suggestion.district}` 
+    }));
+    setShowSuggestions(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      const selectedPlan = pricingPlans.find(p => p.id === formData.selectedPlanId);
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+      const serverUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+
+      const response = await fetch(`${serverUrl}/leads/partner-enquiry`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          plan: selectedPlan ? `${selectedPlan.name} (${selectedPlan.packName})` : 'Custom',
+          venueName: formData.venueName,
+          city: formData.city,
+          pincode: formData.pincode,
+          guestCapacity: selectedPlan?.name.split(' ')[0] || '0'
+        }),
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+      } else {
+        alert('Failed to submit inquiry. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting inquiry:', error);
+      alert('Internal error. Please check your connection.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -257,9 +354,8 @@ const InquiryPopup = ({ plan, isOpen, onClose }: { plan: typeof pricingPlans[0] 
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
         transition={{ type: "spring", duration: 0.4, bounce: 0 }}
-        className="relative w-full max-w-lg bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl overflow-hidden will-change-transform"
+        className="relative w-full max-w-lg bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl will-change-transform"
       >
-        {/* Simplified Background Ornaments for Performance */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
         
         <button 
@@ -279,7 +375,7 @@ const InquiryPopup = ({ plan, isOpen, onClose }: { plan: typeof pricingPlans[0] 
               <p className="mt-2 text-slate-500 font-bold text-[10px] uppercase tracking-widest leading-none">Complete the form to get started</p>
             </div>
 
-            <form onSubmit={(e) => { e.preventDefault(); setIsSubmitted(true); }} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
@@ -287,6 +383,8 @@ const InquiryPopup = ({ plan, isOpen, onClose }: { plan: typeof pricingPlans[0] 
                     required 
                     type="text" 
                     placeholder="Rahul Sharma"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
                   />
                 </div>
@@ -296,9 +394,23 @@ const InquiryPopup = ({ plan, isOpen, onClose }: { plan: typeof pricingPlans[0] 
                     required 
                     type="tel" 
                     placeholder="9876543210"
+                    value={formData.phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
+                <input 
+                  required 
+                  type="email" 
+                  placeholder="rahul@example.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
+                />
               </div>
               
               <div className="space-y-1">
@@ -317,18 +429,79 @@ const InquiryPopup = ({ plan, isOpen, onClose }: { plan: typeof pricingPlans[0] 
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Venue Name</label>
+                  <input 
+                    required 
+                    type="text" 
+                    placeholder="Orchid Grand"
+                    value={formData.venueName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, venueName: e.target.value }))}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
+                  />
+                </div>
+
+                <div className="group space-y-1 relative">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Pincode</label>
+                  <div className="relative">
+                    <input 
+                      required 
+                      type="text" 
+                      placeholder="Pincode"
+                      value={formData.pincode}
+                      onChange={(e) => {
+                        setFormData(prev => ({ ...prev, pincode: e.target.value }));
+                        setShowSuggestions(true);
+                      }}
+                      onFocus={() => setShowSuggestions(true)}
+                      autoComplete="off"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
+                    />
+                    {isLoadingPincode && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-pd-pink" size={14} />}
+                    
+                    <AnimatePresence>
+                      {showSuggestions && suggestions.length > 0 && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="absolute left-0 right-0 top-[110%] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] max-h-60 overflow-y-auto p-1 custom-scrollbar"
+                        >
+                          {suggestions.map((s, idx) => (
+                            <button 
+                              key={idx}
+                              type="button"
+                              onClick={() => selectPincode(s)}
+                              className="w-full text-left px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-pd-pink transition-all rounded-xl flex items-center gap-2"
+                            >
+                              <MapPin size={10} /> {s.display} ({s.pincode})
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Venue Details</label>
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">City / Area</label>
                 <input 
                   required 
                   type="text" 
-                  placeholder="Venue Name, City"
+                  placeholder="Select area from pincode"
+                  value={formData.city}
+                  onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
                 />
               </div>
 
-              <button className={`w-full mt-4 py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg text-white ${gradientStyle} hover:translate-y-[-2px] active:translate-y-[0]`}>
-                Submit Inquiry
+              <button 
+                disabled={isSubmitting}
+                className={`w-full mt-4 py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg text-white ${gradientStyle} hover:translate-y-[-2px] active:translate-y-[0] disabled:opacity-70 disabled:grayscale`}
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Inquiry'}
               </button>
             </form>
           </div>
@@ -356,9 +529,11 @@ const InquiryPopup = ({ plan, isOpen, onClose }: { plan: typeof pricingPlans[0] 
       </motion.div>
     </div>
   );
-};
+});
 
-const PricingCard = ({ plan, onSelect }: { plan: typeof pricingPlans[0], onSelect: (plan: typeof pricingPlans[0]) => void }) => {
+InquiryPopup.displayName = 'InquiryPopup';
+
+const PricingCard = React.memo(({ plan, onSelect }: { plan: typeof pricingPlans[0], onSelect: (plan: typeof pricingPlans[0]) => void }) => {
   const discount = Math.round(((plan.mrp - plan.price) / plan.mrp) * 100);
   
   return (
@@ -429,9 +604,11 @@ const PricingCard = ({ plan, onSelect }: { plan: typeof pricingPlans[0], onSelec
       </div>
     </motion.div>
   );
-};
+});
 
-const FaqItem = ({ item }: { item: typeof faqs[0] }) => {
+PricingCard.displayName = 'PricingCard';
+
+const FaqItem = React.memo(({ item }: { item: typeof faqs[0] }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <motion.div 
@@ -454,7 +631,7 @@ const FaqItem = ({ item }: { item: typeof faqs[0] }) => {
           <ChevronDown size={16} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
         </div>
       </button>
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
@@ -471,7 +648,9 @@ const FaqItem = ({ item }: { item: typeof faqs[0] }) => {
       </AnimatePresence>
     </motion.div>
   );
-};
+});
+
+FaqItem.displayName = 'FaqItem';
 
 export default function PricingPage() {
   const [selectedAddon, setSelectedAddon] = useState<number | null>(null);

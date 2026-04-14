@@ -116,6 +116,7 @@ function VenueManagementContent() {
   const [editForm, setEditForm] = useState<any>({});
   const [updating, setUpdating] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [listingFilter, setListingFilter] = useState<"All" | "Free" | "Paid">("All");
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
   const showToast = (msg: string, type: "success" | "error") => {
@@ -265,20 +266,25 @@ function VenueManagementContent() {
         v.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
         v.ownerEmail.toLowerCase().includes(searchQuery.toLowerCase());
       
-      // If user is Super Admin, show all.
-      // Otherwise, show only if they have access via assignedVenues or territorial scope.
+      const matchesListing = 
+        listingFilter === "All" ||
+        (listingFilter === "Paid" && v.hasActivePlan) ||
+        (listingFilter === "Free" && !v.hasActivePlan);
+
+      if (!matchesSearch || !matchesListing) return false;
+
+      // Role-based Access Logic
       const userRole = currentUser?.prefs?.role;
-      if (userRole === "Super Admin") return matchesSearch;
+      if (userRole === "Super Admin") return true;
 
       const assignedVenues = JSON.parse(currentUser?.prefs?.assignedVenues || "[]");
       const hasDirectAccess = assignedVenues.includes(v.id);
       
-      // Territorial Check
       const userCity = currentUser?.prefs?.city;
       const userState = currentUser?.prefs?.state;
       const hasTerritorialAccess = (userCity && v.city === userCity) || (userState && v.state === userState);
 
-      return matchesSearch && (hasDirectAccess || hasTerritorialAccess);
+      return hasDirectAccess || hasTerritorialAccess;
     }
   );
 
@@ -341,14 +347,26 @@ function VenueManagementContent() {
             className="absolute left-4 text-slate-400"
           />
         </div>
-        <div className="lg:col-span-4 flex gap-4">
-          <div className="flex-1 bg-white border border-slate-100 rounded-xl flex items-center justify-center gap-2 text-sm font-bold text-slate-500 px-4 py-3 shadow-sm">
-            <Filter size={16} />
-            <span>{filteredVenues.length} Venues</span>
+        <div className="lg:col-span-4 flex gap-3">
+          <div className="flex-1 bg-white border border-slate-100 rounded-xl p-1 flex shadow-sm">
+            {(["All", "Free", "Paid"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setListingFilter(f)}
+                className={cn(
+                  "flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                  listingFilter === f 
+                    ? "bg-slate-900 text-white shadow-lg" 
+                    : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                )}
+              >
+                {f}
+              </button>
+            ))}
           </div>
-          <div className="flex-1 bg-white border border-slate-100 rounded-xl flex items-center justify-center gap-2 text-sm font-bold text-slate-500 px-4 py-3 shadow-sm">
-            <TrendingUp size={16} />
-            <span>{venues.filter((v) => v.hasActivePlan).length} Paid</span>
+          <div className="w-[120px] bg-white border border-slate-100 rounded-xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 px-4 py-3 shadow-sm">
+            <Filter size={14} className="text-[#b66dff]" />
+            <span>{filteredVenues.length}</span>
           </div>
         </div>
       </div>
@@ -467,9 +485,8 @@ function VenueManagementContent() {
                           ? "Free"
                           : venue.subscriptionPlan}
                       </span>
-                      <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1.5">
-                        <Users size={11} />
-                        {venue.totalLeads} Leads
+                      <span className="px-2 py-0.5 bg-violet-50 text-violet-600 border border-violet-100 rounded text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
+                        <TrendingUp size={10} /> {venue.totalLeads} Leads
                       </span>
                       {venue.venueType && (
                         <span className="text-[10px] font-bold text-slate-400">

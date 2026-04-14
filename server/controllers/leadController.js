@@ -621,6 +621,20 @@ exports.processPublicInquiry = async (req, res) => {
                     ).catch(() => {});
                 }
 
+                // Increment totalLeads in venue document
+                try {
+                    await databases.updateDocument(
+                        DATABASE_ID,
+                        VENUES_COLLECTION_ID || '6783857500366eb7b9b4',
+                        v.$id,
+                        {
+                            totalLeads: (v.totalLeads || 0) + 1
+                        }
+                    );
+                } catch (updateErr) {
+                    console.error(`Failed to update lead count for venue ${v.$id}:`, updateErr.message);
+                }
+
                 return doc;
             } catch (err) {
                 console.error(`Failed distributing to ${v.venueName}:`, err.message);
@@ -655,5 +669,86 @@ exports.processPublicInquiry = async (req, res) => {
     } catch (error) {
         console.error('CRITICAL: Distributor Engine Fault:', error);
         return res.status(500).json({ status: 'error', message: 'Internal server failure' });
+    }
+};
+
+/**
+ * Save partner enquiry from pricing page
+ */
+exports.savePartnerEnquiry = async (req, res) => {
+    try {
+        const { name, phone, email, plan, venueName, city, pincode, guestCapacity } = req.body;
+        console.log(`[ALARM] Incoming Partner Inquiry: ${name} (${phone}) for ${venueName}`);
+
+        if (!name || !phone) {
+            return res.status(400).json({ status: 'error', message: 'Name and Phone are required' });
+        }
+
+        const leadDoc = {
+            venueId: 'PARTNER_ENQUIRY',
+            name: name,
+            phone: phone,
+            email: email || '',
+            eventType: 'Partner Onboarding',
+            guests: parseInt(guestCapacity) || 0,
+            notes: `Plan: ${plan} | Venue: ${venueName} | City: ${city} | Pin: ${pincode} | Source: Price Page Lead`,
+            status: 'New',
+            createdAt: new Date().toISOString()
+        };
+
+        const result = await databases.createDocument(
+            DATABASE_ID,
+            LEADS_COLLECTION_ID,
+            ID.unique(),
+            leadDoc
+        );
+        console.log(`[SUCCESS] Lead Doc Created: ${result.$id}`);
+
+        return res.status(201).json({
+            status: 'success',
+            message: 'Partner inquiry saved successfully',
+            data: result
+        });
+    } catch (error) {
+        console.error('[ERROR] savePartnerEnquiry:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+/**
+ * Get all price page leads for Admin
+ */
+exports.getPriceLeads = async (req, res) => {
+    try {
+        console.log('[DEBUG] Fetching Price Leads from Collection:', LEADS_COLLECTION_ID);
+        // Temporarily fetch all recent leads to see if PARTNER_ENQUIRY exists with different casing or properties
+        const result = await databases.listDocuments(
+            DATABASE_ID,
+            LEADS_COLLECTION_ID,
+            [
+                Query.orderDesc('$createdAt'),
+                Query.limit(100)
+            ]
+        );
+        
+        console.log(`[DEBUG] Total leads in collection: ${result.total}. Filtering for PARTNER_ENQUIRY...`);
+        
+        // Filter manually to ensure we find them even if the index/query is having issues
+        const partnerLeads = result.documents.filter(d => 
+            d.venueId === 'PARTNER_ENQUIRY' || 
+            d.source === 'Price Page Lead' || 
+            (d.notes && d.notes.includes('Source: Price Page Lead'))
+        );
+
+        console.log(`[DEBUG] Found ${partnerLeads.length} Partner Enquiries after manual filter.`);
+        
+        return res.status(200).json({
+            status: 'success',
+            results: partnerLeads.length,
+            data: partnerLeads
+        });
+    } catch (error) {
+        console.error('[ERROR] getPriceLeads:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
     }
 };

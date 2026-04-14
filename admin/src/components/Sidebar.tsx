@@ -38,6 +38,7 @@ const menuItems = [
   { icon: Target, label: "Lead Distribution", path: "/lead-distribution" },
   { icon: Target, label: "Lead Dist. (Venues)", path: "/lead-distribution-venues" },
   { icon: Table, label: "Lead Matrix", path: "/crm/leads" },
+  { icon: FileText, label: "Price Leads", path: "/price-leads" },
   { icon: Zap, label: "Plan Management", path: "/plans" },
   { icon: Users, label: "User & Role Management", path: "/users" },
   { icon: GitGraph, label: "Team Structure", path: "/team-tree" },
@@ -82,6 +83,7 @@ export default function Sidebar() {
        "Lead Distribution": "Leads",
        "Lead Dist. (Venues)": "Leads",
        "Lead Matrix": "Leads",
+       "Price Leads": "Leads",
        "Plan Management": "Settings",
        "User & Role Management": "Users",
        "Team Structure": "Users"

@@ -568,6 +568,7 @@ export default function VenueDetailPage() {
                  <span>{venue.location}</span>
                </div>
                
+                {venue.isPaid && (
                    <div className="mt-8 flex flex-col sm:flex-row gap-3">
                      <button 
                        onClick={() => window.dispatchEvent(new CustomEvent('open-inquiry-popup', { detail: { venueId: id } }))}
@@ -590,6 +591,7 @@ export default function VenueDetailPage() {
                        <MessageCircle size={16} className="shrink-0" /> <span className="hidden sm:inline">WhatsApp</span><span className="sm:hidden">WA</span>
                      </a>
                    </div>
+                )}
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 w-full lg:w-auto gap-4 md:gap-8 lg:px-10 lg:border-l border-slate-100 pt-8 lg:pt-0 border-t lg:border-t-0 mt-8 lg:mt-0 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
