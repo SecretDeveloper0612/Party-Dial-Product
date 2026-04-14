@@ -478,6 +478,7 @@ export default function VendorDashboard() {
         perPlateVeg: String(parseInt(String(venueProfile.perPlateVeg || 0)) || 0),
         amenities: venueProfile.amenities,
         eventTypes: venueProfile.eventTypes,
+        landmark: venueProfile.landmark || '',
         packages: JSON.stringify({
            packages: Array.isArray(venueProfile.packages) ? venueProfile.packages : [],
            halls: Array.isArray(venueProfile.halls) ? venueProfile.halls : []

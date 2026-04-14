@@ -8,6 +8,7 @@ import {
   Bell, 
   CreditCard, 
   ChevronRight, 
+  MapPin,
   Sparkles, 
   Building2, 
   Users, 
@@ -361,6 +362,31 @@ const DashboardSettings = ({
                                         </select>
                                      </div>
                                   </div>
+                                  <div className="space-y-3">
+                                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">Key Landmark</label>
+                                      <div className="relative group">
+                                         <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-pd-pink transition-colors" size={18} />
+                                         <input 
+                                           type="text" 
+                                           placeholder="e.g. Near City Center Mall"
+                                           value={venueProfile?.landmark || ""} 
+                                           onChange={(e) => handleProfileUpdate('landmark', e.target.value)}
+                                           className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-5 pl-16 pr-8 text-sm font-black italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner" 
+                                         />
+                                      </div>
+                                      {venueProfile?.landmark && (
+                                        <div className="mt-4 rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                                          <iframe 
+                                            width="100%" 
+                                            height="150" 
+                                            style={{ border: 0 }} 
+                                            loading="lazy" 
+                                            allowFullScreen 
+                                            src={`https://maps.google.com/maps?q=${encodeURIComponent(venueProfile.landmark + ' ' + (venueProfile?.city || 'Haldwani'))}&output=embed`}
+                                          ></iframe>
+                                        </div>
+                                      )}
+                                   </div>
                                </div>
                             </section>
 
@@ -379,6 +405,21 @@ const DashboardSettings = ({
                                          </button>
                                       );
                                    })}
+                                </div>
+                             </section>
+
+                             <section>
+                                <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Venue Bio / Description</h3>
+                                <div className="space-y-3">
+                                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">About Your Venue</label>
+                                   <textarea 
+                                     rows={6}
+                                     value={venueProfile?.description || ""} 
+                                     onChange={(e) => handleProfileUpdate('description', e.target.value)}
+                                     placeholder="Tell customers about your venue's ambiance, specialties, and unique features..."
+                                     className="w-full bg-slate-50 border border-slate-100 rounded-[24px] p-6 text-sm font-medium text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none resize-none leading-relaxed shadow-inner" 
+                                   />
+                                   <p className="text-[9px] text-slate-400 font-bold italic text-right uppercase tracking-[0.2em]">Minimum 200 characters recommended</p>
                                 </div>
                              </section>
                           </div>
