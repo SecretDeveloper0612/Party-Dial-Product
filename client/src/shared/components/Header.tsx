@@ -55,6 +55,41 @@ export default function Header() {
     name: '', email: '', phone: '', password: '', confirmPassword: '', agreeTerms: false
   });
 
+  // PWA Install Prompt State
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      console.log('✅ PWA Install Prompt Captured');
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleDownloadApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    } else {
+      // Logic for iOS or desktop where beforeinstallprompt isn't triggered
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      if (isIOS) {
+        alert('To install PartyDial on iPhone:\n\n1. Tap the Share button (square with arrow) at the bottom\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" at the top right');
+      } else {
+        alert('To install the PartyDial web app:\n\n1. Click the "Install" icon in your browser address bar\nOR\n2. Open browser menu (...) and select "Install App"');
+      }
+    }
+  };
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (authModal.type === 'otp' && resendTimer > 0) {
@@ -275,7 +310,10 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
-             <button className="hidden lg:flex items-center gap-3 pd-btn-primary !px-7 !py-3.5 !text-xs tracking-wider uppercase active:scale-95 shadow-pd-soft">
+             <button 
+                onClick={handleDownloadApp}
+                className="hidden lg:flex items-center gap-3 pd-btn-primary !px-7 !py-3.5 !text-xs tracking-wider uppercase active:scale-95 shadow-pd-soft"
+             >
                <Download size={18} /> <span>Download App</span>
              </button>
              <button 
@@ -386,7 +424,10 @@ export default function Header() {
                 </div>
                 
                 <div className="pt-4 border-t border-slate-100 italic">
-                  <button className="w-full pd-btn-primary py-4 flex items-center justify-center gap-3">
+                  <button 
+                    onClick={handleDownloadApp}
+                    className="w-full pd-btn-primary py-4 flex items-center justify-center gap-3"
+                  >
                     <Download size={20} />
                     <span>Download App</span>
                   </button>
