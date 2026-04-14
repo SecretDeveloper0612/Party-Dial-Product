@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   title: "PartyDial | Dial Up Your Next Event",
   description: "The ultimate platform for planning and managing your perfect party. Dial up the excitement with PartyDial.",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "PartyDial",
+  },
 };
 
 export default function RootLayout({
