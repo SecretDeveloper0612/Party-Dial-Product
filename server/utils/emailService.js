@@ -278,3 +278,39 @@ exports.sendPaymentReminderEmail = (to, name) => {
 
     return sendEmail(to, "Action Required: Active Your Venue Subscription 📈", html, "Active your subscription on PartyDial to start receiving leads.");
 };
+
+/**
+ * 10. New Lead Notification (Central Admin/Leads Email)
+ */
+exports.sendLeadNotificationEmail = (to, leadData) => {
+    const html = getBaseTemplate(`
+        <h2>New Lead Received! 🎊</h2>
+        <p>A new inquiry has been submitted on PartyDial. Here are the details:</p>
+        <div class="card">
+            <p><strong>Customer Details:</strong></p>
+            <ul>
+                <li><strong>Name:</strong> ${leadData.name}</li>
+                <li><strong>Phone:</strong> ${leadData.phone || leadData.number}</li>
+                <li><strong>Email:</strong> ${leadData.email || 'N/A'}</li>
+            </ul>
+        </div>
+        <div class="card" style="border-left: 4px solid ${BRAND_COLOR}">
+            <p><strong>Event Requirements:</strong></p>
+            <ul>
+                <li><strong>Event Type:</strong> ${leadData.eventType}</li>
+                <li><strong>Guests:</strong> ${leadData.guests || leadData.pax || leadData.guestCapacity}</li>
+                <li><strong>Date:</strong> ${leadData.eventDate || leadData.date || 'N/A'}</li>
+                <li><strong>Pincode:</strong> ${leadData.pincode || 'N/A'}</li>
+            </ul>
+        </div>
+        ${leadData.notes || leadData.eventDetails ? `
+        <div class="card">
+            <p><strong>Additional Notes:</strong></p>
+            <p>${leadData.notes || leadData.eventDetails}</p>
+        </div>` : ''}
+        <p>This lead has been recorded in the database and is ready for matching.</p>
+        <a href="https://admin.partydial.com/leads" class="button">View All Leads</a>
+    `, `New ${leadData.eventType} inquiry from ${leadData.name} (${leadData.guests} guests).`);
+
+    return sendEmail(to, `New Lead Alert: ${leadData.eventType} in ${leadData.pincode || 'Location'} 🎊`, html, `New lead from ${leadData.name}`);
+};

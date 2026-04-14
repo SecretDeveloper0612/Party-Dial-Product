@@ -1,5 +1,6 @@
 const { databases, DATABASE_ID, LEADS_COLLECTION_ID, VENUES_COLLECTION_ID, users } = require('../config/appwrite');
 const { ID, Query } = require('node-appwrite');
+const { sendLeadNotificationEmail } = require('../utils/emailService');
 const axios = require('axios');
 
 /**
@@ -472,7 +473,17 @@ exports.processPublicInquiry = async (req, res) => {
         // 1. Sanitize & Parse Lead Requirements
         const leadPincode = pincode.toString().replace(/\s/g, '').trim();
         const cleanPhone = number.toString().replace(/[^0-9]/g, '').slice(-10);
-        const requestedGuests = parseInt(guestCapacity) || 0;
+        
+        // Handle guest capacity ranges (e.g., "0-50", "50-100", "5000+")
+        const guestCapStr = String(guestCapacity || "0");
+        let requestedGuests = 0;
+        if (guestCapStr.includes('-')) {
+            requestedGuests = parseInt(guestCapStr.split('-').pop()) || 0;
+        } else if (guestCapStr.includes('+')) {
+            requestedGuests = parseInt(guestCapStr.replace('+', '')) || 5000;
+        } else {
+            requestedGuests = parseInt(guestCapStr) || 0;
+        }
 
         console.log(`📍 TARGET AREA: ${leadPincode} | 👥 GUESTS: ${requestedGuests} | 👤 NAME: ${name}`);
 
@@ -619,6 +630,21 @@ exports.processPublicInquiry = async (req, res) => {
 
         const successes = (await Promise.all(leadTasks)).filter(t => t !== null).length;
         console.log(`🏁 FINISHED: Distributed to ${successes} partners.\n`);
+
+        // --- 📩 CENTRAL EMAIL NOTIFICATION ---
+        // Notify admin about the new public inquiry
+        if (process.env.ADMIN_EMAIL) {
+            sendLeadNotificationEmail(process.env.ADMIN_EMAIL, {
+                name,
+                number,
+                email,
+                eventType,
+                guestCapacity,
+                pincode: leadPincode,
+                eventDate,
+                eventDetails
+            }).catch(err => console.error('Failed to send admin public inquiry email:', err.message));
+        }
 
         return res.status(201).json({
             status: 'success',

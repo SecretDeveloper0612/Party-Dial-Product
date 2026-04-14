@@ -1,7 +1,7 @@
 const { databases, DATABASE_ID, VENUES_COLLECTION_ID, LEADS_COLLECTION_ID, REVIEWS_COLLECTION_ID } = require('../config/appwrite');
 const { ID, Query } = require('node-appwrite');
 const { sendPushNotification } = require('../utils/notifications');
-const { sendProfileStatusEmail } = require('../utils/emailService');
+const { sendProfileStatusEmail, sendLeadNotificationEmail } = require('../utils/emailService');
 
 
 // Get all venues
@@ -230,58 +230,116 @@ exports.submitLead = async (req, res) => {
             });
         }
 
-        const safeGuests = typeof guests === 'string' 
-            ? (parseInt(guests.split('-').pop()) || 0) 
-            : (parseInt(guests) || 0);
-
-        let targetPincode = rawPincode;
-        
-        // Clean up pincode if it comes in "Name-Pincode" format from suggestions
-        if (targetPincode && typeof targetPincode === 'string' && targetPincode.includes('-')) {
-            targetPincode = targetPincode.split('-').pop();
+        // Parse guests: Handle "0-50", "50-100", "5000+"
+        const guestCapStr = String(guests || "0");
+        let safeGuests = 0;
+        if (guestCapStr.includes('-')) {
+            safeGuests = parseInt(guestCapStr.split('-').pop()) || 0;
+        } else if (guestCapStr.includes('+')) {
+            safeGuests = parseInt(guestCapStr.replace('+', '')) || 5000;
+        } else {
+            safeGuests = parseInt(guestCapStr) || 0;
         }
 
-        // If no direct pincode but specific venueId provided, find that venue's pincode
-        if (!targetPincode && venueId && venueId !== 'BROADCAST') {
+        // Clean up pincode: Handle "Name-Pincode", CSV of pincodes, and whitespace
+        let targetPincodes = [];
+        if (rawPincode) {
+            targetPincodes = rawPincode.toString().split(',').map(p => {
+                let pin = p.trim();
+                if (pin.includes('-')) pin = pin.split('-').pop().trim();
+                return pin;
+            }).filter(p => p);
+        }
+
+        // If no direct pincodes but specific venueId provided, find that venue's pincode
+        if (targetPincodes.length === 0 && venueId && venueId !== 'BROADCAST') {
             try {
                 const venue = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
-                targetPincode = venue.pincode;
+                if (venue.pincode) {
+                    targetPincodes.push(venue.pincode.toString().trim());
+                }
             } catch (e) {
                 console.warn(`Pincode lookup failed for venue ${venueId}`);
             }
         }
 
         let venuesToNotify = [];
-        if (targetPincode) {
-            // Find all venues in this pincode
-            const result = await databases.listDocuments(
+        if (targetPincodes.length > 0) {
+            // Find all venues in these pincodes
+            // Note: Since Appwrite doesn't support OR across multiple values well for strings, 
+            // and pincode might be a single string in DB, we fetch all active venues in the city/general area 
+            // or just iterate pincodes if count is small.
+            
+            const venueResult = await databases.listDocuments(
                 DATABASE_ID,
                 VENUES_COLLECTION_ID,
-                [Query.equal('pincode', targetPincode)]
+                [
+                    Query.equal('isVerified', true),
+                    Query.equal('status', 'active'),
+                    Query.limit(1000)
+                ]
             );
+
+            const allVenues = venueResult.documents;
             
-            // Filter by guest capacity AND active subscription
-            venuesToNotify = result.documents.filter(v => {
+            // Filter by pincode matching AND guest capacity AND active subscription
+            venuesToNotify = allVenues.filter(v => {
                 // 1. Subscription Check (Paid vendors only)
                 const hasActiveSubscription = v.subscriptionPlan && v.subscriptionPlan !== 'free';
                 if (!hasActiveSubscription) return false;
 
-                // 2. Capacity Check
-                let capacityStr = String(v.capacity || '10000');
-                if (capacityStr.includes('-')) {
-                    capacityStr = capacityStr.split('-').pop(); // Take the upper bound
-                } else if (capacityStr.includes('+')) {
-                    capacityStr = capacityStr.replace('+', ''); // Handle '5000+'
+                // 2. Pincode Match
+                const venuePincodes = (v.pincode || "").toString().split(',').map(p => p.trim()).filter(p => p);
+                const isPincodeMatch = targetPincodes.some(p => venuePincodes.includes(p));
+                if (!isPincodeMatch) return false;
+
+                // 3. Capacity Check
+                // A bit more sophisticated capacity check
+                let vMin = 0;
+                let vMax = 0;
+                
+                if (v.minCapacity !== undefined && v.maxCapacity !== undefined) {
+                    vMin = parseInt(v.minCapacity) || 0;
+                    vMax = parseInt(v.maxCapacity) || 0;
+                } else {
+                    const capVal = String(v.capacity || '0');
+                    if (capVal.includes('-')) {
+                        const parts = capVal.split('-');
+                        vMin = parseInt(parts[0]) || 0;
+                        vMax = parseInt(parts[1]) || 0;
+                    } else if (capVal.includes('+')) {
+                        vMin = parseInt(capVal.replace('+', '')) || 0;
+                        vMax = 10000;
+                    } else {
+                        vMin = 0;
+                        vMax = parseInt(capVal) || 10000;
+                    }
                 }
-                const venueMaxCapacity = parseInt(capacityStr) || 10000;
-                return safeGuests <= venueMaxCapacity;
+
+                // If lead says "0-50", safeGuests is 50. 
+                // We match if the venue can handle at least the upper bound of the request.
+                return safeGuests <= vMax;
             });
 
+            // --- 📩 CENTRAL EMAIL NOTIFICATION ---
+            // Send email alert to Admin for EVERY new lead
+            if (process.env.ADMIN_EMAIL) {
+                sendLeadNotificationEmail(process.env.ADMIN_EMAIL, {
+                    name,
+                    phone,
+                    email,
+                    eventType,
+                    guests,
+                    pincode: targetPincodes.join(', '),
+                    notes
+                }).catch(err => console.error('Failed to send admin lead email:', err.message));
+            }
+
             // Fallback: If no paid venues match capacity but some exist, pick largest (must still be paid)
-            if (venuesToNotify.length === 0 && result.documents.length > 0) {
-                const paidVenues = result.documents.filter(v => v.subscriptionPlan && v.subscriptionPlan !== 'free');
+            if (venuesToNotify.length === 0 && allVenues.length > 0) {
+                const paidVenues = allVenues.filter(v => v.subscriptionPlan && v.subscriptionPlan !== 'free');
                 if (paidVenues.length > 0) {
-                    console.log(`Pincode ${targetPincode} match found but capacity ${safeGuests} exceeded all venues. Selecting largest available.`);
+                    console.log(`Pincode ${targetPincodes[0]} match found but capacity ${safeGuests} exceeded all venues. Selecting largest available.`);
                     venuesToNotify = [paidVenues.sort((a,b) => (parseInt(b.capacity)||0) - (parseInt(a.capacity)||0))[0]];
                 }
             }
@@ -331,7 +389,7 @@ exports.submitLead = async (req, res) => {
                     email: email || '',
                     eventType,
                     guests: safeGuests,
-                    notes: notes || (targetPincode ? `Distributed Lead (${targetPincode})` : ''),
+                    notes: notes || (targetPincodes.length > 0 ? `Distributed Lead (${targetPincodes.join(', ')})` : ''),
                     status: 'New',
                     createdAt: new Date().toISOString()
                 }
