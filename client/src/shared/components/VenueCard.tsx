@@ -35,9 +35,16 @@ export default function VenueCard({ venue: v, index: i }: VenueCardProps) {
       transition={{ delay: i * 0.05 }}
       className="pd-card group bg-white border border-slate-100 shadow-pd-soft overflow-hidden h-full flex flex-col"
     >
-       <div className="relative aspect-[16/10] md:h-56 overflow-hidden">
-          <img src={v.img} alt={v.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
-          <div className="absolute top-4 left-4 flex gap-2">
+        <div className="relative aspect-[16/10] md:h-56 overflow-hidden bg-slate-50 flex items-center justify-center">
+           {v.img ? (
+             <img src={v.img} alt={v.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+           ) : (
+             <div className="flex flex-col items-center gap-2 opacity-20 group-hover:opacity-30 transition-opacity">
+                <img src="/logo.jpg" alt="PartyDial" className="w-24 grayscale" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">No Photos Uploaded</span>
+             </div>
+           )}
+           <div className="absolute top-4 left-4 flex gap-2">
              {v.verified && (
                <div className="bg-white/95 px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-xl border border-slate-100">
                   <CheckCircle2 size={12} className="text-green-500" />
@@ -65,7 +72,7 @@ export default function VenueCard({ venue: v, index: i }: VenueCardProps) {
                 <MapPin size={10} className="text-pd-red" /> {v.location}, {v.city}
              </div>
              <div className="flex gap-1">
-                {v.foodTypes.map(f => (
+                {(v.foodTypes || []).map(f => (
                   <div key={f} className={`w-2 h-2 rounded-full ${f === 'Veg' ? 'bg-green-500' : 'bg-red-500'}`} title={f}></div>
                 ))}
              </div>
@@ -77,7 +84,11 @@ export default function VenueCard({ venue: v, index: i }: VenueCardProps) {
           <div className="flex gap-6 mb-5 w-full border-b border-slate-50 pb-4">
              <div className="flex flex-col">
                 <span className="text-[7px] md:text-[8px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">Price / Plate</span>
-                <span className="text-sm md:text-lg font-black text-slate-900 italic">₹{v.price}</span>
+              <span className="text-sm md:text-lg font-black text-slate-900 italic">
+                {v.price && String(v.price).trim() !== "N/A" && String(v.price).trim() !== "0" && String(v.price).trim() !== "" 
+                  ? (String(v.price).includes('₹') ? v.price : `₹${v.price}`) 
+                  : "N/A"}
+              </span>
              </div>
              <div className="flex flex-col border-l border-slate-100 pl-6">
                 <span className="text-[7px] md:text-[8px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">Guest Cap.</span>
@@ -88,10 +99,10 @@ export default function VenueCard({ venue: v, index: i }: VenueCardProps) {
           </div>
           
           <div className="flex flex-wrap gap-1.5 mb-6">
-             {v.amenities.slice(0, 3).map(a => (
+             {(v.amenities || []).slice(0, 3).map(a => (
                <span key={a} className="px-2.5 py-1 bg-slate-50 rounded-lg text-[8px] font-bold text-slate-500 border border-slate-100">{a}</span>
              ))}
-             {v.amenities.length > 3 && <span className="px-1.5 py-1 bg-slate-50 rounded-lg text-[8px] font-bold text-slate-400">+{v.amenities.length - 3}</span>}
+             {(v.amenities || []).length > 3 && <span className="px-1.5 py-1 bg-slate-50 rounded-lg text-[8px] font-bold text-slate-400">+{(v.amenities || []).length - 3}</span>}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 w-full mt-auto">
@@ -100,7 +111,13 @@ export default function VenueCard({ venue: v, index: i }: VenueCardProps) {
                    View Venue
                 </button>
              </Link>
-             <button className="flex-1 order-1 sm:order-2 pd-btn-primary !py-3.5 !text-[11px] tracking-widest uppercase italic shadow-lg shadow-pd-pink/10 flex items-center justify-center gap-2 active:scale-95">
+             <button 
+               onClick={() => {
+                 // Trigger the inquiry popup via custom event
+                 window.dispatchEvent(new CustomEvent('open-inquiry-popup', { detail: { venueId: v.id } }));
+               }}
+               className="flex-1 order-1 sm:order-2 pd-btn-primary !py-3.5 !text-[11px] tracking-widest uppercase italic shadow-lg shadow-pd-pink/10 flex items-center justify-center gap-2 active:scale-95"
+             >
                 Get Quote <ArrowRight size={14} />
              </button>
           </div>

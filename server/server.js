@@ -16,6 +16,7 @@ const aiRoutes = require('./routes/aiRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const leadRoutes = require('./routes/leadRoutes');
+const planRoutes = require('./routes/planRoutes');
 const configController = require('./controllers/configController');
 const { automateLeadStatus, automatePaymentReminders, automateProfileReminders, automateGSheetSync } = require('./utils/cronJobs');
 
@@ -80,6 +81,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/leads', leadRoutes);
+app.use('/api/plans', planRoutes);
 app.get('/api/config', configController.getPublicConfig);
 
 // Optional: Fallback for undefined routes

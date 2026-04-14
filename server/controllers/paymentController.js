@@ -16,6 +16,18 @@ const razorpay = new Razorpay({
 exports.createOrder = async (req, res) => {
   try {
     const { amount, currency = 'INR', receipt, venueId } = req.body;
+    const amountVal = parseInt(String(amount));
+
+    // Dynamic Plan Check (optional enhancement)
+    let isPromotional = amountVal === 1100;
+    
+    // Check if promotional plans have been overridden in DB
+    try {
+      const plansResult = await databases.listDocuments(DATABASE_ID, 'plans', [Query.equal('price', 11), Query.equal('status', 'inactive')]);
+      if (plansResult.total > 0 && isPromotional) {
+         return res.status(403).json({ status: 'error', message: "This promotional plan has been deactivated by the administrator." });
+      }
+    } catch (e) { /* collection might not exist yet */ }
 
     // ── DUPLICATE PURCHASE CHECK ──
     // If it's a trial plan (1100 paise), check if venue already has it

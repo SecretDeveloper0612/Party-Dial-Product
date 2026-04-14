@@ -476,6 +476,8 @@ export default function VendorDashboard() {
         venueName: venueProfile.venueName,
         capacity: !isNaN(parseInt(String(venueProfile.capacity))) ? Math.max(1, Math.min(10000, parseInt(String(venueProfile.capacity)))) : 1, 
         perPlateVeg: String(parseInt(String(venueProfile.perPlateVeg || 0)) || 0),
+        perPlateNonVeg: String(parseInt(String(venueProfile.perPlateNonVeg || 0)) || 0),
+        description: venueProfile.description || '',
         amenities: venueProfile.amenities,
         eventTypes: venueProfile.eventTypes,
         landmark: venueProfile.landmark || '',

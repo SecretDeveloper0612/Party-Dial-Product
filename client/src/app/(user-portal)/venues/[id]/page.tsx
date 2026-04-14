@@ -201,14 +201,14 @@ export default function VenueDetailPage() {
             rating: 0.0, 
             reviewCount: 0,
             contactNumber: doc.contactNumber || "919058988455",
-            pricePerPlate: doc.perPlateVeg || 1500,
-            pricePerPlateNonVeg: doc.perPlateNonVeg || 1800,
+            pricePerPlate: doc.perPlateVeg || "N/A",
+            pricePerPlateNonVeg: doc.perPlateNonVeg || "N/A",
             startingRental: "₹1,50,000",
             capacity: getCapacityLabel(doc.capacity),
             about: doc.description || "No description available for this venue.",
             images: photoIds.length > 0 
               ? photoIds.map((p: any) => getAppwriteImageUrl(p.id))
-              : ["/gallery/interior.png", "/gallery/exterior.png", "/gallery/setup.png"],
+              : [],
             amenities: (doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : []).map((a: string) => {
               const data = AMENITY_DATA[a] || AMENITY_DATA["Default"];
               return {
@@ -251,7 +251,7 @@ export default function VenueDetailPage() {
                     location: v.landmark || v.city || "Nearby",
                     price: v.perPlateVeg || 1200,
                     rating: 4.5,
-                    img: vPhotos.length > 0 ? getAppwriteImageUrl(vPhotos[0]) : "/gallery/interior.png"
+                    img: vPhotos.length > 0 ? getAppwriteImageUrl(vPhotos[0]) : ""
                   };
                 });
               mappedVenue.similarVenues = similar;
@@ -275,7 +275,7 @@ export default function VenueDetailPage() {
       if (mock) {
           const mappedMock = {
             ...mock,
-            images: [mock.img, "/gallery/interior.png", "/gallery/exterior.png"],
+            images: [],
             pricePerPlate: mock.price,
             pricePerPlateNonVeg: mock.price + 300,
             contactNumber: "919058988455",
@@ -473,34 +473,46 @@ export default function VenueDetailPage() {
       {/* 1. IMAGE GALLERY HERO */}
       <section className="relative h-[45vh] md:h-[65vh] bg-slate-900 overflow-hidden">
         <AnimatePresence mode="wait">
-          <motion.div 
-            key={activeImage}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            className="absolute inset-0"
-          >
-            <img 
-              src={venue.images[activeImage]} 
-              alt={venue.name} 
-              className="absolute inset-0 w-full h-full object-cover opacity-80"
-              loading="lazy"
-            />
-          </motion.div>
+          {venue.images.length > 0 ? (
+            <motion.div 
+              key={activeImage}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+              className="absolute inset-0"
+            >
+              <img 
+                src={venue.images[activeImage]} 
+                alt={venue.name} 
+                className="absolute inset-0 w-full h-full object-cover opacity-80"
+                loading="lazy"
+              />
+            </motion.div>
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-slate-900"
+            >
+              <img src="/logo.jpg" alt="PartyDial" className="w-32 md:w-48 grayscale opacity-20" />
+              <p className="text-white/20 font-black uppercase tracking-[0.3em] text-[10px] md:text-sm">No Photos Available</p>
+            </motion.div>
+          )}
         </AnimatePresence>
 
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/40"></div>
         
-        {/* Navigation Arrows */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-between px-4 md:px-6 pointer-events-none z-20">
-          <button onClick={prevImage} className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-slate-900 transition-all active:scale-90">
-            <ChevronLeft size={20} className="md:w-6 md:h-6" />
-          </button>
-          <button onClick={nextImage} className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-slate-900 transition-all active:scale-90">
-            <ChevronRight size={20} className="md:w-6 md:h-6" />
-          </button>
-        </div>
+        {venue.images.length > 1 && (
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-between px-4 md:px-6 pointer-events-none z-20">
+            <button onClick={prevImage} className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-slate-900 transition-all active:scale-90">
+              <ChevronLeft size={20} className="md:w-6 md:h-6" />
+            </button>
+            <button onClick={nextImage} className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-slate-900 transition-all active:scale-90">
+              <ChevronRight size={20} className="md:w-6 md:h-6" />
+            </button>
+          </div>
+        )}
 
         {/* Top Actions */}
         <div className="absolute top-4 md:top-8 left-4 md:left-8 right-4 md:right-8 flex items-center justify-between z-30">
@@ -518,16 +530,17 @@ export default function VenueDetailPage() {
            </div>
         </div>
 
-        {/* Gallery Counter & Button */}
-        <Link href={`/venues/${id}/gallery`} className="absolute bottom-28 md:bottom-12 right-6 md:right-12 z-30">
-          <button className="px-5 py-3 md:px-8 md:py-4 bg-black/50 backdrop-blur-xl rounded-2xl border border-white/20 text-white flex items-center gap-2 md:gap-3 hover:bg-pd-red transition-all group active:scale-95 shadow-2xl">
-             <ImageIcon size={16} className="md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
-             <div className="text-left">
-                <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">View Venue</span>
-                <span className="block text-[8px] md:text-[9px] font-bold text-white/50 uppercase tracking-widest leading-none">{venue.images.length} Photos</span>
-             </div>
-          </button>
-        </Link>
+        {venue.images.length > 0 && (
+          <Link href={`/venues/${id}/gallery`} className="absolute bottom-28 md:bottom-12 right-6 md:right-12 z-30">
+            <button className="px-5 py-3 md:px-8 md:py-4 bg-black/50 backdrop-blur-xl rounded-2xl border border-white/20 text-white flex items-center gap-2 md:gap-3 hover:bg-pd-red transition-all group active:scale-95 shadow-2xl">
+               <ImageIcon size={16} className="md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
+               <div className="text-left">
+                  <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">View Venue</span>
+                  <span className="block text-[8px] md:text-[9px] font-bold text-white/50 uppercase tracking-widest leading-none">{venue.images.length} Photos</span>
+               </div>
+            </button>
+          </Link>
+        )}
       </section>
 
       {/* 2. VENUE TITLE & HIGHLIGHTS */}
@@ -555,24 +568,28 @@ export default function VenueDetailPage() {
                  <span>{venue.location}</span>
                </div>
                
-               {venue.isPaid && (
-                 <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                   <a 
-                     href={`tel:${venue.contactNumber}`}
-                     className="flex-1 px-4 py-4 bg-pd-red text-white text-[11px] md:text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-900 transition-all flex items-center justify-center gap-3 shadow-lg shadow-pd-red/20 active:scale-95 shadow-sm"
-                   >
-                     <Phone size={16} className="shrink-0" /> <span>Call Now</span>
-                   </a>
-                   <a 
-                     href={`https://wa.me/${venue.contactNumber}?text=Hi, I am interested in ${venue.name} from PartyDial.`}
-                     target="_blank"
-                     rel="noopener noreferrer"
-                     className="flex-1 px-4 py-4 bg-green-500 text-white text-[11px] md:text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-900 transition-all flex items-center justify-center gap-3 shadow-lg shadow-green-500/20 active:scale-95 shadow-sm"
-                   >
-                     <MessageCircle size={16} className="shrink-0" /> <span>WhatsApp</span>
-                   </a>
-                 </div>
-               )}
+                   <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                     <button 
+                       onClick={() => window.dispatchEvent(new CustomEvent('open-inquiry-popup', { detail: { venueId: id } }))}
+                       className="flex-1 px-4 py-4 pd-btn-primary text-[11px] md:text-xs font-black uppercase tracking-widest rounded-2xl transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3"
+                     >
+                       <Zap size={18} fill="white" /> <span>Get Free Quote</span>
+                     </button>
+                     <a 
+                       href={`tel:${venue.contactNumber}`}
+                       className="flex-1 px-4 py-4 bg-slate-900 text-white text-[11px] md:text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95"
+                     >
+                       <Phone size={16} className="shrink-0" /> <span className="hidden sm:inline">Call Now</span><span className="sm:hidden">Call</span>
+                     </a>
+                     <a 
+                       href={`https://wa.me/${venue.contactNumber}?text=Hi, I am interested in ${venue.name} from PartyDial.`}
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       className="flex-1 px-4 py-4 bg-green-500 text-white text-[11px] md:text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-slate-900 transition-all flex items-center justify-center gap-3 shadow-lg shadow-green-500/20 active:scale-95"
+                     >
+                       <MessageCircle size={16} className="shrink-0" /> <span className="hidden sm:inline">WhatsApp</span><span className="sm:hidden">WA</span>
+                     </a>
+                   </div>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 w-full lg:w-auto gap-4 md:gap-8 lg:px-10 lg:border-l border-slate-100 pt-8 lg:pt-0 border-t lg:border-t-0 mt-8 lg:mt-0 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
@@ -588,14 +605,18 @@ export default function VenueDetailPage() {
                     <Utensils size={16} className="text-emerald-500" />
                     <p className="text-[10px] sm:text-[10px] font-black uppercase text-slate-400 tracking-widest">Veg Plate</p>
                  </div>
-                 <span className="text-sm md:text-lg font-black text-slate-900">₹{venue.pricePerPlate}</span>
+                  <span className="text-sm md:text-lg font-black text-slate-900">
+                    {venue.pricePerPlate !== "N/A" ? `₹${venue.pricePerPlate}` : "N/A"}
+                  </span>
                </div>
                <div className="flex sm:flex-col items-center sm:items-start justify-between sm:justify-center px-1 py-3 sm:py-0 sm:pl-6">
                  <div className="flex items-center gap-2 mb-0 sm:mb-2">
                     <Utensils size={16} className="text-pd-red" />
                     <p className="text-[10px] sm:text-[10px] font-black uppercase text-slate-400 tracking-widest">Non-Veg Plate</p>
                  </div>
-                 <span className="text-sm md:text-lg font-black text-slate-900">₹{venue.pricePerPlateNonVeg}</span>
+                  <span className="text-sm md:text-lg font-black text-slate-900">
+                    {venue.pricePerPlateNonVeg !== "N/A" ? `₹${venue.pricePerPlateNonVeg}` : "N/A"}
+                  </span>
                </div>
             </div>
           </div>
@@ -1029,8 +1050,15 @@ export default function VenueDetailPage() {
                    href={`/venues/${v.id}`}
                    className="pd-card group bg-slate-50 overflow-hidden block hover:shadow-pd-strong transition-all"
                  >
-                    <div className="relative h-56 overflow-hidden">
-                       <img src={v.img} alt={v.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                    <div className="relative h-56 overflow-hidden bg-white flex items-center justify-center">
+                       {v.img ? (
+                         <img src={v.img} alt={v.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                       ) : (
+                         <div className="flex flex-col items-center gap-2 opacity-20 group-hover:opacity-30 transition-opacity">
+                            <img src="/logo.jpg" alt="PartyDial" className="w-20 grayscale" />
+                            <span className="text-[8px] font-black uppercase tracking-widest text-slate-900">No Photos Uploaded</span>
+                         </div>
+                       )}
                     </div>
                     <div className="p-6">
                        <h4 className="text-xl font-black text-slate-900 mb-1 line-clamp-1 italic">{v.name}</h4>

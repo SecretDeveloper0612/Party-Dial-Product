@@ -31,6 +31,8 @@ import {
   Globe
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import VenueCard from '@/shared/components/VenueCard';
+import { Venue } from '@/data/venues';
 
 const AnimatedCounter = ({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
   const [count, setCount] = useState(0);
@@ -239,10 +241,17 @@ export default function Home() {
             name: doc.venueName || "Unnamed Venue",
             location: doc.landmark || doc.city || "India",
             city: doc.city || "Unknown",
+            type: doc.venueType || "Banquet Hall",
             capacity: getCapacityLabel(doc.capacity),
-            price: doc.perPlateVeg ? `₹${doc.perPlateVeg}` : "₹1,500",
+            price: doc.perPlateVeg ? `₹${doc.perPlateVeg}` : "N/A",
             rating: 4.8,
             reviews: 0,
+            verified: doc.isVerified || false,
+            popular: doc.status === 'active',
+            bestValue: true,
+            isNew: true,
+            amenities: (doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : []),
+            foodTypes: ["Veg", "Non-Veg"],
             img: doc.photos ? (() => {
                try {
                   const photos = JSON.parse(doc.photos);
@@ -250,8 +259,8 @@ export default function Home() {
                   const baseSrv = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
                   const serverUrl = baseSrv.endsWith('/api') ? baseSrv : `${baseSrv}/api`;
                   return `${serverUrl}/venues/proxy/image/venues_photos/${firstId}`;
-               } catch(e) { return "/venues/palace-hotel.png"; }
-            })() : "/venues/palace-hotel.png"
+               } catch(e) { return ""; }
+            })() : ""
           }));
 
           setLiveVenues(mapped.slice(0, 3)); // Take top 3 for home page
@@ -617,41 +626,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {displayVenues.map((venue, i) => (
-              <motion.div key={i} className="pd-card group overflow-hidden bg-white hover:border-pd-red/30 transition-colors">
-                <div className="h-56 relative overflow-hidden">
-                  <img src={venue.img} alt={venue.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm">
-                    <Star className="text-yellow-400 fill-yellow-400" size={14} />
-                    <span className="text-xs font-black text-slate-800">{venue.rating}</span>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                    <MapPin size={12} className="text-pd-red" /> {venue.location}
-                  </div>
-                  <h3 className="text-lg font-black text-slate-900 mb-4">{venue.name}</h3>
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50">
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pax</p>
-                      <p className="text-sm font-black text-slate-700">{venue.capacity}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pricing From</p>
-                      <p className="text-sm font-black text-emerald-500">{venue.price} <span className="text-[10px] text-slate-400">/plate</span></p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2 mt-6">
-                    <Link href={`/venues/${venue.id}`} className="w-full">
-                      <button className="w-full py-3 bg-slate-900 text-white rounded-xl font-black text-[11px] uppercase tracking-widest hover:bg-pd-red transition-all">
-                        View Details
-                      </button>
-                    </Link>
-                    <button className="w-full py-3 border border-pd-purple/20 rounded-xl text-pd-purple font-black text-[11px] uppercase tracking-widest hover:bg-pd-purple/5 transition-all">
-                      Show Phone Number
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
+              <VenueCard key={venue.id} venue={venue as unknown as Venue} index={i} />
             ))}
           </div>
         </div>

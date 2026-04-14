@@ -20,32 +20,31 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 
-const plans = [
-  {
-    id: 'trial_30',
-    name: 'Introductory Offer',
-    packName: '1-MONTH TRIAL',
-    pax: 'LIMITED TIME OFFER',
-    mrp: '14,999',
-    price: '11',
-    save: '99%',
-    desc: 'Unlock full platform access and start receiving live event leads instantly.',
-    features: [
-      'Unlimited Lead Access',
-      'Direct WhatsApp Alerts',
-      'Verified Customer Inquiries',
-      'Priority Support',
-      'Valid for 30 Days'
-    ],
-    color: 'bg-white border-pd-pink/20 text-slate-900',
-    btnColor: 'bg-pd-pink shadow-pd-pink/20',
-    isTrial: true
-  },
-];
-
-
 export default function SubscriptionPage() {
   const router = useRouter();
+  const [plans, setPlans] = useState<any[]>([
+    {
+      id: 'trial_30',
+      name: 'Introductory Offer',
+      packName: '1-MONTH TRIAL',
+      pax: 'LIMITED TIME OFFER',
+      mrp: '14,999',
+      price: '11',
+      save: '99%',
+      desc: 'Unlock full platform access and start receiving live event leads instantly.',
+      features: [
+        'Unlimited Lead Access',
+        'Direct WhatsApp Alerts',
+        'Verified Customer Inquiries',
+        'Priority Support',
+        'Valid for 30 Days'
+      ],
+      color: 'bg-white border-pd-pink/20 text-slate-900',
+      btnColor: 'bg-pd-pink shadow-pd-pink/20',
+      isTrial: true,
+      isVisible: false // Hidden until confirmed by API or if API fails and we want a fallback
+    }
+  ]);
   const [selectedPlan, setSelectedPlan] = useState('trial_30');
   const [isSaving, setIsSaving] = useState(false);
   const [venueName, setVenueName] = useState('');
@@ -61,13 +60,44 @@ export default function SubscriptionPage() {
       try {
         const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
         const serverUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+        
+        // Fetch Config (Razorpay Key)
         const res = await fetch(`${serverUrl}/config`);
         const result = await res.json();
         if (result.status === 'success' && result.razorpayKeyId) {
           setRazorpayKeyId(result.razorpayKeyId);
         }
+
+        // Fetch Real Plans
+        const plansRes = await fetch(`${serverUrl}/plans`);
+        const plansResult = await plansRes.json();
+        if (plansResult.status === 'success' && Array.isArray(plansResult.data)) {
+          // Filter out inactive plans
+          const activePlans = plansResult.data.filter((p: any) => p.status === 'active');
+          
+          const mapped = activePlans.map((p: any) => ({
+            id: p.$id,
+            name: p.name,
+            packName: p.duration > 30 ? 'STANDARD PLAN' : 'TRIAL PACK',
+            pax: 'PREMIUM ACCESS',
+            mrp: (p.price * 5).toLocaleString(),
+            price: p.price.toString(),
+            save: '80%',
+            desc: `Experience ${p.name} with full access for ${p.duration} days.`,
+            features: Array.isArray(p.features) ? p.features : [],
+            color: 'bg-white border-pd-pink/20 text-slate-900',
+            btnColor: 'bg-pd-pink shadow-pd-pink/20',
+            isTrial: p.price <= 11,
+            isVisible: true
+          }));
+
+          setPlans(mapped);
+          if (mapped.length > 0) {
+            setSelectedPlan(mapped[0].id);
+          }
+        }
       } catch (err) {
-        console.error('Fetch config error:', err);
+        console.error('Fetch config/plans error:', err);
       }
     };
     fetchConfig();
@@ -155,9 +185,9 @@ export default function SubscriptionPage() {
     const user = JSON.parse(userJson);
 
     // Payment Logic
-    const plan = plans[0];
-    const totalAmount = 11;
-    const amountInPaise = 1100;
+    const plan = plans.find(p => p.id === selectedPlan) || plans[0];
+    const totalAmount = parseFloat(plan.price);
+    const amountInPaise = Math.round(totalAmount * 100);
 
     try {
       setIsSaving(true);
@@ -267,8 +297,9 @@ export default function SubscriptionPage() {
            </p>
         </header>
 
-        <div className="max-w-xl mx-auto mb-12">
-           {plans.map((plan, i) => (
+           {/* Plan Cards Container */}
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+              {plans.filter(p => p.isVisible !== false).map((plan) => (
              <motion.div
                 key={plan.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -313,7 +344,7 @@ export default function SubscriptionPage() {
                 </div>
 
                 <ul className="space-y-4 mb-12">
-                   {plan.features.map((feature, idx) => (
+                   {(Array.isArray(plan.features) ? plan.features : []).map((feature: any, idx: number) => (
                      <li key={idx} className="flex items-center gap-3">
                         <CheckCircle2 size={20} className="text-emerald-500 shrink-0" />
                         <span className="text-xs font-bold italic tracking-tight text-slate-600">{feature}</span>
@@ -346,8 +377,13 @@ export default function SubscriptionPage() {
                    )}
                 </button>
              </motion.div>
-           ))}
-        </div>
+              ))}
+              {plans.filter(p => p.isVisible !== false).length === 0 && (
+                <div className="col-span-full py-20 text-center bg-white rounded-[45px] border border-dashed border-slate-300">
+                  <p className="text-slate-400 font-bold italic">No active subscription plans available at the moment. Please check back later.</p>
+                </div>
+              )}
+           </div>
 
         <AnimatePresence>
           {showConfirmModal && (
