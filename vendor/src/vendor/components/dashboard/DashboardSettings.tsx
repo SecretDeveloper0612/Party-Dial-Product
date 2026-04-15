@@ -104,44 +104,60 @@ const DashboardSettings = ({
   }, [venueProfile?.photos]);
 
   const [isUploadingPhoto, setIsUploadingPhoto] = React.useState(false);
+  const [uploadProgress, setUploadProgress] = React.useState({ current: 0, total: 0 });
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !venueProfile?.$id) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0 || !venueProfile?.$id) return;
 
     setIsUploadingPhoto(true);
+    setUploadProgress({ current: 0, total: files.length });
+
     try {
       const { storage, databases, DATABASE_ID, VENUES_COLLECTION_ID, STORAGE_BUCKET_ID, ID } = await import('@/lib/appwrite');
-      
-      const uploadedFile = await storage.createFile(
-        STORAGE_BUCKET_ID,
-        ID.unique(),
-        file
-      );
+      const category = activeGalleryCategory === 'All Photos' ? 'Interior' : activeGalleryCategory;
 
-      const newPhoto = { 
-        id: uploadedFile.$id, 
-        category: activeGalleryCategory === "All Photos" ? "Interior" : activeGalleryCategory 
-      };
-      
-      const currentPhotos = [...photoIds, newPhoto];
+      // Upload all files sequentially and collect results
+      const newPhotos: { id: string; category: string }[] = [];
+      for (let i = 0; i < files.length; i++) {
+        setUploadProgress({ current: i + 1, total: files.length });
+        try {
+          const uploaded = await storage.createFile(STORAGE_BUCKET_ID, ID.unique(), files[i]);
+          newPhotos.push({ id: uploaded.$id, category });
+        } catch (err) {
+          console.error(`Failed to upload file ${i + 1}:`, err);
+          showToast(`Failed to upload ${files[i].name}. Skipping.`, 'error');
+        }
+      }
+
+      if (newPhotos.length === 0) {
+        showToast('No photos were uploaded successfully.', 'error');
+        return;
+      }
+
+      // Single document update after all uploads
+      const updatedPhotos = [...photoIds, ...newPhotos];
       await databases.updateDocument(
         DATABASE_ID,
         VENUES_COLLECTION_ID,
         venueProfile.$id,
-        {
-          photos: JSON.stringify(currentPhotos)
-        }
+        { photos: JSON.stringify(updatedPhotos) }
       );
 
-      handleProfileUpdate('photos', JSON.stringify(currentPhotos));
-      showToast(`Photo uploaded to ${newPhoto.category} category!`, 'success');
+      handleProfileUpdate('photos', JSON.stringify(updatedPhotos));
+      showToast(
+        newPhotos.length === files.length
+          ? `${newPhotos.length} photo${newPhotos.length > 1 ? 's' : ''} uploaded to ${category}!`
+          : `${newPhotos.length} of ${files.length} photos uploaded.`,
+        'success'
+      );
     } catch (err) {
-      console.error('Photo upload failed:', err);
+      console.error('Bulk photo upload failed:', err);
       showToast('Upload failed. Please try again.', 'error');
     } finally {
       setIsUploadingPhoto(false);
+      setUploadProgress({ current: 0, total: 0 });
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -189,7 +205,13 @@ const DashboardSettings = ({
 
   const removePhoto = async (idToRemove: string) => {
     if (!venueProfile?.$id) return;
-    if (!confirm('Are you sure you want to remove this photo?')) return;
+    setDeleteConfirm({ show: true, photoId: idToRemove });
+  };
+
+  const confirmDeletePhoto = async () => {
+    const idToRemove = deleteConfirm.photoId;
+    setDeleteConfirm({ show: false, photoId: '' });
+    if (!idToRemove || !venueProfile?.$id) return;
 
     try {
       const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
@@ -204,16 +226,59 @@ const DashboardSettings = ({
         }
       );
       handleProfileUpdate('photos', JSON.stringify(updatedPhotos));
+      showToast('Photo removed successfully.', 'success');
     } catch (err) {
       console.error('Failed to remove photo:', err);
+      showToast('Failed to remove photo. Try again.', 'error');
     }
   };
 
   const galleryCategories = ["All Photos", "Interior", "Decoration", "Food & Dining", "Exterior", "Event Setups"];
   const [activeGalleryCategory, setActiveGalleryCategory] = React.useState("All Photos");
+  const [deleteConfirm, setDeleteConfirm] = React.useState({ show: false, photoId: '' });
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 lg:space-y-10">
+
+      {/* ── Custom Delete Confirmation Popup ── */}
+      {deleteConfirm.show && (
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(15,23,42,0.55)' }}
+          onClick={() => setDeleteConfirm({ show: false, photoId: '' })}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-[28px] p-8 shadow-2xl border border-slate-100 max-w-sm w-full text-center"
+            style={{ willChange: 'transform', animation: 'popIn 0.15s ease-out forwards' }}
+          >
+            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-red-50 flex items-center justify-center">
+              <Trash2 size={26} className="text-red-500" />
+            </div>
+            <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-2">
+              Remove Photo?
+            </h3>
+            <p className="text-sm text-slate-400 font-medium leading-relaxed mb-7">
+              This photo will be permanently removed from your gallery.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteConfirm({ show: false, photoId: '' })}
+                className="flex-1 py-3.5 rounded-2xl border border-slate-200 text-slate-600 text-[11px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeletePhoto}
+                className="flex-1 py-3.5 rounded-2xl bg-red-500 text-white text-[11px] font-black uppercase tracking-widest hover:bg-red-600 transition-colors shadow-lg shadow-red-200"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+          <style>{`@keyframes popIn { from { transform: scale(0.92) translateY(8px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }`}</style>
+        </div>
+      )}
        <header className="px-2 lg:px-0">
           <h1 className="text-2xl lg:text-4xl font-black text-slate-900 uppercase italic tracking-tighter mb-2 leading-none">Console <span className="text-pd-pink">Settings</span></h1>
           <p className="text-[10px] lg:text-sm font-medium text-slate-500 italic">Advanced control panel for your professional venue presence.</p>
@@ -639,21 +704,26 @@ const DashboardSettings = ({
                             <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter leading-none mb-2">Venue <span className="text-pd-pink">Gallery</span></h3>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Upload high-definition photos to showcase your venue.</p>
                          </div>
-                         <button 
-                           onClick={() => fileInputRef.current?.click()}
-                           disabled={isUploadingPhoto}
-                           className="bg-slate-900 text-white px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink transition-all flex items-center gap-2"
-                         >
-                            {isUploadingPhoto ? 'Uploading...' : 'Add New Photo'}
-                            <Plus className="text-white" size={14} />
-                         </button>
-                         <input 
-                           type="file" 
-                           hidden 
-                           ref={fileInputRef} 
-                           accept="image/*"
-                           onChange={handlePhotoUpload}
-                         />
+                         <div className="flex items-center gap-3">
+                           <button 
+                             onClick={() => fileInputRef.current?.click()}
+                             disabled={isUploadingPhoto}
+                             className="bg-slate-900 text-white px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink transition-all flex items-center gap-2 disabled:opacity-60"
+                           >
+                             {isUploadingPhoto ? (
+                               <>
+                                 <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                 {uploadProgress.total > 0 ? `Uploading ${uploadProgress.current}/${uploadProgress.total}...` : 'Uploading...'}
+                               </>
+                             ) : (
+                               <>Upload Photos <Plus className="text-white" size={14} /></>
+                             )}
+                           </button>
+                           {!isUploadingPhoto && (
+                             <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Select multiple</span>
+                           )}
+                         </div>
+                         <input type="file" hidden ref={fileInputRef} accept="image/*" multiple onChange={handlePhotoUpload} />
                       </header>
 
                       {/* Gallery Category Filter Bar */}

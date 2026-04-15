@@ -917,80 +917,81 @@ export default function VenueDetailPage() {
                   <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Zero Brokerage. Direct Rates.</p>
                </div>
                <form className="space-y-6" onSubmit={handleLeadSubmit}>
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Full Name</label>
-                    <input 
-                        required
-                        type="text" 
-                        placeholder="Enter your name" 
-                        value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:border-pd-red transition-all" 
-                    />
-                 </div>
-                 
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Event Type</label>
-                        <div className="relative">
-                           <select 
-                               value={formData.eventType}
-                               onChange={(e) => setFormData({...formData, eventType: e.target.value})}
-                               className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none appearance-none cursor-pointer pr-10"
-                           >
-                               <option value="">Select Event</option>
-                               <option value="Birthday Party">Birthday Party</option>
-                               <option value="Wedding Events">Wedding Events</option>
-                               <option value="Pre-Wedding Events">Pre-Wedding Events</option>
-                               <option value="Anniversary Party">Anniversary Party</option>
-                               <option value="Corporate Events">Corporate Events</option>
-                               <option value="Kitty Party">Kitty Party</option>
-                               <option value="Family Functions">Family Functions</option>
-                               <option value="Festival Parties">Festival Parties</option>
-                               <option value="Social Gatherings">Social Gatherings</option>
-                               <option value="Kids Parties">Kids Parties</option>
-                               <option value="Bachelor / Bachelorette Party">Bachelor / Bachelorette Party</option>
-                               <option value="Housewarming Party">Housewarming Party</option>
-                               <option value="Baby Shower">Baby Shower</option>
-                               <option value="Engagement Ceremony">Engagement Ceremony</option>
-                               <option value="Entertainment / Theme Parties">Entertainment / Theme Parties</option>
-                           </select>
-                           <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={16} />
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Guest Count</label>
-                        <div className="relative">
-                           <select 
-                               required
-                               value={formData.guests}
-                               onChange={(e) => setFormData({...formData, guests: e.target.value})}
-                               className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none appearance-none cursor-pointer pr-10" 
-                           >
-                               <option value="">Select Capacity</option>
-                               <option value="0-50">0-50 guests</option>
-                               <option value="50-100">50-100 guests</option>
-                               <option value="100-200">100-200 guests</option>
-                               <option value="200-500">200-500 guests</option>
-                               <option value="500-1000">500-1000 guests</option>
-                               <option value="1000-2000">1000-2000 guests</option>
-                               <option value="2000-5000">2000-5000 guests</option>
-                               <option value="5000+">5000+ guests</option>
-                           </select>
-                           <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={16} />
-                        </div>
-                    </div>
-                 </div>
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Full Name</label>
+                     <input 
+                         required
+                         type="text" 
+                         placeholder="Enter your name" 
+                         value={formData.name}
+                         onChange={(e) => setFormData({...formData, name: e.target.value})}
+                         className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all placeholder:text-slate-300" 
+                     />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Event Type</label>
+                         <div className="relative">
+                            <select 
+                                value={formData.eventType}
+                                onChange={(e) => setFormData({...formData, eventType: e.target.value})}
+                                className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all appearance-none cursor-pointer pr-10"
+                            >
+                                <option value="">Select Event</option>
+                                <option value="Birthday Party">Birthday Party</option>
+                                <option value="Wedding Events">Wedding Events</option>
+                                <option value="Pre-Wedding Events">Pre-Wedding Events</option>
+                                <option value="Anniversary Party">Anniversary Party</option>
+                                <option value="Corporate Events">Corporate Events</option>
+                                <option value="Kitty Party">Kitty Party</option>
+                                <option value="Family Functions">Family Functions</option>
+                                <option value="Festival Parties">Festival Parties</option>
+                                <option value="Social Gatherings">Social Gatherings</option>
+                                <option value="Kids Parties">Kids Parties</option>
+                                <option value="Bachelor / Bachelorette Party">Bachelor / Bachelorette Party</option>
+                                <option value="Housewarming Party">Housewarming Party</option>
+                                <option value="Baby Shower">Baby Shower</option>
+                                <option value="Engagement Ceremony">Engagement Ceremony</option>
+                                <option value="Entertainment / Theme Parties">Entertainment / Theme Parties</option>
+                            </select>
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
+                         </div>
+                     </div>
+                     <div className="space-y-2">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Guest Count</label>
+                         <div className="relative">
+                            <select 
+                                required
+                                value={formData.guests}
+                                onChange={(e) => setFormData({...formData, guests: e.target.value})}
+                                className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all appearance-none cursor-pointer pr-10" 
+                            >
+                                <option value="">Select Capacity</option>
+                                <option value="0-50">0-50 guests</option>
+                                <option value="50-100">50-100 guests</option>
+                                <option value="100-200">100-200 guests</option>
+                                <option value="200-500">200-500 guests</option>
+                                <option value="500-1000">500-1000 guests</option>
+                                <option value="1000-2000">1000-2000 guests</option>
+                                <option value="2000-5000">2000-5000 guests</option>
+                                <option value="5000+">5000+ guests</option>
+                            </select>
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
+                         </div>
+                     </div>
+                  </div>
 
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Phone Number</label>
-                    <div className="relative group flex items-center">
-                        <div className="absolute left-5 text-sm font-bold text-slate-400 border-r border-slate-200 pr-3">+91</div>
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Phone Number</label>
+                     <div className="relative group">
+                        <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10">
+                           <span className="text-sm font-black text-slate-800 tracking-tighter shrink-0">+91</span>
+                        </div>
                         <input 
                           required 
                           type="tel" 
-                          placeholder="98765 00000" 
-                          value={formData.phone}
+                          name="phone"
                           maxLength={11} // 10 digits + 1 space
                           onChange={(e) => {
                             let val = e.target.value.replace(/\D/g, ''); // Remove non-digits
@@ -998,25 +999,26 @@ export default function VenueDetailPage() {
                             // Format as 5-5
                             let formatted = val;
                             if (val.length > 5) {
-                              formatted = val.slice(0, 5) + ' ' + val.slice(5);
+                               formatted = val.slice(0, 5) + ' ' + val.slice(5);
                             }
                             setFormData({...formData, phone: formatted});
                           }}
-                          className="w-full h-14 pl-16 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" 
+                          placeholder="10 Digit Number" 
+                          className="w-full h-14 pl-16 bg-slate-50 border border-slate-200 rounded-2xl text-base font-black text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-red/5 focus:border-pd-red transition-all placeholder:text-slate-300 placeholder:font-bold tracking-[0.1em]" 
                         />
-                    </div>
-                 </div>
+                     </div>
+                  </div>
 
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Requirement Notes</label>
-                    <textarea 
-                        placeholder="e.g. Need rooms, catering required..." 
-                        rows={3} 
-                        value={formData.requirements}
-                        onChange={(e) => setFormData({...formData, requirements: e.target.value})}
-                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none"
-                    ></textarea>
-                 </div>
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Requirement Notes</label>
+                     <textarea 
+                         placeholder="e.g. Need rooms, catering required..." 
+                         rows={3} 
+                         value={formData.requirements}
+                         onChange={(e) => setFormData({...formData, requirements: e.target.value})}
+                         className="w-full p-6 bg-slate-50 border border-slate-200 rounded-3xl text-sm font-bold text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-red/5 focus:border-pd-red transition-all"
+                     ></textarea>
+                  </div>
 
                  <button 
                     type="submit"

@@ -39,6 +39,8 @@ interface VenueLead {
   venueId: string;
   assignedVenue: string;
   $createdAt: string;
+  pincode?: string;
+  eventDate?: string;
 }
 
 const STATUS_OPTIONS = [
@@ -146,7 +148,7 @@ export default function VenueLeadsCheckPage() {
   const bookedLeads = leads.filter(l => l.status === 'Booked').length;
 
   const exportToCSV = () => {
-    const headers = ["Date", "Time", "Name", "Phone", "Email", "Event Type", "PAX", "Venue", "Status", "Notes"];
+    const headers = ["Date", "Time", "Customer Name", "Phone", "Email", "Event Type", "PAX", "Pincode", "Proposed Event Date", "Venue", "Status", "Notes"];
     const rows = filteredLeads.map(l => [
       new Date(l.$createdAt).toLocaleDateString(),
       new Date(l.$createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -155,6 +157,8 @@ export default function VenueLeadsCheckPage() {
       l.email || '',
       l.eventType,
       l.guests,
+      l.pincode || '',
+      l.eventDate || '',
       l.assignedVenue,
       l.status,
       (l.notes || '').replace(/,/g, ';')
@@ -209,30 +213,6 @@ export default function VenueLeadsCheckPage() {
              </div>
          </div>
          <div className="flex items-center gap-3">
-            <button
-              onClick={() => handleRedistribute(true)}
-              disabled={redistributing}
-              className="px-5 py-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2 text-sm font-bold text-amber-700 hover:bg-amber-100 transition-all disabled:opacity-50"
-            >
-               {redistributing ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} />} Preview
-            </button>
-            <button
-              onClick={() => {
-                if (confirm('This will redistribute all unmatched BROADCAST leads to matching venues. Continue?')) {
-                  handleRedistribute(false);
-                }
-              }}
-              disabled={redistributing}
-              className="px-5 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl flex items-center gap-2 text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-50"
-            >
-               {redistributing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />} Redistribute
-            </button>
-            <button 
-              onClick={exportToCSV}
-              className="px-5 py-3 bg-white border border-slate-100 rounded-xl flex items-center gap-2 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
-            >
-               <Download size={16} /> CSV
-            </button>
             <button 
               onClick={fetchLeads} 
               className="px-5 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 shadow-lg shadow-slate-900/10 transition-all flex items-center gap-2 font-bold text-sm"
@@ -463,21 +443,29 @@ export default function VenueLeadsCheckPage() {
                              </div>
                              <div className="min-w-0">
                                 <h4 className="text-sm font-bold text-slate-800 truncate">{lead.name}</h4>
-                                <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+                                <div className="flex items-center gap-3 mt-1 flex-wrap">
                                    <span className="text-[10px] text-slate-400 flex items-center gap-1 font-bold"><Phone size={9} /> {lead.phone}</span>
+                                   {lead.pincode && <span className="text-[10px] text-indigo-500 flex items-center gap-1 font-black"><MapPin size={9} /> {lead.pincode}</span>}
                                    {lead.email && <span className="text-[10px] text-slate-400 flex items-center gap-1 font-bold"><Mail size={9} /> {lead.email}</span>}
                                 </div>
                              </div>
                           </div>
                        </td>
                        <td className="p-5">
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col gap-1.5">
                              <span className="px-2 py-0.5 bg-slate-900 text-white rounded text-[8px] font-black uppercase tracking-widest w-fit">
                                {lead.eventType}
                              </span>
-                             <span className="flex items-center gap-1 text-[10px] font-black text-slate-500">
-                                <UsersIcon size={10} className="text-slate-400" /> {lead.guests} PAX
-                             </span>
+                             <div className="flex items-center gap-2">
+                                <span className="flex items-center gap-1 text-[10px] font-black text-slate-500">
+                                   <UsersIcon size={10} className="text-slate-400" /> {lead.guests} PAX
+                                </span>
+                                {lead.eventDate && (
+                                  <span className="flex items-center gap-1 text-[10px] font-black text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-100 uppercase text-[9px]">
+                                     <Calendar size={10} /> {new Date(lead.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                                  </span>
+                                )}
+                             </div>
                           </div>
                        </td>
                        <td className="p-5">
@@ -516,9 +504,29 @@ export default function VenueLeadsCheckPage() {
                             <MessageSquare size={14} className="text-slate-400 mt-0.5 shrink-0" />
                             <div className="min-w-0">
                               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Notes / Distribution Info</p>
-                              <p className="text-xs font-semibold text-slate-600 leading-relaxed break-words">
-                                {lead.notes || 'No notes available'}
-                              </p>
+                              <div className="flex flex-col gap-2">
+                                 {lead.notes?.includes('[DISTRIBUTED] to:') ? (
+                                   <div className="bg-violet-50/50 border border-violet-100/50 rounded-xl p-3">
+                                      <p className="text-[9px] font-black text-violet-500 uppercase tracking-widest mb-2 flex items-center gap-1">
+                                         <CheckCircle2 size={12} /> Successfully Distributed To:
+                                      </p>
+                                      <div className="flex flex-wrap gap-2">
+                                         {lead.notes.split('[DISTRIBUTED] to:')[1].split('|')[0].split(',').map((v: string) => (
+                                           <span key={v} className="px-2 py-1 bg-white border border-violet-100 text-violet-600 rounded-lg text-[10px] font-bold shadow-sm">
+                                              {v.trim()}
+                                           </span>
+                                         ))}
+                                      </div>
+                                      <p className="text-[10px] text-slate-400 mt-2 italic">
+                                         {lead.notes.split('|').slice(1).join('|').trim() || 'No additional notes'}
+                                      </p>
+                                   </div>
+                                 ) : (
+                                   <p className="text-xs font-semibold text-slate-600 leading-relaxed break-words">
+                                     {lead.notes || 'No notes available'}
+                                   </p>
+                                 )}
+                              </div>
                               <div className="flex flex-wrap gap-3 mt-2">
                                 <span className="text-[10px] font-bold text-slate-400">Venue ID: {lead.venueId}</span>
                                 <span className="text-[10px] font-bold text-slate-400">Lead ID: {lead.$id}</span>

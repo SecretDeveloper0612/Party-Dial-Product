@@ -615,6 +615,7 @@ export default function VendorDashboard() {
               date: formatLeadDate(doc.$createdAt),
               time: formatLeadTime(doc.$createdAt),
               rawDate: doc.$createdAt,
+              eventDate: doc.eventDate || null,  // Proposed event date from client
               status: doc.status === 'Quoted' ? 'Quotation Send' : (doc.status === 'In-Progress' ? 'Contacted' : (doc.status === 'Lost' ? 'Lost Leads' : (doc.status || 'New'))),
               location: doc.city || 'Haldwani',
               email: doc.email || 'client@mail.com',

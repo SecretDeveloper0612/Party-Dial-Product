@@ -545,28 +545,28 @@ export default function PartnerLandingPage() {
              <div className="grid grid-cols-2 gap-6 origin-center">
                <div className="space-y-6">
                  <CursorZoomImage 
-                   src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=800" 
-                   alt="Venue" 
+                   src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=800" 
+                   alt="Wedding Celebration Crowd" 
                    height="h-56" 
                    priority 
                  />
                  <CursorZoomImage 
-                   src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800" 
-                   alt="Party" 
+                   src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800" 
+                   alt="Party Dance Floor" 
                    height="h-72" 
                    priority 
                  />
                </div>
                <div className="space-y-6 pt-16">
                  <CursorZoomImage 
-                   src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&q=80&w=800" 
-                   alt="Event" 
+                   src="https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?auto=format&fit=crop&q=80&w=800" 
+                   alt="Concert Crowd" 
                    height="h-72" 
                    priority 
                  />
                  <CursorZoomImage 
-                   src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=2000" 
-                   alt="Gala" 
+                   src="https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&q=80&w=800" 
+                   alt="Banquet Hall Full of Guests" 
                    height="h-56" 
                    priority 
                  />

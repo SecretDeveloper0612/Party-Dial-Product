@@ -244,14 +244,28 @@ export default function Home() {
             type: doc.venueType || "Banquet Hall",
             capacity: getCapacityLabel(doc.capacity),
             price: doc.perPlateVeg ? `₹${doc.perPlateVeg}` : "N/A",
-            rating: 4.8,
-            reviews: 0,
+            rating: parseFloat(doc.rating) || 4.5,
+            reviews: doc.totalReviews || 0,
             verified: doc.isVerified || false,
             popular: doc.status === 'active',
             bestValue: true,
-            isNew: true,
+            isNew: doc.$createdAt
+              ? (Date.now() - new Date(doc.$createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000
+              : false,
             amenities: (doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : []),
             foodTypes: ["Veg", "Non-Veg"],
+            isPaid: !!(doc.subscriptionPlan && doc.subscriptionPlan !== 'free' && doc.subscriptionPlan !== 'None' && doc.subscriptionPlan !== ''),
+            // profileComplete = has real name + at least one photo + valid capacity
+            profileComplete: (() => {
+              const hasName = !!(doc.venueName && doc.venueName.trim() && doc.venueName.trim() !== 'Unnamed Venue');
+              const hasCapacity = !!(doc.capacity && parseInt(doc.capacity) > 0);
+              let hasPhotos = false;
+              try {
+                const photos = typeof doc.photos === 'string' ? JSON.parse(doc.photos || '[]') : (doc.photos || []);
+                hasPhotos = Array.isArray(photos) && photos.length > 0;
+              } catch { hasPhotos = false; }
+              return hasName && hasPhotos && hasCapacity;
+            })(),
             img: doc.photos ? (() => {
                try {
                   const photos = JSON.parse(doc.photos);
@@ -263,7 +277,17 @@ export default function Home() {
             })() : ""
           }));
 
-          setLiveVenues(mapped.slice(0, 3)); // Take top 3 for home page
+          // "Top Venues Near You" — only venues with COMPLETE PROFILES (name + photos + capacity)
+          const weightedShuffle = (venues: any[]) =>
+            [...venues]
+              .map(v => ({ v, score: (v.rating || 0) + Math.random() * 0.5 }))
+              .sort((a, b) => b.score - a.score)
+              .map(item => item.v);
+
+          // profileComplete = has real name + has photos + has capacity
+          const completeVenues = weightedShuffle(mapped.filter((v: any) => v.profileComplete === true));
+
+          setLiveVenues(completeVenues.slice(0, 3)); // Show top 3 complete venues
         }
       } catch (err) {
         console.error('Home: Failed to fetch live venues via backend:', err);
@@ -626,7 +650,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {displayVenues.map((venue, i) => (
-              <VenueCard key={venue.id} venue={venue as unknown as Venue} index={i} />
+              <VenueCard key={venue.id} venue={venue} index={i} isPremium={venue.isPaid} />
             ))}
           </div>
         </div>

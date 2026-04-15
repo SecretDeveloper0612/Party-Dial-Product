@@ -225,7 +225,7 @@ function VenuesContent() {
                   city: doc.city || "Delhi",
                   type: doc.venueType || "Banquet Hall",
                   capacity: parseInt(doc.capacity) || 500,
-                  price: doc.perPlateVeg || "N/A",
+                  price: doc.perPlateVeg ? parseFloat(doc.perPlateVeg) : null,  // null = no price set
                   pincode: doc.pincode?.toString() || "",
                   rating: venueRating,
                   reviews: doc.totalReviews || 0,
@@ -323,7 +323,10 @@ function VenuesContent() {
       
       // 3. Other Filters
       if (selectedVenueTypes.length > 0 && !selectedVenueTypes.includes(venue.type)) return false;
-      if (venue.price < budgetRange.min || venue.price > budgetRange.max) return false;
+      // Budget filter: skip venues with no price (null) — only filter if price is known
+      if (venue.price !== null) {
+        if (venue.price < budgetRange.min || venue.price > budgetRange.max) return false;
+      }
       if (venue.capacity < selectedCapacity) return false;
       
       const venueAmenities = Array.isArray(venue.amenities) ? venue.amenities : [];
@@ -355,9 +358,10 @@ function VenuesContent() {
       v.isPaid === true && v.profileComplete === true
     );
 
-    // FREE venues: ALL appear at bottom — never hidden regardless of content
-    // Only exclude venues that aren't paid (free = everything that isn't paid)
-    const others = filteredVenues.filter(v => v.isPaid !== true);
+    // others: Everything that is NOT in premium (this includes free venues AND paid venues with incomplete profiles)
+    const others = filteredVenues.filter(v => 
+      !(v.isPaid === true && v.profileComplete === true)
+    );
 
     // Weighted shuffle: higher rating = better position, with slight randomness
     const weightedShuffle = (venues: any[]) => {

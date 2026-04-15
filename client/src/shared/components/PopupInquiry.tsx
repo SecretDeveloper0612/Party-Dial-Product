@@ -180,10 +180,10 @@ const InquiryForm = memo(({
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4 lg:space-y-5">
+      <form onSubmit={onSubmit} className="space-y-4 lg:space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Full Name</label>
             <input 
               type="text" 
               name="name"
@@ -191,36 +191,44 @@ const InquiryForm = memo(({
               value={formData.name}
               onChange={onChange}
               placeholder="Your Name" 
-              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-pd-red/20 transition-colors placeholder:text-slate-300"
+              className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all placeholder:text-slate-300"
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number</label>
-            <div className="relative">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Phone Number</label>
+            <div className="relative group">
+              <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10">
+                <span className="text-sm font-black text-slate-800 tracking-tighter shrink-0">+91</span>
+              </div>
               <input 
                 type="tel" 
                 name="phone"
                 required
+                maxLength={10}
                 value={formData.phone}
-                onChange={onChange}
-                placeholder="91 Number" 
-                className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-9 pr-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-pd-red/20 transition-colors placeholder:text-slate-300"
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, '');
+                  if (val.length <= 10) {
+                    onChange({ ...e, target: { ...e.target, name: 'phone', value: val } } as any);
+                  }
+                }}
+                placeholder="10 Digit Number" 
+                className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl pl-16 pr-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all placeholder:text-slate-300 tracking-[0.1em]"
               />
-              <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Approx Guests</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Approx Guests</label>
             <div className="relative">
                 <select 
                     name="guests"
                     required
                     value={formData.guests}
                     onChange={onChange}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-pd-red/20 transition-colors appearance-none cursor-pointer"
+                    className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all appearance-none cursor-pointer"
                 >
                     <option value="">Select Capacity</option>
                     <option value="0-50">0-50 guests</option>
@@ -232,21 +240,20 @@ const InquiryForm = memo(({
                     <option value="2000-5000">2000-5000 guests</option>
                     <option value="5000+">5000+ guests</option>
                 </select>
-                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
+                <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             </div>
           </div>
-          <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Event Type</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Event Type</label>
             <div className="relative">
                 <select 
                   name="eventType"
                   required
                   value={formData.eventType}
                   onChange={onChange}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-pd-red/20 transition-colors appearance-none cursor-pointer"
+                  className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all appearance-none cursor-pointer"
                 >
               <option value="">Select Event</option>
-              {/* options omitted for brevity in thought, but I will include them in final code */}
               <option value="Birthday Party">Birthday Party</option>
               <option value="Wedding Events">Wedding Events</option>
               <option value="Pre-Wedding Events">Pre-Wedding Events</option>
@@ -263,14 +270,14 @@ const InquiryForm = memo(({
               <option value="Engagement Ceremony">Engagement Ceremony</option>
               <option value="Entertainment / Theme Parties">Entertainment / Theme Parties</option>
             </select>
-            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
+            <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
         </div>
       </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Proposed Event Date</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Proposed Event Date</label>
             <div className="relative">
                 <input 
                   type="date" 
@@ -278,22 +285,22 @@ const InquiryForm = memo(({
                   required
                   value={formData.date}
                   onChange={onChange}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-9 pr-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-pd-red/20 transition-colors"
+                  className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all"
                 />
-                <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
+                <Calendar size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             </div>
           </div>
-          <div className="space-y-1 relative" ref={pincodeRef}>
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Pincode / Location</label>
-            <div className={`w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 flex flex-wrap items-center gap-2 transition-all focus-within:ring-2 focus-within:ring-pd-red/20`}>
-                <MapPin size={14} className="text-slate-300 shrink-0" />
+          <div className="space-y-2 relative" ref={pincodeRef}>
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Pincode / Location</label>
+            <div className={`w-full min-h-[4rem] bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2 flex flex-wrap items-center gap-2 transition-all focus-within:ring-4 focus-within:ring-pd-red/5 focus-within:bg-white focus-within:border-pd-red`}>
+                <MapPin size={18} className="text-slate-300 shrink-0 ml-1" />
                 
                 {/* Location Tags */}
                 {selectedLocations.map((loc: any, i: number) => (
-                  <div key={i} className="flex items-center gap-1 bg-pd-red/10 text-pd-red px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider animate-in fade-in zoom-in duration-200">
+                  <div key={i} className="flex items-center gap-1 bg-pd-red/10 text-pd-red px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider animate-in fade-in zoom-in duration-200 whitespace-nowrap shrink-0">
                     <span>{loc.display}</span>
                     <button type="button" onClick={() => onRemoveLocation(loc.display)} className="hover:text-slate-900 transition-colors">
-                      <X size={10} />
+                      <X size={12} />
                     </button>
                   </div>
                 ))}
@@ -308,8 +315,8 @@ const InquiryForm = memo(({
                     setShowSuggestions(true);
                   }}
                   onFocus={() => setShowSuggestions(true)}
-                  placeholder={selectedLocations.length === 0 ? "263139" : "Add..."}
-                  className="flex-1 bg-transparent border-none text-sm font-medium focus:outline-none placeholder:text-slate-300 min-w-[80px] py-1"
+                  placeholder={selectedLocations.length === 0 ? "Enter Pincode or City" : "Add more..."}
+                  className="flex-1 bg-transparent border-none text-base font-black text-slate-900 focus:outline-none placeholder:text-slate-300 placeholder:font-bold min-w-[120px] py-2"
                 />
             </div>
 

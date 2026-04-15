@@ -246,6 +246,8 @@ export default function TopBar({ onMenuOpen }: { onMenuOpen?: () => void }) {
         <Menu size={22} />
       </button>
 
+      <div className="flex-1" />
+
       <div className="flex items-center gap-8">
         {/* Admin Badge */}
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100">
@@ -313,10 +315,10 @@ export default function TopBar({ onMenuOpen }: { onMenuOpen?: () => void }) {
                       </div>
                     ))}
                   </div>
-                  <div className="p-3 border-t border-slate-50">
+                  <div className="p-4 bg-slate-50/50 border-t border-slate-100">
                     <button
                       onClick={() => { router.push("/approvals"); setMailOpen(false); }}
-                      className="w-full text-center text-[10px] font-black uppercase tracking-widest text-[#b66dff] hover:text-purple-700 transition-colors py-1"
+                      className="w-full text-center text-[10px] font-black uppercase tracking-widest text-[#b66dff] hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-100 rounded-xl transition-all py-2.5"
                     >
                       View All Approvals →
                     </button>
@@ -397,10 +399,10 @@ export default function TopBar({ onMenuOpen }: { onMenuOpen?: () => void }) {
                     ))}
                   </div>
 
-                  <div className="p-3 border-t border-slate-50">
+                  <div className="p-4 bg-slate-50/50 border-t border-slate-100">
                     <button
                       onClick={() => { router.push("/venues"); setBellOpen(false); }}
-                      className="w-full text-center text-[10px] font-black uppercase tracking-widest text-[#b66dff] hover:text-purple-700 transition-colors py-1"
+                      className="w-full text-center text-[10px] font-black uppercase tracking-widest text-[#b66dff] hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-100 rounded-xl transition-all py-2.5"
                     >
                       View All Venues →
                     </button>

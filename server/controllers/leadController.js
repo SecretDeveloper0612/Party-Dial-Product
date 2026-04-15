@@ -930,6 +930,20 @@ exports.redistributeOldLeads = async (req, res) => {
 
             if (assignedNames.length > 0) {
                 stats.matched++;
+                
+                // 4. Update the original lead document to reflect distribution (if not dryRun)
+                if (!dryRun) {
+                    try {
+                        const updatedNotes = `✅ [DISTRIBUTED] to: ${assignedNames.join(', ')} | ${lead.notes || ''}`.slice(0, 995);
+                        await databases.updateDocument(DATABASE_ID, LEADS_COLLECTION_ID, lead.$id, {
+                            notes: updatedNotes,
+                            status: 'Contacted' // Move from New to Contacted to show it's been processed
+                        });
+                    } catch (updateErr) {
+                        console.error(`  ❌ Failed to update original lead ${lead.$id} with distribution info:`, updateErr.message);
+                    }
+                }
+
                 results.push({
                     leadId: lead.$id, name: lead.name, pincode: leadPincode, guests: guestsNum,
                     status: dryRun ? 'would_distribute' : 'distributed',

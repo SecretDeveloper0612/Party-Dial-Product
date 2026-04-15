@@ -21,6 +21,7 @@ interface Lead {
   guests: string;
   date: string;
   time: string;
+  eventDate: string | null;  // Proposed event date from client
   status: string;
   email: string;
   color: string;
@@ -104,13 +105,27 @@ const LeadInbox = ({
                     </div>
                  </div>
 
-                 <div className="flex items-center gap-4 text-xs font-bold text-slate-600">
+                 <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-slate-600">
                     <div className="flex items-center gap-1.5">
-                       <CalendarDays size={14} className="text-slate-400" /> {lead.date}
+                       <CalendarDays size={14} className="text-slate-400" /> 
+                       <span className="text-slate-400">Received:</span> {lead.date}
                     </div>
                     <div className="flex items-center gap-1.5">
                        <Users size={14} className="text-slate-400" /> {lead.guests || '0'} Guests
                     </div>
+                 </div>
+
+                 {/* Proposed Event Date */}
+                 <div className="flex items-center gap-2">
+                    <CalendarDays size={13} className="text-amber-500 shrink-0" />
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Proposed Event Date:</span>
+                    {lead.eventDate ? (
+                      <span className="px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-black rounded-lg uppercase tracking-wide">
+                        {new Date(lead.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-slate-300 font-bold italic">Not specified</span>
+                    )}
                  </div>
                  
                  <div className="flex items-center gap-2 text-[13px] font-black italic text-slate-800">
