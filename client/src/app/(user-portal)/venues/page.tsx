@@ -196,6 +196,28 @@ function VenuesContent() {
               const { getAppwriteImageUrl, parsePhotos } = await import('@/shared/utils/image');
               const mapped = result.data.map((doc: any) => {
                 const photos = parsePhotos(doc.photos);
+                // Is venue on a paid subscription plan?
+                const hasPaidPlan = doc.subscriptionPlan &&
+                  doc.subscriptionPlan !== 'free' &&
+                  doc.subscriptionPlan !== 'None' &&
+                  doc.subscriptionPlan !== '';
+
+                // Profile completeness: check ACTUAL CONTENT only.
+                // We do NOT require onboardingComplete because:
+                //   - Free venues never go through paid onboarding flow
+                //   - The flag is unreliable; what matters is visible content
+                // A venue is "complete" if it has all three of:
+                //   1. A real venue name
+                //   2. At least one photo uploaded
+                //   3. A valid capacity set
+                const hasName = !!(doc.venueName && doc.venueName.trim() && doc.venueName.trim() !== 'Unnamed Venue');
+                const hasPhotos = photos.length > 0;
+                const hasCapacity = !!(doc.capacity && parseInt(doc.capacity) > 0);
+                const profileComplete = hasName && hasPhotos && hasCapacity;
+
+                // Rating (from Appwrite field if stored, else 0)
+                const venueRating = parseFloat(doc.rating) || 0;
+
                 return {
                   id: doc.$id,
                   name: doc.venueName || "Unnamed Venue",
@@ -205,16 +227,23 @@ function VenuesContent() {
                   capacity: parseInt(doc.capacity) || 500,
                   price: doc.perPlateVeg || "N/A",
                   pincode: doc.pincode?.toString() || "",
-                  rating: 0,
-                  reviews: 0,
+                  rating: venueRating,
+                  reviews: doc.totalReviews || 0,
                   img: photos.length > 0 ? getAppwriteImageUrl(photos[0]) : "",
                   verified: doc.isVerified || false,
                   popular: doc.status === 'active',
-                  isNew: true,
+                  isNew: doc.$createdAt
+                    ? (Date.now() - new Date(doc.$createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000
+                    : false,
                   bestValue: true,
                   amenities: (doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : ["AC Hall", "Parking"]),
                   categories: (doc.eventTypes ? (typeof doc.eventTypes === 'string' ? JSON.parse(doc.eventTypes) : doc.eventTypes) : ["Wedding"]),
-                  foodTypes: ["Veg", "Non-Veg"]
+                  foodTypes: ["Veg", "Non-Veg"],
+                  // Smart ranking fields
+                  isPaid: !!hasPaidPlan,
+                  profileComplete,
+                  subscriptionPlan: doc.subscriptionPlan || 'free',
+                  createdAt: doc.$createdAt || '',
                 };
               });
               setLiveVenues(mapped);
@@ -318,24 +347,60 @@ function VenuesContent() {
     });
   }, [allVenues, selectedCities, selectedEvent, selectedVenueTypes, budgetRange, selectedCapacity, selectedAmenities, foodPreference, minRating, quickFilters, sortBy]);
 
-  // Grouped results for multi-pincode UI
+  // ── Smart Ranking: Paid → Free ──
+  const rankedVenues = useMemo(() => {
+    // PAID venues: only appear at top if they have complete content
+    // (name + at least one photo + capacity set)
+    const premium = filteredVenues.filter(v =>
+      v.isPaid === true && v.profileComplete === true
+    );
+
+    // FREE venues: ALL appear at bottom — never hidden regardless of content
+    // Only exclude venues that aren't paid (free = everything that isn't paid)
+    const others = filteredVenues.filter(v => v.isPaid !== true);
+
+    // Weighted shuffle: higher rating = better position, with slight randomness
+    const weightedShuffle = (venues: any[]) => {
+      if (venues.length <= 1) return venues;
+      return [...venues]
+        .map(v => ({ v, score: (v.rating || 0) + Math.random() * 0.5 }))
+        .sort((a, b) => b.score - a.score)
+        .map(item => item.v);
+    };
+
+    const sortGroup = (venues: any[]) => {
+      if (sortBy === 'Price: Low to High') return [...venues].sort((a, b) => (a.price || 0) - (b.price || 0));
+      if (sortBy === 'Price: High to Low') return [...venues].sort((a, b) => (b.price || 0) - (a.price || 0));
+      if (sortBy === 'Top Rated') return [...venues].sort((a, b) => b.rating - a.rating);
+      return weightedShuffle(venues);
+    };
+
+    return {
+      premium: sortGroup(premium),
+      others: sortGroup(others),
+    };
+  }, [filteredVenues, sortBy]);
+
   const resultsByLocation = useMemo(() => {
-    if (selectedCities.length === 0) return [{ location: "All Venues", venues: filteredVenues }];
-
-    return selectedCities.map(searchQuery => {
-      const venues = filteredVenues.filter(v => {
-        const query = searchQuery.toLowerCase();
-        const parts = query.split('-');
-        const pincodeInQuery = parts.length > 1 ? parts[1] : (/\d{6}/.test(query) ? query : null);
-        const cityInQuery = parts[0];
-
-        if (pincodeInQuery && v.pincode === pincodeInQuery) return true;
-        if (v.city.toLowerCase().includes(cityInQuery) || v.pincode === query) return true;
-        return false;
+    const applyLocation = (venues: any[]) => {
+      if (selectedCities.length === 0) return venues;
+      return venues.filter(v => {
+        return selectedCities.some(searchQuery => {
+          const query = searchQuery.toLowerCase();
+          const parts = query.split('-');
+          const pincodeInQuery = parts.length > 1 ? parts[1] : (/\d{6}/.test(query) ? query : null);
+          const cityInQuery = parts[0];
+          if (pincodeInQuery && v.pincode === pincodeInQuery) return true;
+          if (v.city.toLowerCase().includes(cityInQuery) || v.pincode === query) return true;
+          return false;
+        });
       });
-      return { location: searchQuery, venues };
-    });
-  }, [selectedCities, filteredVenues]);
+    };
+    return {
+      premium: applyLocation(rankedVenues.premium),
+      others: applyLocation(rankedVenues.others),
+    };
+  }, [selectedCities, rankedVenues]);
 
   const clearFilters = () => {
     setSelectedCities([]);
@@ -640,7 +705,10 @@ function VenuesContent() {
              <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-black text-slate-900 italic mb-2 tracking-tight">Discover Venues</h1>
-                  <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">{filteredVenues.length} Results in Haldwani & Near By</p>
+                  <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    {resultsByLocation.premium.length + resultsByLocation.others.length} Results
+                    {resultsByLocation.premium.length > 0 && ` · ${resultsByLocation.premium.length} Premium`}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-nowrap pb-2 md:pb-0">
                     {selectedCities.length > 0 && selectedCities.map((city, i) => (
@@ -702,42 +770,74 @@ function VenuesContent() {
                 </div>
              </div>
 
-             <div className="space-y-16">
-                <AnimatePresence mode="popLayout">
-                {resultsByLocation.length > 0 && resultsByLocation.some(group => group.venues.length > 0) ? (
-                  resultsByLocation.map((group, gIdx) => (
-                    <div key={gIdx} className="space-y-6">
-                      {selectedCities.length > 1 && (
-                        <div className="flex items-center gap-4">
-                          <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] whitespace-nowrap">Venues in {group.location}</h2>
-                          <div className="h-px bg-slate-100 flex-1"></div>
-                        </div>
-                      )}
-                      
-                      {group.venues.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                          {group.venues.map((v, i) => (
-                            <VenueCard key={v.id} venue={v} index={i} />
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="bg-slate-50/50 rounded-[30px] p-8 border border-dashed border-slate-200 text-center">
-                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No venues available for {group.location}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-24 text-center">
-                     <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
-                        <Filter size={40} />
+             {/* ── VENUE SECTIONS ── */}
+             <div className="space-y-14">
+
+               {/* ── PREMIUM VENUES ── */}
+               {resultsByLocation.premium.length > 0 && (
+                 <div>
+                   <div className="flex items-center gap-4 mb-6">
+                     <div className="flex items-center gap-2">
+                       <span className="text-lg">⭐</span>
+                       <h2 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Premium Venues</h2>
+                       <span className="px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-full text-[9px] font-black text-amber-600 uppercase tracking-widest">
+                         {resultsByLocation.premium.length} Featured
+                       </span>
                      </div>
-                     <h3 className="text-2xl font-black text-slate-900 mb-2">No venues match those requirements</h3>
-                     <p className="text-slate-500 font-medium mb-8">Try adjusting your filters or search criteria.</p>
-                     <button onClick={clearFilters} className="pd-btn-primary !px-10 !py-4 text-[10px] font-black tracking-widest uppercase italic">Reset All Filters</button>
-                  </motion.div>
-                )}
-                </AnimatePresence>
+                     <div className="h-px bg-gradient-to-r from-amber-200 to-transparent flex-1" />
+                   </div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                     {resultsByLocation.premium.map((v, i) => (
+                       <VenueCard key={v.id} venue={v} index={i} isPremium />
+                     ))}
+                   </div>
+                 </div>
+               )}
+
+               {/* ── DIVIDER ── */}
+               {resultsByLocation.premium.length > 0 && resultsByLocation.others.length > 0 && (
+                 <div className="flex items-center gap-4">
+                   <div className="h-px bg-slate-200 flex-1" />
+                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-3 py-1.5 bg-white border border-slate-100 rounded-full">Other Venues</span>
+                   <div className="h-px bg-slate-200 flex-1" />
+                 </div>
+               )}
+
+               {/* ── FREE / OTHER VENUES ── */}
+               {resultsByLocation.others.length > 0 && (
+                 <div>
+                   {resultsByLocation.premium.length === 0 && (
+                     <div className="flex items-center gap-4 mb-6">
+                       <div className="flex items-center gap-2">
+                         <span className="text-lg">📍</span>
+                         <h2 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Available Venues</h2>
+                         <span className="px-2.5 py-1 bg-slate-100 rounded-full text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                           {resultsByLocation.others.length} Venues
+                         </span>
+                       </div>
+                       <div className="h-px bg-slate-200 flex-1" />
+                     </div>
+                   )}
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                     {resultsByLocation.others.map((v, i) => (
+                       <VenueCard key={v.id} venue={v} index={i} />
+                     ))}
+                   </div>
+                 </div>
+               )}
+
+               {/* ── EMPTY STATE ── */}
+               {resultsByLocation.premium.length === 0 && resultsByLocation.others.length === 0 && (
+                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-24 text-center">
+                    <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
+                       <Filter size={40} />
+                    </div>
+                    <h3 className="text-2xl font-black text-slate-900 mb-2">No venues match those requirements</h3>
+                    <p className="text-slate-500 font-medium mb-8">Try adjusting your filters or search criteria.</p>
+                    <button onClick={clearFilters} className="pd-btn-primary !px-10 !py-4 text-[10px] font-black tracking-widest uppercase italic">Reset All Filters</button>
+                 </motion.div>
+               )}
+
              </div>
           </main>
         </div>

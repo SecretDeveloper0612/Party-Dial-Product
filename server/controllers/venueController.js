@@ -30,10 +30,15 @@ exports.getAllVenues = async (req, res) => {
             console.log(`[DEBUG] Full Venue Doc Sample:`, JSON.stringify(venues.documents[0], null, 2));
         }
 
+        let docs = venues.documents;
+
+        // Return all documents — ranking/filtering is handled on the client.
+        // The client splits venues into premium (paid+complete) and others (free, always shown at bottom).
+
         return res.status(200).json({
             status: 'success',
-            results: venues.total,
-            data: venues.documents
+            results: docs.length,
+            data: docs
         });
     } catch (error) {
         console.error('Error fetching venues:', error);

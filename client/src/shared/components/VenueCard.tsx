@@ -6,8 +6,9 @@ import { MapPin, Star, CheckCircle2, Zap, ArrowRight } from 'lucide-react';
 import { Venue } from '@/data/venues';
 
 interface VenueCardProps {
-  venue: Venue;
+  venue: any;
   index: number;
+  isPremium?: boolean;
 }
 
 const getCapacityLabel = (capacity: any) => {
@@ -24,7 +25,7 @@ const getCapacityLabel = (capacity: any) => {
   return "0-50";
 };
 
-export default function VenueCard({ venue: v, index: i }: VenueCardProps) {
+export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardProps) {
   return (
     <motion.div 
       layout
@@ -33,7 +34,11 @@ export default function VenueCard({ venue: v, index: i }: VenueCardProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ delay: i * 0.05 }}
-      className="pd-card group bg-white border border-slate-100 shadow-pd-soft overflow-hidden h-full flex flex-col"
+      className={`pd-card group bg-white overflow-hidden h-full flex flex-col transition-all ${
+        isPremium
+          ? 'border-2 border-amber-100 shadow-xl shadow-amber-50'
+          : 'border border-slate-100 shadow-pd-soft'
+      }`}
     >
         <div className="relative aspect-[16/10] md:h-56 overflow-hidden bg-slate-50 flex items-center justify-center">
            {v.img ? (
@@ -45,13 +50,19 @@ export default function VenueCard({ venue: v, index: i }: VenueCardProps) {
              </div>
            )}
            <div className="absolute top-4 left-4 flex gap-2">
-             {v.verified && (
+             {isPremium && (
+               <div className="bg-gradient-to-r from-amber-400 to-orange-400 px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-white shadow-xl">
+                  <Star size={10} fill="white" />
+                  <span className="text-[9px] font-black uppercase tracking-widest">Featured</span>
+               </div>
+             )}
+             {!isPremium && v.verified && (
                <div className="bg-white/95 px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-xl border border-slate-100">
                   <CheckCircle2 size={12} className="text-green-500" />
                   <span className="text-[9px] font-black uppercase text-slate-800 tracking-widest">Verified</span>
                </div>
              )}
-             {v.isNew && (
+             {v.isNew && !isPremium && (
                <div className="bg-pd-purple px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-white shadow-xl">
                   <Zap size={12} fill="white" />
                   <span className="text-[9px] font-black uppercase tracking-widest">New</span>
