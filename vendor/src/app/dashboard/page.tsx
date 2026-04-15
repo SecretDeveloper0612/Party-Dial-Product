@@ -645,14 +645,25 @@ export default function VendorDashboard() {
           }
 
           // Handle Onboarding & Payment Status
-          const alreadyDismissed = localStorage.getItem('onboardingComplete') === 'true';
+          const alreadyDismissed = localStorage.getItem('paymentReminderDismissed') === 'true';
           const plan = profile.subscriptionPlan || '';
-          const isPaidStatus = !!(plan && plan !== 'free');
-          const needsPayment = !isPaidStatus;
+          
+          // isPaidStatus: Venue has an active, lead-eligible plan
+          const isPaidStatus = !!(plan && plan !== 'free' && plan !== 'None');
+          
+          // Admin deactivation check: If the admin has rejected/deactivated this venue,
+          // never show the payment reminder popup or email them.
+          const isAdminDeactivated = profile.isVerified === false || profile.status === 'rejected';
+          
+          // needsPaymentPrompt: Venue has NO plan assigned yet (typical for new users)
+          // If the plan is explicitly 'free', we assume the Admin has downgraded them 
+          // deliberately and we should stay silent.
+          // If admin has deactivated the venue, we also stay silent.
+          const needsPaymentPrompt = (!plan || plan === 'None') && !isPaidStatus && !isAdminDeactivated;
 
-          if (!profile.onboardingComplete && !alreadyDismissed) {
+          if (!profile.onboardingComplete) {
             setShowOnboarding(true);
-          } else if (profile.onboardingComplete && needsPayment) {
+          } else if (needsPaymentPrompt && !alreadyDismissed) {
             // Use localStorage for precise timing, fallback to $updatedAt for cross-device
             const storedTime = localStorage.getItem('onboardingCompletedAt');
             const completionTime = new Date(storedTime || profile.$updatedAt).getTime();
@@ -703,57 +714,64 @@ export default function VendorDashboard() {
           `databases.${DATABASE_ID}.collections.${VENUES_COLLECTION_ID}.documents.${venueProfile.$id}`,
           `databases.${DATABASE_ID}.collections.${LEADS_COLLECTION_ID}.documents`
         ], (response) => {
-          if (!isMounted) return;
-          setIsRealtimeConnected(true); // Confirmed activity
-          const payload = response.payload as any;
+          try {
+            if (!isMounted) return;
+            setIsRealtimeConnected(true); // Confirmed activity
+            const payload = response.payload as any;
+            if (!payload) return;
 
-          if (response.events.some(e => e.includes('databases.*.collections.' + VENUES_COLLECTION_ID))) {
-            setVenueProfile(payload);
-            setShowOnboarding(!payload.onboardingComplete);
-            // Auto-hide payment reminder if payment is now complete
-            if (payload.isPaid) setShowPaymentReminder(false);
-          } else if (response.events.some(e => e.includes('databases.*.collections.' + LEADS_COLLECTION_ID))) {
-            const isPaid = venueProfile?.subscriptionPlan && venueProfile?.subscriptionPlan !== 'free';
-            if (isPaid && (payload.venueId === venueProfile?.$id || payload.venueId === 'BROADCAST')) {
-               const mapped = {
-                  id: payload.$id,
-                  name: payload.name,
-                  phone: payload.phone || '+91 98765 43210',
-                  event: payload.eventType,
-                  guests: payload.guests ? payload.guests.toString() : '0',
-                  date: formatLeadDate(payload.$createdAt),
-                  time: formatLeadTime(payload.$createdAt),
-                  rawDate: payload.$createdAt,
-                  status: payload.status === 'Quoted' ? 'Quotation Send' : (payload.status === 'In-Progress' ? 'Contacted' : (payload.status === 'Lost' || payload.status === 'Lost Leads' ? 'Lost Leads' : (payload.status || 'New'))),
-                  location: payload.city || 'Haldwani',
-                  email: payload.email || 'client@mail.com',
-                  title: 'Direct Inquiry',
-                  starred: false,
-                  unread: payload.status === 'New',
-                  color: payload.status === 'Booked' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
-               };
+            if (response.events.some(e => e.includes('databases.*.collections.' + VENUES_COLLECTION_ID))) {
+              setVenueProfile(payload);
+              setShowOnboarding(!payload.onboardingComplete);
+              // Auto-hide payment reminder if payment is now complete
+              if (payload.subscriptionPlan && payload.subscriptionPlan !== 'free') {
+                setShowPaymentReminder(false);
+              }
+            } else if (response.events.some(e => e.includes('databases.*.collections.' + LEADS_COLLECTION_ID))) {
+              const isPaid = venueProfile?.subscriptionPlan && venueProfile?.subscriptionPlan !== 'free';
+              if (isPaid && (payload.venueId === venueProfile?.$id || payload.venueId === 'BROADCAST')) {
+                 const mapped = {
+                    id: payload.$id,
+                    name: payload.name || 'Anonymous',
+                    phone: payload.phone || '+91 98765 43210',
+                    event: payload.eventType || 'Event',
+                    guests: payload.guests ? payload.guests.toString() : '0',
+                    date: formatLeadDate(payload.$createdAt || new Date().toISOString()),
+                    time: formatLeadTime(payload.$createdAt || new Date().toISOString()),
+                    rawDate: payload.$createdAt || new Date().toISOString(),
+                    status: payload.status === 'Quoted' ? 'Quotation Send' : (payload.status === 'In-Progress' ? 'Contacted' : (payload.status === 'Lost' || payload.status === 'Lost Leads' ? 'Lost Leads' : (payload.status || 'New'))),
+                    location: payload.city || 'Haldwani',
+                    email: payload.email || 'client@mail.com',
+                    title: 'Direct Inquiry',
+                    starred: false,
+                    unread: payload.status === 'New',
+                    color: payload.status === 'Booked' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+                 };
 
-               if (response.events.some(e => e.includes('create'))) {
-                 // 1. Play Lead Arrival Sound
-                 try {
-                   const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-                   audio.volume = 0.5;
-                   audio.play();
-                   showToast(`New Inquiry from ${payload.name}!`, 'success');
-                 } catch (audioErr) {
-                   console.log('Audio notification blocked by browser.');
+                 if (response.events.some(e => e.includes('create'))) {
+                   // 1. Play Lead Arrival Sound
+                   try {
+                     const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                     audio.volume = 0.5;
+                     audio.play().catch(() => {}); // Play() might be blocked
+                     showToast(`New Inquiry from ${payload.name || 'someone'}!`, 'success');
+                   } catch (audioErr) {
+                     console.log('Audio notification blocked by browser.');
+                   }
+
+                   setRecentLeads(prev => {
+                     if (prev.some(l => l.id === payload.$id)) return prev;
+                     return [mapped, ...prev];
+                   });
+                 } else if (response.events.some(e => e.includes('update'))) {
+                   setRecentLeads(prev => prev.map(l => l.id === payload.$id ? mapped : l));
+                 } else if (response.events.some(e => e.includes('delete'))) {
+                   setRecentLeads(prev => prev.filter(l => l.id !== payload.$id));
                  }
-
-                 setRecentLeads(prev => {
-                   if (prev.some(l => l.id === payload.$id)) return prev;
-                   return [mapped, ...prev];
-                 });
-               } else if (response.events.some(e => e.includes('update'))) {
-                 setRecentLeads(prev => prev.map(l => l.id === payload.$id ? mapped : l));
-               } else if (response.events.some(e => e.includes('delete'))) {
-                 setRecentLeads(prev => prev.filter(l => l.id !== payload.$id));
-               }
+              }
             }
+          } catch (handlerErr) {
+            console.error('Realtime message handler failed:', handlerErr);
           }
         });
       } catch (err) { 
@@ -808,7 +826,10 @@ export default function VendorDashboard() {
       {/* PAYMENT REMINDER POPUP */}
       <PaymentReminderPopup 
         isOpen={showPaymentReminder} 
-        onClose={() => setShowPaymentReminder(false)} 
+        onClose={() => {
+          setShowPaymentReminder(false);
+          localStorage.setItem('paymentReminderDismissed', 'true');
+        }} 
         venueName={venueProfile?.venueName}
       />
 

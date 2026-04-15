@@ -11,5 +11,6 @@ router.get('/user/:userId', leadController.getLeadsForUser);
 router.post('/public-inquiry', leadController.processPublicInquiry);
 router.post('/partner-enquiry', leadController.savePartnerEnquiry);
 router.get('/price-leads', leadController.getPriceLeads);
+router.get('/venue-leads-check', leadController.getVenueLeadsForAdmin);
 
 module.exports = router;

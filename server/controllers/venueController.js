@@ -25,6 +25,10 @@ exports.getAllVenues = async (req, res) => {
             queries
         );
 
+        if (venues.documents.length > 0) {
+            console.log(`[DEBUG] Full Venue Doc Sample:`, JSON.stringify(venues.documents[0], null, 2));
+        }
+
         return res.status(200).json({
             status: 'success',
             results: venues.total,
@@ -130,44 +134,43 @@ exports.updateVenue = async (req, res) => {
         const { id } = req.params;
         const updateData = req.body;
 
-        // Fields allowed to be updated by admin/authorized user
+        // Fields that actually exist in the Appwrite venues collection
         const allowedFields = [
             'venueName',
-            'businessName',
             'description',
-            'address',
+            'landmark',
             'city',
             'state',
             'pincode',
-            'landmark',
             'amenities',
-            'services',
             'eventTypes',
-            'images',
+            'photos',
             'contactNumber',
             'contactEmail',
-            'pricing',
             'capacity',
             'venueType',
-            'usp',
-            'foodType',
-            'location',
-            'gallery',
-            'socialLinks'
         ];
+
+        // These fields are stored as JSON strings in Appwrite (string attribute type)
+        const stringArrayFields = ['amenities', 'eventTypes', 'photos'];
 
         const payload = {};
         allowedFields.forEach(field => {
             if (updateData[field] !== undefined) {
-                // Ensure capacity is a number if provided
                 if (field === 'capacity') {
+                    // capacity must be an integer
                     payload[field] = parseInt(updateData[field]) || 0;
-                } else if (typeof updateData[field] === 'object') {
-                    // For things like arrays (amenities, images) that might come as objects
-                    // Appwrite expects them in a specific format if it's a string attribute, 
-                    // but if it's an array attribute it's fine. 
-                    // Assuming standard attributes here based on existing code patterns.
-                    payload[field] = updateData[field];
+                } else if (stringArrayFields.includes(field)) {
+                    // Appwrite stores these as string attributes containing JSON arrays
+                    const val = updateData[field];
+                    if (Array.isArray(val)) {
+                        payload[field] = JSON.stringify(val);
+                    } else if (typeof val === 'string') {
+                        // Already a string (e.g. already stringified) — pass through
+                        payload[field] = val;
+                    } else {
+                        payload[field] = JSON.stringify([]);
+                    }
                 } else {
                     payload[field] = updateData[field];
                 }
@@ -395,6 +398,27 @@ exports.submitLead = async (req, res) => {
                 }
             );
 
+            // RELIABLE COUNT: Fetch actual count of leads for this venue to ensure sync
+            try {
+                const leadCountRes = await databases.listDocuments(
+                    DATABASE_ID,
+                    LEADS_COLLECTION_ID,
+                    [Query.equal('venueId', v.$id), Query.limit(1)]
+                );
+                
+                await databases.updateDocument(
+                    DATABASE_ID,
+                    VENUES_COLLECTION_ID,
+                    v.$id,
+                    {
+                        totalLeads: leadCountRes.total
+                    }
+                );
+                console.log(`[SYNC] Updated venue ${v.$id} leads count to ${leadCountRes.total}`);
+            } catch (err) {
+                console.error(`Failed to sync lead count for venue ${v.$id}:`, err.message);
+            }
+
             // Send push notification to this venue
             if (v.expoPushToken) {
                 try {
@@ -407,6 +431,7 @@ exports.submitLead = async (req, res) => {
                     );
                 } catch (pe) {}
             }
+
             return leadInstance;
         });
 

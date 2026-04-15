@@ -621,18 +621,25 @@ exports.processPublicInquiry = async (req, res) => {
                     ).catch(() => {});
                 }
 
-                // Increment totalLeads in venue document
+                // RELIABLE COUNT: Fetch actual count of leads for this venue to ensure sync
                 try {
+                    const leadCountRes = await databases.listDocuments(
+                        DATABASE_ID,
+                        LEADS_COLLECTION_ID,
+                        [Query.equal('venueId', v.$id), Query.limit(1)]
+                    );
+                    
                     await databases.updateDocument(
                         DATABASE_ID,
                         VENUES_COLLECTION_ID || '6783857500366eb7b9b4',
                         v.$id,
                         {
-                            totalLeads: (v.totalLeads || 0) + 1
+                            totalLeads: leadCountRes.total
                         }
                     );
+                    console.log(`[SYNC] Updated venue ${v.$id} leads count to ${leadCountRes.total}`);
                 } catch (updateErr) {
-                    console.error(`Failed to update lead count for venue ${v.$id}:`, updateErr.message);
+                    console.error(`Failed to sync lead count for venue ${v.$id}:`, updateErr.message);
                 }
 
                 return doc;
@@ -749,6 +756,53 @@ exports.getPriceLeads = async (req, res) => {
         });
     } catch (error) {
         console.error('[ERROR] getPriceLeads:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+/**
+ * Get all distributed leads for Admin (with Venue details)
+ */
+exports.getVenueLeadsForAdmin = async (req, res) => {
+    try {
+        console.log('[INFO] Fetching Venue Leads Check data...');
+        // 1. Fetch leads that are NOT partner enquiries
+        const result = await databases.listDocuments(
+            DATABASE_ID,
+            LEADS_COLLECTION_ID,
+            [
+                Query.orderDesc('$createdAt'),
+                Query.limit(500)
+            ]
+        );
+
+        // Filter out partner enquiries in memory to be safe if 'notEqual' is picky
+        const relevantLeads = result.documents.filter(l => l.venueId !== 'PARTNER_ENQUIRY');
+
+        // 2. Fetch ALL venues for name mapping
+        const venuesResult = await databases.listDocuments(
+            DATABASE_ID,
+            VENUES_COLLECTION_ID,
+            [Query.limit(1000)]
+        );
+
+        const venueMap = {};
+        venuesResult.documents.forEach(v => {
+            venueMap[v.$id] = v.venueName || v.name || "Unnamed Venue";
+        });
+
+        const mappedLeads = relevantLeads.map(l => ({
+            ...l,
+            assignedVenue: venueMap[l.venueId] || (l.venueId === 'BROADCAST' ? 'Broadcast' : 'Unknown Venue')
+        }));
+
+        return res.status(200).json({
+            status: 'success',
+            results: mappedLeads.length,
+            data: mappedLeads
+        });
+    } catch (error) {
+        console.error('[ERROR] getVenueLeadsForAdmin:', error);
         return res.status(500).json({ status: 'error', message: error.message });
     }
 };

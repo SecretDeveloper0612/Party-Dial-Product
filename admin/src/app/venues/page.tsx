@@ -191,14 +191,15 @@ function VenueManagementContent() {
     try {
       const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
       const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
-      
-      // Prepare payload - ensuring arrays are strings if that's how they are stored
+
+      // Send arrays as real arrays — DO NOT JSON.stringify them.
+      // Appwrite expects native array attributes, not JSON strings.
       const payload = {
         ...editForm,
-        amenities: Array.isArray(editForm.amenities) ? JSON.stringify(editForm.amenities) : editForm.amenities,
-        services: Array.isArray(editForm.services) ? JSON.stringify(editForm.services) : editForm.services,
-        eventTypes: Array.isArray(editForm.eventTypes) ? JSON.stringify(editForm.eventTypes) : editForm.eventTypes,
-        images: Array.isArray(editForm.images) ? JSON.stringify(editForm.images) : editForm.images,
+        amenities: Array.isArray(editForm.amenities) ? editForm.amenities : [],
+        eventTypes: Array.isArray(editForm.eventTypes) ? editForm.eventTypes : [],
+        photos: Array.isArray(editForm.photos) ? editForm.photos : [],
+        capacity: parseInt(editForm.capacity) || 0,
       };
 
       const res = await fetch(`${serverUrl}/venues/${selectedVenue.id}`, {
@@ -212,9 +213,12 @@ function VenueManagementContent() {
         setSelectedVenue(mapDoc(result.data));
         setIsEditing(false);
         showToast("✓ Venue Profile Updated Successfully", "success");
+      } else {
+        showToast(`✗ Save failed: ${result.message || "Unknown error"}`, "error");
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Update failed", e);
+      showToast(`✗ Save failed: ${e?.message || "Network error"}`, "error");
     } finally {
       setUpdating(false);
     }
@@ -236,7 +240,6 @@ function VenueManagementContent() {
       setEditForm({
         venueName: selectedVenue.raw.venueName || selectedVenue.name,
         description: selectedVenue.raw.description || "",
-        address: selectedVenue.raw.address || "",
         city: selectedVenue.city,
         state: selectedVenue.state,
         pincode: selectedVenue.pincode,
@@ -244,12 +247,10 @@ function VenueManagementContent() {
         venueType: selectedVenue.venueType,
         contactNumber: selectedVenue.contactNumber,
         contactEmail: selectedVenue.ownerEmail,
-        pricing: selectedVenue.raw.pricing || "",
         landmark: selectedVenue.raw.landmark || "",
         amenities: parseField(selectedVenue.raw.amenities),
-        services: parseField(selectedVenue.raw.services),
         eventTypes: parseField(selectedVenue.raw.eventTypes),
-        images: parseField(selectedVenue.raw.images),
+        photos: parseField(selectedVenue.raw.photos),
       });
     }
   }, [selectedVenue]);
@@ -641,15 +642,6 @@ function VenueManagementContent() {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Street Address</label>
-                        <input 
-                          type="text" 
-                          value={editForm.address} 
-                          onChange={e => setEditForm({...editForm, address: e.target.value})}
-                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
-                        />
-                      </div>
 
                       <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-2">
@@ -713,16 +705,6 @@ function VenueManagementContent() {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pricing Details (Starting From)</label>
-                        <input 
-                          type="text" 
-                          value={editForm.pricing} 
-                          onChange={e => setEditForm({...editForm, pricing: e.target.value})}
-                          className="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
-                          placeholder="e.g. ₹800 per plate"
-                        />
-                      </div>
 
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Amenities & Services</label>
@@ -785,14 +767,14 @@ function VenueManagementContent() {
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Image Gallery</label>
                         <div className="grid grid-cols-2 gap-3 mb-3">
-                          {editForm.images.map((url: string, idx: number) => (
+                          {(editForm.photos || []).map((url: string, idx: number) => (
                             <div key={idx} className="relative group/img aspect-video rounded-xl overflow-hidden border border-slate-100 shadow-sm">
                               <img src={url} alt={`Venue ${idx}`} className="w-full h-full object-cover" />
                               <button 
                                 type="button"
                                 onClick={() => {
-                                  const newImages = editForm.images.filter((_: any, i: number) => i !== idx);
-                                  setEditForm({ ...editForm, images: newImages });
+                                  const newPhotos = editForm.photos.filter((_: any, i: number) => i !== idx);
+                                  setEditForm({ ...editForm, photos: newPhotos });
                                 }}
                                 className="absolute top-2 right-2 p-1.5 bg-rose-500 text-white rounded-lg opacity-0 group-hover/img:opacity-100 transition-all shadow-lg"
                               >
@@ -812,7 +794,7 @@ function VenueManagementContent() {
                                 e.preventDefault();
                                 const input = e.target as HTMLInputElement;
                                 if (input.value) {
-                                  setEditForm({ ...editForm, images: [...editForm.images, input.value] });
+                                  setEditForm({ ...editForm, photos: [...(editForm.photos || []), input.value] });
                                   input.value = "";
                                 }
                               }
@@ -823,7 +805,7 @@ function VenueManagementContent() {
                             onClick={() => {
                               const input = document.getElementById('new_image_url') as HTMLInputElement;
                               if (input?.value) {
-                                setEditForm({ ...editForm, images: [...editForm.images, input.value] });
+                                setEditForm({ ...editForm, photos: [...(editForm.photos || []), input.value] });
                                 input.value = "";
                               }
                             }}

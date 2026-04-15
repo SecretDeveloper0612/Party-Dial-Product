@@ -70,14 +70,22 @@ const automatePaymentReminders = async () => {
             ]
         );
 
-        // Filter for unpaid ones (Appwrite Query.notEqual is sometimes limited, so we filter locally)
-        const unpaidVenues = result.documents.filter(v => 
-            !v.subscriptionPlan || 
-            v.subscriptionPlan === 'free' || 
-            v.subscriptionPlan === 'None' ||
-            v.subscriptionPlan === '' || 
-            v.isPaid !== true
-        );
+        // Filter for unpaid ones, but EXCLUDE venues the admin has deactivated/rejected
+        // and venues on 'free' plan (admin-managed accounts that shouldn't get reminders)
+        const unpaidVenues = result.documents.filter(v => {
+            // Skip if admin has deactivated this venue
+            if (v.isVerified === false || v.status === 'rejected') return false;
+            
+            // Skip if admin has assigned 'free' plan deliberately
+            if (v.subscriptionPlan === 'free') return false;
+            
+            // Only target venues with no subscription plan at all
+            const hasNoPlan = !v.subscriptionPlan || 
+                v.subscriptionPlan === 'None' || 
+                v.subscriptionPlan === '';
+            
+            return hasNoPlan;
+        });
 
         console.log(`Found ${unpaidVenues.length} unpaid vendors to remind.`);
 

@@ -39,6 +39,7 @@ const menuItems = [
   { icon: Target, label: "Lead Dist. (Venues)", path: "/lead-distribution-venues" },
   { icon: Table, label: "Lead Matrix", path: "/crm/leads" },
   { icon: FileText, label: "Price Leads", path: "/price-leads" },
+  { icon: CheckCircle, label: "Venue Leads Check", path: "/venue-leads" },
   { icon: Zap, label: "Plan Management", path: "/plans" },
   { icon: Users, label: "User & Role Management", path: "/users" },
   { icon: GitGraph, label: "Team Structure", path: "/team-tree" },
