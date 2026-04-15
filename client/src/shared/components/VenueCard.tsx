@@ -83,7 +83,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
                 <MapPin size={10} className="text-pd-red" /> {v.location}, {v.city}
              </div>
              <div className="flex gap-1">
-                {(v.foodTypes || []).map(f => (
+                {(v.foodTypes || []).map((f: string) => (
                   <div key={f} className={`w-2 h-2 rounded-full ${f === 'Veg' ? 'bg-green-500' : 'bg-red-500'}`} title={f}></div>
                 ))}
              </div>
@@ -110,7 +110,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
           </div>
           
           <div className="flex flex-wrap gap-1.5 mb-6">
-             {(v.amenities || []).slice(0, 3).map(a => (
+             {(v.amenities || []).slice(0, 3).map((a: string) => (
                <span key={a} className="px-2.5 py-1 bg-slate-50 rounded-lg text-[8px] font-bold text-slate-500 border border-slate-100">{a}</span>
              ))}
              {(v.amenities || []).length > 3 && <span className="px-1.5 py-1 bg-slate-50 rounded-lg text-[8px] font-bold text-slate-400">+{(v.amenities || []).length - 3}</span>}
