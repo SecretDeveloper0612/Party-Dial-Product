@@ -82,6 +82,8 @@ export default function VenueLeadsCheckPage() {
   const [selectedStatus, setSelectedStatus] = useState("ALL");
   const [selectedVenue, setSelectedVenue] = useState("ALL");
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
+  const [redistributing, setRedistributing] = useState(false);
+  const [redistResult, setRedistResult] = useState<any>(null);
 
   const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
@@ -170,6 +172,28 @@ export default function VenueLeadsCheckPage() {
     document.body.removeChild(link);
   };
 
+  const handleRedistribute = async (dryRun: boolean) => {
+    setRedistributing(true);
+    setRedistResult(null);
+    try {
+      const res = await fetch(`${serverUrl}/leads/redistribute-old`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dryRun })
+      });
+      const data = await res.json();
+      setRedistResult(data);
+      if (!dryRun && data.status === 'success') {
+        fetchLeads(); // refresh table
+      }
+    } catch (err) {
+      console.error('Redistribute failed', err);
+      setRedistResult({ status: 'error', message: 'Network error' });
+    } finally {
+      setRedistributing(false);
+    }
+  };
+
   return (
     <div className="space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       
@@ -185,17 +209,35 @@ export default function VenueLeadsCheckPage() {
              </div>
          </div>
          <div className="flex items-center gap-3">
+            <button
+              onClick={() => handleRedistribute(true)}
+              disabled={redistributing}
+              className="px-5 py-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2 text-sm font-bold text-amber-700 hover:bg-amber-100 transition-all disabled:opacity-50"
+            >
+               {redistributing ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} />} Preview
+            </button>
+            <button
+              onClick={() => {
+                if (confirm('This will redistribute all unmatched BROADCAST leads to matching venues. Continue?')) {
+                  handleRedistribute(false);
+                }
+              }}
+              disabled={redistributing}
+              className="px-5 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl flex items-center gap-2 text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-50"
+            >
+               {redistributing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />} Redistribute
+            </button>
             <button 
               onClick={exportToCSV}
               className="px-5 py-3 bg-white border border-slate-100 rounded-xl flex items-center gap-2 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
             >
-               <Download size={16} /> Export CSV
+               <Download size={16} /> CSV
             </button>
             <button 
               onClick={fetchLeads} 
               className="px-5 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 shadow-lg shadow-slate-900/10 transition-all flex items-center gap-2 font-bold text-sm"
             >
-               <RefreshCw size={16} /> Refresh
+               <RefreshCw size={16} />
             </button>
          </div>
       </div>
@@ -239,6 +281,54 @@ export default function VenueLeadsCheckPage() {
             </div>
          </div>
       </div>
+
+      {/* Redistribution Results Panel */}
+      {redistResult && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={cn(
+            "p-6 rounded-2xl border",
+            redistResult.status === 'success' ? "bg-emerald-50 border-emerald-200" : "bg-rose-50 border-rose-200"
+          )}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-black text-slate-800">
+              {redistResult.stats?.dryRun ? '🔍 Preview Results' : '✅ Redistribution Complete'}
+            </h3>
+            <button onClick={() => setRedistResult(null)} className="text-slate-400 hover:text-slate-600 text-xs font-bold">
+              Dismiss
+            </button>
+          </div>
+          <p className="text-xs font-semibold text-slate-600 mb-3">{redistResult.message}</p>
+          {redistResult.stats && (
+            <div className="flex gap-4 flex-wrap mb-3">
+              <span className="text-[10px] font-black uppercase text-slate-500">Evaluated: {redistResult.stats.evaluated}</span>
+              <span className="text-[10px] font-black uppercase text-emerald-600">Matched: {redistResult.stats.matched}</span>
+              <span className="text-[10px] font-black uppercase text-amber-600">Skipped: {redistResult.stats.skipped}</span>
+              <span className="text-[10px] font-black uppercase text-rose-600">No Venue: {redistResult.stats.noVenue}</span>
+            </div>
+          )}
+          {redistResult.results && redistResult.results.length > 0 && (
+            <div className="max-h-48 overflow-y-auto space-y-1.5">
+              {redistResult.results.map((r: any, i: number) => (
+                <div key={i} className="flex items-center gap-2 text-[11px] font-semibold text-slate-600">
+                  <span className={cn(
+                    "px-1.5 py-0.5 rounded text-[8px] font-black uppercase",
+                    r.status === 'distributed' || r.status === 'would_distribute' ? "bg-emerald-100 text-emerald-700" :
+                    r.status === 'skipped' ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
+                  )}>{r.status}</span>
+                  <span className="font-bold">{r.name}</span>
+                  {r.pincode && <span className="text-slate-400">Pin: {r.pincode}</span>}
+                  {r.guests && <span className="text-slate-400">PAX: {r.guests}</span>}
+                  {r.assignedTo?.length > 0 && <span className="text-indigo-500">→ {r.assignedTo.join(', ')}</span>}
+                  {r.reason && <span className="text-rose-400">{r.reason}</span>}
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      )}
 
       {/* Per-Venue Breakdown */}
       {uniqueVenues.length > 0 && (

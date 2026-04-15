@@ -2,6 +2,7 @@ const { databases, DATABASE_ID, LEADS_COLLECTION_ID, VENUES_COLLECTION_ID, users
 const { ID, Query } = require('node-appwrite');
 const { sendLeadNotificationEmail } = require('../utils/emailService');
 const axios = require('axios');
+const { isVenueEligible, getBucketLabel } = require('../utils/paxMatcher');
 
 /**
  * Distribute leads bulk logic
@@ -262,7 +263,7 @@ exports.distributeLeadsToVenues = async (req, res) => {
                 continue;
             }
 
-            // Filter for pincode matching AND capacity matching
+            // Filter for pincode matching AND PAX bucket capacity matching
             const targetVenues = allVenues.filter(v => {
                 const hasPaidPlan = v.subscriptionPlan && v.subscriptionPlan !== 'free';
                 if (!hasPaidPlan) return false;
@@ -273,13 +274,15 @@ exports.distributeLeadsToVenues = async (req, res) => {
                 const pinMatch = venuePincodes.some(p => p === leadPin);
                 if (!pinMatch) return false;
 
-                // 2. STRICT Capacity Check
-                const leadPax = parseInt(leadData.pax) || 0;
-                const venueMaxCap = parseInt(v.capacity) || 0;
-                // Only match if venue is capable of handling the guests
-                if (venueMaxCap !== 0 && venueMaxCap < leadPax) return false;
-
-                return true;
+                // 2. PAX Bucket Capacity Check
+                // Venue's capacity bucket must be >= lead's required bucket.
+                // E.g. Lead PAX "100-200" → only venues with capacity 200+ are eligible.
+                const guestStr = String(leadData.pax || leadData.guests || '0');
+                const eligible = isVenueEligible(v.capacity, guestStr);
+                if (!eligible) {
+                    console.log(`  ❌ GSheet: ${v.venueName} bucket ${getBucketLabel(v.capacity)} too small for "${guestStr}"`);
+                }
+                return eligible;
             });
 
             if (targetVenues.length === 0) {
@@ -517,40 +520,17 @@ exports.processPublicInquiry = async (req, res) => {
                 return false;
             }
 
-            // B. Precise Capacity Range Match
-            let vMin = 0;
-            let vMax = 0;
-            
-            if (v.minCapacity !== undefined && v.maxCapacity !== undefined) {
-                vMin = parseInt(v.minCapacity) || 0;
-                vMax = parseInt(v.maxCapacity) || 0;
-            } else {
-                // Secondary fallback check for 'capacity' field
-                const capVal = String(v.capacity || '0');
-                if (capVal.includes('-')) {
-                    const parts = capVal.split('-');
-                    vMin = parseInt(parts[0]) || 0;
-                    vMax = parseInt(parts[1]) || 0;
-                } else {
-                    vMin = 0; 
-                    vMax = parseInt(capVal) || 0;
-                }
-            }
-
-            // STRICTOR CHECK: If venue has NO capacity defined, it shouldn't match a real guest count
-            if (vMax === 0) {
-                console.log(`  - ❌ ${v.venueName}: No capacity defined in profile`);
+            // B. PAX Bucket Capacity Check
+            // Venue bucket max must be >= lead bucket max.
+            // Example: Lead "100-200" → venues with 100-200, 200-500, 500-1000 etc. are eligible
+            //          Venues with 0-50 or 50-100 are NOT eligible.
+            const eligible = isVenueEligible(v.capacity, guestCapacity);
+            if (!eligible) {
+                console.log(`  - ❌ ${v.venueName}: Capacity ${v.capacity} (${getBucketLabel(v.capacity)}) too small for "${guestCapacity}" guests`);
                 return false;
             }
 
-            const capacityMatch = (vMin <= requestedGuests) && (requestedGuests <= vMax);
-            
-            if (!capacityMatch) {
-                console.log(`  - ❌ ${v.venueName}: Capacity range (${vMin}-${vMax}) doesn't fit ${requestedGuests} guests`);
-                return false;
-            }
-
-            console.log(`  - ✅ ${v.venueName}: Matches Pin ${leadPincode} and Capacity ${vMin}-${vMax}`);
+            console.log(`  - ✅ ${v.venueName}: Matches Pin ${leadPincode} | Capacity ${v.capacity} (${getBucketLabel(v.capacity)}) handles "${guestCapacity}"`);
             return true;
         });
 
@@ -803,6 +783,176 @@ exports.getVenueLeadsForAdmin = async (req, res) => {
         });
     } catch (error) {
         console.error('[ERROR] getVenueLeadsForAdmin:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+/**
+ * Re-distribute old/unmatched leads to venues based on PAX bucket + pincode.
+ * Fetches all BROADCAST leads + leads with no matched venue and tries to match them now.
+ *
+ * POST /api/leads/redistribute-old
+ * Body: { dryRun: true }  → preview without actually creating documents
+ */
+exports.redistributeOldLeads = async (req, res) => {
+    try {
+        const dryRun = req.body?.dryRun === true || req.query?.dryRun === 'true';
+        console.log(`\n--- 🔁 REDISTRIBUTE OLD LEADS (dryRun: ${dryRun}) ---`);
+
+        // 1. Fetch all leads (up to 500 most recent)
+        const leadsResult = await databases.listDocuments(
+            DATABASE_ID,
+            LEADS_COLLECTION_ID,
+            [Query.orderDesc('$createdAt'), Query.limit(500)]
+        );
+
+        // Target leads that weren't properly distributed
+        const candidateLeads = leadsResult.documents.filter(l => {
+            if (!l.venueId || l.venueId === 'BROADCAST') return true;
+            return false;
+        });
+
+        console.log(`📋 Found ${candidateLeads.length} unmatched/BROADCAST leads to re-evaluate`);
+
+        if (candidateLeads.length === 0) {
+            return res.status(200).json({
+                status: 'success',
+                message: 'No unmatched leads to redistribute.',
+                stats: { evaluated: 0, matched: 0, skipped: 0, dryRun }
+            });
+        }
+
+        // 2. Fetch all active paid venues once
+        const venueResult = await databases.listDocuments(
+            DATABASE_ID,
+            VENUES_COLLECTION_ID,
+            [
+                Query.equal('isVerified', true),
+                Query.equal('status', 'active'),
+                Query.limit(1000)
+            ]
+        );
+        const allVenues = venueResult.documents.filter(v =>
+            v.subscriptionPlan && v.subscriptionPlan !== 'free'
+        );
+
+        console.log(`🏢 Active paid venues available: ${allVenues.length}`);
+
+        const stats = { evaluated: 0, matched: 0, skipped: 0, noVenue: 0 };
+        const results = [];
+
+        for (const lead of candidateLeads) {
+            stats.evaluated++;
+
+            // Extract pincode from notes if not stored directly
+            let leadPincode = (lead.pincode || '').toString().trim();
+            if (!leadPincode) {
+                const notePin = (lead.notes || '').match(/Pin[code]*[:\s]+(\d{5,6})/i);
+                if (notePin) leadPincode = notePin[1].trim();
+            }
+
+            // Extract guest capacity
+            const guestsNum = parseInt(lead.guests) || 0;
+            const guestStr = guestsNum > 0 ? String(guestsNum) : '0';
+
+            if (!leadPincode || guestsNum === 0) {
+                console.log(`  ⚠️ Lead ${lead.$id} (${lead.name}): Missing pincode or guest count — skipping`);
+                stats.skipped++;
+                results.push({ leadId: lead.$id, name: lead.name, status: 'skipped', reason: 'Missing pincode or guests' });
+                continue;
+            }
+
+            // 3. Find matching venues using PAX bucket + pincode
+            const matchingVenues = allVenues.filter(v => {
+                const venuePincodes = (v.pincode || '').toString().split(',').map(p => p.trim()).filter(p => p);
+                if (!venuePincodes.includes(leadPincode)) return false;
+                return isVenueEligible(v.capacity, guestStr);
+            });
+
+            if (matchingVenues.length === 0) {
+                console.log(`  ❌ Lead "${lead.name}" (Pin: ${leadPincode}, PAX: ${guestsNum}) — no matching venues`);
+                stats.noVenue++;
+                results.push({ leadId: lead.$id, name: lead.name, pincode: leadPincode, guests: guestsNum, status: 'no_venue', assignedTo: [] });
+                continue;
+            }
+
+            const finalVenues = matchingVenues.slice(0, 5);
+            const assignedNames = [];
+
+            if (!dryRun) {
+                for (const v of finalVenues) {
+                    // Deduplication
+                    try {
+                        const existing = await databases.listDocuments(
+                            DATABASE_ID,
+                            LEADS_COLLECTION_ID,
+                            [
+                                Query.equal('venueId', v.$id),
+                                Query.equal('phone', lead.phone || 'NOMATCH'),
+                                Query.limit(1)
+                            ]
+                        );
+                        if (existing.total > 0) {
+                            console.log(`  ⏭️ Skipping duplicate: ${v.venueName} already has ${lead.phone}`);
+                            continue;
+                        }
+                    } catch (dupErr) {
+                        console.warn('Dedup check failed, proceeding:', dupErr.message);
+                    }
+
+                    try {
+                        await databases.createDocument(
+                            DATABASE_ID,
+                            LEADS_COLLECTION_ID,
+                            ID.unique(),
+                            {
+                                venueId: v.$id,
+                                name: lead.name,
+                                phone: lead.phone || '',
+                                email: lead.email || '',
+                                eventType: lead.eventType || 'Event',
+                                guests: guestsNum,
+                                notes: `[REDISTRIBUTED] Original: ${lead.$id} | Pin: ${leadPincode} | PAX: ${guestsNum} | ${lead.notes || ''}`.slice(0, 990),
+                                status: 'New',
+                                createdAt: new Date().toISOString()
+                            }
+                        );
+                        assignedNames.push(v.venueName);
+                        console.log(`  ✅ Redistributed "${lead.name}" → ${v.venueName} (${getBucketLabel(v.capacity)})`);
+                    } catch (createErr) {
+                        console.error(`  ❌ Failed to create lead for ${v.venueName}:`, createErr.message);
+                    }
+                }
+            } else {
+                finalVenues.forEach(v => assignedNames.push(v.venueName));
+                console.log(`  🔍 DRY RUN: "${lead.name}" (Pin: ${leadPincode}, PAX: ${guestsNum}) → [${assignedNames.join(', ')}]`);
+            }
+
+            if (assignedNames.length > 0) {
+                stats.matched++;
+                results.push({
+                    leadId: lead.$id, name: lead.name, pincode: leadPincode, guests: guestsNum,
+                    status: dryRun ? 'would_distribute' : 'distributed',
+                    assignedTo: assignedNames
+                });
+            } else {
+                stats.noVenue++;
+                results.push({ leadId: lead.$id, name: lead.name, pincode: leadPincode, guests: guestsNum, status: 'no_venue_after_dedup', assignedTo: [] });
+            }
+        }
+
+        console.log(`\n🏁 REDISTRIBUTION COMPLETE: Evaluated: ${stats.evaluated} | Matched: ${stats.matched} | No Venue: ${stats.noVenue} | Skipped: ${stats.skipped}\n`);
+
+        return res.status(200).json({
+            status: 'success',
+            message: dryRun
+                ? `DRY RUN: Would distribute ${stats.matched} leads to venues.`
+                : `Redistributed ${stats.matched} leads to matching venues.`,
+            stats: { ...stats, dryRun },
+            results
+        });
+    } catch (error) {
+        console.error('[ERROR] redistributeOldLeads:', error);
         return res.status(500).json({ status: 'error', message: error.message });
     }
 };

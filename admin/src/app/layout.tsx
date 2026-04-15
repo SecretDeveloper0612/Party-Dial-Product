@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Inter } from "next/font/google";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
@@ -17,10 +18,12 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
   const isLoginPage = pathname === "/login";
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
         {/* Google Tag Manager */}
         <Script id="google-tag-manager" strategy="afterInteractive">
           {`
@@ -51,10 +54,11 @@ export default function RootLayout({
              </div>
            ) : (
              <div className="flex min-h-screen">
-                <Sidebar />
-                <main className="flex-1 ml-[var(--sidebar-w)] transition-[margin] duration-300 min-h-screen">
-                  <TopBar />
-                  <div className="p-10 min-h-[calc(100vh-var(--header-h))]">
+                <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+                {/* Main: no left margin on mobile, full sidebar margin on lg+ */}
+                <main className="flex-1 lg:ml-[var(--sidebar-w)] transition-[margin] duration-300 min-h-screen w-full">
+                  <TopBar onMenuOpen={() => setSidebarOpen(true)} />
+                  <div className="p-4 sm:p-6 lg:p-10 min-h-[calc(100vh-var(--header-h))]">
                     {children}
                   </div>
                 </main>

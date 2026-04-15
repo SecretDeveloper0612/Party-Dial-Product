@@ -2,6 +2,7 @@ const { databases, DATABASE_ID, VENUES_COLLECTION_ID, LEADS_COLLECTION_ID, REVIE
 const { ID, Query } = require('node-appwrite');
 const { sendPushNotification } = require('../utils/notifications');
 const { sendProfileStatusEmail, sendLeadNotificationEmail } = require('../utils/emailService');
+const { isVenueEligible, getBucketLabel, getLeadBucketMax } = require('../utils/paxMatcher');
 
 
 // Get all venues
@@ -296,32 +297,15 @@ exports.submitLead = async (req, res) => {
                 const isPincodeMatch = targetPincodes.some(p => venuePincodes.includes(p));
                 if (!isPincodeMatch) return false;
 
-                // 3. Capacity Check
-                // A bit more sophisticated capacity check
-                let vMin = 0;
-                let vMax = 0;
-                
-                if (v.minCapacity !== undefined && v.maxCapacity !== undefined) {
-                    vMin = parseInt(v.minCapacity) || 0;
-                    vMax = parseInt(v.maxCapacity) || 0;
-                } else {
-                    const capVal = String(v.capacity || '0');
-                    if (capVal.includes('-')) {
-                        const parts = capVal.split('-');
-                        vMin = parseInt(parts[0]) || 0;
-                        vMax = parseInt(parts[1]) || 0;
-                    } else if (capVal.includes('+')) {
-                        vMin = parseInt(capVal.replace('+', '')) || 0;
-                        vMax = 10000;
-                    } else {
-                        vMin = 0;
-                        vMax = parseInt(capVal) || 10000;
-                    }
+                // 3. PAX Bucket Capacity Check
+                // A venue is eligible if its capacity bucket >= the lead's required bucket.
+                // E.g., Lead "100-200" → venues in 100-200, 200-500, 500-1000, etc. are eligible.
+                //        Venues in 0-50 or 50-100 are NOT eligible.
+                const eligible = isVenueEligible(v.capacity, guestCapStr);
+                if (!eligible) {
+                    console.log(`  ❌ ${v.venueName}: Capacity ${v.capacity} (${getBucketLabel(v.capacity)}) too small for ${guestCapStr} guests`);
                 }
-
-                // If lead says "0-50", safeGuests is 50. 
-                // We match if the venue can handle at least the upper bound of the request.
-                return safeGuests <= vMax;
+                return eligible;
             });
 
             // --- 📩 CENTRAL EMAIL NOTIFICATION ---
@@ -338,13 +322,11 @@ exports.submitLead = async (req, res) => {
                 }).catch(err => console.error('Failed to send admin lead email:', err.message));
             }
 
-            // Fallback: If no paid venues match capacity but some exist, pick largest (must still be paid)
-            if (venuesToNotify.length === 0 && allVenues.length > 0) {
-                const paidVenues = allVenues.filter(v => v.subscriptionPlan && v.subscriptionPlan !== 'free');
-                if (paidVenues.length > 0) {
-                    console.log(`Pincode ${targetPincodes[0]} match found but capacity ${safeGuests} exceeded all venues. Selecting largest available.`);
-                    venuesToNotify = [paidVenues.sort((a,b) => (parseInt(b.capacity)||0) - (parseInt(a.capacity)||0))[0]];
-                }
+            // If no venues matched PAX bucket + pincode criteria, venuesToNotify stays empty.
+            // The BROADCAST fallback below (line 344+) handles this gracefully by saving
+            // the lead for admin review without forcing a mismatch.
+            if (venuesToNotify.length === 0) {
+                console.log(`⚠️ No eligible venues for pincode ${targetPincodes[0]} with PAX "${guestCapStr}". Routing to BROADCAST.`);
             }
         } else if (venueId && venueId !== 'BROADCAST') {
             // Fallback to specific venue if no pincode found

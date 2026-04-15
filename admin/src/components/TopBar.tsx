@@ -53,7 +53,7 @@ const TYPE_BG: Record<string, string> = {
   alert: "bg-rose-50",
 };
 
-export default function TopBar() {
+export default function TopBar({ onMenuOpen }: { onMenuOpen?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -236,8 +236,15 @@ export default function TopBar() {
   const initials = user?.name ? user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase() : "A";
 
   return (
-    <header className="h-[var(--header-h)] border-b border-slate-100 bg-white flex items-center justify-between px-8 sticky top-0 z-50 shadow-sm">
-      <div></div>
+    <header className="h-[var(--header-h)] border-b border-slate-100 bg-white flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-50 shadow-sm">
+      {/* Left: Hamburger (mobile) */}
+      <button
+        onClick={onMenuOpen}
+        className="lg:hidden p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition-all mr-2"
+        aria-label="Open menu"
+      >
+        <Menu size={22} />
+      </button>
 
       <div className="flex items-center gap-8">
         {/* Admin Badge */}
@@ -249,7 +256,7 @@ export default function TopBar() {
         </div>
 
         {/* Icons */}
-        <div className="flex items-center gap-5 text-slate-400">
+        <div className="flex items-center gap-2 sm:gap-5 text-slate-400">
 
           {/* ── Mail Button ─────────────────────────────────────────────────── */}
           <div ref={mailRef} className="relative">
@@ -272,7 +279,7 @@ export default function TopBar() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.97 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-12 w-80 bg-white rounded-2xl shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden z-[200]"
+                  className="absolute right-0 top-12 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-white rounded-2xl shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden z-[200]"
                 >
                   <div className="flex items-center justify-between p-4 border-b border-slate-50">
                     <h3 className="text-xs font-black uppercase tracking-widest text-slate-700">Action Alerts</h3>
@@ -338,7 +345,7 @@ export default function TopBar() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.97 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-12 w-96 bg-white rounded-2xl shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden z-[200]"
+                  className="absolute right-0 top-12 w-[calc(100vw-2rem)] sm:w-96 max-w-sm bg-white rounded-2xl shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden z-[200]"
                 >
                   <div className="flex items-center justify-between p-4 border-b border-slate-50">
                     <div className="flex items-center gap-2">

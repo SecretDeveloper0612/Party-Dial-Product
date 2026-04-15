@@ -12,5 +12,6 @@ router.post('/public-inquiry', leadController.processPublicInquiry);
 router.post('/partner-enquiry', leadController.savePartnerEnquiry);
 router.get('/price-leads', leadController.getPriceLeads);
 router.get('/venue-leads-check', leadController.getVenueLeadsForAdmin);
+router.post('/redistribute-old', leadController.redistributeOldLeads);
 
 module.exports = router;
