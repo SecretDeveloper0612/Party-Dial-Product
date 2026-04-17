@@ -4,38 +4,36 @@ const { ID, Query } = require('node-appwrite');
 const PLANS_COLLECTION_ID = process.env.APPWRITE_PLANS_COLLECTION_ID || 'plans';
 
 // Default plans to return if collection doesn't exist or is empty
-const DEFAULT_PLANS = [
-  {
-    $id: "trial_30",
-    name: "₹11 Starter Plan",
-    price: 11,
-    duration: 30,
-    leadLimit: 5,
-    features: ["Dashboard Access", "Realtime WhatsApp Alerts", "Priority Support"],
-    status: "active",
-    $createdAt: new Date().toISOString()
-  }
-];
+const DEFAULT_PLANS = [];
 
 exports.getAllPlans = async (req, res) => {
   try {
-    const result = await databases.listDocuments(DATABASE_ID, PLANS_COLLECTION_ID);
-    
-    // If empty, return defaults
-    if (result.total === 0) {
-      return res.json({ status: 'success', data: DEFAULT_PLANS, message: 'Using default plans' });
+    // We prioritize the specialized professional plans for the quotation system
+    // even if the database has other operational plans.
+    let docs = [];
+    try {
+      const result = await databases.listDocuments(DATABASE_ID, PLANS_COLLECTION_ID);
+      docs = result.documents.map(doc => ({
+        ...doc,
+        features: typeof doc.features === 'string' ? JSON.parse(doc.features) : (doc.features || [])
+      }));
+    } catch (dbErr) {
+      console.log("Database plans not found, using professional defaults only.");
     }
 
-    // Parse features if they are stored as JSON strings
-    const docs = result.documents.map(doc => ({
-      ...doc,
-      features: typeof doc.features === 'string' ? JSON.parse(doc.features) : (doc.features || [])
-    }));
+    // Merge or prioritize default professional plans
+    const combinedPlans = [...DEFAULT_PLANS];
+    
+    // Only add database plans if they don't overlap with our professional IDs
+    docs.forEach(d => {
+       if (!combinedPlans.find(p => p.$id === d.$id)) {
+          combinedPlans.push(d);
+       }
+    });
 
-    res.json({ status: 'success', data: docs });
+    res.json({ status: 'success', data: combinedPlans });
   } catch (error) {
-    // console.warn('Plans collection not found or accessible, using defaults');
-    res.json({ status: 'success', data: DEFAULT_PLANS, message: 'Using default plans (Collection missing)' });
+    res.json({ status: 'success', data: DEFAULT_PLANS, message: 'System fallback to professional plans' });
   }
 };
 

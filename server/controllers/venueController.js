@@ -143,7 +143,9 @@ exports.updateVenue = async (req, res) => {
         // Fields that actually exist in the Appwrite venues collection
         const allowedFields = [
             'venueName',
+            'ownerName',
             'description',
+            'address',
             'landmark',
             'city',
             'state',
@@ -155,6 +157,7 @@ exports.updateVenue = async (req, res) => {
             'contactEmail',
             'capacity',
             'venueType',
+            'gstNumber',
         ];
 
         // These fields are stored as JSON strings in Appwrite (string attribute type)

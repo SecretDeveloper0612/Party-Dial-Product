@@ -11,10 +11,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check for existing session
-    const sessionStr = localStorage.getItem("party_admin_session");
+    const sessionStr = typeof window !== 'undefined' ? localStorage.getItem("party_admin_session") : null;
     
     if (!sessionStr) {
-      if (pathname !== "/login") {
+      if (pathname !== "/login" && pathname !== "/checkout") {
         router.push("/login");
       } else {
         setAuthorized(true);

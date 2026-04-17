@@ -179,14 +179,14 @@ cron.schedule('0 0 * * *', () => {
 });
 
 // Schedule Payment Reminders at 10:00 AM daily
-cron.schedule('0 10 * * *', () => {
-    automatePaymentReminders();
-});
+// cron.schedule('0 10 * * *', () => {
+//     automatePaymentReminders();
+// });
 
 // Schedule Profile Completion Reminders at 09:00 AM daily
-cron.schedule('0 9 * * *', () => {
-    automateProfileReminders();
-});
+// cron.schedule('0 9 * * *', () => {
+//     automateProfileReminders();
+// });
 
 // Schedule GSheet Sync every 5 minutes
 cron.schedule('*/5 * * * *', () => {

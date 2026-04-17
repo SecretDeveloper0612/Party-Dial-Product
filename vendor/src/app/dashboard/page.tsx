@@ -662,9 +662,12 @@ export default function VendorDashboard() {
           // If admin has deactivated the venue, we also stay silent.
           const needsPaymentPrompt = (!plan || plan === 'None') && !isPaidStatus && !isAdminDeactivated;
 
+          // Mobile check - suppress disruptive popups on small screens if requested or already dismissed
+          const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 1024;
+
           if (!profile.onboardingComplete) {
             setShowOnboarding(true);
-          } else if (needsPaymentPrompt && !alreadyDismissed) {
+          } else if (needsPaymentPrompt && !alreadyDismissed && !isMobileDevice) {
             // Use localStorage for precise timing, fallback to $updatedAt for cross-device
             const storedTime = localStorage.getItem('onboardingCompletedAt');
             const completionTime = new Date(storedTime || profile.$updatedAt).getTime();
@@ -675,9 +678,13 @@ export default function VendorDashboard() {
                setShowPaymentReminder(true);
             } else {
                // Schedule popup for later
-               const remaining = thirtyMinutes - (now - completionTime);
+               const remaining = Math.max(0, thirtyMinutes - (now - completionTime));
                setTimeout(() => {
-                  setShowPaymentReminder(true);
+                  // Final safety check before showing
+                  const freshDismissed = localStorage.getItem('paymentReminderDismissed') === 'true';
+                  if (!freshDismissed && !isPaidStatus) {
+                    setShowPaymentReminder(true);
+                  }
                }, remaining);
             }
           }
@@ -1081,13 +1088,7 @@ export default function VendorDashboard() {
             </div>
 
             <div className="flex items-center gap-2 lg:gap-4">
-               <Link 
-                  href="/dashboard/onboarding/subscription"
-                  className="hidden md:flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-[14px] text-[10px] font-black uppercase tracking-[0.1em] hover:from-pd-pink hover:to-rose-600 transition-all shadow-md group border border-white/10"
-               >
-                  <CreditCard size={14} className="group-hover:rotate-12 transition-transform" /> 
-                  Manage <span className="text-white/50 group-hover:text-white/80">Plan</span>
-               </Link>
+
 
                <div className="hidden sm:flex items-center gap-3 bg-slate-50 p-1.5 px-3 rounded-[20px] border border-slate-100/50 mr-1 lg:mr-2">
                   <div className="flex items-center gap-2 pr-2 border-r border-slate-200">

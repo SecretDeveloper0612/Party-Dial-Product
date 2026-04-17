@@ -31,7 +31,10 @@ import { cn } from "@/lib/utils";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: CreditCard, label: "Billing", path: "/billing" },
+  { icon: PieChart, label: "Financial Reports", path: "/billing/reports" },
+  { icon: CreditCard, label: "Payment Logs", path: "/billing/payments" },
+  { icon: Zap, label: "Coupon System", path: "/billing/coupons" },
+  { icon: ShieldCheck, label: "Manual Access", path: "/billing/access" },
   { icon: Building2, label: "Venue Management", path: "/venues" },
   { icon: CheckSquare, label: "Approve Listings", path: "/approvals" },
   { icon: Target, label: "Lead Distribution", path: "/lead-distribution" },
@@ -39,7 +42,7 @@ const menuItems = [
   { icon: Table, label: "Lead Matrix", path: "/crm/leads" },
   { icon: FileText, label: "Price Leads", path: "/price-leads" },
   { icon: CheckCircle, label: "Venue Leads Check", path: "/venue-leads" },
-  { icon: Zap, label: "Plan Management", path: "/plans" },
+  { icon: FolderOpen, label: "Plan Management", path: "/plans" },
   { icon: Users, label: "User & Role Management", path: "/users" },
   { icon: GitGraph, label: "Team Structure", path: "/team-tree" },
 ];
@@ -85,7 +88,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     if (role === "BDE" && item.label === "Lead Distribution") return false;
 
     const moduleMap: Record<string, string> = {
-       "Billing": "Billing",
+       "Financial Reports": "Billing",
+       "Payment Logs": "Billing",
+       "Coupon System": "Billing",
+       "Manual Access": "Billing",
        "Venue Management": "Venues",
        "Approve Listings": "Approvals",
        "Lead Distribution": "Leads",

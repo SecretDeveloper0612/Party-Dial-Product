@@ -36,7 +36,12 @@ export default function QuotationsPage() {
         const result = await res.json();
         if (result.status === "success") {
           // Map payments to quotations structure for the UI
-          const mapped = (result.data || []).map((p: any) => ({
+          const mapped = (result.data || [])
+            .filter((p: any) => {
+               const name = (p.planName || "").toLowerCase();
+               return p.amount > 11 && !name.includes('introductory') && !name.includes('starter');
+            })
+            .map((p: any) => ({
             id: (p.razorpayPaymentId || p.$id || "").slice(-8).toUpperCase(),
             client: p.venueName || p.ownerEmail || "Private Client",
             event: p.planName || "Venue Subscription",
@@ -62,7 +67,7 @@ export default function QuotationsPage() {
   );
 
   return (
-    <div className="space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -131,16 +136,22 @@ export default function QuotationsPage() {
                   {loading ? (
                     <tr>
                       <td colSpan={6} className="p-20 text-center">
-                         <Loader2 className=" text-[#b66dff] mx-auto mb-4" size={32} />
+                         <Loader2 className="animate-spin text-[#b66dff] mx-auto mb-4" size={32} />
                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading Billing Data...</p>
+                      </td>
+                    </tr>
+                  ) : filteredQuotations.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="p-20 text-center">
+                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">No matching records found</p>
                       </td>
                     </tr>
                   ) : filteredQuotations.map((q, i) => (
                     <motion.tr 
                       key={q.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3, delay: Math.min(i * 0.02, 0.4) }}
                       className="hover:bg-slate-50/50 transition-colors group/row"
                     >
                        <td className="p-6">

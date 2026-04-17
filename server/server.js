@@ -17,13 +17,16 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const leadRoutes = require('./routes/leadRoutes');
 const planRoutes = require('./routes/planRoutes');
+const couponRoutes = require('./routes/couponRoutes');
+const accessRoutes = require('./routes/accessRoutes');
+const quotationRoutes = require('./routes/quotationRoutes');
 const configController = require('./controllers/configController');
 const { automateLeadStatus, automatePaymentReminders, automateProfileReminders, automateGSheetSync } = require('./utils/cronJobs');
 
 // Initialize Cron Jobs
 automateLeadStatus();
-automatePaymentReminders();
-automateProfileReminders();
+// automatePaymentReminders();
+// automateProfileReminders();
 automateGSheetSync();
 
 const app = express();
@@ -59,7 +62,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(morgan('dev'));
 
 // Debug middleware
@@ -82,6 +86,9 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/plans', planRoutes);
+app.use('/api/coupons', couponRoutes);
+app.use('/api/access', accessRoutes);
+app.use('/api/quotations', quotationRoutes);
 app.get('/api/config', configController.getPublicConfig);
 
 // Optional: Fallback for undefined routes

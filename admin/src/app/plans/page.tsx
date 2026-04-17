@@ -69,33 +69,11 @@ export default function PlanManagementPage() {
         setPlans(result.data || []);
       } else {
         // Fallback to initial mock if endpoint not found (to show UI)
-        setPlans([
-          {
-            $id: "trial_30",
-            name: "₹11 Starter Plan",
-            price: 11,
-            duration: 30,
-            leadLimit: 5,
-            features: ["Dashboard Access", "Realtime WhatsApp Alerts", "Priority Support"],
-            status: "active",
-            $createdAt: new Date().toISOString()
-          }
-        ]);
+        setPlans([]);
       }
     } catch (e) {
       // Mock data for first-time setup
-      setPlans([
-        {
-          $id: "trial_30",
-          name: "₹11 Starter Plan",
-          price: 11,
-          duration: 30,
-          leadLimit: 5,
-          features: ["Dashboard Access", "Realtime WhatsApp Alerts", "Priority Support"],
-          status: "active",
-          $createdAt: new Date().toISOString()
-        }
-      ]);
+      setPlans([]);
     } finally {
       setLoading(false);
     }
@@ -224,21 +202,7 @@ export default function PlanManagementPage() {
         </div>
       </div>
 
-      {/* Hero Alert for ₹11 Plan */}
-      <div className="p-6 bg-gradient-to-r from-orange-50 to-amber-50 rounded-[28px] border border-orange-100 flex flex-col md:flex-row items-center gap-6">
-         <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-orange-500 shadow-sm shrink-0">
-            <IndianRupee size={32} />
-         </div>
-         <div className="flex-1 text-center md:text-left">
-            <h3 className="text-sm font-black uppercase tracking-widest text-orange-900 mb-1">Active Promotion: ₹11 Starter Plan</h3>
-            <p className="text-xs text-orange-800/70 font-medium leading-relaxed">
-               The ₹11 introductory plan is currently your highest-converting funnel. Use this panel to adjust its visibility or lead limits to optimize revenue.
-            </p>
-         </div>
-         <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-orange-200 text-[10px] font-black uppercase text-orange-600 tracking-tighter shadow-sm">
-            <CheckCircle2 size={12} /> Live Strategy
-         </div>
-      </div>
+
 
       {/* Grid of Plans */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
@@ -377,19 +341,7 @@ export default function PlanManagementPage() {
          ))}
       </div>
 
-      {/* Edit Component Information */}
-      <div className="p-8 bg-slate-900 rounded-[40px] text-white flex flex-col md:flex-row items-center justify-between gap-6 border border-slate-700 shadow-2xl">
-         <div className="flex items-center gap-6">
-            <div className="w-16 h-16 rounded-[24px] bg-white/10 flex items-center justify-center text-orange-400">
-               <Info size={32} />
-            </div>
-            <div>
-               <h3 className="text-xl font-black italic uppercase italic tracking-tighter m-0 leading-none mb-2">Ecosystem <span className="text-orange-400">Architecture</span></h3>
-               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Subscription changes propagate live to all Vendor Dashboards instantly.</p>
-            </div>
-         </div>
-         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="px-10 py-4 bg-white/10 hover:bg-white/20 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10 transition-all">Documentation</button>
-      </div>
+
 
       {/* Plan Modal */}
       <AnimatePresence>

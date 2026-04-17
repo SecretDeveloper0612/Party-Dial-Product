@@ -382,6 +382,19 @@ const DashboardSettings = ({
                                      </div>
                                   </div>
                                   <div className="space-y-3">
+                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">Owner/Representative Name</label>
+                                     <div className="relative group">
+                                        <User className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-pd-pink transition-colors" size={18} />
+                                        <input 
+                                          type="text" 
+                                          placeholder="e.g. Rahul Sharma"
+                                          value={venueProfile?.ownerName || ""} 
+                                          onChange={(e) => handleProfileUpdate('ownerName', e.target.value)}
+                                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-5 pl-16 pr-8 text-sm font-black italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner" 
+                                        />
+                                     </div>
+                                  </div>
+                                  <div className="space-y-3">
                                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">Guest Capacity Range</label>
                                      <div className="relative group">
                                         <Users className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-pd-pink transition-colors" size={18} />
@@ -439,18 +452,66 @@ const DashboardSettings = ({
                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-5 pl-16 pr-8 text-sm font-black italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner" 
                                          />
                                       </div>
-                                      {venueProfile?.landmark && (
-                                        <div className="mt-4 rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
-                                          <iframe 
-                                            width="100%" 
-                                            height="150" 
-                                            style={{ border: 0 }} 
-                                            loading="lazy" 
-                                            allowFullScreen 
-                                            src={`https://maps.google.com/maps?q=${encodeURIComponent(venueProfile.landmark + ' ' + (venueProfile?.city || 'Haldwani'))}&output=embed`}
-                                          ></iframe>
-                                        </div>
-                                      )}
+                                   </div>
+
+                                   <div className="space-y-3 pt-6 border-t border-slate-50">
+                                      <h4 className="text-[11px] font-black text-slate-900 uppercase italic tracking-widest mb-4 flex items-center gap-2">
+                                         <ShieldCheck size={14} className="text-emerald-500" />
+                                         Billing & Tax Information
+                                      </h4>
+                                      
+                                      <div className="space-y-3">
+                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">Detailed Billing Address</label>
+                                         <textarea 
+                                           rows={3}
+                                           value={venueProfile?.address || ""} 
+                                           onChange={(e) => handleProfileUpdate('address', e.target.value)}
+                                           placeholder="Complete address for invoices..."
+                                           className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-5 text-sm font-bold italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner resize-none" 
+                                         />
+                                      </div>
+
+                                      <div className="grid grid-cols-2 gap-4">
+                                         <div className="space-y-2">
+                                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">City</label>
+                                            <input 
+                                              type="text" 
+                                              value={venueProfile?.city || ""} 
+                                              onChange={(e) => handleProfileUpdate('city', e.target.value)}
+                                              className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-xs font-bold italic outline-none focus:border-pd-pink" 
+                                            />
+                                         </div>
+                                         <div className="space-y-2">
+                                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">State</label>
+                                            <input 
+                                              type="text" 
+                                              value={venueProfile?.state || ""} 
+                                              onChange={(e) => handleProfileUpdate('state', e.target.value)}
+                                              className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-xs font-bold italic outline-none focus:border-pd-pink" 
+                                            />
+                                         </div>
+                                      </div>
+
+                                      <div className="grid grid-cols-2 gap-4">
+                                         <div className="space-y-2">
+                                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">Pincode</label>
+                                            <input 
+                                              type="text" 
+                                              value={venueProfile?.pincode || ""} 
+                                              onChange={(e) => handleProfileUpdate('pincode', e.target.value)}
+                                              className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-xs font-bold italic outline-none focus:border-pd-pink" 
+                                            />
+                                         </div>
+                                         <div className="space-y-2">
+                                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">GST Number (Optional)</label>
+                                            <input 
+                                              type="text" 
+                                              value={venueProfile?.gstNumber || ""} 
+                                              onChange={(e) => handleProfileUpdate('gstNumber', e.target.value.toUpperCase())}
+                                              className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-xs font-bold italic uppercase outline-none focus:border-pd-pink" 
+                                            />
+                                         </div>
+                                      </div>
                                    </div>
                                </div>
                             </section>

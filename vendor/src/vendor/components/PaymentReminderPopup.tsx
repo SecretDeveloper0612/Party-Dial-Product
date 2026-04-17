@@ -48,6 +48,7 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
 
             {/* Close Button */}
             <button 
+              id="payment-reminder-close"
               onClick={(e) => {
                 e.stopPropagation();
                 onClose();
@@ -127,6 +128,7 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
 
               <div className="flex flex-col gap-4">
                 <button 
+                  id="payment-reminder-pay-now"
                   onClick={() => {
                     router.push('/dashboard/onboarding/subscription');
                     onClose();
@@ -138,6 +140,7 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
                 </button>
                 
                 <button 
+                  id="payment-reminder-later"
                   onClick={onClose}
                   className="w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-600 transition-colors italic"
                 >

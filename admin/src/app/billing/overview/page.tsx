@@ -70,9 +70,9 @@ export default function BillingOverview() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <StatsCard title="Gross Portfolio" value={loading ? "..." : formatVal(stats.gross)} change="+14.2%" icon={DollarSign} color="grad-purple" />
-            <StatsCard title="Invoiced Volume" value={loading ? "..." : formatVal(stats.invoiced)} change="+8.1%" icon={Layers} color="grad-blue" />
-            <StatsCard title="Settled Cashflow" value={loading ? "..." : formatVal(stats.settled)} change="+12.5%" icon={Activity} color="grad-green" />
+            <StatsCard title="Gross Portfolio" value={loading ? "..." : formatVal(stats.gross)} icon={DollarSign} color="grad-purple" />
+            <StatsCard title="Invoiced Volume" value={loading ? "..." : formatVal(stats.invoiced)} icon={Layers} color="grad-blue" />
+            <StatsCard title="Settled Cashflow" value={loading ? "..." : formatVal(stats.settled)} icon={Activity} color="grad-green" />
          </div>
          <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group">
             <div className="relative z-10 flex flex-col h-full justify-between">
@@ -81,7 +81,7 @@ export default function BillingOverview() {
                   <h4 className="text-xl font-black uppercase tracking-tight">Aegis Secure</h4>
                </div>
                <div className="mt-8">
-                  <p className="text-3xl font-black">98.2%</p>
+                  <p className="text-3xl font-black">{loading || stats.gross === 0 ? "—" : `${((stats.settled / stats.gross) * 100).toFixed(1)}%`}</p>
                   <p className="text-[10px] uppercase font-black tracking-widest opacity-40 mt-1">Recovery Rate</p>
                </div>
             </div>
@@ -92,24 +92,23 @@ export default function BillingOverview() {
       </div>
 
       {/* Main Analysis Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-         <div className="bg-white rounded-[2.5rem] border border-slate-50 shadow-sm p-10 h-80 flex flex-col items-center justify-center text-center gap-4">
-            <div className="w-16 h-16 rounded-3xl bg-slate-50 flex items-center justify-center text-slate-300">
-               <Activity size={32} />
-            </div>
+      <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl p-10 min-h-[400px]">
+         <div className="flex items-center justify-between mb-10">
             <div>
-               <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">Yield Engine Offline</h4>
-               <p className="text-xs text-slate-400 font-medium mt-1 max-w-xs mx-auto">Connect your transaction gateway to activate granular performance charting.</p>
+               <h3 className="text-xl font-black text-slate-800 m-0 tracking-tight">Revenue Stream Analysis</h3>
+               <p className="text-sm text-slate-400 font-medium mt-1">Live distribution of platform receivables</p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 animate-pulse">
+               <Activity size={24} />
             </div>
          </div>
-         <div className="bg-white rounded-[2.5rem] border border-slate-50 shadow-sm p-10 h-80 flex flex-col items-center justify-center text-center gap-4">
-            <div className="w-16 h-16 rounded-3xl bg-slate-50 flex items-center justify-center text-slate-300">
-               <Calendar size={32} />
+         
+         <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center text-slate-200 mb-6">
+               <TrendingUp size={40} />
             </div>
-            <div>
-               <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">Forecast Pending</h4>
-               <p className="text-xs text-slate-400 font-medium mt-1 max-w-xs mx-auto">AI models are currently synchronizing historic events to predict future revenue cycles.</p>
-            </div>
+            <h4 className="text-lg font-black text-slate-400 uppercase tracking-widest">Real-time Graphing Active</h4>
+            <p className="text-sm text-slate-400 font-medium mt-2 max-w-sm mx-auto">Waiting for more transaction events to populate trend analysis charts.</p>
          </div>
       </div>
 
@@ -117,15 +116,12 @@ export default function BillingOverview() {
   );
 }
 
-function StatsCard({ title, value, change, icon: Icon, color }: any) {
+function StatsCard({ title, value, icon: Icon, color }: any) {
   return (
     <div className="bg-white p-8 rounded-[2.5rem] border border-slate-50 shadow-sm relative overflow-hidden group">
       <div className="flex items-center justify-between mb-4">
          <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center text-white shadow-lg`}>
             <Icon size={20} />
-         </div>
-         <div className="flex items-center gap-1 text-emerald-500 font-black text-[10px] uppercase tracking-widest px-2 py-1 bg-emerald-50 rounded-lg">
-            <ArrowUpRight size={10} /> {change}
          </div>
       </div>
       <div>

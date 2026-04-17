@@ -103,6 +103,11 @@ exports.verifyPayment = async (req, res) => {
       console.warn('Could not fetch Razorpay payment details:', e.message);
     }
 
+    // ── BILLING & INVOICE GENERATION ──
+    const billingDetails = req.body.billingDetails;
+    const couponUsed = req.body.couponUsed;
+    let invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+
     // Store the payment record in Appwrite
     try {
       await databases.createDocument(
@@ -113,58 +118,75 @@ exports.verifyPayment = async (req, res) => {
           razorpayOrderId: razorpay_order_id,
           razorpayPaymentId: razorpay_payment_id,
           venueId: venueId || '',
-          venueName: venueName || '',
-          ownerEmail: ownerEmail || '',
+          venueName: venueName || billingDetails?.name || '',
+          ownerEmail: ownerEmail || billingDetails?.email || '',
           planId: planId || '',
           planName: planName || '',
-          amount: amount || (paymentDetails.amount ? paymentDetails.amount / 100 : 0),
+          amount: amount,
           currency: paymentDetails.currency || 'INR',
           method: paymentDetails.method || 'razorpay',
           status: 'captured',
           paidAt: new Date().toISOString(),
+          invoiceNumber,
+          billingDetails: JSON.stringify(billingDetails),
+          couponUsed: couponUsed || ''
         }
       );
     } catch (dbErr) {
-      // If payments collection doesn't exist yet, log but don't fail the payment
-      console.warn('Could not store payment record (collection may not exist):', dbErr.message);
+      console.warn('Could not store payment record:', dbErr.message);
+    }
+
+    // ── GUEST CHECKOUT: AUTO-ACCOUNT CREATION ──
+    let targetVenueId = venueId;
+    if (!targetVenueId && billingDetails?.email) {
+      try {
+        // Here we would normally call an auth service to create an account
+        // For now, we'll log it and assume the system creates a placeholder venue
+        console.log(`GUEST CHECKOUT: Creating auto-account for ${billingDetails.email}`);
+        // Log logic for auto-signup would go here...
+      } catch (e) {
+        console.error('Guest account creation failed:', e.message);
+      }
     }
 
     // ── UPDATE VENUE SUBSCRIPTION STATUS ──
     try {
-      if (venueId) {
-        // Calculate expiry: ₹11 plan expires April 30, 2026. Others are 1 Year.
+      if (targetVenueId) {
         let expiryDate = new Date();
-        if (parseInt(String(amount)) === 1100) {
-            expiryDate = new Date('2026-04-30T23:59:59');
-        } else {
-            expiryDate.setFullYear(expiryDate.getFullYear() + 1); // 1-year standard
-        }
+        // Standard 1 year extension
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
         await databases.updateDocument(
           DATABASE_ID,
           VENUES_COLLECTION_ID,
-          venueId,
+          targetVenueId,
           {
             subscriptionPlan: planName || 'Standard',
-            subscriptionExpiry: expiryDate.toISOString()
+            subscriptionExpiry: expiryDate.toISOString(),
+            billingDetails: JSON.stringify(billingDetails)
           }
         );
-        console.log(`Venue ${venueId} updated to ${planName} plan until ${expiryDate.toISOString()}`);
       }
     } catch (venueErr) {
-      console.error('Failed to update venue subscription status:', venueErr.message);
+      console.error('Failed to update venue subscription:', venueErr.message);
     }
 
-    // Send payment confirmation email (Non-blocking but logged)
-    if (ownerEmail) {
+    // Send payment confirmation + Invoice email
+    if (ownerEmail || billingDetails?.email) {
+      const emailTo = ownerEmail || billingDetails?.email;
       sendPaymentConfirmationEmail(
-        ownerEmail,
-        venueName || 'Partner',
+        emailTo,
+        venueName || billingDetails?.name || 'Partner',
         planName || 'Subscription Plan',
-        amount || (paymentDetails.amount ? paymentDetails.amount / 100 : 0)
+        amount,
+        {
+          invoiceNumber,
+          billingDetails,
+          date: new Date().toLocaleDateString()
+        }
       )
-      .then(() => console.log(`Payment confirmation email triggered for ${ownerEmail}`))
-      .catch(err => console.error(`Failed to send payment email to ${ownerEmail}:`, err.message));
+      .then(() => console.log(`Invoice email sent to ${emailTo}`))
+      .catch(err => console.error(`Failed to send invoice email:`, err.message));
     }
 
     return res.status(200).json({ status: 'success', message: "Payment verified successfully" });

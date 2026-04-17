@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isLoginPage = pathname === "/login";
+  const isStandalonePage = pathname === "/login" || pathname === "/checkout";
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -48,7 +48,7 @@ export default function RootLayout({
         </noscript>
         {/* End Google Tag Manager (noscript) */}
         <AuthGuard>
-           {isLoginPage ? (
+           {isStandalonePage ? (
              <div className="min-h-screen">
                 {children}
              </div>

@@ -72,7 +72,7 @@ const getBaseTemplate = (content, previewText) => `
 /**
  * Send Email Generic Helper
  */
-const sendEmail = async (to, subject, html, text) => {
+const sendEmail = async (to, subject, html, text, attachments = []) => {
     if (!to) {
         console.error('Email Error: No recipient address provided');
         return null;
@@ -92,17 +92,13 @@ const sendEmail = async (to, subject, html, text) => {
             subject,
             text: text || 'This email contains important information about your PartyDial account.',
             html,
+            attachments,
         });
 
         console.log('✅ Email sent successfully!');
-        console.log('Message ID:', info.messageId);
-        console.log('Response:', info.response);
         return info;
     } catch (error) {
-        console.error('❌ Nodemailer Error:');
-        console.error('Message:', error.message);
-        console.error('Code:', error.code);
-        console.error('Command:', error.command);
+        console.error('❌ Nodemailer Error:', error.message);
         throw error;
     }
 };
@@ -212,12 +208,70 @@ exports.sendPasswordResetEmail = (to, resetLink) => {
 };
 
 /**
- * 6. Payment Successful
+ * 6. Payment Successful + Detailed Invoice
  */
-exports.sendPaymentConfirmationEmail = (to, name, planName, amount) => {
+exports.sendPaymentConfirmationEmail = (to, name, planName, amount, invoiceInfo = null) => {
+    const isDetailed = !!invoiceInfo;
+    const inv = invoiceInfo || {};
+    const billing = inv.billingDetails || {};
+    
     const html = getBaseTemplate(`
-        <h2>Payment Successful! 💰</h2>
-        <p>Thank you for your purchase, ${name}!</p>
+        <div style="text-align: center; margin-bottom: 30px;">
+           <h2 style="margin: 0;">Payment Successful! 🎉</h2>
+           <p style="color: #64748b; font-size: 14px;">Thank you for your purchase, ${name}</p>
+        </div>
+
+        ${isDetailed ? `
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
+           <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                 <td width="50%" align="left">
+                    <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 5px;">Billed To</p>
+                    <p style="font-size: 13px; font-weight: 700; color: #1e293b; margin: 0;">${billing.name || name}</p>
+                    <p style="font-size: 11px; color: #64748b; margin: 2px 0;">${billing.address || '—'}</p>
+                    <p style="font-size: 11px; color: #64748b; margin: 2px 0;">${billing.city || ''}, ${billing.state || ''} - ${billing.pincode || ''}</p>
+                    ${billing.gstNumber ? `<p style="font-size: 11px; font-weight: 700; color: #1e293b; margin-top: 5px;">GST: ${billing.gstNumber}</p>` : ''}
+                 </td>
+                 <td width="50%" align="right" valign="top">
+                    <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 5px;">Invoice Details</p>
+                    <p style="font-size: 13px; font-weight: 700; color: #1e293b; margin: 0;">#${inv.invoiceNumber}</p>
+                    <p style="font-size: 11px; color: #64748b; margin: 2px 0;">${inv.date}</p>
+                    <p style="font-size: 11px; color: #166534; font-weight: 700; margin-top: 5px;">Status: Paid</p>
+                 </td>
+              </tr>
+           </table>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+           <table width="100%" cellpadding="10" cellspacing="0" style="border-collapse: collapse;">
+              <thead>
+                 <tr style="border-bottom: 2px solid #e2e8f0;">
+                    <th align="left" style="font-size: 11px; text-transform: uppercase; color: #94a3b8;">Description</th>
+                    <th align="right" style="font-size: 11px; text-transform: uppercase; color: #94a3b8;">Amount</th>
+                 </tr>
+              </thead>
+              <tbody>
+                 <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td align="left" style="font-size: 13px; font-weight: 700; color: #1e293b;">${planName}</td>
+                    <td align="right" style="font-size: 13px; font-weight: 700; color: #1e293b;">₹${amount}</td>
+                 </tr>
+              </tbody>
+           </table>
+        </div>
+
+        <div style="background: #ffffff; border-top: 2px solid ${BRAND_COLOR}; padding-top: 15px;">
+           <table width="100%">
+              <tr>
+                 <td align="right" style="font-size: 13px; color: #64748b;">Subtotal:</td>
+                 <td width="100" align="right" style="font-size: 13px; font-weight: 700; color: #1e293b;">₹${amount}</td>
+              </tr>
+              <tr>
+                 <td align="right" style="font-size: 16px; font-weight: 800; color: #1e293b; padding-top: 10px;">Total Paid:</td>
+                 <td width="100" align="right" style="font-size: 18px; font-weight: 800; color: ${BRAND_COLOR}; padding-top: 10px;">₹${amount}</td>
+              </tr>
+           </table>
+        </div>
+        ` : `
         <div class="card">
             <p><strong>Order Details:</strong></p>
             <p>Plan: <span class="highlight">${planName}</span></p>
@@ -225,10 +279,14 @@ exports.sendPaymentConfirmationEmail = (to, name, planName, amount) => {
             <p>Date: ${new Date().toLocaleDateString()}</p>
         </div>
         <p>Your subscription is now active. You can now access all premium features of ${planName}.</p>
-        <a href="https://partner.partydial.com/dashboard" class="button">Go to Dashboard</a>
-    `, `Payment of ₹${amount} for ${planName} was successful.`);
+        `}
+        <div style="text-align: center; margin-top: 30px;">
+           <p style="color: #64748b; font-size: 12px; margin-bottom: 20px;">This is a system-generated invoice for your subscription to PartyDial.</p>
+           <a href="https://partner.partydial.com/dashboard" class="button" style="color: white !important;">Open Partner Dashboard</a>
+        </div>
+    `, `Invoice for ₹${amount} - ${planName} generated successfully.`);
 
-    return sendEmail(to, `Payment Confirmation - ${planName} 💰`, html, `Payment successful for ${planName}.`);
+    return sendEmail(to, `Tax Invoice: #${inv.invoiceNumber || 'Payment'} - ${planName} 🧾`, html, `Your payment for ${planName} was successful. Invoice attached in HTML content.`);
 };
 
 /**
@@ -313,4 +371,44 @@ exports.sendLeadNotificationEmail = (to, leadData) => {
     `, `New ${leadData.eventType} inquiry from ${leadData.name} (${leadData.guests} guests).`);
 
     return sendEmail(to, `New Lead Alert: ${leadData.eventType} in ${leadData.pincode || 'Location'} 🎊`, html, `New lead from ${leadData.name}`);
+};
+
+/**
+ * 11. Membership Quotation/Proposal
+ */
+exports.sendQuotationEmail = (to, venueName, planName, amount, checkoutLink, attachments = []) => {
+    const html = getBaseTemplate(`
+        <div style="text-align: center; margin-bottom: 30px;">
+           <h2 style="margin: 0; color: #1e293b;">Executive Membership Proposal 📈</h2>
+           <p style="color: #64748b; font-size: 14px; margin-top: 5px;">Prepared for ${venueName}</p>
+        </div>
+
+        <p>Hi ${venueName},</p>
+        <p>We are excited to share our specialized growth proposal for your venue. Based on our latest analysis, the <strong>${planName}</strong> is perfectly suited to maximize your lead generation on PartyDial.</p>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin: 25px 0;">
+           <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 10px;">Investment Summary</p>
+           <table width="100%">
+              <tr>
+                 <td style="font-size: 15px; font-weight: 700; color: #1e293b;">${planName}</td>
+                 <td align="right" style="font-size: 18px; font-weight: 800; color: ${BRAND_COLOR};">₹${Number(amount).toLocaleString()}</td>
+              </tr>
+           </table>
+           <p style="font-size: 11px; color: #64748b; margin-top: 10px; line-height: 1.4;">This proposal includes full visibility in your city, direct WhatsApp leads, and a priority placement badge for 1 year.</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 35px;">
+           <a href="${checkoutLink}" class="button" style="padding: 18px 35px !important; border-radius: 14px !important; font-size: 13px !important; letter-spacing: 0.5px !important; color: white !important;">
+              Activate Membership Now
+           </a>
+           <p style="font-size: 10px; color: #94a3b8; margin-top: 15px;">Secure checkout processed via Razorpay</p>
+        </div>
+
+        <div style="border-top: 1px solid #f1f5f9; margin-top: 40px; padding-top: 30px; text-align: center;">
+           <p style="font-size: 12px; color: #64748b;">A detailed breakdown has also been generated in your official PDF dossier.</p>
+           <p style="font-size: 12px; color: #64748b; font-weight: 700; margin-top: 5px;">Let's grow your business together!</p>
+        </div>
+    `, `Specialized Growth Proposal for ${venueName}.`);
+
+    return sendEmail(to, `Exclusive Growth Proposal: ${venueName} x PartyDial 🎊`, html, `Proposal for ${planName} membership.`, attachments);
 };

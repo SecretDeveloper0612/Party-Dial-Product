@@ -77,12 +77,20 @@ const getStatusIcon = (status: string) => {
   }
 };
 
+const TIME_OPTIONS = [
+  { value: "LIFETIME", label: "Lifetime Leads" },
+  { value: "7_DAYS", label: "Last 7 Days" },
+  { value: "1_MONTH", label: "Last 30 Days" },
+  { value: "6_MONTHS", label: "Last 6 Months" },
+];
+
 export default function VenueLeadsCheckPage() {
   const [leads, setLeads] = useState<VenueLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("ALL");
   const [selectedVenue, setSelectedVenue] = useState("ALL");
+  const [selectedTime, setSelectedTime] = useState("LIFETIME");
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
   const [redistributing, setRedistributing] = useState(false);
   const [redistResult, setRedistResult] = useState<any>(null);
@@ -109,43 +117,82 @@ export default function VenueLeadsCheckPage() {
     fetchLeads();
   }, []);
 
-  // Extract unique venue names for filter
+  // Helper to get all venues associated with a lead (direct + broadcasted)
+  const getRecipientVenues = (lead: VenueLead) => {
+    const vSet = new Set<string>();
+    if (lead.assignedVenue && lead.assignedVenue !== 'Broadcast') {
+      vSet.add(lead.assignedVenue);
+    }
+    if (lead.notes?.includes('[DISTRIBUTED] to:')) {
+      try {
+        const listPart = lead.notes.split('[DISTRIBUTED] to:')[1].split('|')[0];
+        listPart.split(',').forEach(v => {
+          const name = v.trim();
+          if (name) vSet.add(name);
+        });
+      } catch (e) { console.error("Parse error", e); }
+    }
+    // Still include 'Broadcast' as a pseudo-venue if it was never distributed
+    if (vSet.size === 0 && lead.assignedVenue === 'Broadcast') {
+      vSet.add('Broadcast');
+    }
+    return Array.from(vSet);
+  };
+
+  // Primary filtering for Date Range
+  const leadsWithinTime = useMemo(() => {
+    if (selectedTime === "LIFETIME") return leads;
+    
+    const now = new Date();
+    const cutoff = new Date();
+    if (selectedTime === "7_DAYS") cutoff.setDate(now.getDate() - 7);
+    else if (selectedTime === "1_MONTH") cutoff.setDate(now.getDate() - 30);
+    else if (selectedTime === "6_MONTHS") cutoff.setMonth(now.getMonth() - 6);
+    
+    return leads.filter(l => new Date(l.$createdAt) >= cutoff);
+  }, [leads, selectedTime]);
+
+  // Extract unique venue names for filter from time-filtered leads
   const uniqueVenues = useMemo(() => {
     const venues = new Set<string>();
-    leads.forEach(l => {
-      if (l.assignedVenue) venues.add(l.assignedVenue);
+    leadsWithinTime.forEach(l => {
+      getRecipientVenues(l).forEach(v => venues.add(v));
     });
     return Array.from(venues).sort();
-  }, [leads]);
+  }, [leadsWithinTime]);
 
-  // Stats per venue
+  // Stats per venue from time-filtered leads
   const venueStats = useMemo(() => {
     const stats: Record<string, {total: number, new: number, booked: number}> = {};
-    leads.forEach(l => {
-      const vName = l.assignedVenue || 'Unknown';
-      if (!stats[vName]) stats[vName] = { total: 0, new: 0, booked: 0 };
-      stats[vName].total++;
-      if (l.status === 'New') stats[vName].new++;
-      if (l.status === 'Booked') stats[vName].booked++;
+    leadsWithinTime.forEach(l => {
+      const myVenues = getRecipientVenues(l);
+      myVenues.forEach(vName => {
+        if (!stats[vName]) stats[vName] = { total: 0, new: 0, booked: 0 };
+        stats[vName].total++;
+        if (l.status === 'New') stats[vName].new++;
+        if (l.status === 'Booked') stats[vName].booked++;
+      });
     });
     return stats;
-  }, [leads]);
+  }, [leadsWithinTime]);
 
-  const filteredLeads = leads.filter(l => {
+  const filteredLeads = leadsWithinTime.filter(l => {
+    const myVenues = getRecipientVenues(l);
+    
     const matchesSearch = 
       l.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
       l.phone?.includes(searchQuery) ||
       l.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      l.assignedVenue?.toLowerCase().includes(searchQuery.toLowerCase());
+      myVenues.some(v => v.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesStatus = selectedStatus === "ALL" || l.status === selectedStatus;
-    const matchesVenue = selectedVenue === "ALL" || l.assignedVenue === selectedVenue;
+    const matchesVenue = selectedVenue === "ALL" || myVenues.includes(selectedVenue);
 
     return matchesSearch && matchesStatus && matchesVenue;
   });
 
   const todayLeads = leads.filter(l => new Date(l.$createdAt).toDateString() === new Date().toDateString()).length;
-  const bookedLeads = leads.filter(l => l.status === 'Booked').length;
+  const bookedLeads = leadsWithinTime.filter(l => l.status === 'Booked').length;
 
   const exportToCSV = () => {
     const headers = ["Date", "Time", "Customer Name", "Phone", "Email", "Event Type", "PAX", "Pincode", "Proposed Event Date", "Venue", "Status", "Notes"];
@@ -343,32 +390,45 @@ export default function VenueLeadsCheckPage() {
       )}
 
       {/* Filters */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-         <div className="lg:col-span-5 relative group flex items-center">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+         <div className="relative group flex items-center">
             <input 
               type="text" 
-              placeholder="Search by name, phone, email or venue..."
+              placeholder="Search leads..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 pl-12 text-sm font-semibold outline-none focus:border-indigo-400 focus:bg-white transition-all"
+              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 pl-12 text-sm font-semibold outline-none focus:border-indigo-400 focus:bg-white transition-all shadow-sm"
             />
             <Search className="absolute left-4 text-slate-400" size={18} />
          </div>
-         <div className="lg:col-span-4">
+         <div className="relative">
             <select 
-              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-semibold outline-none focus:border-indigo-400 cursor-pointer appearance-none"
+              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-black outline-none focus:border-indigo-400 cursor-pointer appearance-none text-slate-700 shadow-sm pr-10"
+              value={selectedTime}
+              onChange={(e) => setSelectedTime(e.target.value)}
+            >
+              {TIME_OPTIONS.map(t => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+         </div>
+         <div className="relative">
+            <select 
+              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-semibold outline-none focus:border-indigo-400 cursor-pointer appearance-none text-slate-600 shadow-sm pr-10"
               value={selectedVenue}
               onChange={(e) => setSelectedVenue(e.target.value)}
             >
-              <option value="ALL">All Venues ({leads.length})</option>
+              <option value="ALL">All Venues ({leadsWithinTime.length})</option>
               {uniqueVenues.map(v => (
                 <option key={v} value={v}>{v} ({venueStats[v]?.total || 0})</option>
               ))}
             </select>
+            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
          </div>
-         <div className="lg:col-span-3">
+         <div className="relative">
             <select 
-              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-semibold outline-none focus:border-indigo-400 cursor-pointer appearance-none"
+              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-semibold outline-none focus:border-indigo-400 cursor-pointer appearance-none text-slate-600 shadow-sm pr-10"
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
             >
@@ -376,6 +436,7 @@ export default function VenueLeadsCheckPage() {
                 <option key={s.value} value={s.value}>{s.label}</option>
               ))}
             </select>
+            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
          </div>
       </div>
 
