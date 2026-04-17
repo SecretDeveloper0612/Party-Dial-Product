@@ -68,6 +68,39 @@ function CheckoutContent() {
   const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
 
+  const fetchPlans = async () => {
+    const professionalPlans = [
+      { $id: 'bp50', name: '0-50 PAX Membership', price: 12045, description: 'Starter exposure for boutique venues' },
+      { $id: 'bp100', name: '50-100 PAX Membership', price: 16060, description: 'Growth plan for rising banquet halls' },
+      { $id: 'bp200', name: '100-200 PAX Membership', price: 28105, description: 'Premium tier for professional venues' },
+      { $id: 'bp500', name: '200-500 PAX Membership', price: 44895, description: 'Elite membership for major venues' },
+      { $id: 'bp1000', name: '500-1000 PAX Membership', price: 64970, description: 'Ultimate exposure for large halls' },
+      { $id: 'bp2000', name: '1000-2000 PAX Membership', price: 90155, description: 'Grand membership for mega venues' },
+      { $id: 'bp5000', name: '2000-5000 PAX Membership', price: 140160, description: 'Titan membership for destination resorts' },
+      { $id: 'bp9999', name: '5000+ PAX Membership', price: 220095, description: 'Universal membership for group owners' },
+    ];
+
+    try {
+      const res = await fetch(`${serverUrl}/plans`);
+      const result = await res.json();
+      if (result.status === "success") {
+        const dbPlans = result.data || [];
+        const merged = [...professionalPlans];
+        dbPlans.forEach((dp: any) => {
+          if (!merged.find(p => p.$id === dp.$id)) {
+            merged.push(dp);
+          }
+        });
+        setPlans(merged);
+      } else {
+        setPlans(professionalPlans);
+      }
+    } catch (e) {
+      console.error("Failed to fetch plans, using professional defaults.");
+      setPlans(professionalPlans);
+    }
+  };
+
   useEffect(() => {
     fetchPlans();
 
@@ -94,7 +127,6 @@ function CheckoutContent() {
       setIsLocked(true);
     }
 
-    // 2. Check Session
     const sessionStr = localStorage.getItem("party_partner_session");
     if (sessionStr) {
       try {
@@ -113,7 +145,7 @@ function CheckoutContent() {
         }
       } catch (e) {}
     }
-  }, []);
+  }, [preVenueId, partnerDetailsEncoded]);
 
   const fetchVenueDetails = async (id: string, overrideData?: string) => {
     try {
