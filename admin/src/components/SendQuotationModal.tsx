@@ -329,7 +329,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
           const base64String = (reader.result as string).split(',')[1];
           resolve(base64String);
         };
-        reader.readAsDataURL(new Blob([pdfBytes]));
+        reader.readAsDataURL(new Blob([pdfBytes as any], { type: 'application/pdf' }));
       });
 
       const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";

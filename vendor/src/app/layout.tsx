@@ -42,10 +42,6 @@ export default function RootLayout({
             gtag('config', 'G-4EY4JJHVDP');
           `}
         </Script>
-<<<<<<< HEAD
-=======
-
->>>>>>> ce25cc341d056128e211b537f216c6379aa7a8a5
         {/* Meta Pixel Code */}
         <Script id="fb-pixel" strategy="afterInteractive">
           {`
@@ -74,12 +70,12 @@ export default function RootLayout({
           />
         </noscript>
         {/* End Google Tag Manager (noscript) */}
-        
+
         {/* Meta Pixel Code (noscript) */}
         <noscript>
-          <img 
-            height="1" 
-            width="1" 
+          <img
+            height="1"
+            width="1"
             style={{ display: "none" }}
             src="https://www.facebook.com/tr?id=1483149079878395&ev=PageView&noscript=1"
           />
