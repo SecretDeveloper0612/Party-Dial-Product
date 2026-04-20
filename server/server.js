@@ -22,6 +22,10 @@ const accessRoutes = require('./routes/accessRoutes');
 const quotationRoutes = require('./routes/quotationRoutes');
 const configController = require('./controllers/configController');
 const { automateLeadStatus, automatePaymentReminders, automateProfileReminders, automateGSheetSync } = require('./utils/cronJobs');
+const { fixAppwriteSchema } = require('./utils/schemaFix');
+
+// Run schema verification on startup
+fixAppwriteSchema().catch(err => console.error('Schema fix failed:', err.message));
 
 // Initialize Cron Jobs
 automateLeadStatus();

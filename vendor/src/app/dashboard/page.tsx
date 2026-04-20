@@ -210,20 +210,36 @@ export default function VendorDashboard() {
     if (!venueProfile) return null;
     const now = new Date();
     
-    // Trial Plan specific logic (Expires April 30, 2026)
+    // Priority 1: Check for explicit subscriptionExpiry from the database
+    if (venueProfile.subscriptionExpiry) {
+      const end = new Date(venueProfile.subscriptionExpiry);
+      const remainingTime = end.getTime() - now.getTime();
+      const diffDays = Math.ceil(remainingTime / (1000 * 60 * 60 * 24));
+      
+      // Calculate percentage assuming a 30-day window for visual progress if we don't have start date
+      // or just cap it. For better visuals, we can assume a standard month if it's a short trial.
+      const totalWindow = 30 * 24 * 60 * 60 * 1000; 
+      const percent = Math.max(0, Math.min(100, (remainingTime / totalWindow) * 100));
+      
+      return { 
+        daysLeft: diffDays, 
+        percent, 
+        label: (venueProfile.subscriptionPlan === 'trial_30' || venueProfile.subscriptionPlan?.includes('Override')) 
+          ? 'Trial Access' 
+          : 'Live Pack' 
+      };
+    }
+    
+    // Fallback: Trial Plan specific logic (Hardcoded Legacy)
     if (venueProfile.subscriptionPlan === 'trial_30') {
       const end = new Date('2026-04-30T23:59:59');
-      // If today is past April 30, it should have been caught in initializeDashboard, 
-      // but we handle it here for safety.
       const diffTime = end.getTime() - now.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      // Calculate percentage assuming a window that ends April 30
       const percent = Math.max(0, Math.min(100, (diffDays / 30) * 100));
       return { daysLeft: diffDays, percent, label: 'Introductory Offer' };
     }
     
-    // Paid Plans (Assuming 1 Year duration from creation/verification)
+    // Fallback: Paid Plans (Assuming 1 Year duration from creation/verification if expiry attribute is missing)
     if (venueProfile.subscriptionPlan && venueProfile.subscriptionPlan !== 'free') {
       const start = new Date(venueProfile.$createdAt);
       const end = new Date(start);

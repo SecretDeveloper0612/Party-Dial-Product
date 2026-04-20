@@ -158,6 +158,10 @@ exports.updateVenue = async (req, res) => {
             'capacity',
             'venueType',
             'gstNumber',
+            'subscriptionPlan',
+            'subscriptionExpiry',
+            'billingDetails',
+            'onboardingComplete'
         ];
 
         // These fields are stored as JSON strings in Appwrite (string attribute type)
@@ -624,25 +628,44 @@ exports.proxyImage = async (req, res) => {
         const { bucketId, fileId } = req.params;
         const { storage, STORAGE_BUCKET_ID } = require('../config/appwrite');
 
-        const activeBucketId = (bucketId && bucketId !== 'undefined') ? bucketId : STORAGE_BUCKET_ID;
+        const activeBucketId = (bucketId && bucketId !== 'undefined' && bucketId !== 'null') ? bucketId : STORAGE_BUCKET_ID;
 
-        // Try getting the file as a buffer
+        // 1. Get the file preview/view content
+        // In node-appwrite, this usually returns a Uint8Array/Buffer
         const result = await storage.getFileView(activeBucketId, fileId);
         
-        // Try getting metadata for content-type
+        // 2. Fetch metadata for the correct Content-Type
         let contentType = 'image/jpeg';
         try {
             const file = await storage.getFile(activeBucketId, fileId);
             contentType = file.mimeType || 'image/jpeg';
         } catch (e) {
-            console.warn(`Could not fetch metadata for file ${fileId}. Defaulting to image/jpeg.`);
+            // Non-blocking metadata failure
         }
 
         res.setHeader('Content-Type', contentType);
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+
+        // Handle both Buffer and string (URL) results
+        if (typeof result === 'string') {
+            console.log(`[PROXY] Bucket: ${activeBucketId}, File: ${fileId} - Result is a URL, redirecting.`);
+            return res.redirect(result);
+        }
+
         return res.send(Buffer.from(result));
     } catch (error) {
-        console.error('Error proxying image:', error);
+        console.error(`[PROXY ERROR] Bucket: ${req.params.bucketId}, File: ${req.params.fileId}:`, error.message);
+        
+        // Fallback: If specific bucket fails, try default bucket
+        const { STORAGE_BUCKET_ID, storage } = require('../config/appwrite');
+        if (req.params.bucketId !== STORAGE_BUCKET_ID) {
+            try {
+                const retryResult = await storage.getFileView(STORAGE_BUCKET_ID, req.params.fileId);
+                res.setHeader('Content-Type', 'image/jpeg');
+                return res.send(Buffer.from(retryResult));
+            } catch (e) {}
+        }
+        
         return res.status(404).send('Image not found');
     }
 };

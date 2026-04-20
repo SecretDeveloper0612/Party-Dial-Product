@@ -5,10 +5,14 @@ export const getAppwriteImageUrl = (fileId: string | any) => {
   const id = typeof fileId === 'string' ? fileId : (fileId.id || fileId.$id);
   
   if (!id) return "/gallery/interior.png";
+
+  // If it's already a full URL or a local path, return it directly
+  if (id.startsWith('http') || id.startsWith('/') || id.startsWith('file:')) {
+    return id;
+  }
   
   // Use environment variables or hardcoded fallbacks
-  // PROXY: Use our own server API to bypass any CORS / Platform / Permissions blocks
-  const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+  const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com';
   const serverUrl = base.endsWith('/api') ? base : `${base}/api`;
   const bucketId = process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID || 'venues_photos';
   

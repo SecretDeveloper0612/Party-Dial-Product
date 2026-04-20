@@ -43,3 +43,27 @@ exports.grantAccess = async (req, res) => {
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
+
+exports.revokeAccess = async (req, res) => {
+  try {
+    const { venueId } = req.body;
+    
+    const updated = await databases.updateDocument(
+      DATABASE_ID,
+      VENUES_COLLECTION_ID,
+      venueId,
+      {
+        subscriptionPlan: '',
+        subscriptionExpiry: new Date(0).toISOString() // Set to epoch to ensure it's expired
+      }
+    );
+
+    res.json({ 
+      status: 'success', 
+      message: `Access revoked successfully for ${updated.venueName || 'this partner'}.`,
+      data: updated
+    });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};

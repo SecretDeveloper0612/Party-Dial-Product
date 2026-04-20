@@ -86,6 +86,7 @@ exports.distributeLeads = async (req, res) => {
                 pincode: pincode,
                 city: leadData.city || targetEmployee.prefs?.city || '',
                 isBulk: true,
+                eventDate: leadData.eventDate || '',
                 distributedAt: new Date().toISOString(),
                 createdAt: new Date().toISOString()
             };
@@ -108,6 +109,7 @@ exports.distributeLeads = async (req, res) => {
                     eventType: leadData.eventType || 'Event',
                     guests: guestsCount,
                     notes: (leadData.notes || '') + " " + extraInfo + " (Staff Assigned)",
+                    eventDate: leadData.eventDate || '',
                     status: 'New',
                     createdAt: new Date().toISOString()
                 };
@@ -340,6 +342,7 @@ exports.distributeLeadsToVenues = async (req, res) => {
                 guests: parseInt(leadData.pax) || 0,
                 // Embed extra metadata in notes since they might not exist as schema attributes
                 notes: `GSheet Sync | Area: ${leadData.city || 'N/A'} | Pin: ${leadPincode} | ` + (leadData.notes || `Distributed to ${targetVenue.venueName}`),
+                eventDate: leadData.eventDate || '',
                 status: 'New',
                 createdAt: new Date().toISOString()
             };
@@ -586,6 +589,7 @@ exports.processPublicInquiry = async (req, res) => {
                     eventType,
                     guests: requestedGuests,
                     notes: `SMART MATCH | Local Partner for Pin: ${leadPincode} | Guests: ${requestedGuests}`,
+                    eventDate: eventDate || '',
                     status: 'New',
                     createdAt: new Date().toISOString()
                 });

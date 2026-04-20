@@ -35,16 +35,13 @@ import {
 import React, { useRef, useState, useEffect } from 'react';
 
 const AnimatedCounter = ({ end, duration = 2, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
-  const [mounted, setMounted] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref as unknown as React.RefObject<Element>, { once: true, amount: 0.2 });
+  const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (isInView && mounted && ref.current) {
+    if (isInView && !started && ref.current) {
+      setStarted(true);
       const node = ref.current;
       const controls = animate(0, end, {
         duration: duration,
@@ -55,10 +52,7 @@ const AnimatedCounter = ({ end, duration = 2, suffix = "" }: { end: number, dura
       });
       return () => controls.stop();
     }
-  }, [isInView, end, duration, mounted, suffix]);
-
-  // Initial SSR / Hydration state
-  if (!mounted) return <span>0{suffix}</span>;
+  }, [isInView, end, duration, suffix, started]);
 
   return <span ref={ref}>0{suffix}</span>;
 };

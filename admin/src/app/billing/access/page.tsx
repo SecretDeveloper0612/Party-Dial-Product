@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, memo } from "react";
 import { 
   ShieldCheck, 
   UserPlus, 
@@ -29,6 +29,7 @@ export default function ManualAccessPage() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [loading, setLoading] = useState(true);
   const [granting, setGranting] = useState(false);
+  const [revoking, setRevoking] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
 
@@ -37,6 +38,23 @@ export default function ManualAccessPage() {
     startDate: new Date().toISOString().split('T')[0],
     planName: "Super Admin Override"
   });
+
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error' | 'confirm';
+    onConfirm?: () => void;
+  }>({
+    show: false,
+    title: "",
+    message: "",
+    type: 'success'
+  });
+
+  const showPopup = (title: string, message: string, type: 'success' | 'error' | 'confirm' = 'success', onConfirm?: () => void) => {
+    setNotification({ show: true, title, message, type, onConfirm });
+  };
 
   const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
@@ -76,11 +94,11 @@ export default function ManualAccessPage() {
       });
       const result = await res.json();
       if (result.status === "success") {
-        alert(result.message);
+        showPopup("Access Granted", result.message, 'success');
         fetchVenues();
         setSelectedVenue(null);
       } else {
-        alert(result.message || "Failed to grant access");
+        showPopup("Operation Failed", result.message || "Failed to grant access", 'error');
       }
     } catch (err) {
       console.error("Error granting access", err);
@@ -89,10 +107,88 @@ export default function ManualAccessPage() {
     }
   };
 
-  const filteredVenues = venues.filter(v => 
-    v.venueName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    v.ownerEmail?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleRevokeAccess = async () => {
+    if (!selectedVenue) return;
+    
+    showPopup(
+      "Deactivate Access?", 
+      `Are you absolutely sure you want to deactivate ${selectedVenue.venueName}? This will immediately terminate their platform visibility and features.`,
+      'confirm',
+      executeRevoke
+    );
+  };
+
+  const executeRevoke = async () => {
+    if (!selectedVenue) return;
+
+    setRevoking(true);
+    try {
+      const res = await fetch(`${serverUrl}/access/revoke`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          venueId: selectedVenue.$id
+        })
+      });
+      const result = await res.json();
+      if (result.status === "success") {
+        showPopup("Access Revoked", result.message, 'success');
+        fetchVenues();
+        setSelectedVenue(null);
+      } else {
+        showPopup("Revoke Failed", result.message || "Failed to revoke access", 'error');
+      }
+    } catch (err) {
+      console.error("Error revoking access", err);
+    } finally {
+      setRevoking(false);
+    }
+  };
+
+  const filteredVenues = useMemo(() => {
+    const q = searchQuery.toLowerCase();
+    if (!q) return venues;
+    return venues.filter(v => 
+      v.venueName?.toLowerCase().includes(q) ||
+      v.ownerEmail?.toLowerCase().includes(q)
+    );
+  }, [venues, searchQuery]);
+
+  // Memoized Venue Item for lag-free list rendering
+  const VenueItem = memo(({ venue, isSelected, onSelect }: { venue: Venue, isSelected: boolean, onSelect: (v: Venue) => void }) => (
+    <button 
+      onClick={() => onSelect(venue)}
+      className={cn(
+        "w-full px-8 py-6 flex items-center justify-between hover:bg-slate-50 transition-all text-left group",
+        isSelected && "bg-slate-50 ring-2 ring-inset ring-slate-900"
+      )}
+    >
+      <div className="flex items-center gap-4">
+        <div className={cn(
+          "w-10 h-10 rounded-xl flex items-center justify-center font-black transition-colors",
+          isSelected ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400 group-hover:bg-slate-900 group-hover:text-white"
+        )}>
+          {venue.venueName?.charAt(0) || 'P'}
+        </div>
+        <div>
+          <h4 className="text-sm font-black text-slate-800 m-0">{venue.venueName}</h4>
+          <p className="text-[10px] text-slate-400 font-bold mt-0.5">{venue.ownerEmail}</p>
+        </div>
+      </div>
+      <div className="text-right">
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Current Status</p>
+        <div className="flex items-center gap-2">
+           <span className={cn(
+             "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest",
+             venue.subscriptionPlan ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-slate-100 text-slate-500"
+           )}>
+             {venue.subscriptionPlan || 'No Active Plan'}
+           </span>
+        </div>
+      </div>
+    </button>
+  ));
+  VenueItem.displayName = "VenueItem";
 
   return (
     <div className="space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -134,35 +230,12 @@ export default function ManualAccessPage() {
               {loading ? (
                 <div className="py-20 text-center"><Loader2 className="animate-spin text-slate-400 mx-auto" /></div>
               ) : filteredVenues.map((v) => (
-                <button 
-                  key={v.$id}
-                  onClick={() => setSelectedVenue(v)}
-                  className={cn(
-                    "w-full px-8 py-6 flex items-center justify-between hover:bg-slate-50 transition-all text-left group",
-                    selectedVenue?.$id === v.$id && "bg-slate-50 ring-2 ring-inset ring-slate-900"
-                  )}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center font-black group-hover:bg-slate-900 group-hover:text-white transition-colors">
-                      {v.venueName?.charAt(0) || 'P'}
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-black text-slate-800 m-0">{v.venueName}</h4>
-                      <p className="text-[10px] text-slate-400 font-bold mt-0.5">{v.ownerEmail}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Current Status</p>
-                    <div className="flex items-center gap-2">
-                       <span className={cn(
-                         "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest",
-                         v.subscriptionPlan ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-slate-100 text-slate-500"
-                       )}>
-                         {v.subscriptionPlan || 'No Active Plan'}
-                       </span>
-                    </div>
-                  </div>
-                </button>
+                <VenueItem 
+                  key={v.$id} 
+                  venue={v} 
+                  isSelected={selectedVenue?.$id === v.$id} 
+                  onSelect={setSelectedVenue} 
+                />
               ))}
             </div>
           </div>
@@ -245,13 +318,25 @@ export default function ManualAccessPage() {
                    </div>
 
                    <button 
-                     disabled={granting}
+                     disabled={granting || revoking}
                      type="submit"
                      className="w-full h-16 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-800 shadow-xl shadow-slate-900/10 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                    >
                      {granting ? <Loader2 className="animate-spin" size={20} /> : <UserPlus size={20} />}
                      Execute Manual Override
                    </button>
+
+                    <div className="pt-4 border-t border-slate-100">
+                        <button 
+                            type="button"
+                            onClick={handleRevokeAccess}
+                            disabled={granting || revoking || !selectedVenue.subscriptionPlan}
+                            className="w-full h-12 bg-white text-rose-600 border border-rose-100 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 transition-all flex items-center justify-center gap-2 disabled:opacity-30 disabled:grayscale"
+                        >
+                            {revoking ? <Loader2 className="animate-spin" size={14} /> : <AlertTriangle size={14} />}
+                            Deactivate Platform Access
+                        </button>
+                    </div>
                  </form>
                </motion.div>
              ) : (
@@ -269,6 +354,80 @@ export default function ManualAccessPage() {
            </AnimatePresence>
         </div>
       </div>
+
+      {/* Premium custom Popup */}
+      <AnimatePresence>
+        {notification.show && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => notification.type !== 'confirm' && setNotification({ ...notification, show: false })}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.25)] border border-slate-100 overflow-hidden"
+            >
+              <div className={cn(
+                "h-2 w-full",
+                notification.type === 'success' ? "bg-emerald-500" : 
+                notification.type === 'error' ? "bg-rose-500" : "bg-amber-500"
+              )} />
+              
+              <div className="p-10 text-center">
+                <div className={cn(
+                  "w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg",
+                  notification.type === 'success' ? "bg-emerald-50 text-emerald-500 shadow-emerald-500/10" : 
+                  notification.type === 'error' ? "bg-rose-50 text-rose-500 shadow-rose-500/10" : "bg-amber-50 text-amber-500 shadow-amber-500/10"
+                )}>
+                  {notification.type === 'success' ? <CheckCircle2 size={32} /> : 
+                   notification.type === 'error' ? <AlertTriangle size={32} /> : <AlertTriangle size={32} />}
+                </div>
+
+                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">
+                  {notification.title}
+                </h3>
+                <p className="text-sm font-medium text-slate-500 leading-relaxed italic">
+                  {notification.message}
+                </p>
+
+                <div className="mt-10 flex flex-col gap-3">
+                  {notification.type === 'confirm' ? (
+                    <>
+                      <button 
+                        onClick={() => {
+                          notification.onConfirm?.();
+                          setNotification({ ...notification, show: false });
+                        }}
+                        className="w-full h-14 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10"
+                      >
+                        Yes, Execute Action
+                      </button>
+                      <button 
+                        onClick={() => setNotification({ ...notification, show: false })}
+                        className="w-full h-14 bg-slate-50 text-slate-400 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all font-bold"
+                      >
+                        Cancel Transaction
+                      </button>
+                    </>
+                  ) : (
+                    <button 
+                      onClick={() => setNotification({ ...notification, show: false })}
+                      className="w-full h-14 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10"
+                    >
+                      Acknowledge
+                    </button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
