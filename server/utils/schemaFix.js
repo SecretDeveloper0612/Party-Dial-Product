@@ -7,7 +7,7 @@ async function fixAppwriteSchema() {
     const attributes = [
         { key: 'subscriptionExpiry', type: 'string', size: 100 },
         { key: 'subscriptionPlan', type: 'string', size: 100 },
-        { key: 'billingDetails', type: 'string', size: 5000 },
+        // { key: 'billingDetails', type: 'string', size: 5000 },
         { key: 'onboardingComplete', type: 'boolean' }
     ];
 

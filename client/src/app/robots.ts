@@ -5,8 +5,17 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin', '/api', '/auth'],
+      disallow: [
+        '/admin', 
+        '/api', 
+        '/auth', 
+        '/login', 
+        '/signup', 
+        '/sign-in', 
+        '/sign-up'
+      ],
     },
-    sitemap: 'https://partydial.com/sitemap.xml',
+    sitemap: 'https://www.partydial.com/sitemap.xml',
+    host: 'https://www.partydial.com',
   };
 }

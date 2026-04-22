@@ -5,14 +5,13 @@ async function sendPushNotification(expoPushToken, title, body, data = {}, subti
 
     const message = {
         to: expoPushToken,
-        sound: 'default',
+        sound: 'lead_alert',       // custom sound (without extension for FCM)
         title: title,
         subtitle: subtitle,
         body: body,
         data: data,
         priority: 'high',
-        channelId: 'default',
-        _displayInForeground: true, // For Expo Go specifically to allow banner when app is open
+        channelId: 'leads',        // must match the channel registered in the app
     };
 
     try {

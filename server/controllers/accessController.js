@@ -24,13 +24,27 @@ exports.grantAccess = async (req, res) => {
     const expiry = new Date(start);
     expiry.setDate(start.getDate() + parseInt(days));
 
+    // --- FETCH & UPDATE BILLING DETAILS FOR PAID_SINCE ---
+    let billingDetails = '{}';
+    try {
+      const venue = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
+      let billingObj = {};
+      try {
+        billingObj = typeof venue.billingDetails === 'string' ? JSON.parse(venue.billingDetails) : (venue.billingDetails || {});
+      } catch (e) { billingObj = {}; }
+      
+      billingObj.paidSince = new Date().toISOString();
+      billingDetails = JSON.stringify(billingObj);
+    } catch (e) { console.warn('Could not update billingDetails during manual grant'); }
+
     const updated = await databases.updateDocument(
       DATABASE_ID,
       VENUES_COLLECTION_ID,
       venueId,
       {
         subscriptionPlan: planName,
-        subscriptionExpiry: expiry.toISOString()
+        subscriptionExpiry: expiry.toISOString(),
+        billingDetails: billingDetails
       }
     );
 

@@ -340,12 +340,8 @@ export default function UserRoleManagement() {
 
   // ── Filter ────────────────────────────────────────────────────────────────────
   const filtered = users.filter(u => {
-    const role = u.prefs?.role;
-    const isEmployee = role && (ROLES_LIST.includes(role as any) || role === "Super Admin");
+    const role = u.prefs?.role || "";
     
-    // If not an employee, hide them from this specific management portal
-    if (!isEmployee) return false;
-
     const matchesSearch = 
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -371,9 +367,17 @@ export default function UserRoleManagement() {
           >
             {toast.type === "success" ? <ThumbsUp size={16} /> : <ThumbsDown size={16} />}
             {toast.msg}
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </motion.div>
+      )}
+    </AnimatePresence>
+
+    {/* Debug Info (Only for development) */}
+    {process.env.NODE_ENV === 'development' && users.length > 0 && filtered.length === 0 && (
+       <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-700 text-xs mb-4">
+         System found {users.length} total users in Appwrite, but 0 match the current filter/search. 
+         Try checking if preferences/roles are correctly set.
+       </div>
+    )}
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -452,8 +456,8 @@ export default function UserRoleManagement() {
                     <p className="text-sm font-bold text-slate-400">{searchQuery ? "No users match your search." : "No users yet. Add one to get started."}</p>
                   </td></tr>
                 ) : filtered.map((user, i) => {
-                  const role = user.prefs?.role || "—";
-                  const territory = user.prefs?.region || user.prefs?.state || user.prefs?.city || "National";
+                  const role = user.prefs?.role || "Unassigned Account";
+                  const territory = user.prefs?.region || user.prefs?.state || user.prefs?.city || "Not Set";
                   const manager = user.prefs?.reportingTo ? reportingUser(user.prefs.reportingTo) : null;
                   const isActive = user.status === true;
                   const initials = user.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();

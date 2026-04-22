@@ -128,8 +128,38 @@ export default function VenueSignupPage() {
     const newErrors: Record<string, string> = {};
     if (!formData.businessName) newErrors.businessName = 'Venue name is required';
     if (!formData.ownerName) newErrors.ownerName = 'Owner name is required';
-    if (!formData.email) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email address';
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else {
+      const emailLower = formData.email.toLowerCase();
+      // 1. Basic format check
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      
+      // 2. Disposable email domains to block
+      const disposableDomains = [
+        'mailinator.com', 'yopmail.com', 'temp-mail.org', 'tempmail.com', 
+        'guerrillamail.com', 'sharklasers.com', '10minutemail.com', 
+        'dispostable.com', 'getnada.com', 'throwawaymail.com', 'mailcatch.com',
+        'trashmail.com', 'mail-temp.com', 't-mail.com', 'maildrop.cc', 
+        'disposable.com', 'spam4.me', 'anonymbox.com', 'tempmail.net',
+        'disposablemail.com', 'mintemail.com', 'meltmail.com'
+      ];
+      
+      // 3. Obvious fake patterns
+      const fakePatterns = [
+        'test@', 'admin@', 'example@', 'abc@', '123@', 'noreply@', 'user@'
+      ];
+
+      const domain = emailLower.split('@')[1];
+
+      if (!emailRegex.test(emailLower)) {
+        newErrors.email = 'Please enter a valid email address';
+      } else if (disposableDomains.includes(domain)) {
+        newErrors.email = 'Temporary/Disposable emails are not allowed';
+      } else if (fakePatterns.some(p => emailLower.startsWith(p))) {
+        newErrors.email = 'Please use a legitimate business email';
+      }
+    }
     if (!formData.phone) newErrors.phone = 'Phone number is required';
     if (!formData.state) newErrors.state = 'State is required';
     if (!formData.city) newErrors.city = 'City is required';

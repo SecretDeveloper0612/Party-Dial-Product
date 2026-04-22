@@ -608,13 +608,25 @@ export default function VendorDashboard() {
           // Only fetch leads for active paid subscriptions
           if (profile.subscriptionPlan && profile.subscriptionPlan !== 'free') {
             try {
-              const leadsResult = await databases.listDocuments(DATABASE_ID, LEADS_COLLECTION_ID, [
+              let paidSince = null;
+              try {
+                 const billing = typeof profile.billingDetails === 'string' ? JSON.parse(profile.billingDetails) : profile.billingDetails;
+                 paidSince = billing?.paidSince;
+              } catch (e) {}
+
+              const queries = [
                 Query.or([
                   Query.equal('venueId', profile.$id),
                   Query.equal('venueId', 'BROADCAST')
                 ]),
                 Query.orderDesc('$createdAt')
-              ]);
+              ];
+
+              if (paidSince) {
+                queries.push(Query.greaterThan('$createdAt', paidSince));
+              }
+
+              const leadsResult = await databases.listDocuments(DATABASE_ID, LEADS_COLLECTION_ID, queries);
               leadsDocuments = leadsResult.documents;
             } catch (leadFetchErr) {
               console.warn('Failed to fetch leads:', leadFetchErr);
@@ -622,24 +634,38 @@ export default function VendorDashboard() {
           }
 
           if (isMounted) {
-            const leads = leadsDocuments.map(doc => ({
-              id: doc.$id,
-              name: doc.name,
-              phone: doc.phone || '+91 98765 43210',
-              event: doc.eventType,
-              guests: doc.guests ? doc.guests.toString() : '0',
-              date: formatLeadDate(doc.$createdAt),
-              time: formatLeadTime(doc.$createdAt),
-              rawDate: doc.$createdAt,
-              eventDate: doc.eventDate || null,  // Proposed event date from client
-              status: doc.status === 'Quoted' ? 'Quotation Send' : (doc.status === 'In-Progress' ? 'Contacted' : (doc.status === 'Lost' ? 'Lost Leads' : (doc.status || 'New'))),
-              location: doc.city || 'Haldwani',
-              email: doc.email || 'client@mail.com',
-              title: 'Direct Inquiry',
-              starred: false,
-              unread: doc.status === 'New',
-              color: doc.status === 'Booked' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
-            }));
+            const leads = leadsDocuments.map(doc => {
+              const notes = doc.notes || '';
+              
+              // More robust regex: finds "Label: value" until next pipe or end of string
+              const findInNotes = (label: string) => {
+                const regex = new RegExp(`${label}:\\s*([^|]+)`, 'i');
+                return notes.match(regex)?.[1]?.trim();
+              };
+
+              const extractedDate = findInNotes('Event Date');
+              const extractedCity = findInNotes('City');
+              const extractedPin = findInNotes('Pin(?:code)?');
+
+              return {
+                id: doc.$id,
+                name: doc.name,
+                phone: doc.phone || '+91 98765 43210',
+                event: doc.eventType,
+                guests: doc.guests ? doc.guests.toString() : '0',
+                date: formatLeadDate(doc.$createdAt),
+                time: formatLeadTime(doc.$createdAt),
+                rawDate: doc.$createdAt,
+                eventDate: doc.eventDate || extractedDate || null,
+                status: doc.status === 'Quoted' ? 'Quotation Send' : (doc.status === 'In-Progress' ? 'Contacted' : (doc.status === 'Lost' ? 'Lost Leads' : (doc.status || 'New'))),
+                location: doc.city || extractedCity || (extractedPin ? `PIN: ${extractedPin}` : 'Haldwani'),
+                email: doc.email || 'client@mail.com',
+                title: 'Direct Inquiry',
+                starred: false,
+                unread: doc.status === 'New',
+                color: doc.status === 'Booked' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+              };
+            });
             
             setRecentLeads(leads);
 
@@ -754,6 +780,11 @@ export default function VendorDashboard() {
             } else if (response.events.some(e => e.includes('databases.*.collections.' + LEADS_COLLECTION_ID))) {
               const isPaid = venueProfile?.subscriptionPlan && venueProfile?.subscriptionPlan !== 'free';
               if (isPaid && (payload.venueId === venueProfile?.$id || payload.venueId === 'BROADCAST')) {
+                 const notes = payload.notes || '';
+                 const extractedDate = notes.match(/Event Date: ([^|]+)/)?.[1]?.trim();
+                 const extractedCity = notes.match(/City: ([^|]+)/)?.[1]?.trim();
+                 const extractedPin = notes.match(/Pin(?:code)?: ([^|]+)/)?.[1]?.trim();
+
                  const mapped = {
                     id: payload.$id,
                     name: payload.name || 'Anonymous',
@@ -763,8 +794,9 @@ export default function VendorDashboard() {
                     date: formatLeadDate(payload.$createdAt || new Date().toISOString()),
                     time: formatLeadTime(payload.$createdAt || new Date().toISOString()),
                     rawDate: payload.$createdAt || new Date().toISOString(),
+                    eventDate: payload.eventDate || extractedDate || null,
                     status: payload.status === 'Quoted' ? 'Quotation Send' : (payload.status === 'In-Progress' ? 'Contacted' : (payload.status === 'Lost' || payload.status === 'Lost Leads' ? 'Lost Leads' : (payload.status || 'New'))),
-                    location: payload.city || 'Haldwani',
+                    location: payload.city || extractedCity || (extractedPin ? `PIN: ${extractedPin}` : 'Haldwani'),
                     email: payload.email || 'client@mail.com',
                     title: 'Direct Inquiry',
                     starred: false,

@@ -1,5 +1,6 @@
 const { Client, users, account, databases, client, DATABASE_ID, VENUES_COLLECTION_ID } = require('../config/appwrite');
 const { sendWelcomeEmail } = require('../utils/emailService');
+const dns = require('dns').promises;
 
 
 
@@ -14,6 +15,53 @@ exports.register = async (req, res) => {
         if (!email || !password || !name) {
             return res.status(400).json({ status: 'error', message: 'Email, password, and name are required' });
         }
+
+        // --- Advanced Domain Validation: Block Disposable & Verify MX ---
+        const disposableDomains = [
+            'mailinator.com', 'yopmail.com', 'temp-mail.org', 'tempmail.com', 
+            'guerrillamail.com', 'sharklasers.com', '10minutemail.com', 
+            'dispostable.com', 'getnada.com', 'throwawaymail.com', 'mailcatch.com',
+            'trashmail.com', 'mail-temp.com', 't-mail.com', 'maildrop.cc', 
+            'disposable.com', 'spam4.me', 'anonymbox.com', 'tempmail.net',
+            'disposablemail.com', 'mintemail.com', 'meltmail.com', 'zetmail.com',
+            'fakeinbox.com', 'mytrashmail.com', 'pookmail.com', 'spambox.us',
+            'tempemail.co', 'tempmailaddress.com', 'disposable-email.net'
+        ];
+        
+        const emailLower = email.toLowerCase();
+        const domain = emailLower.split('@')[1];
+
+        // 1. Check against blocklist
+        if (disposableDomains.includes(domain)) {
+            return res.status(403).json({ 
+                status: 'error', 
+                message: 'Temporary/Disposable email detected. Please use a permanent business email.' 
+            });
+        }
+        
+        // 2. Block common "fake" prefixes
+        const fakePatterns = ['test@', 'admin@', 'example@', 'abc@', '123@', 'noreply@', 'user@', 'asdf@', 'qwerty@'];
+        if (fakePatterns.some(p => emailLower.startsWith(p))) {
+            return res.status(403).json({ 
+                status: 'error', 
+                message: 'Standard fake email patterns are restricted. Please provide a legal business email.' 
+            });
+        }
+
+        // 3. DNS Verification: Check for valid MX records (ensures domain is real & can receive mail)
+        try {
+            const mxRecords = await dns.resolveMx(domain);
+            if (!mxRecords || mxRecords.length === 0) {
+                throw new Error('No MX records');
+            }
+        } catch (dnsError) {
+            console.warn(`DNS check failed for ${domain}:`, dnsError.message);
+            return res.status(400).json({ 
+                status: 'error', 
+                message: 'The email domain provided is invalid or cannot receive mail. Please use a legal, active email.' 
+            });
+        }
+        // ------------------------------------------------------------------
 
         // Create the user in Appwrite using the admin Users service
         const newUser = await users.create(ID.unique(), email, undefined, password, name);

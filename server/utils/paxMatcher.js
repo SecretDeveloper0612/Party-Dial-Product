@@ -93,15 +93,32 @@ function getLeadBucketMax(guestCapacity) {
  *   isVenueEligible(2000, "1000-2000") → true  (2000 bucket >= 2000 bucket)
  */
 function isVenueEligible(venueCapacity, leadGuestCapacity) {
-    const venueBucket = getVenueBucketMax(venueCapacity);
-    const leadBucket = getLeadBucketMax(leadGuestCapacity);
+    const venueMax = getVenueBucketMax(venueCapacity);
+    const leadBucketMax = getLeadBucketMax(leadGuestCapacity);
 
     // If venue has no capacity defined, it's not eligible
-    if (venueBucket === 0) return false;
+    if (venueMax === 0) return false;
     // If lead has no guest count, allow all venues
-    if (leadBucket === 0) return true;
+    if (leadBucketMax === 0) return true;
 
-    return venueBucket >= leadBucket;
+    const venueBucketIdx = PAX_BUCKETS.findIndex(b => b.max === venueMax);
+    const leadBucketIdx = PAX_BUCKETS.findIndex(b => b.max === leadBucketMax);
+
+    // 1. Venue must be large enough for the lead (Standard check)
+    // Rule: Venue bucket index must be >= Lead bucket index
+    const isLargeEnough = venueBucketIdx >= leadBucketIdx;
+
+    // 2. Venue must not be "excessively large" for the lead
+    // Rule: We allow a maximum gap of 2 buckets.
+    // Example: A 2000-5000 venue (Bucket 6) can take leads from:
+    //   - 2000-5000 (Bucket 6)
+    //   - 1000-2000 (Bucket 5)
+    //   - 500-1000  (Bucket 4)
+    // It will REJECT 200-500 (Bucket 3) and below.
+    // This prevents 5000-capacity venues from being spammed with 50-guest leads.
+    const isNotTooLarge = (venueBucketIdx - leadBucketIdx) <= 2;
+
+    return isLargeEnough && isNotTooLarge;
 }
 
 /**

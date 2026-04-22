@@ -28,7 +28,7 @@ const PopupHeader = memo(({ onClose }: { onClose: () => void }) => (
           <Building2 size={20} />
        </div>
        <div>
-          <h3 className="text-white font-black text-base lg:text-lg leading-none uppercase italic tracking-tighter">Get Free <span className="text-pd-red">Quotes</span> Now</h3>
+          <h3 className="text-white font-bold text-sm lg:text-base leading-none uppercase italic tracking-tighter">Get Free <span className="text-pd-red">Quotes</span> Now</h3>
           <p className="text-white/50 text-[9px] uppercase font-bold tracking-[0.2em] mt-1 flex items-center gap-1.5">
               <CheckCircle2 size={10} className="text-pd-red" />
               Direct Venue Prices In Minutes
@@ -57,6 +57,7 @@ const InquiryForm = memo(({
   onSubmit, 
   isSubmitted, 
   isSubmitting,
+  error,
   selectedLocations,
   onAddLocation,
   onRemoveLocation
@@ -66,6 +67,7 @@ const InquiryForm = memo(({
   onSubmit: (e: React.FormEvent) => void;
   isSubmitted: boolean;
   isSubmitting: boolean;
+  error?: string | null;
   selectedLocations: any[];
   onAddLocation: (loc: any) => void;
   onRemoveLocation: (display: string) => void;
@@ -166,8 +168,8 @@ const InquiryForm = memo(({
         <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 ring-8 ring-emerald-50">
           <CheckCircle2 size={40} />
         </div>
-        <h4 className="text-3xl font-black text-slate-900 mb-2 uppercase italic tracking-tighter">Perfect!</h4>
-        <p className="text-slate-500 font-medium">Sit back and relax. Our venue hosts are calculating your best quotes right now.</p>
+        <h4 className="text-2xl font-bold text-slate-900 mb-2 uppercase italic tracking-tighter">Perfect!</h4>
+        <p className="text-slate-500 text-xs font-medium">Sit back and relax. Our venue hosts are calculating your best quotes right now.</p>
       </motion.div>
     );
   }
@@ -183,7 +185,7 @@ const InquiryForm = memo(({
       <form onSubmit={onSubmit} className="space-y-4 lg:space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Full Name</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Full Name</label>
             <input 
               type="text" 
               name="name"
@@ -191,14 +193,14 @@ const InquiryForm = memo(({
               value={formData.name}
               onChange={onChange}
               placeholder="Your Name" 
-              className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all placeholder:text-slate-300"
+              className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all placeholder:text-slate-300"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Phone Number</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Phone Number</label>
             <div className="relative group">
               <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10">
-                <span className="text-sm font-black text-slate-800 tracking-tighter shrink-0">+91</span>
+                <span className="text-sm font-bold text-slate-800 tracking-tighter shrink-0">+91</span>
               </div>
               <input 
                 type="tel" 
@@ -213,7 +215,7 @@ const InquiryForm = memo(({
                   }
                 }}
                 placeholder="10 Digit Number" 
-                className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl pl-16 pr-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all placeholder:text-slate-300 tracking-[0.1em]"
+                className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl pl-16 pr-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all placeholder:text-slate-300 tracking-[0.1em]"
               />
             </div>
           </div>
@@ -221,14 +223,14 @@ const InquiryForm = memo(({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Approx Guests</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Approx Guests</label>
             <div className="relative">
                 <select 
                     name="guests"
                     required
                     value={formData.guests}
                     onChange={onChange}
-                    className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all appearance-none cursor-pointer"
+                    className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all appearance-none cursor-pointer"
                 >
                     <option value="">Select Capacity</option>
                     <option value="0-50">0-50 guests</option>
@@ -244,14 +246,14 @@ const InquiryForm = memo(({
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Event Type</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Event Type</label>
             <div className="relative">
                 <select 
                   name="eventType"
                   required
                   value={formData.eventType}
                   onChange={onChange}
-                  className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all appearance-none cursor-pointer"
+                  className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all appearance-none cursor-pointer"
                 >
               <option value="">Select Event</option>
               <option value="Birthday Party">Birthday Party</option>
@@ -277,7 +279,7 @@ const InquiryForm = memo(({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Proposed Event Date</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Proposed Event Date</label>
             <div className="relative">
                 <input 
                   type="date" 
@@ -285,19 +287,19 @@ const InquiryForm = memo(({
                   required
                   value={formData.date}
                   onChange={onChange}
-                  className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all"
+                  className="w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all"
                 />
                 <Calendar size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             </div>
           </div>
           <div className="space-y-2 relative" ref={pincodeRef}>
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Pincode / Location</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Pincode / Location</label>
             <div className={`w-full min-h-[4rem] bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2 flex flex-wrap items-center gap-2 transition-all focus-within:ring-4 focus-within:ring-pd-red/5 focus-within:bg-white focus-within:border-pd-red`}>
                 <MapPin size={18} className="text-slate-300 shrink-0 ml-1" />
                 
                 {/* Location Tags */}
                 {selectedLocations.map((loc: any, i: number) => (
-                  <div key={i} className="flex items-center gap-1 bg-pd-red/10 text-pd-red px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider animate-in fade-in zoom-in duration-200 whitespace-nowrap shrink-0">
+                  <div key={i} className="flex items-center gap-1 bg-pd-red/10 text-pd-red px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider animate-in fade-in zoom-in duration-200 whitespace-nowrap shrink-0">
                     <span>{loc.display}</span>
                     <button type="button" onClick={() => onRemoveLocation(loc.display)} className="hover:text-slate-900 transition-colors">
                       <X size={12} />
@@ -316,7 +318,7 @@ const InquiryForm = memo(({
                   }}
                   onFocus={() => setShowSuggestions(true)}
                   placeholder={selectedLocations.length === 0 ? "Enter Pincode or City" : "Add more..."}
-                  className="flex-1 bg-transparent border-none text-base font-black text-slate-900 focus:outline-none placeholder:text-slate-300 placeholder:font-bold min-w-[120px] py-2"
+                  className="flex-1 bg-transparent border-none text-sm font-semibold text-slate-900 focus:outline-none placeholder:text-slate-300 placeholder:font-semibold min-w-[120px] py-2"
                 />
             </div>
 
@@ -355,17 +357,29 @@ const InquiryForm = memo(({
           </div>
         </div>
 
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-pd-red/10 border border-pd-red/20 rounded-xl text-center"
+          >
+            <p className="text-pd-red text-xs font-bold leading-tight uppercase tracking-tight">
+              {error}
+            </p>
+          </motion.div>
+        )}
+
         <button 
            type="submit" 
-           disabled={isSubmitting}
-           className="w-full bg-pd-red hover:bg-pd-red/90 text-white py-4 mt-2 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-pd-red/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+           disabled={isSubmitting || !!error}
+           className="w-full bg-pd-red hover:bg-pd-red/90 text-white py-4 mt-2 rounded-2xl font-bold text-sm uppercase tracking-widest shadow-xl shadow-pd-red/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
         >
           {isSubmitting ? 'Sending Request...' : 'Get Quotes Now'}
           {!isSubmitting && <Send size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
         </button>
         
         <p className="text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest mt-4">
-          <span className="text-emerald-500 font-black">Zero Brokerage</span> • Verified First • Best Price Guarantee
+          <span className="text-emerald-500 font-bold">Zero Brokerage</span> • Verified First • Best Price Guarantee
         </p>
       </form>
     </>
@@ -377,6 +391,7 @@ export default function PopupInquiry() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const venueId = searchParams.get('venueId');
   const [formData, setFormData] = useState({
@@ -389,6 +404,20 @@ export default function PopupInquiry() {
     message: '',
     selectedLocations: [] as any[]
   });
+
+  // Check local rate limit on mount
+  useEffect(() => {
+    const lastSubmission = localStorage.getItem('last_inquiry_submission');
+    if (lastSubmission) {
+        const lastTime = new Date(lastSubmission).getTime();
+        const currentTime = new Date().getTime();
+        const hoursPassed = (currentTime - lastTime) / (1000 * 60 * 60);
+
+        if (hoursPassed < 24) {
+            setError('You have already submitted an inquiry. Please wait 24 hours before sending another inquiry.');
+        }
+    }
+  }, []);
 
   useEffect(() => {
     // 1. Manual trigger via custom event (always works)
@@ -446,22 +475,32 @@ export default function PopupInquiry() {
           phone: formData.phone,
           eventType: formData.eventType,
           guests: formData.guests,
+          eventDate: formData.date,
           notes: formData.message || `Inquiry from Popup`
         }),
       });
 
       const result = await response.json();
+      if (response.status === 429) {
+          setError(result.message || 'You have already submitted an inquiry. Please wait 24 hours before sending another inquiry.');
+          return;
+      }
+
       if (result.status !== 'success') {
         throw new Error(result.message || 'Failed to submit inquiry');
       }
 
+      // Store submission time in localStorage
+      localStorage.setItem('last_inquiry_submission', new Date().toISOString());
+
       setIsSubmitted(true);
+      setError(null);
       setTimeout(() => {
         setIsOpen(false);
       }, 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to submit inquiry:', error);
-      alert('Failed to send inquiry. Please try again.');
+      setError(error.message || 'Failed to send inquiry. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -522,6 +561,7 @@ export default function PopupInquiry() {
                 onSubmit={handleSubmit} 
                 isSubmitted={isSubmitted} 
                 isSubmitting={isSubmitting}
+                error={error}
                 selectedLocations={formData.selectedLocations}
                 onAddLocation={handleAddLocation}
                 onRemoveLocation={handleRemoveLocation}

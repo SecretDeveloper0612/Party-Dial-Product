@@ -89,7 +89,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
              </div>
           </div>
           
-          <h3 className="text-lg md:text-xl font-black text-slate-900 mb-4 group-hover:text-pd-red transition-colors leading-tight italic">{v.name}</h3>
+          <h3 className="text-lg md:text-xl font-bold text-slate-900 mb-4 group-hover:text-pd-red transition-colors leading-tight italic">{v.name}</h3>
 
           {/* Price and Capacity - Always Visible */}
           <div className="flex gap-6 mb-5 w-full border-b border-slate-50 pb-4">
@@ -103,7 +103,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
              </div>
              <div className="flex flex-col border-l border-slate-100 pl-6">
                 <span className="text-[7px] md:text-[8px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">Guest Cap.</span>
-                <span className="text-sm md:text-lg font-black text-slate-900 italic">
+                <span className="text-sm md:text-lg font-bold text-slate-900 italic">
                   {getCapacityLabel(v.capacity)}
                 </span>
              </div>
@@ -118,7 +118,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
 
           <div className="flex flex-col sm:flex-row gap-2 w-full mt-auto">
              <Link href={`/venues/${v.id}`} className="flex-1 order-2 sm:order-1">
-                <button className="w-full py-3.5 border-2 border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-700 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all italic active:scale-95">
+                <button className="w-full py-3.5 border-2 border-slate-100 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-700 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all italic active:scale-95">
                    View Venue
                 </button>
              </Link>

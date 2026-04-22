@@ -1,11 +1,27 @@
 const { users } = require('../config/appwrite');
 const { ID } = require('node-appwrite');
 
-// GET all system users (Appwrite accounts)
+// GET all system users (Appwrite accounts) with their preferences
 exports.getAllUsers = async (req, res) => {
   try {
     const result = await users.list();
-    return res.status(200).json({ status: 'success', data: result.users, total: result.total });
+    
+    // Fetch preferences for each user to get their roles and permissions
+    const usersWithPrefs = await Promise.all(result.users.map(async (user) => {
+      try {
+        const prefs = await users.getPrefs(user.$id);
+        return { ...user, prefs };
+      } catch (err) {
+        console.warn(`Could not fetch prefs for user ${user.$id}:`, err.message);
+        return { ...user, prefs: {} };
+      }
+    }));
+
+    return res.status(200).json({ 
+      status: 'success', 
+      data: usersWithPrefs, 
+      total: result.total 
+    });
   } catch (error) {
     console.error('Error fetching users:', error);
     return res.status(500).json({ status: 'error', message: error.message });

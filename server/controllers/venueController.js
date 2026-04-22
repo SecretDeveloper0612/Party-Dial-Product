@@ -237,13 +237,37 @@ exports.getVenueById = async (req, res) => {
 // Submit a new lead (Distributed by Pincode)
 exports.submitLead = async (req, res) => {
     try {
-        const { venueId, pincode: rawPincode, name, phone, email, eventType, guests, notes } = req.body;
+        const { venueId, pincode: rawPincode, name, phone, email, eventType, guests, notes, eventDate } = req.body;
 
         if (!name || !phone || !eventType || (guests === undefined || guests === null || guests === '')) {
             return res.status(400).json({
                 status: 'error',
                 message: 'Please provide required fields: name, phone, eventType, guests'
             });
+        }
+
+        // Rate limiting: Only one inquiry per 24 hours per phone number
+        try {
+            const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+            const existingLeads = await databases.listDocuments(
+                DATABASE_ID,
+                LEADS_COLLECTION_ID,
+                [
+                    Query.equal('phone', phone),
+                    Query.greaterThan('$createdAt', twentyFourHoursAgo),
+                    Query.limit(1)
+                ]
+            );
+
+            if (existingLeads.total > 0) {
+                return res.status(429).json({
+                    status: 'error',
+                    message: 'You have already submitted an inquiry. Please wait 24 hours before sending another inquiry.'
+                });
+            }
+        } catch (rateLimitErr) {
+            console.error('Rate limit check failed:', rateLimitErr);
+            // Continue if check fails (don't block user due to internal error)
         }
 
         // Parse guests: Handle "0-50", "50-100", "5000+"
@@ -259,12 +283,14 @@ exports.submitLead = async (req, res) => {
 
         // Clean up pincode: Handle "Name-Pincode", CSV of pincodes, and whitespace
         let targetPincodes = [];
+        let cleanPincode = "";
         if (rawPincode) {
             targetPincodes = rawPincode.toString().split(',').map(p => {
                 let pin = p.trim();
                 if (pin.includes('-')) pin = pin.split('-').pop().trim();
                 return pin;
             }).filter(p => p);
+            cleanPincode = targetPincodes.join(', ');
         }
 
         // If no direct pincodes but specific venueId provided, find that venue's pincode
@@ -273,6 +299,7 @@ exports.submitLead = async (req, res) => {
                 const venue = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
                 if (venue.pincode) {
                     targetPincodes.push(venue.pincode.toString().trim());
+                    cleanPincode = venue.pincode.toString().trim();
                 }
             } catch (e) {
                 console.warn(`Pincode lookup failed for venue ${venueId}`);
@@ -311,7 +338,7 @@ exports.submitLead = async (req, res) => {
 
                 // 3. PAX Bucket Capacity Check
                 // A venue is eligible if its capacity bucket >= the lead's required bucket.
-                // E.g., Lead "100-200" → venues in 100-200, 200-500, 500-1000, etc. are eligible.
+                // E.g., Lead "100-200" → venues in 100-200, 200-500, 500-1000 etc. are eligible.
                 //        Venues in 0-50 or 50-100 are NOT eligible.
                 const eligible = isVenueEligible(v.capacity, guestCapStr);
                 if (!eligible) {
@@ -329,7 +356,8 @@ exports.submitLead = async (req, res) => {
                     email,
                     eventType,
                     guests,
-                    pincode: targetPincodes.join(', '),
+                    pincode: cleanPincode,
+                    eventDate: eventDate || '',
                     notes
                 }).catch(err => console.error('Failed to send admin lead email:', err.message));
             }
@@ -338,7 +366,7 @@ exports.submitLead = async (req, res) => {
             // The BROADCAST fallback below (line 344+) handles this gracefully by saving
             // the lead for admin review without forcing a mismatch.
             if (venuesToNotify.length === 0) {
-                console.log(`⚠️ No eligible venues for pincode ${targetPincodes[0]} with PAX "${guestCapStr}". Routing to BROADCAST.`);
+                console.log(`⚠️ No eligible venues for pincode ${cleanPincode} with PAX "${guestCapStr}". Routing to BROADCAST.`);
             }
         } else if (venueId && venueId !== 'BROADCAST') {
             // Fallback to specific venue if no pincode found
@@ -365,7 +393,7 @@ exports.submitLead = async (req, res) => {
                     email: email || '',
                     eventType,
                     guests: safeGuests,
-                    notes: notes || (rawPincode ? `Pincode: ${rawPincode} (No Paid Venues Found)` : ''),
+                    notes: (notes || '') + (eventDate ? ` | Event Date: ${eventDate}` : '') + (cleanPincode ? ` | Pincode: ${cleanPincode}` : '') + (cleanPincode && !venuesToNotify.length ? ' (No Paid Venues Found)' : ''),
                     status: 'New',
                     createdAt: new Date().toISOString()
                 }
@@ -386,13 +414,14 @@ exports.submitLead = async (req, res) => {
                     email: email || '',
                     eventType,
                     guests: safeGuests,
-                    notes: notes || (targetPincodes.length > 0 ? `Distributed Lead (${targetPincodes.join(', ')})` : ''),
+                    notes: (notes || '') + (eventDate ? ` | Event Date: ${eventDate}` : '') + (cleanPincode ? ` | Pincode: ${cleanPincode}` : ''),
                     status: 'New',
                     createdAt: new Date().toISOString()
                 }
             );
 
-            // RELIABLE COUNT: Fetch actual count of leads for this venue to ensure sync
+            /* 
+            // RELIABLE COUNT: SYNC DISABLED DUE TO SCHEME LIMITS
             try {
                 const leadCountRes = await databases.listDocuments(
                     DATABASE_ID,
@@ -412,6 +441,7 @@ exports.submitLead = async (req, res) => {
             } catch (err) {
                 console.error(`Failed to sync lead count for venue ${v.$id}:`, err.message);
             }
+            */
 
             // Send push notification to this venue
             if (v.expoPushToken) {

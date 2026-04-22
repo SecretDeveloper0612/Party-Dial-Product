@@ -250,7 +250,7 @@ export default function Header() {
               <div className="flex-1 flex flex-wrap gap-2 items-center py-2">
                 {selectedLocations.map((loc, i) => (
                   <div key={i} className="flex items-center gap-1.5 bg-pd-red/10 text-pd-red px-3 py-1.5 rounded-xl border border-pd-red/20 animate-in fade-in zoom-in duration-200">
-                    <span className="text-[10px] font-black uppercase tracking-wider">{loc}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">{loc}</span>
                     <button 
                       onClick={() => setSelectedLocations(selectedLocations.filter((_, idx) => idx !== i))}
                       className="hover:text-slate-900 transition-colors"
@@ -318,7 +318,7 @@ export default function Header() {
              </button>
              <button 
                onClick={() => setAuthModal({ isOpen: true, type: 'signup' })}
-               className="hidden md:flex items-center gap-2 text-sm font-black text-slate-600 hover:text-pd-red transition-all px-4 py-2 hover:bg-slate-50 rounded-xl"
+               className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-pd-red transition-all px-4 py-2 hover:bg-slate-50 rounded-xl"
              >
                 <User size={18} /> <span>Signup</span>
              </button>
@@ -345,7 +345,7 @@ export default function Header() {
                         {selectedLocations.length > 0 && (
                           <div className="flex flex-wrap gap-2 p-1">
                             {selectedLocations.map((loc, i) => (
-                              <div key={i} className="flex items-center gap-1.5 bg-pd-red text-white pr-2 pl-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider animate-in fade-in zoom-in duration-200">
+                              <div key={i} className="flex items-center gap-1.5 bg-pd-red text-white pr-2 pl-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider animate-in fade-in zoom-in duration-200">
                                 {loc}
                                 <button onClick={() => setSelectedLocations(selectedLocations.filter((_, idx) => idx !== i))}>
                                   <X size={12} />
@@ -411,13 +411,13 @@ export default function Header() {
                 <div className="grid grid-cols-2 gap-4">
                   <button 
                     onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
-                    className="w-full flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl text-xs font-black uppercase tracking-widest text-slate-600 active:bg-slate-50"
+                    className="w-full flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-widest text-slate-600 active:bg-slate-50"
                   >
                     <User size={16} /> <span>Signup</span>
                   </button>
                   <button 
                     onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
-                    className="w-full flex items-center justify-center gap-2 p-4 bg-slate-900 border border-slate-900 rounded-xl text-xs font-black uppercase tracking-widest text-white active:scale-95 transition-all"
+                    className="w-full flex items-center justify-center gap-2 p-4 bg-slate-900 border border-slate-900 rounded-xl text-xs font-bold uppercase tracking-widest text-white active:scale-95 transition-all"
                   >
                     <UserPlus size={16} /> <span>Join Now</span>
                   </button>
@@ -472,14 +472,14 @@ export default function Header() {
                 <div className="relative z-10 h-full flex flex-col justify-between">
                    <div className="text-pd-red font-black text-2xl italic">PartyDial</div>
                    <div>
-                     <h2 className="text-4xl font-black mb-6 leading-tight">
+                     <h2 className="text-4xl font-bold mb-6 leading-tight">
                         {authModal.type === 'signin' 
                           ? <>Welcome Back – <br/><span className="text-pd-pink italic">Find Your perfect</span> Venue.</>
                           : <>Create Account <br/><span className="text-pd-pink italic">Plan Your perfect</span> Event.</>}
                      </h2>
                      <p className="text-white/60 font-semibold">Join thousands of planners making magic happen every day.</p>
                    </div>
-                   <p className="text-[10px] font-black uppercase tracking-widest opacity-40">© 2026 PartyDial Platform</p>
+                   <p className="text-[10px] font-bold uppercase tracking-widest opacity-40">© 2026 PartyDial Platform</p>
                 </div>
               </div>
 
@@ -494,7 +494,7 @@ export default function Header() {
 
                  <div className="max-w-md mx-auto">
                     <div className="mb-10">
-                       <h3 className="text-3xl font-black text-slate-900 mb-2">
+                       <h3 className="text-3xl font-bold text-slate-900 mb-2">
                          {authModal.type === 'signup' ? "Join PartyDial" : authModal.type === 'signin' ? "Sign In" : "Verify Phone"}
                        </h3>
                        <p className="text-slate-400 font-semibold italic">
@@ -527,7 +527,7 @@ export default function Header() {
                                   otpRefs[idx - 1].current?.focus();
                                 }
                               }}
-                              className="w-full h-14 md:h-16 text-center text-xl md:text-2xl font-black bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:border-pd-red focus:ring-4 focus:ring-pd-red/5 outline-none transition-all"
+                              className="w-full h-14 md:h-16 text-center text-xl md:text-2xl font-semibold bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:border-pd-red focus:ring-4 focus:ring-pd-red/5 outline-none transition-all"
                             />
                           ))}
                         </div>
@@ -551,7 +551,7 @@ export default function Header() {
                               setIsAuthLoading(false);
                             }
                           }}
-                          className="w-full h-16 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl shadow-slate-900/10 hover:bg-pd-red transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                          className="w-full h-16 bg-slate-900 text-white rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-xl shadow-slate-900/10 hover:bg-pd-red transition-all active:scale-[0.98] flex items-center justify-center gap-3"
                         >
                           {isAuthLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Verify & Create Account <ArrowRight size={18}/></>}
                         </button>
@@ -577,7 +577,7 @@ export default function Header() {
                                 setIsAuthLoading(false);
                               }
                             }}
-                            className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-pd-red transition-colors disabled:opacity-50"
+                            className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-pd-red transition-colors disabled:opacity-50"
                           >
                             {resendTimer > 0 ? `Didn't receive code? Resend in ${resendTimer}s` : "Didn't receive code? Resend Now"}
                           </button>
@@ -612,7 +612,7 @@ export default function Header() {
                     }}>
                        {authModal.type === 'signup' && (
                          <div className="space-y-2">
-                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Full Name</label>
+                           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Full Name</label>
                            <div className="relative group">
                               <User size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-red transition-colors" />
                               <input required type="text" placeholder="John Doe" className="w-full h-14 pl-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" />
@@ -621,7 +621,7 @@ export default function Header() {
                        )}
 
                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Email</label>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Email</label>
                           <div className="relative group">
                              <Mail size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-red transition-all" />
                              <input required type="email" placeholder="name@email.com" className="w-full h-14 pl-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" />
@@ -630,7 +630,7 @@ export default function Header() {
 
                        {authModal.type === 'signup' && (
                           <div className="space-y-2">
-                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Phone Number</label>
+                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Phone Number</label>
                              <div className="relative group flex items-center">
                                 <Phone size={18} className="absolute left-5 text-slate-400 group-focus-within:text-pd-red transition-all" />
                                 <div className="absolute left-12 text-sm font-bold text-slate-400 border-r border-slate-200 pr-3">+91</div>
@@ -657,7 +657,7 @@ export default function Header() {
                        )}
 
                        <div className="space-y-2">
-                          <div className="flex justify-between items-center px-2 text-[10px] font-black uppercase tracking-widest">
+                          <div className="flex justify-between items-center px-2 text-[10px] font-bold uppercase tracking-widest">
                              <label className="text-slate-400">Password</label>
                              {authModal.type === 'signup' && signupData.password && <span className={`${pwStrength.color} text-white px-2 py-0.5 rounded`}>{pwStrength.label}</span>}
                              {authModal.type === 'signin' && <button type="button" className="text-pd-purple italic hover:text-pd-red">Forgot?</button>}
@@ -684,7 +684,7 @@ export default function Header() {
                         <button 
                          type="submit" 
                          disabled={isAuthLoading}
-                         className="w-full h-16 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+                         className="w-full h-16 bg-slate-900 text-white rounded-2xl font-bold text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
                         >
                           {isAuthLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>{authModal.type === 'signin' ? 'Sign In' : 'Create Account'} <ArrowRight size={18}/></>}
                         </button>

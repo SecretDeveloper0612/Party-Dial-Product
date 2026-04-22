@@ -156,6 +156,14 @@ exports.verifyPayment = async (req, res) => {
         // Standard 1 year extension
         expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
+        // --- ADD PAID_SINCE METADATA ---
+        let updatedBilling = {};
+        try {
+          updatedBilling = typeof billingDetails === 'string' ? JSON.parse(billingDetails) : (billingDetails || {});
+        } catch(e) { updatedBilling = {}; }
+        
+        updatedBilling.paidSince = new Date().toISOString();
+
         await databases.updateDocument(
           DATABASE_ID,
           VENUES_COLLECTION_ID,
@@ -163,7 +171,7 @@ exports.verifyPayment = async (req, res) => {
           {
             subscriptionPlan: planName || 'Standard',
             subscriptionExpiry: expiryDate.toISOString(),
-            billingDetails: JSON.stringify(billingDetails)
+            billingDetails: JSON.stringify(updatedBilling)
           }
         );
       }

@@ -122,6 +122,7 @@ export default function VenueDetailPage() {
           phone: formData.phone,
           email: formData.email,
           eventType: formData.eventType,
+          eventDate: formData.eventDate,
           guests: formData.guests,
           notes: formData.requirements
         }),

@@ -73,7 +73,7 @@ exports.distributeLeads = async (req, res) => {
             const cleanPhone = (leadData.phone || "").toString().replace(/[^0-9+]/g, '').slice(0, 20);
 
             const leadDoc = {
-                venueId: targetEmployee.$id, // Repurposing venueId as assignedUserId for employee dashboard
+                venueId: targetEmployee.$id,
                 assignedToType: 'employee',
                 employeeName: targetEmployee.name,
                 name: leadData.name,
@@ -81,12 +81,8 @@ exports.distributeLeads = async (req, res) => {
                 email: leadData.email || '',
                 eventType: leadData.eventType || 'Event',
                 guests: guestsCount,
-                notes: (leadData.notes || '') + " " + extraInfo,
+                notes: (leadData.notes || '') + ` | Event Date: ${leadData.eventDate || 'N/A'} | Pincode: ${pincode} | City: ${leadData.city || targetEmployee.prefs?.city || 'N/A'} | Bulk: true | ` + extraInfo,
                 status: 'New',
-                pincode: pincode,
-                city: leadData.city || targetEmployee.prefs?.city || '',
-                isBulk: true,
-                eventDate: leadData.eventDate || '',
                 distributedAt: new Date().toISOString(),
                 createdAt: new Date().toISOString()
             };
@@ -108,8 +104,7 @@ exports.distributeLeads = async (req, res) => {
                     phone: cleanPhone,
                     eventType: leadData.eventType || 'Event',
                     guests: guestsCount,
-                    notes: (leadData.notes || '') + " " + extraInfo + " (Staff Assigned)",
-                    eventDate: leadData.eventDate || '',
+                    notes: (leadData.notes || '') + ` | Event Date: ${leadData.eventDate || 'N/A'} | ` + extraInfo + " (Staff Assigned)",
                     status: 'New',
                     createdAt: new Date().toISOString()
                 };
@@ -340,9 +335,7 @@ exports.distributeLeadsToVenues = async (req, res) => {
                 email: leadData.email || '',
                 eventType: leadData.eventType || 'Event',
                 guests: parseInt(leadData.pax) || 0,
-                // Embed extra metadata in notes since they might not exist as schema attributes
-                notes: `GSheet Sync | Area: ${leadData.city || 'N/A'} | Pin: ${leadPincode} | ` + (leadData.notes || `Distributed to ${targetVenue.venueName}`),
-                eventDate: leadData.eventDate || '',
+                notes: `GSheet Sync | Event Date: ${leadData.eventDate || 'N/A'} | Pin: ${leadPincode} | Area: ${leadData.city || 'N/A'} | ` + (leadData.notes || `Distributed to ${targetVenue.venueName}`),
                 status: 'New',
                 createdAt: new Date().toISOString()
             };
@@ -555,7 +548,7 @@ exports.processPublicInquiry = async (req, res) => {
                 email: email || '',
                 eventType,
                 guests: requestedGuests,
-                notes: `BROADCAST | Pin: ${leadPincode} | Guests: ${requestedGuests} | Details: ${eventDetails || 'N/A'}`,
+                notes: `BROADCAST | Event Date: ${eventDate || 'N/A'} | Pin: ${leadPincode} | Guests: ${requestedGuests} | Details: ${eventDetails || 'N/A'}`,
                 status: 'New',
                 createdAt: new Date().toISOString()
             });
@@ -588,8 +581,7 @@ exports.processPublicInquiry = async (req, res) => {
                     email: email || '',
                     eventType,
                     guests: requestedGuests,
-                    notes: `SMART MATCH | Local Partner for Pin: ${leadPincode} | Guests: ${requestedGuests}`,
-                    eventDate: eventDate || '',
+                    notes: `SMART MATCH | Event Date: ${eventDate || 'N/A'} | Pin: ${leadPincode} | Local Partner | Guests: ${requestedGuests}`,
                     status: 'New',
                     createdAt: new Date().toISOString()
                 });
@@ -605,7 +597,8 @@ exports.processPublicInquiry = async (req, res) => {
                     ).catch(() => {});
                 }
 
-                // RELIABLE COUNT: Fetch actual count of leads for this venue to ensure sync
+                /* 
+                // RELIABLE COUNT: SYNC DISABLED DUE TO SCHEMA LIMITS
                 try {
                     const leadCountRes = await databases.listDocuments(
                         DATABASE_ID,
@@ -625,6 +618,7 @@ exports.processPublicInquiry = async (req, res) => {
                 } catch (updateErr) {
                     console.error(`Failed to sync lead count for venue ${v.$id}:`, updateErr.message);
                 }
+                */
 
                 return doc;
             } catch (err) {
