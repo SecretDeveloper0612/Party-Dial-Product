@@ -32,7 +32,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   );
 
-  // 3. Dynamic Venue Routes (Fetch from Backend)
+  // 3. State Level Routes (Uttarakhand)
+  const stateRoutes = SEO_CATEGORIES.map((category) => ({
+    url: `${baseUrl}/uttarakhand/${category.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.9,
+  }));
+
+  // 4. Dynamic Venue Routes (Fetch from Backend)
   let venueRoutes: any[] = [];
   try {
     const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5005/api';
@@ -57,5 +65,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Failed to fetch venues for sitemap:', error);
   }
 
-  return [...routes, ...seoRoutes, ...venueRoutes];
+  return [...routes, ...seoRoutes, ...stateRoutes, ...venueRoutes];
 }

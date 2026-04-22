@@ -43,7 +43,7 @@ const FILTER_CONFIG = {
     "Engagement Ceremony",
     "Entertainment / Theme Parties"
   ],
-  venueTypes: ["Banquet Hall", "Hotel", "Resort", "Party Lawn", "Farmhouse", "Conference Hall", "Rooftop Venue", "Restaurant", "Club Lounge"],
+  venueTypes: ["Banquet Hall", "Hotel", "Resort", "Party Lawn", "Restaurant", "Farmhouse", "Rooftop Venue", "Conference Hall", "Club Lounge", "Marriage Garden", "Heritage Hotel", "Villa", "Boutique Resort"],
   amenities: ["Parking Available", "Catering Available", "In-house Decoration", "DJ or Music System", "Air Conditioned Hall", "Outdoor Lawn", "Bridal Room", "Guest Rooms", "Power Backup", "Wheelchair Accessible"],
   capacities: [
     { label: "Under 50 guests", min: 0, max: 50 },

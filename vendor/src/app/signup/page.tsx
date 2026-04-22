@@ -30,7 +30,7 @@ const states = [
 ];
 
 const venueTypes = [
-  "Banquet Hall", "Hotel", "Resort", "Party Lawn", "Restaurant", "Farmhouse", "Rooftop"
+  "Banquet Hall", "Hotel", "Resort", "Party Lawn", "Restaurant", "Farmhouse", "Rooftop Venue", "Conference Hall", "Club Lounge", "Marriage Garden", "Heritage Hotel", "Villa", "Boutique Resort"
 ];
 
 const capacityRanges = [
