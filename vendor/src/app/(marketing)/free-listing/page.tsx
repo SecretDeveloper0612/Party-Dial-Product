@@ -331,7 +331,7 @@ export default function FreeListingLanding() {
                   className="bg-white p-10 rounded-[32px] border border-slate-100 hover:border-pd-red/30 transition-all group shadow-sm"
                 >
                    <div className="w-14 h-14 rounded-2xl bg-pd-red/5 flex items-center justify-center text-pd-red mb-8 group-hover:scale-110 transition-transform">
-                      {React.cloneElement(benefit.icon as React.ReactElement, { size: 28 })}
+                      {React.cloneElement(benefit.icon as React.ReactElement<any>, { size: 28 })}
                    </div>
                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-4">{benefit.title}</h3>
                    <p className="text-xs text-slate-500 leading-relaxed font-medium italic">{benefit.desc}</p>
@@ -355,7 +355,7 @@ export default function FreeListingLanding() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                      {features.map((feature, i) => (
                         <div key={i} className="flex gap-4 p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:border-pd-pink/30 hover:shadow-xl transition-all group">
-                           <div className="text-pd-pink group-hover:scale-110 transition-transform">{React.cloneElement(feature.icon as React.ReactElement, { size: 20 })}</div>
+                           <div className="text-pd-pink group-hover:scale-110 transition-transform">{React.cloneElement(feature.icon as React.ReactElement<any>, { size: 20 })}</div>
                            <div>
                               <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-900 mb-1">{feature.title}</h4>
                               <p className="text-[9px] text-slate-400 font-bold uppercase">{feature.desc}</p>
