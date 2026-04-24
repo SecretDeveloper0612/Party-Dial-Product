@@ -14,10 +14,9 @@ import {
   ArrowLeft,
   ShieldCheck,
   Zap,
-  Loader2,
-  Percent,
-  ChevronRight,
-  Hash,
+  Percent, 
+  ChevronRight, 
+  Hash, 
   Pencil
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -658,7 +657,7 @@ function CheckoutContent() {
                        onClick={handlePayment}
                        className="w-full h-16 grad-brand text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-purple-500/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 disabled:opacity-50 mt-4"
                     >
-                       {loading ? <Loader2 className="animate-spin" size={20} /> : <CreditCard size={20} />}
+                       <CreditCard size={20} />
                        Complete Safe Payment
                     </button>
                     
@@ -728,7 +727,7 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-purple-600" /></div>}>
+    <Suspense fallback={null}>
       <CheckoutContent />
     </Suspense>
   );

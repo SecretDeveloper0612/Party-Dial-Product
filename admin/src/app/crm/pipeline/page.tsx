@@ -9,7 +9,6 @@ import {
   IndianRupee, 
   ArrowRight,
   TrendingUp,
-  Loader2,
   ChevronLeft,
   XCircle,
   Clock,

@@ -12,9 +12,9 @@ import {
   AlertCircle,
   Calendar,
   Percent,
-  Banknote,
-  Loader2
+  Banknote
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -226,7 +226,6 @@ export default function CouponManagementPage() {
               {loading ? (
                 <tr>
                   <td colSpan={5} className="py-20 text-center">
-                    <Loader2 size={32} className="animate-spin text-[#b66dff] mx-auto mb-4" />
                     <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Loading Coupons...</p>
                   </td>
                 </tr>

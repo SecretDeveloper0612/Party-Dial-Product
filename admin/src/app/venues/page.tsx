@@ -15,9 +15,7 @@ import {
   Phone,
   ShieldCheck,
   ShieldAlert,
-  Loader2,
   Trash2,
-  Users,
   RefreshCw,
   AlertCircle,
   CheckCircle2,
@@ -269,8 +267,8 @@ function VenueManagementContent() {
       
       const matchesListing = 
         listingFilter === "All" ||
-        (listingFilter === "Paid" && v.hasActivePlan) ||
-        (listingFilter === "Free" && !v.hasActivePlan);
+        (listingFilter === "Paid" && v.hasActivePlan && v.subscriptionPlan !== "free") ||
+        (listingFilter === "Free" && (v.subscriptionPlan === "free" || !v.hasActivePlan));
 
       if (!matchesSearch || !matchesListing) return false;
 
@@ -376,7 +374,6 @@ function VenueManagementContent() {
       <div className="space-y-4">
         {loading ? (
           <div className="py-20 text-center flex flex-col items-center gap-4">
-            <Loader2 className="text-[#b66dff]" size={40} />
             <p className="text-xs font-black text-slate-400 tracking-widest uppercase">
               Partners Synchronized
             </p>
@@ -476,15 +473,14 @@ function VenueManagementContent() {
                       <span
                         className={cn(
                           "px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border",
-                          venue.hasActivePlan
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                            : "bg-slate-50 text-slate-400 border-slate-100"
+                          venue.subscriptionPlan === "free"
+                             ? "bg-amber-50 text-amber-600 border-amber-100"
+                             : venue.hasActivePlan
+                                ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                : "bg-slate-50 text-slate-400 border-slate-100"
                         )}
                       >
-                        {venue.subscriptionPlan === "None" ||
-                        !venue.subscriptionPlan
-                          ? "Free"
-                          : venue.subscriptionPlan}
+                        {venue.subscriptionPlan === "free" ? "Free Listing" : (venue.subscriptionPlan === "None" || !venue.subscriptionPlan ? "No Plan" : venue.subscriptionPlan)}
                       </span>
                       <span className="px-2 py-0.5 bg-violet-50 text-violet-600 border border-violet-100 rounded text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
                         <TrendingUp size={10} /> {venue.totalLeads} Leads
@@ -830,7 +826,7 @@ function VenueManagementContent() {
                         disabled={updating}
                         className="flex-[2] py-4 grad-brand text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-2"
                       >
-                        {updating ? <span className="opacity-50">Saving Profile...</span> : <><Save size={16} /> Save Venue Profile</>}
+                        {updating ? "Processing..." : "Save Venue Profile"}
                       </button>
                     </div>
                   </form>
@@ -1026,7 +1022,7 @@ export default function VenueManagement() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center py-20">
-          <Loader2 className=" text-[#b66dff]" size={40} />
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Synchronizing Environment...</p>
         </div>
       }
     >

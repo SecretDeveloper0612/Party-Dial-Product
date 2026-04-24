@@ -625,11 +625,11 @@ const DashboardSettings = ({
                             </div>
                             <p className="text-[10px] font-medium text-slate-500 leading-relaxed italic">Last verified: Today at 02:30 PM <br/> All changes reflect instantly on the portal.</p>
                          </div>
-                         <div className="flex gap-4">
+                         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                             <button 
                               onClick={saveProfileSettings}
                               disabled={isUpdatingProfile}
-                              className="px-12 py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-pd-pink transition-all shadow-2xl shadow-slate-900/20 disabled:opacity-50"
+                              className="w-full sm:w-auto px-12 py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-pd-pink transition-all shadow-2xl shadow-slate-900/20 disabled:opacity-50"
                             >
                                {isUpdatingProfile ? 'SYNCHRONIZING...' : 'FORCE UPDATE PROFILE'}
                             </button>
@@ -681,7 +681,7 @@ const DashboardSettings = ({
                             }
  
                             return halls.map((hall: any) => (
-                               <div key={hall.id} className="p-8 bg-white border border-slate-100 rounded-[30px] flex flex-col md:flex-row md:items-center justify-between group hover:border-emerald-500 shadow-sm transition-all gap-6">
+                               <div key={hall.id} className="p-5 lg:p-8 bg-white border border-slate-100 rounded-[30px] flex flex-col md:flex-row md:items-center justify-between group hover:border-emerald-500 shadow-sm transition-all gap-6">
                                   <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
                                      <div className="space-y-1.5">
                                         <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Space Name</label>

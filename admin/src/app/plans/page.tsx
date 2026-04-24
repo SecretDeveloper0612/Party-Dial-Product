@@ -17,7 +17,6 @@ import {
   Layers,
   ShieldCheck,
   ChevronRight,
-  Loader2,
   AlertCircle,
   TrendingUp,
   Target,
@@ -206,18 +205,7 @@ export default function PlanManagementPage() {
 
       {/* Grid of Plans */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        {loading ? (
-             Array(3).fill(0).map((_, i) => (
-                <div key={i} className="bg-white rounded-[32px] p-8 border border-slate-50 h-[300px] animate-pulse flex flex-col justify-between">
-                   <div className="w-1/2 h-6 bg-slate-100 rounded-lg" />
-                   <div className="space-y-3">
-                      <div className="w-full h-4 bg-slate-50 rounded" />
-                      <div className="w-3/4 h-4 bg-slate-50 rounded" />
-                   </div>
-                   <div className="w-full h-12 bg-slate-100 rounded-xl" />
-                </div>
-             ))
-        ) : plans.length === 0 ? (
+        {loading ? null : plans.length === 0 ? (
             <div className="col-span-full py-20 text-center bg-white rounded-[40px] border border-dashed border-slate-200">
                <Layers className="mx-auto text-slate-200 mb-4" size={64} />
                <h2 className="text-xl font-black text-slate-800 uppercase italic mb-2">No Plans Configured</h2>
@@ -470,12 +458,7 @@ export default function PlanManagementPage() {
                       disabled={isSaving || !formData.name}
                       className="flex-[2] py-5 rounded-[22px] bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.25em] hover:bg-orange-600 transition-all shadow-xl shadow-slate-900/20 disabled:opacity-50"
                     >
-                      {isSaving ? (
-                        <div className="flex items-center justify-center gap-2">
-                           <Loader2 size={16} className="animate-spin" />
-                           Synchronizing...
-                        </div>
-                      ) : (
+                      {isSaving ? "Synchronizing..." : (
                         editingPlan ? "Force Update Plan" : "Deploy Strategy"
                       )}
                     </button>

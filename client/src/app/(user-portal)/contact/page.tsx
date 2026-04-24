@@ -240,7 +240,7 @@ export default function ContactUs() {
                     </div>
                     <div>
                       <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Office Address</h4>
-                      <p className="text-slate-800 font-bold leading-relaxed">123 Celebration Plaza, Bandra West,<br />Mumbai, MH 400050, India</p>
+                      <p className="text-slate-800 font-bold leading-relaxed">Preet Tech, near Krishna Hospital,<br />Subhash Nagar, Haldwani, Uttarakhand 263139</p>
                     </div>
                   </div>
                   
@@ -250,7 +250,7 @@ export default function ContactUs() {
                     </div>
                     <div>
                       <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Phone Number</h4>
-                      <p className="text-slate-800 font-bold">+91 98765 43210</p>
+                      <p className="text-slate-800 font-bold">+91 86799 33302</p>
                       <p className="text-slate-400 text-xs font-medium">Mon - Sun, 9am - 9pm</p>
                     </div>
                   </div>
@@ -261,7 +261,7 @@ export default function ContactUs() {
                     </div>
                     <div>
                       <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Support Email</h4>
-                      <p className="text-slate-800 font-bold">hello@partydial.com</p>
+                      <p className="text-slate-800 font-bold">support@partydial.com</p>
                       <p className="text-slate-400 text-xs font-medium">Quick responses guaranteed</p>
                     </div>
                   </div>
@@ -287,15 +287,15 @@ export default function ContactUs() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-pd-red/20 blur-3xl pointer-events-none"></div>
                 <h4 className="text-lg font-black italic uppercase tracking-tighter mb-6">Quick Contact</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <a href="tel:+919876543210" className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-4 rounded-xl transition-all group">
+                  <a href="tel:+918679933302" className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-4 rounded-xl transition-all group">
                     <Phone size={18} className="text-emerald-400" />
                     <span className="text-sm font-bold">Call Us</span>
                   </a>
-                  <a href="mailto:hello@partydial.com" className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-4 rounded-xl transition-all group">
+                  <a href="mailto:support@partydial.com" className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-4 rounded-xl transition-all group">
                     <Mail size={18} className="text-pd-red" />
                     <span className="text-sm font-bold">Email Support</span>
                   </a>
-                  <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-emerald-500 hover:bg-emerald-600 px-5 py-4 rounded-xl transition-all col-span-1 sm:col-span-2 shadow-lg shadow-emerald-500/20">
+                  <a href="https://wa.me/918679933302" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-emerald-500 hover:bg-emerald-600 px-5 py-4 rounded-xl transition-all col-span-1 sm:col-span-2 shadow-lg shadow-emerald-500/20">
                     <MessageSquare size={18} />
                     <span className="text-sm font-black uppercase tracking-widest">Chat on WhatsApp</span>
                   </a>
@@ -313,9 +313,27 @@ export default function ContactUs() {
             {...fadeUp}
             className="w-full h-[400px] md:h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-100 relative group"
           >
-            {/* Placeholder for Google Map - In real app, replace with actual iframe or Google Maps SDK */}
+            {/* Address Overlay */}
+            <div className="absolute top-6 left-6 z-20 hidden md:block">
+              <div className="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-2xl border border-white/20 max-w-sm">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-pd-red flex items-center justify-center text-white shrink-0 shadow-lg shadow-pd-red/20">
+                    <MapPin size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-1 italic">Preet Tech</h4>
+                    <p className="text-xs text-slate-600 font-bold leading-relaxed">
+                      near Krishna Hospital, Subhash Nagar,<br />
+                      Haldwani, Uttarakhand 263139
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Google Map Iframe */}
             <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d120662.33306935742!2d72.7668615!3d19.0759837!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c6306644edc1%3A0x5da4ed8f8d648c69!2sMumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1710780000000!5m2!1sen!2sin" 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3485.438517240369!2d79.5244199!3d29.2003882!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39a09ad95f030a51%3A0x8683525164f9b8c!2sKrishna%20Hospital%20%26%20Research%20Centre!5e0!3m2!1sen!2sin!4v1713945000000!5m2!1sen!2sin" 
               width="100%" 
               height="100%" 
               style={{ border: 0 }} 

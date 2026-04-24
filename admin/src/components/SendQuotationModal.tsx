@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  X, CheckCircle2, Loader2, Users, Plus, Download, IndianRupee, ShieldCheck, Zap, Target, Send, ArrowRight, FileText, MapPin, Search, ChevronRight, Home, Pencil
+  X, CheckCircle2, Users, Plus, Download, IndianRupee, ShieldCheck, Zap, Target, Send, ArrowRight, FileText, MapPin, Search, ChevronRight, Home, Pencil
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
@@ -585,7 +585,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                       </div>
                       <div className="flex flex-col items-center gap-4 w-full max-w-md">
                         <button onClick={downloadPDF} disabled={loading} className="w-full px-10 py-5 bg-slate-900 text-white rounded-2xl text-xs font-bold uppercase tracking-widest shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-3 disabled:opacity-50">
-                          {loading ? <Loader2 className="animate-spin" size={18} /> : <Download size={18} />} <span>Download PDF Proposal</span>
+                          {loading ? "Generating..." : <Download size={18} />} <span>Download PDF Proposal</span>
                         </button>
                         
                         <div className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-2">
@@ -622,7 +622,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                                 disabled={emailLoading || !emailTo}
                                 className="w-full h-14 bg-white text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                               >
-                                {emailLoading ? <Loader2 className="animate-spin" size={14} /> : <Zap size={14} />}
+                                {emailLoading ? "Delivering..." : <Zap size={14} />}
                                 Deliver Interactive Proposal
                               </button>
                            </div>
@@ -892,7 +892,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                                </div>
                             </div>
                             <button onClick={handleSend} disabled={!selectedPlan || loading} className={cn("w-full py-5 rounded-2xl text-xs font-bold uppercase tracking-wider shadow-lg transition-all mt-8", selectedPlan ? "bg-white text-slate-950 hover:bg-slate-50 hover:scale-[1.02]" : "bg-slate-800 text-slate-600 cursor-not-allowed")}>
-                              {loading ? <Loader2 className="animate-spin inline mr-2" size={20} /> : <span>Activate Growth Plan</span>}
+                               {loading ? "Processing..." : <span>Activate Growth Plan</span>}
                             </button>
                          </div>
                       </div>

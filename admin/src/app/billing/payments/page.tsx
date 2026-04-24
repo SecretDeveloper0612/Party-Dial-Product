@@ -10,10 +10,10 @@ import {
   CheckCircle2, 
   XCircle, 
   Clock,
-  Loader2,
   ExternalLink,
   ChevronDown
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 interface Payment {
@@ -176,7 +176,7 @@ export default function PaymentLogsPage() {
             <tbody className="divide-y divide-slate-50">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-20 text-center"><Loader2 className="animate-spin text-slate-400 mx-auto" /></td>
+                  <td colSpan={6} className="py-20 text-center"></td>
                 </tr>
               ) : filteredPayments.map((p) => (
                 <tr key={p.$id} className="hover:bg-slate-50/50 transition-colors group">

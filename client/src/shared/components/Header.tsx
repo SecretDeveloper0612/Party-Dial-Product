@@ -24,7 +24,8 @@ import {
   ChevronLeft,
   Phone,
   ShieldCheck,
-  Building2
+  Building2,
+  Zap
 } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 
@@ -210,7 +211,10 @@ export default function Header() {
       {/* 1. TOP BAR */}
       <div className="pd-gradient text-white py-2 md:py-2.5 px-4 md:px-6 shadow-lg relative z-[60]">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-[9px] md:text-[11px] font-bold uppercase tracking-[0.1em] md:tracking-[0.2em]">
-          {/* Phone number removed */}
+          <Link href="tel:+918679933302" className="flex items-center gap-1.5 md:gap-2 hover:text-white/80 transition-colors shrink-0">
+            <Phone size={12} className="fill-white/10" />
+            <span className="tabular-nums">+91 86799 33302</span>
+          </Link>
           <div className="hidden md:flex flex-1 justify-center overflow-hidden h-4 relative mx-10">
             <AnimatePresence mode="wait">
               <motion.span
@@ -537,6 +541,7 @@ export default function Header() {
                             try {
                               setIsAuthLoading(true);
                               setAuthError('');
+                              try { await account.deleteSession('current'); } catch (e) {}
                               await account.updatePhoneSession(authUserId, otp.join(''));
                               
                               // Update name if it was a signup
@@ -567,6 +572,7 @@ export default function Header() {
                               try {
                                 setIsAuthLoading(true);
                                 setAuthError('');
+                                try { await account.deleteSession('current'); } catch (e) {}
                                 const phone = '+91' + signupData.phone.replace(/\s/g, '');
                                 const token = await account.createPhoneToken(ID.unique(), phone);
                                 setAuthUserId(token.userId);
@@ -590,6 +596,7 @@ export default function Header() {
                         setIsAuthLoading(true);
                         setAuthError('');
                         
+                        try { await account.deleteSession('current'); } catch (e) {}
                         const phone = '+91' + signupData.phone.replace(/\s/g, '');
                         
                         if (authModal.type === 'signup') {

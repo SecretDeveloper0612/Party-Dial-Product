@@ -290,6 +290,9 @@ function VenuesContent() {
       // 0. Only show verified (approved) venues to visitors
       if (!venue.verified) return false;
       
+      // 0.1 Exclude Free Listings from main discovery page
+      if (venue.subscriptionPlan === 'free') return false;
+      
       // 1. Pincode/Location Filtering
       if (selectedCities.length > 0) {
         const venuePincode = (venue.pincode || "").toLowerCase();

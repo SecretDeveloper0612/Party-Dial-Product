@@ -13,7 +13,6 @@ import {
   CreditCard,
   CheckCircle2,
   XCircle,
-  Loader2,
   Save,
   Zap,
   MoreVertical,
@@ -163,7 +162,6 @@ export default function PriceLeadsPage() {
                   {loading ? (
                     <tr>
                       <td colSpan={6} className="p-20 text-center">
-                         <Loader2 className="animate-spin text-pink-500 mx-auto mb-4" size={32} />
                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading Partner Enquiries...</p>
                       </td>
                     </tr>

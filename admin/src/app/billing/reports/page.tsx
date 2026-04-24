@@ -9,7 +9,6 @@ import {
   Calendar,
   ArrowUpRight,
   ArrowDownRight,
-  Loader2,
   Users,
   CreditCard,
   Zap
@@ -55,7 +54,8 @@ export default function BillingReportsPage() {
     fetchStats();
   }, []);
 
-  if (loading) return <div className="h-[400px] flex items-center justify-center"><Loader2 className="animate-spin text-slate-300" size={40} /></div>;
+  if (loading) return null;
+
 
   return (
     <div className="space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">

@@ -11,7 +11,6 @@ import {
   UserCheck,
   UserX,
   Globe,
-  Loader2,
   Save,
   Filter,
   Check,
@@ -340,8 +339,12 @@ export default function UserRoleManagement() {
 
   // ── Filter ────────────────────────────────────────────────────────────────────
   const filtered = users.filter(u => {
-    const role = u.prefs?.role || "";
+    const role = u.prefs?.role;
+    // Only show users who are either Super Admins or belong to the system roles list (Employees)
+    const isEmployee = role && (ROLES_LIST.includes(role as any) || role === "Super Admin");
     
+    if (!isEmployee) return false;
+
     const matchesSearch = 
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -371,13 +374,7 @@ export default function UserRoleManagement() {
       )}
     </AnimatePresence>
 
-    {/* Debug Info (Only for development) */}
-    {process.env.NODE_ENV === 'development' && users.length > 0 && filtered.length === 0 && (
-       <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-700 text-xs mb-4">
-         System found {users.length} total users in Appwrite, but 0 match the current filter/search. 
-         Try checking if preferences/roles are correctly set.
-       </div>
-    )}
+
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -443,7 +440,7 @@ export default function UserRoleManagement() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {loading ? (
-                  <tr><td colSpan={6} className="py-20 text-center"><Loader2 className="text-[#b66dff] mx-auto mb-3" size={32} /></td></tr>
+                  <tr><td colSpan={6} className="py-20 text-center"><p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Synchronizing Identity Matrix...</p></td></tr>
                 ) : error ? (
                   <tr><td colSpan={6} className="py-16 text-center">
                     <div className="w-14 h-14 rounded-2xl bg-rose-50 mx-auto flex items-center justify-center text-rose-400 mb-3"><AlertCircle size={24} /></div>
@@ -538,7 +535,7 @@ export default function UserRoleManagement() {
           {/* Footer count */}
           {!loading && !error && filtered.length > 0 && (
             <div className="px-6 py-4 border-t border-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-              {filtered.length} of {users.length} users
+              {filtered.length} Active System Users
             </div>
           )}
         </div>
@@ -546,7 +543,7 @@ export default function UserRoleManagement() {
         // ── Hierarchy View ──────────────────────────────────────────────────────
         <div className="bg-white rounded-2xl p-10 border border-slate-100 min-h-[400px] overflow-x-auto">
           {loading ? (
-            <div className="flex items-center justify-center py-20"><Loader2 className="text-[#b66dff]" size={32} /></div>
+            <div className="flex items-center justify-center py-20"><p className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Compiling Organizational Tree...</p></div>
           ) : buildHierarchy().length === 0 ? (
             <div className="text-center py-16">
               <div className="w-14 h-14 bg-slate-100 rounded-2xl mx-auto flex items-center justify-center text-slate-300 mb-3"><GitBranch size={24} /></div>

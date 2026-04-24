@@ -1,0 +1,171 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@11.6.2
+2 info using node@v25.2.1
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/haldwani/Documents/Working/party_dial/ClientMobile/.npmrc
+5 silly config load:file:/Users/haldwani/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm install babel-preset-expo
+8 verbose argv "install" "--save-dev" "babel-preset-expo" "--cache" "../npm-cache"
+9 verbose logfile logs-max:10 dir:/Users/haldwani/Documents/Working/party_dial/npm-cache/_logs/2026-04-23T11_17_19_283Z-
+10 verbose logfile /Users/haldwani/Documents/Working/party_dial/npm-cache/_logs/2026-04-23T11_17_19_283Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+13 silly idealTree buildDeps
+14 silly fetch manifest babel-preset-expo@*
+15 silly packumentCache full:https://registry.npmjs.org/babel-preset-expo cache-miss
+16 http fetch GET 200 https://registry.npmjs.org/babel-preset-expo 285ms (cache revalidated)
+17 silly packumentCache full:https://registry.npmjs.org/babel-preset-expo set size:1091706 disposed:false
+18 silly fetch manifest @babel/runtime@^7.20.0
+19 silly packumentCache full:https://registry.npmjs.org/@babel%2fruntime cache-miss
+20 http fetch GET 200 https://registry.npmjs.org/@babel%2fruntime 56ms (cache revalidated)
+21 silly packumentCache full:https://registry.npmjs.org/@babel%2fruntime set size:3372292 disposed:false
+22 silly fetch manifest expo@~54.0.33
+23 silly packumentCache full:https://registry.npmjs.org/expo cache-miss
+24 http fetch GET 200 https://registry.npmjs.org/expo 50ms (cache revalidated)
+25 silly packumentCache full:https://registry.npmjs.org/expo set size:3647454 disposed:false
+26 silly fetch manifest @expo/dom-webview@*
+27 silly packumentCache full:https://registry.npmjs.org/@expo%2fdom-webview cache-miss
+28 http fetch GET 200 https://registry.npmjs.org/@expo%2fdom-webview 52ms (cache revalidated)
+29 silly packumentCache full:https://registry.npmjs.org/@expo%2fdom-webview set size:359215 disposed:false
+30 silly fetch manifest react@19.1.0
+31 silly packumentCache full:https://registry.npmjs.org/react cache-miss
+32 http fetch GET 200 https://registry.npmjs.org/react 48ms (cache revalidated)
+33 silly packumentCache full:https://registry.npmjs.org/react set size:6621771 disposed:false
+34 silly fetch manifest react-native@0.81.5
+35 silly packumentCache full:https://registry.npmjs.org/react-native cache-miss
+36 http fetch GET 200 https://registry.npmjs.org/react-native 76ms (cache revalidated)
+37 silly packumentCache full:https://registry.npmjs.org/react-native set size:15159227 disposed:false
+38 silly fetch manifest @types/react@~19.1.0
+39 silly packumentCache full:https://registry.npmjs.org/@types%2freact cache-miss
+40 http fetch GET 200 https://registry.npmjs.org/@types%2freact 52ms (cache revalidated)
+41 silly packumentCache full:https://registry.npmjs.org/@types%2freact set size:2588964 disposed:false
+42 silly fetch manifest @expo/metro-runtime@*
+43 silly packumentCache full:https://registry.npmjs.org/@expo%2fmetro-runtime cache-miss
+44 http fetch GET 200 https://registry.npmjs.org/@expo%2fmetro-runtime 57ms (cache revalidated)
+45 silly packumentCache full:https://registry.npmjs.org/@expo%2fmetro-runtime set size:628973 disposed:false
+46 silly fetch manifest react-dom@*
+47 silly packumentCache full:https://registry.npmjs.org/react-dom cache-miss
+48 http fetch GET 200 https://registry.npmjs.org/react-dom 60ms (cache revalidated)
+49 silly packumentCache full:https://registry.npmjs.org/react-dom set size:8819255 disposed:false
+50 silly fetch manifest react@^19.2.5
+51 silly packumentCache full:https://registry.npmjs.org/react cache-miss
+52 http cache https://registry.npmjs.org/react 23ms (cache hit)
+53 silly packumentCache full:https://registry.npmjs.org/react set size:6621771 disposed:false
+54 silly fetch manifest react-native-webview@^13.16.1
+55 silly packumentCache full:https://registry.npmjs.org/react-native-webview cache-miss
+56 http fetch GET 200 https://registry.npmjs.org/react-native-webview 39ms (cache revalidated)
+57 silly packumentCache full:https://registry.npmjs.org/react-native-webview set size:1355349 disposed:false
+58 silly fetch manifest expo-widgets@^55.0.14
+59 silly packumentCache full:https://registry.npmjs.org/expo-widgets cache-miss
+60 http fetch GET 200 https://registry.npmjs.org/expo-widgets 48ms (cache miss)
+61 silly packumentCache full:https://registry.npmjs.org/expo-widgets set size:undefined disposed:false
+62 silly fetch manifest react-refresh@>=0.14.0 <1.0.0
+63 silly packumentCache full:https://registry.npmjs.org/react-refresh cache-miss
+64 http fetch GET 200 https://registry.npmjs.org/react-refresh 48ms (cache revalidated)
+65 silly packumentCache full:https://registry.npmjs.org/react-refresh set size:6307783 disposed:false
+66 silly placeDep ROOT babel-preset-expo@55.0.18 OK for: clientmobile@1.0.0 want: *
+67 silly fetch manifest @react-native/babel-preset@0.83.6
+68 silly packumentCache full:https://registry.npmjs.org/@react-native%2fbabel-preset cache-miss
+69 silly fetch manifest babel-plugin-syntax-hermes-parser@^0.32.0
+70 silly packumentCache full:https://registry.npmjs.org/babel-plugin-syntax-hermes-parser cache-miss
+71 http fetch GET 200 https://registry.npmjs.org/babel-plugin-syntax-hermes-parser 33ms (cache revalidated)
+72 silly packumentCache full:https://registry.npmjs.org/babel-plugin-syntax-hermes-parser set size:100651 disposed:false
+73 http fetch GET 200 https://registry.npmjs.org/@react-native%2fbabel-preset 140ms (cache revalidated)
+74 silly packumentCache full:https://registry.npmjs.org/@react-native%2fbabel-preset set size:4098043 disposed:false
+75 silly placeDep node_modules/babel-preset-expo @react-native/babel-preset@0.83.6 OK for: babel-preset-expo@55.0.18 want: 0.83.6
+76 silly placeDep node_modules/babel-preset-expo babel-plugin-syntax-hermes-parser@0.32.1 OK for: babel-preset-expo@55.0.18 want: ^0.32.0
+77 silly fetch manifest babel-plugin-syntax-hermes-parser@0.32.0
+78 silly packumentCache full:https://registry.npmjs.org/babel-plugin-syntax-hermes-parser cache-hit
+79 silly fetch manifest @react-native/babel-plugin-codegen@0.83.6
+80 silly packumentCache full:https://registry.npmjs.org/@react-native%2fbabel-plugin-codegen cache-miss
+81 silly fetch manifest hermes-parser@0.32.1
+82 silly packumentCache full:https://registry.npmjs.org/hermes-parser cache-miss
+83 http fetch GET 200 https://registry.npmjs.org/hermes-parser 36ms (cache revalidated)
+84 silly packumentCache full:https://registry.npmjs.org/hermes-parser set size:165055 disposed:false
+85 http fetch GET 200 https://registry.npmjs.org/@react-native%2fbabel-plugin-codegen 63ms (cache revalidated)
+86 silly packumentCache full:https://registry.npmjs.org/@react-native%2fbabel-plugin-codegen set size:2105235 disposed:false
+87 verbose stack Error: could not resolve
+87 verbose stack     at PlaceDep.failPeerConflict (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/place-dep.js:503:25)
+87 verbose stack     at new PlaceDep (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/place-dep.js:157:21)
+87 verbose stack     at #buildDepStep (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:945:18)
+87 verbose stack     at async Arborist.buildIdealTree (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:182:7)
+87 verbose stack     at async Promise.all (index 1)
+87 verbose stack     at async Arborist.reify (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/reify.js:114:5)
+87 verbose stack     at async Install.exec (/usr/local/lib/node_modules/npm/lib/commands/install.js:150:5)
+87 verbose stack     at async Npm.exec (/usr/local/lib/node_modules/npm/lib/npm.js:208:9)
+87 verbose stack     at async module.exports (/usr/local/lib/node_modules/npm/lib/cli/entry.js:67:5)
+88 error code ERESOLVE
+89 error ERESOLVE could not resolve
+90 error
+91 error While resolving: react-dom@19.2.5
+91 error Found: react@19.1.0[2m[22m
+91 error [2mnode_modules/react[22m
+91 error   peerOptional react@"*" from @expo/devtools@0.1.8[2m[22m
+91 error   [2mnode_modules/@expo/devtools[22m
+91 error     @expo/devtools@"0.1.8" from expo@54.0.33[2m[22m
+91 error     [2mnode_modules/expo[22m
+91 error       [95mpeer[39m expo@"*" from @expo/dom-webview@55.0.5[2m[22m
+91 error       [2mnode_modules/@expo/dom-webview[22m
+91 error         @expo/dom-webview@"^55.0.5" from @expo/log-box@55.0.11[2m[22m
+91 error         [2mnode_modules/@expo/log-box[22m
+91 error         1 more (expo)
+91 error       20 more (@expo/log-box, @expo/prebuild-config, expo-constants, ...)
+91 error   [95mpeer[39m react@"*" from @expo/dom-webview@55.0.5[2m[22m
+91 error   [2mnode_modules/@expo/dom-webview[22m
+91 error     @expo/dom-webview@"^55.0.5" from @expo/log-box@55.0.11[2m[22m
+91 error     [2mnode_modules/@expo/log-box[22m
+91 error       [95mpeer[39m @expo/log-box@"55.0.11" from expo-router@55.0.13
+91 error       1 more (@expo/metro-runtime)
+91 error     peerOptional @expo/dom-webview@"*" from expo@54.0.33
+91 error   66 more (@expo/log-box, @radix-ui/react-compose-refs, ...)
+91 error
+91 error Could not resolve dependency:
+91 error [95mpeer[39m react@"^19.2.5" from react-dom@19.2.5[2m[22m
+91 error [2mnode_modules/react-dom[22m
+91 error   peerOptional react-dom@"*" from expo-router@55.0.13[2m[22m
+91 error   [2mnode_modules/expo-router[22m
+91 error     peerOptional expo-router@"*" from @expo/cli@54.0.23[2m[22m
+91 error     [2mnode_modules/expo/node_modules/@expo/cli[22m
+91 error       @expo/cli@"54.0.23" from expo@54.0.33[2m[22m
+91 error       [2mnode_modules/expo[22m
+91 error     1 more (the root project)
+91 error   peerOptional react-dom@"*" from @expo/metro-runtime@55.0.10[2m[22m
+91 error   [2mnode_modules/expo-router/node_modules/@expo/metro-runtime[22m
+91 error     @expo/metro-runtime@"^55.0.10" from expo-router@55.0.13
+91 error   12 more (@radix-ui/react-collection, ...)
+91 error
+91 error Conflicting peer dependency: react@19.2.5[2m[22m
+91 error [2mnode_modules/react[22m
+91 error   [95mpeer[39m react@"^19.2.5" from react-dom@19.2.5[2m[22m
+91 error   [2mnode_modules/react-dom[22m
+91 error     peerOptional react-dom@"*" from expo-router@55.0.13[2m[22m
+91 error     [2mnode_modules/expo-router[22m
+91 error       peerOptional expo-router@"*" from @expo/cli@54.0.23[2m[22m
+91 error       [2mnode_modules/expo/node_modules/@expo/cli[22m
+91 error         @expo/cli@"54.0.23" from expo@54.0.33[2m[22m
+91 error         [2mnode_modules/expo[22m
+91 error       1 more (the root project)
+91 error     peerOptional react-dom@"*" from @expo/metro-runtime@55.0.10[2m[22m
+91 error     [2mnode_modules/expo-router/node_modules/@expo/metro-runtime[22m
+91 error       @expo/metro-runtime@"^55.0.10" from expo-router@55.0.13
+91 error     12 more (@radix-ui/react-collection, ...)
+91 error
+91 error Fix the upstream dependency conflict, or retry
+91 error this command with --force or --legacy-peer-deps
+91 error to accept an incorrect (and potentially broken) dependency resolution.
+92 error
+92 error
+92 error For a full report see:
+92 error /Users/haldwani/Documents/Working/party_dial/npm-cache/_logs/2026-04-23T11_17_19_283Z-eresolve-report.txt
+93 silly unfinished npm timer reify 1776943039592
+94 silly unfinished npm timer reify:loadTrees 1776943039594
+95 silly unfinished npm timer idealTree:buildDeps 1776943039922
+96 silly unfinished npm timer idealTree:node_modules/react-dom 1776943041486
+97 verbose cwd /Users/haldwani/Documents/Working/party_dial/ClientMobile
+98 verbose os Darwin 25.4.0
+99 verbose node v25.2.1
+100 verbose npm  v11.6.2
+101 verbose exit 1
+102 verbose code 1
+103 error A complete log of this run can be found in: /Users/haldwani/Documents/Working/party_dial/npm-cache/_logs/2026-04-23T11_17_19_283Z-debug-0.log

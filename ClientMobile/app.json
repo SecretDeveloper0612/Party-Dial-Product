@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "ClientMobile",
+    "slug": "ClientMobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "partydial-client",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#EF4444"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.partydial.client"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#EF4444"
+      },
+      "package": "com.partydial.client",
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    }
+  }
+}

@@ -9,7 +9,7 @@ import {
   User, 
   Eye, 
   EyeOff, 
-  Loader2, 
+  EyeOff, 
   ChevronRight,
   ShieldAlert
 } from "lucide-react";
@@ -152,10 +152,7 @@ export default function LoginPage() {
              className="w-full py-5 grad-brand text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-purple-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 mt-4 disabled:opacity-50 disabled:scale-100"
            >
               {loading ? (
-                 <>
-                    <Loader2  size={20} />
-                    <span>Verifying...</span>
-                 </>
+                 <span>Verifying...</span>
               ) : (
                  <>
                     <span>Initialize Access</span>

@@ -735,14 +735,15 @@ exports.notifyOnboardingComplete = async (req, res) => {
 
         const venue = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
         
-        // Only send if not already on a paid plan
-        const hasActiveSubscription = venue.subscriptionPlan && venue.subscriptionPlan !== 'free';
-        
+        /* 
+        // Note: Removed immediate reminder here to satisfy "Only one time" requirement.
+        // The consolidated reminder now fires 30 minutes after registration instead.
         if (!hasActiveSubscription && venue.contactEmail) {
             const { sendPaymentReminderEmail } = require('../utils/emailService');
             await sendPaymentReminderEmail(venue.contactEmail, venue.ownerName || venue.venueName);
             console.log(`Day 0 Payment reminder sent to ${venue.contactEmail}`);
         }
+        */
 
         return res.status(200).json({
             status: 'success',

@@ -81,6 +81,8 @@ exports.distributeLeads = async (req, res) => {
                 email: leadData.email || '',
                 eventType: leadData.eventType || 'Event',
                 guests: guestsCount,
+                eventDate: leadData.eventDate || '',
+                pincode: pincode || '',
                 notes: (leadData.notes || '') + ` | Event Date: ${leadData.eventDate || 'N/A'} | Pincode: ${pincode} | City: ${leadData.city || targetEmployee.prefs?.city || 'N/A'} | Bulk: true | ` + extraInfo,
                 status: 'New',
                 distributedAt: new Date().toISOString(),
@@ -296,6 +298,8 @@ exports.distributeLeadsToVenues = async (req, res) => {
                         email: leadData.email || '',
                         eventType: leadData.eventType || 'Event',
                         guests: parseInt(leadData.pax) || 0,
+                        eventDate: leadData.eventDate || '',
+                        pincode: leadPincode || '',
                         notes: (leadData.notes || "") + ` | GSheet Sync | Pincode: ${leadPincode} (No matching venues)`,
                         status: 'New',
                         createdAt: new Date().toISOString()
@@ -335,6 +339,8 @@ exports.distributeLeadsToVenues = async (req, res) => {
                 email: leadData.email || '',
                 eventType: leadData.eventType || 'Event',
                 guests: parseInt(leadData.pax) || 0,
+                eventDate: leadData.eventDate || '',
+                pincode: leadPincode || '',
                 notes: `GSheet Sync | Event Date: ${leadData.eventDate || 'N/A'} | Pin: ${leadPincode} | Area: ${leadData.city || 'N/A'} | ` + (leadData.notes || `Distributed to ${targetVenue.venueName}`),
                 status: 'New',
                 createdAt: new Date().toISOString()
@@ -581,6 +587,8 @@ exports.processPublicInquiry = async (req, res) => {
                     email: email || '',
                     eventType,
                     guests: requestedGuests,
+                    eventDate: eventDate || '',
+                    pincode: leadPincode || '',
                     notes: `SMART MATCH | Event Date: ${eventDate || 'N/A'} | Pin: ${leadPincode} | Local Partner | Guests: ${requestedGuests}`,
                     status: 'New',
                     createdAt: new Date().toISOString()
@@ -769,10 +777,30 @@ exports.getVenueLeadsForAdmin = async (req, res) => {
             venueMap[v.$id] = v.venueName || v.name || "Unnamed Venue";
         });
 
-        const mappedLeads = relevantLeads.map(l => ({
-            ...l,
-            assignedVenue: venueMap[l.venueId] || (l.venueId === 'BROADCAST' ? 'Broadcast' : 'Unknown Venue')
-        }));
+        const mappedLeads = relevantLeads.map(l => {
+            // Extract pincode and eventDate from notes if missing as separate fields
+            let extractedDate = l.eventDate;
+            let extractedPin = l.pincode;
+
+            if (l.notes) {
+                if (!extractedDate) {
+                    const dateMatch = l.notes.match(/Event Date:\s*([^|]+)/i);
+                    if (dateMatch) extractedDate = dateMatch[1].trim();
+                }
+                if (!extractedPin) {
+                    // Match 6 digit pin or "Pin: 123456"
+                    const pinMatch = l.notes.match(/(?:Pin|Pincode):\s*(\d{6})/i) || l.notes.match(/\| (\d{6}) \|/);
+                    if (pinMatch) extractedPin = pinMatch[1];
+                }
+            }
+
+            return {
+                ...l,
+                eventDate: extractedDate,
+                pincode: extractedPin,
+                assignedVenue: venueMap[l.venueId] || (l.venueId === 'BROADCAST' ? 'Broadcast' : 'Unknown Venue')
+            };
+        });
 
         return res.status(200).json({
             status: 'success',

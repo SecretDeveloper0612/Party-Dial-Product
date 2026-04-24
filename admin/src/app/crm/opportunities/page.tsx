@@ -12,7 +12,6 @@ import {
   TrendingUp, 
   Target,
   MoreHorizontal,
-  Loader2,
   PieChart,
   CheckCircle2,
   XCircle,
@@ -115,7 +114,6 @@ export default function CRMOpportunities() {
                   {loading ? (
                     <tr>
                       <td colSpan={6} className="p-20 text-center">
-                         <Loader2 className=" text-[#b66dff] mx-auto mb-4" size={32} />
                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Synchronizing Sales Pipeline...</p>
                       </td>
                     </tr>

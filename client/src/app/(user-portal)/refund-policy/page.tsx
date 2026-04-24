@@ -58,12 +58,12 @@ export default function RefundPolicy() {
         <div className="mt-12 p-8 bg-slate-50 rounded-xl border border-slate-200">
           <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4 italic">Management Information:</h2>
           <p className="text-sm text-slate-700 leading-relaxed mb-4">
-            This platform and all its financial operations are managed exclusively by <strong>Preet Tech</strong> 
+            This platform and all its financial operations are managed exclusively by <strong>Preet Tech</strong>, located at Preet Tech, near Krishna Hospital, Subhash Nagar, Haldwani, Uttarakhand 263139.
           </p>
           <p className="text-sm text-slate-600">
             For any billing-related clarifications, please contact us at: <br />
             <strong>Email:</strong> support@partydial.com <br />
-            <strong>Helpline:</strong> +91 90589 88455
+            <strong>Helpline:</strong> +91 86799 33302
           </p>
         </div>
 

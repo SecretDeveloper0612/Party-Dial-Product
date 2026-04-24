@@ -13,7 +13,6 @@ import {
   Users,
   Briefcase,
   TrendingUp,
-  Loader2,
   Trash2,
   MoreHorizontal
 } from "lucide-react";
@@ -106,7 +105,6 @@ export default function CRMAccounts() {
                   {loading ? (
                     <tr>
                       <td colSpan={6} className="p-20 text-center">
-                         <Loader2 className=" text-[#b66dff] mx-auto mb-4" size={32} />
                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Synchronizing Account Matrix...</p>
                       </td>
                     </tr>

@@ -1,7 +1,8 @@
 const nodemailer = require('nodemailer');
 
-// Initialize transporter
-// These should be set in .env
+console.log('[DEBUG] Email Service Init - User:', process.env.EMAIL_USER ? 'FOUND' : 'MISSING');
+console.log('[DEBUG] Email Service Init - Host:', process.env.EMAIL_HOST);
+
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
     port: Number(process.env.EMAIL_PORT) || 587,
@@ -123,6 +124,37 @@ exports.sendWelcomeEmail = (to, name) => {
     `, "Welcome to PartyDial! Let's get started on showcasing your venue.");
 
     return sendEmail(to, `Welcome to ${APP_NAME}! 🎊`, html, `Welcome to ${APP_NAME}, ${name}!`);
+};
+
+/**
+ * 1.b Registration Credentials Email (For Free Listings)
+ */
+exports.sendRegistrationCredentialsEmail = (to, name, email, password) => {
+    const html = getBaseTemplate(`
+        <h2>Welcome to PartyDial, ${name}! 🎊</h2>
+        <p>Your free venue listing has been successfully created. We've automatically generated an account for you so you can manage your listing anytime.</p>
+        
+        <div class="card" style="background: #fdf2f8; border: 1px solid #fbcfe8;">
+            <p style="margin-bottom: 10px; font-weight: 800; color: #db2777; text-transform: uppercase; font-size: 11px; letter-spacing: 0.1em;">Your Login Credentials</p>
+            <p style="margin: 5px 0;"><strong>Login ID:</strong> ${email}</p>
+            <p style="margin: 5px 0;"><strong>Password:</strong> <code style="background: #ffffff; padding: 2px 6px; border-radius: 4px; font-weight: 800;">${password}</code></p>
+        </div>
+
+        <p><strong>What you can do now:</strong></p>
+        <ul>
+            <li>Login to the partner portal using the button below</li>
+            <li>Complete your venue profile details</li>
+            <li>Wait for admin approval to go live</li>
+        </ul>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="https://partner.partydial.com/login" class="button" style="color: white !important;">Login to Partner Portal</a>
+        </div>
+        
+        <p style="margin-top: 30px; font-size: 11px; color: #64748b; font-style: italic;">Note: For security reasons, we recommend changing your password after your first login.</p>
+    `, "Welcome to PartyDial! Your login credentials are included inside.");
+
+    return sendEmail(to, `Your PartyDial Partner Credentials 🔐`, html, `Welcome to PartyDial, ${name}! Your login: ${email}, Password: ${password}`);
 };
 
 /**

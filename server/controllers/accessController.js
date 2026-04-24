@@ -3,10 +3,8 @@ const { Query } = require('node-appwrite');
 
 exports.getEligibleUsers = async (req, res) => {
   try {
-    // Fetch users who are either paid or onboardingComplete
-    // For this example, we'll fetch all venues that are on-boarded
+    // Fetch all venues so admin can grant access to anyone (even if onboarding is incomplete)
     const result = await databases.listDocuments(DATABASE_ID, VENUES_COLLECTION_ID, [
-      Query.equal('onboardingComplete', true),
       Query.limit(100),
       Query.orderDesc('$createdAt')
     ]);
@@ -26,27 +24,58 @@ exports.grantAccess = async (req, res) => {
 
     // --- FETCH & UPDATE BILLING DETAILS FOR PAID_SINCE ---
     let billingDetails = '{}';
+    let currentVenue = null;
     try {
-      const venue = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
+      currentVenue = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueId);
       let billingObj = {};
       try {
-        billingObj = typeof venue.billingDetails === 'string' ? JSON.parse(venue.billingDetails) : (venue.billingDetails || {});
+        billingObj = typeof currentVenue.billingDetails === 'string' ? JSON.parse(currentVenue.billingDetails) : (currentVenue.billingDetails || {});
       } catch (e) { billingObj = {}; }
       
-      billingObj.paidSince = new Date().toISOString();
+      // Use the start date for paidSince to ensure they see leads from that day onwards
+      billingObj.paidSince = start.toISOString();
       billingDetails = JSON.stringify(billingObj);
     } catch (e) { console.warn('Could not update billingDetails during manual grant'); }
 
-    const updated = await databases.updateDocument(
-      DATABASE_ID,
-      VENUES_COLLECTION_ID,
-      venueId,
-      {
-        subscriptionPlan: planName,
-        subscriptionExpiry: expiry.toISOString(),
-        billingDetails: billingDetails
+    const updatePayload = {
+      subscriptionPlan: planName,
+      subscriptionExpiry: expiry.toISOString(),
+      billingDetails: billingDetails,
+      isVerified: true,
+      status: 'active',
+      onboardingComplete: true
+    };
+
+    // Ensure capacity is present and valid as it's required for lead distribution
+    if (!currentVenue || currentVenue.capacity === undefined || currentVenue.capacity === null || currentVenue.capacity < 1) {
+      updatePayload.capacity = 1;
+    }
+
+    let updated;
+    try {
+      updated = await databases.updateDocument(
+        DATABASE_ID,
+        VENUES_COLLECTION_ID,
+        venueId,
+        updatePayload
+      );
+    } catch (updateErr) {
+      // Fallback: If billingDetails attribute doesn't exist in Appwrite yet,
+      // retry the update without it so the access can still be granted.
+      if (updateErr.message && updateErr.message.includes('billingDetails')) {
+        console.warn('billingDetails attribute missing, retrying update without it...');
+        const safePayload = { ...updatePayload };
+        delete safePayload.billingDetails;
+        updated = await databases.updateDocument(
+          DATABASE_ID,
+          VENUES_COLLECTION_ID,
+          venueId,
+          safePayload
+        );
+      } else {
+        throw updateErr;
       }
-    );
+    }
 
     res.json({ 
       status: 'success', 
@@ -68,7 +97,8 @@ exports.revokeAccess = async (req, res) => {
       venueId,
       {
         subscriptionPlan: '',
-        subscriptionExpiry: new Date(0).toISOString() // Set to epoch to ensure it's expired
+        subscriptionExpiry: new Date(0).toISOString(), // Set to epoch to ensure it's expired
+        status: 'inactive'
       }
     );
 

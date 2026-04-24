@@ -1,0 +1,1275 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@11.6.2
+2 info using node@v25.2.1
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/haldwani/Documents/Working/party_dial/ClientMobile/.npmrc
+5 silly config load:file:/Users/haldwani/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm install react-native-gesture-handler react-native-reanimated @react-navigation/native @react-navigation/stack @react-navigation/bottom-tabs
+8 verbose argv "install" "--cache" "../npm-cache" "react-native-gesture-handler" "react-native-reanimated" "@react-navigation/native" "@react-navigation/stack" "@react-navigation/bottom-tabs" "--force"
+9 verbose logfile logs-max:10 dir:/Users/haldwani/Documents/Working/party_dial/npm-cache/_logs/2026-04-23T11_12_41_583Z-
+10 verbose logfile /Users/haldwani/Documents/Working/party_dial/npm-cache/_logs/2026-04-23T11_12_41_583Z-debug-0.log
+11 warn using --force Recommended protections disabled.
+12 silly logfile done cleaning log files
+13 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+14 silly idealTree buildDeps
+15 silly fetch manifest react-native-gesture-handler@*
+16 silly packumentCache full:https://registry.npmjs.org/react-native-gesture-handler cache-miss
+17 http cache https://registry.npmjs.org/react-native-gesture-handler 141ms (cache hit)
+18 silly packumentCache full:https://registry.npmjs.org/react-native-gesture-handler set size:932195 disposed:false
+19 silly fetch manifest react@19.1.0
+20 silly packumentCache full:https://registry.npmjs.org/react cache-miss
+21 http cache https://registry.npmjs.org/react 20ms (cache hit)
+22 silly packumentCache full:https://registry.npmjs.org/react set size:6621771 disposed:false
+23 silly fetch manifest react-native@0.81.5
+24 silly packumentCache full:https://registry.npmjs.org/react-native cache-miss
+25 http cache https://registry.npmjs.org/react-native 35ms (cache hit)
+26 silly packumentCache full:https://registry.npmjs.org/react-native set size:15159227 disposed:false
+27 silly fetch manifest @types/react@~19.1.0
+28 silly packumentCache full:https://registry.npmjs.org/@types%2freact cache-miss
+29 http cache https://registry.npmjs.org/@types%2freact 10ms (cache hit)
+30 silly packumentCache full:https://registry.npmjs.org/@types%2freact set size:2588964 disposed:false
+31 silly fetch manifest react-native-reanimated@*
+32 silly packumentCache full:https://registry.npmjs.org/react-native-reanimated cache-miss
+33 http cache https://registry.npmjs.org/react-native-reanimated 26ms (cache hit)
+34 silly packumentCache full:https://registry.npmjs.org/react-native-reanimated set size:10666794 disposed:false
+35 silly fetch manifest react-native-worklets@0.8.x
+36 silly packumentCache full:https://registry.npmjs.org/react-native-worklets cache-miss
+37 http cache https://registry.npmjs.org/react-native-worklets 9ms (cache hit)
+38 silly packumentCache full:https://registry.npmjs.org/react-native-worklets set size:2503720 disposed:false
+39 silly fetch manifest @babel/core@*
+40 silly packumentCache full:https://registry.npmjs.org/@babel%2fcore cache-miss
+41 http cache https://registry.npmjs.org/@babel%2fcore 5ms (cache hit)
+42 silly packumentCache full:https://registry.npmjs.org/@babel%2fcore set size:760113 disposed:false
+43 silly fetch manifest @react-native/metro-config@*
+44 silly packumentCache full:https://registry.npmjs.org/@react-native%2fmetro-config cache-miss
+45 http cache https://registry.npmjs.org/@react-native%2fmetro-config 10ms (cache hit)
+46 silly packumentCache full:https://registry.npmjs.org/@react-native%2fmetro-config set size:2129298 disposed:false
+47 silly fetch manifest @react-navigation/native@*
+48 silly packumentCache full:https://registry.npmjs.org/@react-navigation%2fnative cache-miss
+49 http cache https://registry.npmjs.org/@react-navigation%2fnative 6ms (cache hit)
+50 silly packumentCache full:https://registry.npmjs.org/@react-navigation%2fnative set size:1074065 disposed:false
+51 silly fetch manifest @react-navigation/stack@*
+52 silly packumentCache full:https://registry.npmjs.org/@react-navigation%2fstack cache-miss
+53 http fetch GET 200 https://registry.npmjs.org/@react-navigation%2fstack 767ms (cache miss)
+54 silly packumentCache full:https://registry.npmjs.org/@react-navigation%2fstack set size:undefined disposed:false
+55 silly fetch manifest react-native-safe-area-context@^5.7.0
+56 silly packumentCache full:https://registry.npmjs.org/react-native-safe-area-context cache-miss
+57 http cache https://registry.npmjs.org/react-native-safe-area-context 5ms (cache hit)
+58 silly packumentCache full:https://registry.npmjs.org/react-native-safe-area-context set size:662443 disposed:false
+59 silly fetch manifest react-native-screens@^4.24.0
+60 silly packumentCache full:https://registry.npmjs.org/react-native-screens cache-miss
+61 http cache https://registry.npmjs.org/react-native-screens 10ms (cache hit)
+62 silly packumentCache full:https://registry.npmjs.org/react-native-screens set size:3787845 disposed:false
+63 silly fetch manifest @react-navigation/bottom-tabs@*
+64 silly packumentCache full:https://registry.npmjs.org/@react-navigation%2fbottom-tabs cache-miss
+65 http cache https://registry.npmjs.org/@react-navigation%2fbottom-tabs 6ms (cache hit)
+66 silly packumentCache full:https://registry.npmjs.org/@react-navigation%2fbottom-tabs set size:1148150 disposed:false
+67 silly placeDep ROOT @react-navigation/bottom-tabs@7.15.9 REPLACE for: clientmobile@1.0.0 want: *
+68 silly placeDep ROOT @react-navigation/native@7.2.2 REPLACE for: clientmobile@1.0.0 want: *
+69 silly placeDep ROOT @react-navigation/stack@7.8.10 OK for: clientmobile@1.0.0 want: *
+70 silly placeDep ROOT react-native-gesture-handler@2.31.1 OK for: @react-navigation/stack@7.8.10 want: >= 2.0.0
+71 silly placeDep ROOT react-native-gesture-handler@2.31.1 REPLACE for: clientmobile@1.0.0 want: *
+72 silly placeDep ROOT react-native-reanimated@4.3.0 OK for: clientmobile@1.0.0 want: *
+73 silly placeDep ROOT react-native-worklets@0.8.1 OK for: react-native-reanimated@4.3.0 want: 0.8.x
+74 silly placeDep ROOT @react-native/metro-config@0.85.2 OK for: react-native-worklets@0.8.1 want: *
+75 silly fetch manifest @egjs/hammerjs@^2.0.17
+76 silly packumentCache full:https://registry.npmjs.org/@egjs%2fhammerjs cache-miss
+77 silly fetch manifest hoist-non-react-statics@^3.3.0
+78 silly packumentCache full:https://registry.npmjs.org/hoist-non-react-statics cache-miss
+79 silly fetch manifest @types/react-test-renderer@^19.1.0
+80 silly packumentCache full:https://registry.npmjs.org/@types%2freact-test-renderer cache-miss
+81 silly fetch manifest @egjs/hammerjs@^2.0.17
+82 silly packumentCache full:https://registry.npmjs.org/@egjs%2fhammerjs cache-miss
+83 silly fetch manifest hoist-non-react-statics@^3.3.0
+84 silly packumentCache full:https://registry.npmjs.org/hoist-non-react-statics cache-miss
+85 silly fetch manifest @types/react-test-renderer@^19.1.0
+86 silly packumentCache full:https://registry.npmjs.org/@types%2freact-test-renderer cache-miss
+87 silly fetch manifest @babel/plugin-transform-template-literals@^7.27.1
+88 silly packumentCache full:https://registry.npmjs.org/@babel%2fplugin-transform-template-literals cache-miss
+89 silly fetch manifest metro-config@^0.84.0
+90 silly packumentCache full:https://registry.npmjs.org/metro-config cache-miss
+91 silly fetch manifest metro-runtime@^0.84.0
+92 silly packumentCache full:https://registry.npmjs.org/metro-runtime cache-miss
+93 silly fetch manifest @react-native/js-polyfills@0.85.2
+94 silly packumentCache full:https://registry.npmjs.org/@react-native%2fjs-polyfills cache-miss
+95 silly fetch manifest @react-native/metro-babel-transformer@0.85.2
+96 silly packumentCache full:https://registry.npmjs.org/@react-native%2fmetro-babel-transformer cache-miss
+97 http cache https://registry.npmjs.org/metro-runtime 18ms (cache hit)
+98 silly packumentCache full:https://registry.npmjs.org/metro-runtime set size:212197 disposed:false
+99 http cache https://registry.npmjs.org/@react-native%2fjs-polyfills 24ms (cache hit)
+100 silly packumentCache full:https://registry.npmjs.org/@react-native%2fjs-polyfills set size:1814525 disposed:false
+101 http cache https://registry.npmjs.org/metro-config 37ms (cache hit)
+102 silly packumentCache full:https://registry.npmjs.org/metro-config set size:326237 disposed:false
+103 http fetch GET 200 https://registry.npmjs.org/@egjs%2fhammerjs 71ms (cache miss)
+104 silly packumentCache full:https://registry.npmjs.org/@egjs%2fhammerjs set size:undefined disposed:false
+105 http fetch GET 200 https://registry.npmjs.org/hoist-non-react-statics 103ms (cache miss)
+106 silly packumentCache full:https://registry.npmjs.org/hoist-non-react-statics set size:undefined disposed:false
+107 http fetch GET 200 https://registry.npmjs.org/hoist-non-react-statics 170ms (cache miss)
+108 silly packumentCache full:https://registry.npmjs.org/hoist-non-react-statics set size:undefined disposed:false
+109 http fetch GET 200 https://registry.npmjs.org/@egjs%2fhammerjs 171ms (cache miss)
+110 silly packumentCache full:https://registry.npmjs.org/@egjs%2fhammerjs set size:undefined disposed:false
+111 http fetch GET 200 https://registry.npmjs.org/@types%2freact-test-renderer 174ms (cache miss)
+112 silly packumentCache full:https://registry.npmjs.org/@types%2freact-test-renderer set size:undefined disposed:false
+113 http fetch GET 200 https://registry.npmjs.org/@types%2freact-test-renderer 175ms (cache miss)
+114 silly packumentCache full:https://registry.npmjs.org/@types%2freact-test-renderer set size:undefined disposed:false
+115 http fetch GET 200 https://registry.npmjs.org/@babel%2fplugin-transform-template-literals 177ms (cache miss)
+116 silly packumentCache full:https://registry.npmjs.org/@babel%2fplugin-transform-template-literals set size:undefined disposed:false
+117 http fetch GET 200 https://registry.npmjs.org/@react-native%2fmetro-babel-transformer 201ms (cache miss)
+118 silly packumentCache full:https://registry.npmjs.org/@react-native%2fmetro-babel-transformer set size:undefined disposed:false
+119 silly placeDep node_modules/@react-native/metro-config @react-native/js-polyfills@0.85.2 OK for: @react-native/metro-config@0.85.2 want: 0.85.2
+120 silly placeDep ROOT @react-native/metro-babel-transformer@0.85.2 OK for: @react-native/metro-config@0.85.2 want: 0.85.2
+121 silly placeDep node_modules/@react-native/metro-config metro-config@0.84.3 OK for: @react-native/metro-config@0.85.2 want: ^0.84.0
+122 silly placeDep node_modules/@react-native/metro-config metro-runtime@0.84.3 OK for: @react-native/metro-config@0.85.2 want: ^0.84.0
+123 silly fetch manifest hermes-parser@0.33.3
+124 silly packumentCache full:https://registry.npmjs.org/hermes-parser cache-miss
+125 silly fetch manifest @react-native/babel-preset@0.85.2
+126 silly packumentCache full:https://registry.npmjs.org/@react-native%2fbabel-preset cache-miss
+127 silly fetch manifest metro@0.84.3
+128 silly packumentCache full:https://registry.npmjs.org/metro cache-miss
+129 silly fetch manifest metro-core@0.84.3
+130 silly packumentCache full:https://registry.npmjs.org/metro-core cache-miss
+131 silly fetch manifest metro-cache@0.84.3
+132 silly packumentCache full:https://registry.npmjs.org/metro-cache cache-miss
+133 silly fetch manifest metro-runtime@0.84.3
+134 silly packumentCache full:https://registry.npmjs.org/metro-runtime cache-hit
+135 http cache https://registry.npmjs.org/hermes-parser 7ms (cache hit)
+136 silly packumentCache full:https://registry.npmjs.org/hermes-parser set size:165055 disposed:false
+137 http cache https://registry.npmjs.org/@react-native%2fbabel-preset 14ms (cache hit)
+138 silly packumentCache full:https://registry.npmjs.org/@react-native%2fbabel-preset set size:4098043 disposed:false
+139 http cache https://registry.npmjs.org/metro-core 34ms (cache hit)
+140 silly packumentCache full:https://registry.npmjs.org/metro-core set size:385600 disposed:false
+141 http cache https://registry.npmjs.org/metro 38ms (cache hit)
+142 silly packumentCache full:https://registry.npmjs.org/metro set size:717892 disposed:false
+143 http cache https://registry.npmjs.org/metro-cache 45ms (cache hit)
+144 silly packumentCache full:https://registry.npmjs.org/metro-cache set size:366063 disposed:false
+145 silly placeDep node_modules/@react-native/metro-babel-transformer @react-native/babel-preset@0.85.2 OK for: @react-native/metro-babel-transformer@0.85.2 want: 0.85.2
+146 silly placeDep node_modules/@react-native/metro-babel-transformer hermes-parser@0.33.3 OK for: @react-native/metro-babel-transformer@0.85.2 want: 0.33.3
+147 silly fetch manifest babel-plugin-syntax-hermes-parser@0.33.3
+148 silly packumentCache full:https://registry.npmjs.org/babel-plugin-syntax-hermes-parser cache-miss
+149 silly fetch manifest @react-native/babel-plugin-codegen@0.85.2
+150 silly packumentCache full:https://registry.npmjs.org/@react-native%2fbabel-plugin-codegen cache-miss
+151 silly fetch manifest hermes-estree@0.33.3
+152 silly packumentCache full:https://registry.npmjs.org/hermes-estree cache-miss
+153 http cache https://registry.npmjs.org/hermes-estree 4ms (cache hit)
+154 silly packumentCache full:https://registry.npmjs.org/hermes-estree set size:125711 disposed:false
+155 http cache https://registry.npmjs.org/babel-plugin-syntax-hermes-parser 6ms (cache hit)
+156 silly packumentCache full:https://registry.npmjs.org/babel-plugin-syntax-hermes-parser set size:100651 disposed:false
+157 http cache https://registry.npmjs.org/@react-native%2fbabel-plugin-codegen 9ms (cache hit)
+158 silly packumentCache full:https://registry.npmjs.org/@react-native%2fbabel-plugin-codegen set size:2105235 disposed:false
+159 silly fetch manifest react@^19.2.5
+160 silly packumentCache full:https://registry.npmjs.org/react cache-miss
+161 http cache https://registry.npmjs.org/react 14ms (cache hit)
+162 silly packumentCache full:https://registry.npmjs.org/react set size:6621771 disposed:false
+163 warn ERESOLVE overriding peer dependency {
+163 warn ERESOLVE   code: 'ERESOLVE',
+163 warn ERESOLVE   edge: {
+163 warn ERESOLVE     type: 'peer',
+163 warn ERESOLVE     name: 'react',
+163 warn ERESOLVE     spec: '^19.2.5',
+163 warn ERESOLVE     error: 'INVALID',
+163 warn ERESOLVE     from: {
+163 warn ERESOLVE       name: 'react-dom',
+163 warn ERESOLVE       version: '19.2.5',
+163 warn ERESOLVE       location: 'node_modules/react-dom',
+163 warn ERESOLVE       isWorkspace: false,
+163 warn ERESOLVE       dependents: [Array]
+163 warn ERESOLVE     }
+163 warn ERESOLVE   },
+163 warn ERESOLVE   dep: {
+163 warn ERESOLVE     name: 'react',
+163 warn ERESOLVE     version: '19.2.5',
+163 warn ERESOLVE     whileInstalling: {
+163 warn ERESOLVE       name: 'react-dom',
+163 warn ERESOLVE       version: '19.2.5',
+163 warn ERESOLVE       path: '/Users/haldwani/Documents/Working/party_dial/ClientMobile/node_modules/react-dom'
+163 warn ERESOLVE     },
+163 warn ERESOLVE     location: 'node_modules/react',
+163 warn ERESOLVE     isWorkspace: false,
+163 warn ERESOLVE     dependents: [ [Object] ]
+163 warn ERESOLVE   },
+163 warn ERESOLVE   force: true,
+163 warn ERESOLVE   isMine: true,
+163 warn ERESOLVE   strictPeerDeps: false,
+163 warn ERESOLVE   current: {
+163 warn ERESOLVE     name: 'react',
+163 warn ERESOLVE     version: '19.1.0',
+163 warn ERESOLVE     location: 'node_modules/react',
+163 warn ERESOLVE     isWorkspace: false,
+163 warn ERESOLVE     dependents: [
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object], [Object],
+163 warn ERESOLVE       [Object], [Object], [Object], [Object]
+163 warn ERESOLVE     ]
+163 warn ERESOLVE   },
+163 warn ERESOLVE   peerConflict: {
+163 warn ERESOLVE     current: {
+163 warn ERESOLVE       name: 'react',
+163 warn ERESOLVE       version: '19.1.0',
+163 warn ERESOLVE       location: 'node_modules/react',
+163 warn ERESOLVE       isWorkspace: false,
+163 warn ERESOLVE       dependents: [Array]
+163 warn ERESOLVE     },
+163 warn ERESOLVE     peer: {
+163 warn ERESOLVE       name: 'react',
+163 warn ERESOLVE       version: '19.2.5',
+163 warn ERESOLVE       whileInstalling: [Object],
+163 warn ERESOLVE       location: 'node_modules/react',
+163 warn ERESOLVE       isWorkspace: false,
+163 warn ERESOLVE       dependents: [Array]
+163 warn ERESOLVE     }
+163 warn ERESOLVE   }
+163 warn ERESOLVE }
+164 silly placeDep ROOT @egjs/hammerjs@2.0.17 OK for: react-native-gesture-handler@2.31.1 want: ^2.0.17
+165 silly placeDep ROOT @types/react-test-renderer@19.1.0 OK for: react-native-gesture-handler@2.31.1 want: ^19.1.0
+166 silly placeDep ROOT hoist-non-react-statics@3.3.2 OK for: react-native-gesture-handler@2.31.1 want: ^3.3.0
+167 silly fetch manifest @types/hammerjs@^2.0.36
+168 silly packumentCache full:https://registry.npmjs.org/@types%2fhammerjs cache-miss
+169 silly fetch manifest react-is@^16.7.0
+170 silly packumentCache full:https://registry.npmjs.org/react-is cache-miss
+171 http cache https://registry.npmjs.org/react-is 14ms (cache hit)
+172 silly packumentCache full:https://registry.npmjs.org/react-is set size:5358487 disposed:false
+173 http fetch GET 200 https://registry.npmjs.org/@types%2fhammerjs 61ms (cache miss)
+174 silly packumentCache full:https://registry.npmjs.org/@types%2fhammerjs set size:undefined disposed:false
+175 silly placeDep ROOT @types/hammerjs@2.0.46 OK for: @egjs/hammerjs@2.0.17 want: ^2.0.36
+176 silly placeDep node_modules/hoist-non-react-statics react-is@16.13.1 OK for: hoist-non-react-statics@3.3.2 want: ^16.7.0
+177 silly placeDep ROOT @babel/plugin-transform-template-literals@7.27.1 OK for: react-native-worklets@0.8.1 want: ^7.27.1
+178 silly placeDep node_modules/@react-native/metro-babel-transformer @react-native/babel-plugin-codegen@0.85.2 OK for: @react-native/babel-preset@0.85.2 want: 0.85.2
+179 silly placeDep node_modules/@react-native/metro-babel-transformer babel-plugin-syntax-hermes-parser@0.33.3 OK for: @react-native/babel-preset@0.85.2 want: 0.33.3
+180 silly fetch manifest @react-native/codegen@0.85.2
+181 silly packumentCache full:https://registry.npmjs.org/@react-native%2fcodegen cache-miss
+182 http cache https://registry.npmjs.org/@react-native%2fcodegen 9ms (cache hit)
+183 silly packumentCache full:https://registry.npmjs.org/@react-native%2fcodegen set size:2770329 disposed:false
+184 silly placeDep node_modules/@react-native/metro-babel-transformer @react-native/codegen@0.85.2 OK for: @react-native/babel-plugin-codegen@0.85.2 want: 0.85.2
+185 silly placeDep node_modules/@react-native/metro-babel-transformer hermes-estree@0.33.3 OK for: hermes-parser@0.33.3 want: 0.33.3
+186 silly placeDep node_modules/@react-native/metro-config metro@0.84.3 OK for: metro-config@0.84.3 want: 0.84.3
+187 silly placeDep node_modules/@react-native/metro-config metro-cache@0.84.3 OK for: metro-config@0.84.3 want: 0.84.3
+188 silly placeDep node_modules/@react-native/metro-config metro-core@0.84.3 OK for: metro-config@0.84.3 want: 0.84.3
+189 silly fetch manifest chalk@^4.0.0
+190 silly packumentCache full:https://registry.npmjs.org/chalk cache-miss
+191 silly fetch manifest accepts@^2.0.0
+192 silly packumentCache full:https://registry.npmjs.org/accepts cache-miss
+193 silly fetch manifest mime-types@^3.0.1
+194 silly packumentCache full:https://registry.npmjs.org/mime-types cache-miss
+195 silly fetch manifest hermes-parser@0.35.0
+196 silly packumentCache full:https://registry.npmjs.org/hermes-parser cache-hit
+197 silly fetch manifest metro-file-map@0.84.3
+198 silly packumentCache full:https://registry.npmjs.org/metro-file-map cache-miss
+199 silly fetch manifest metro-resolver@0.84.3
+200 silly packumentCache full:https://registry.npmjs.org/metro-resolver cache-miss
+201 silly fetch manifest metro-cache-key@0.84.3
+202 silly packumentCache full:https://registry.npmjs.org/metro-cache-key cache-miss
+203 silly fetch manifest metro-source-map@0.84.3
+204 silly packumentCache full:https://registry.npmjs.org/metro-source-map cache-miss
+205 silly fetch manifest @babel/code-frame@^7.29.0
+206 silly packumentCache full:https://registry.npmjs.org/@babel%2fcode-frame cache-miss
+207 silly fetch manifest metro-symbolicate@0.84.3
+208 silly packumentCache full:https://registry.npmjs.org/metro-symbolicate cache-miss
+209 silly fetch manifest metro-transform-worker@0.84.3
+210 silly packumentCache full:https://registry.npmjs.org/metro-transform-worker cache-miss
+211 silly fetch manifest metro-babel-transformer@0.84.3
+212 silly packumentCache full:https://registry.npmjs.org/metro-babel-transformer cache-miss
+213 http cache https://registry.npmjs.org/metro-file-map 13ms (cache hit)
+214 silly packumentCache full:https://registry.npmjs.org/metro-file-map set size:183337 disposed:false
+215 silly fetch manifest metro-transform-plugins@0.84.3
+216 silly packumentCache full:https://registry.npmjs.org/metro-transform-plugins cache-miss
+217 http cache https://registry.npmjs.org/metro-resolver 17ms (cache hit)
+218 silly packumentCache full:https://registry.npmjs.org/metro-resolver set size:354516 disposed:false
+219 http cache https://registry.npmjs.org/mime-types 21ms (cache hit)
+220 silly packumentCache full:https://registry.npmjs.org/mime-types set size:139110 disposed:false
+221 http cache https://registry.npmjs.org/accepts 23ms (cache hit)
+222 silly packumentCache full:https://registry.npmjs.org/accepts set size:77054 disposed:false
+223 http cache https://registry.npmjs.org/metro-cache-key 24ms (cache hit)
+224 silly packumentCache full:https://registry.npmjs.org/metro-cache-key set size:195967 disposed:false
+225 http cache https://registry.npmjs.org/chalk 29ms (cache hit)
+226 silly packumentCache full:https://registry.npmjs.org/chalk set size:117861 disposed:false
+227 http cache https://registry.npmjs.org/metro-transform-worker 28ms (cache hit)
+228 silly packumentCache full:https://registry.npmjs.org/metro-transform-worker set size:249934 disposed:false
+229 http cache https://registry.npmjs.org/metro-symbolicate 31ms (cache hit)
+230 silly packumentCache full:https://registry.npmjs.org/metro-symbolicate set size:254841 disposed:false
+231 http cache https://registry.npmjs.org/@babel%2fcode-frame 35ms (cache hit)
+232 silly packumentCache full:https://registry.npmjs.org/@babel%2fcode-frame set size:196196 disposed:false
+233 http cache https://registry.npmjs.org/metro-source-map 37ms (cache hit)
+234 silly packumentCache full:https://registry.npmjs.org/metro-source-map set size:419987 disposed:false
+235 http cache https://registry.npmjs.org/metro-babel-transformer 39ms (cache hit)
+236 silly packumentCache full:https://registry.npmjs.org/metro-babel-transformer set size:252809 disposed:false
+237 http cache https://registry.npmjs.org/metro-transform-plugins 32ms (cache hit)
+238 silly packumentCache full:https://registry.npmjs.org/metro-transform-plugins set size:241268 disposed:false
+239 silly placeDep node_modules/@react-native/metro-config @babel/code-frame@7.29.0 OK for: metro@0.84.3 want: ^7.29.0
+240 silly placeDep node_modules/@react-native/metro-config accepts@2.0.0 OK for: metro@0.84.3 want: ^2.0.0
+241 silly placeDep node_modules/@react-native/metro-config chalk@4.1.2 OK for: metro@0.84.3 want: ^4.0.0
+242 silly placeDep node_modules/@react-native/metro-config hermes-parser@0.35.0 OK for: metro@0.84.3 want: 0.35.0
+243 silly placeDep node_modules/@react-native/metro-config metro-babel-transformer@0.84.3 OK for: metro@0.84.3 want: 0.84.3
+244 silly placeDep node_modules/@react-native/metro-config metro-cache-key@0.84.3 OK for: metro@0.84.3 want: 0.84.3
+245 silly placeDep node_modules/@react-native/metro-config metro-file-map@0.84.3 OK for: metro@0.84.3 want: 0.84.3
+246 silly placeDep node_modules/@react-native/metro-config metro-resolver@0.84.3 OK for: metro@0.84.3 want: 0.84.3
+247 silly placeDep node_modules/@react-native/metro-config metro-source-map@0.84.3 OK for: metro@0.84.3 want: 0.84.3
+248 silly placeDep node_modules/@react-native/metro-config metro-symbolicate@0.84.3 OK for: metro@0.84.3 want: 0.84.3
+249 silly placeDep node_modules/@react-native/metro-config metro-transform-plugins@0.84.3 OK for: metro@0.84.3 want: 0.84.3
+250 silly placeDep node_modules/@react-native/metro-config metro-transform-worker@0.84.3 OK for: metro@0.84.3 want: 0.84.3
+251 silly placeDep node_modules/@react-native/metro-config mime-types@3.0.2 OK for: metro@0.84.3 want: ^3.0.1
+252 silly fetch manifest mime-types@^3.0.0
+253 silly packumentCache full:https://registry.npmjs.org/mime-types cache-hit
+254 silly fetch manifest negotiator@^1.0.0
+255 silly packumentCache full:https://registry.npmjs.org/negotiator cache-miss
+256 silly fetch manifest ansi-styles@^4.1.0
+257 silly packumentCache full:https://registry.npmjs.org/ansi-styles cache-miss
+258 silly fetch manifest supports-color@^7.1.0
+259 silly packumentCache full:https://registry.npmjs.org/supports-color cache-miss
+260 silly fetch manifest hermes-estree@0.35.0
+261 silly packumentCache full:https://registry.npmjs.org/hermes-estree cache-hit
+262 silly fetch manifest ob1@0.84.3
+263 silly packumentCache full:https://registry.npmjs.org/ob1 cache-miss
+264 silly fetch manifest metro-minify-terser@0.84.3
+265 silly packumentCache full:https://registry.npmjs.org/metro-minify-terser cache-miss
+266 silly fetch manifest mime-db@^1.54.0
+267 silly packumentCache full:https://registry.npmjs.org/mime-db cache-miss
+268 http cache https://registry.npmjs.org/metro-minify-terser 5ms (cache hit)
+269 silly packumentCache full:https://registry.npmjs.org/metro-minify-terser set size:262768 disposed:false
+270 http cache https://registry.npmjs.org/supports-color 9ms (cache hit)
+271 silly packumentCache full:https://registry.npmjs.org/supports-color set size:118680 disposed:false
+272 http cache https://registry.npmjs.org/ob1 11ms (cache hit)
+273 silly packumentCache full:https://registry.npmjs.org/ob1 set size:217786 disposed:false
+274 http cache https://registry.npmjs.org/negotiator 14ms (cache hit)
+275 silly packumentCache full:https://registry.npmjs.org/negotiator set size:48046 disposed:false
+276 http cache https://registry.npmjs.org/ansi-styles 15ms (cache hit)
+277 silly packumentCache full:https://registry.npmjs.org/ansi-styles set size:63233 disposed:false
+278 http cache https://registry.npmjs.org/mime-db 15ms (cache hit)
+279 silly packumentCache full:https://registry.npmjs.org/mime-db set size:164953 disposed:false
+280 silly placeDep node_modules/@react-native/metro-config negotiator@1.0.0 OK for: accepts@2.0.0 want: ^1.0.0
+281 silly placeDep node_modules/@react-native/metro-config ansi-styles@4.3.0 OK for: chalk@4.1.2 want: ^4.1.0
+282 silly placeDep node_modules/@react-native/metro-config supports-color@7.2.0 OK for: chalk@4.1.2 want: ^7.1.0
+283 silly fetch manifest color-convert@^2.0.1
+284 silly packumentCache full:https://registry.npmjs.org/color-convert cache-miss
+285 silly fetch manifest has-flag@^4.0.0
+286 silly packumentCache full:https://registry.npmjs.org/has-flag cache-miss
+287 http cache https://registry.npmjs.org/color-convert 9ms (cache hit)
+288 silly packumentCache full:https://registry.npmjs.org/color-convert set size:72663 disposed:false
+289 http cache https://registry.npmjs.org/has-flag 10ms (cache hit)
+290 silly packumentCache full:https://registry.npmjs.org/has-flag set size:15180 disposed:false
+291 silly placeDep node_modules/@react-native/metro-config color-convert@2.0.1 OK for: ansi-styles@4.3.0 want: ^2.0.1
+292 silly fetch manifest color-name@~1.1.4
+293 silly packumentCache full:https://registry.npmjs.org/color-name cache-miss
+294 http cache https://registry.npmjs.org/color-name 10ms (cache hit)
+295 silly packumentCache full:https://registry.npmjs.org/color-name set size:19467 disposed:false
+296 silly placeDep node_modules/@react-native/metro-config color-name@1.1.4 OK for: color-convert@2.0.1 want: ~1.1.4
+297 silly placeDep node_modules/@react-native/metro-config hermes-estree@0.35.0 OK for: hermes-parser@0.35.0 want: 0.35.0
+298 silly placeDep node_modules/@react-native/metro-config ob1@0.84.3 OK for: metro-source-map@0.84.3 want: 0.84.3
+299 silly placeDep node_modules/@react-native/metro-config metro-minify-terser@0.84.3 OK for: metro-transform-worker@0.84.3 want: 0.84.3
+300 silly placeDep node_modules/@react-native/metro-config mime-db@1.54.0 OK for: mime-types@3.0.2 want: ^1.54.0
+301 silly placeDep node_modules/@react-native/metro-config has-flag@4.0.0 OK for: supports-color@7.2.0 want: ^4.0.0
+302 silly reify mark retired [
+302 silly reify   '/Users/haldwani/Documents/Working/party_dial/ClientMobile/node_modules/@radix-ui/react-slot'
+302 silly reify ]
+303 silly reify moves {
+303 silly reify   '/Users/haldwani/Documents/Working/party_dial/ClientMobile/node_modules/@radix-ui/react-slot': '/Users/haldwani/Documents/Working/party_dial/ClientMobile/node_modules/@radix-ui/.react-slot-H6W27Psm'
+303 silly reify }
+304 silly audit bulk request {
+304 silly audit   '@0no-co/graphql.web': [ '1.2.0' ],
+304 silly audit   '@babel/code-frame': [ '7.10.4', '7.29.0' ],
+304 silly audit   '@babel/compat-data': [ '7.29.0' ],
+304 silly audit   '@babel/core': [ '7.29.0' ],
+304 silly audit   semver: [ '6.3.1', '7.6.3', '7.7.4' ],
+304 silly audit   '@babel/generator': [ '7.29.1' ],
+304 silly audit   '@babel/helper-annotate-as-pure': [ '7.27.3' ],
+304 silly audit   '@babel/helper-compilation-targets': [ '7.28.6' ],
+304 silly audit   '@babel/helper-create-class-features-plugin': [ '7.28.6' ],
+304 silly audit   '@babel/helper-create-regexp-features-plugin': [ '7.28.5' ],
+304 silly audit   '@babel/helper-define-polyfill-provider': [ '0.6.8' ],
+304 silly audit   '@babel/helper-globals': [ '7.28.0' ],
+304 silly audit   '@babel/helper-member-expression-to-functions': [ '7.28.5' ],
+304 silly audit   '@babel/helper-module-imports': [ '7.28.6' ],
+304 silly audit   '@babel/helper-module-transforms': [ '7.28.6' ],
+304 silly audit   '@babel/helper-optimise-call-expression': [ '7.27.1' ],
+304 silly audit   '@babel/helper-plugin-utils': [ '7.28.6' ],
+304 silly audit   '@babel/helper-remap-async-to-generator': [ '7.27.1' ],
+304 silly audit   '@babel/helper-replace-supers': [ '7.28.6' ],
+304 silly audit   '@babel/helper-skip-transparent-expression-wrappers': [ '7.27.1' ],
+304 silly audit   '@babel/helper-string-parser': [ '7.27.1' ],
+304 silly audit   '@babel/helper-validator-identifier': [ '7.28.5' ],
+304 silly audit   '@babel/helper-validator-option': [ '7.27.1' ],
+304 silly audit   '@babel/helper-wrap-function': [ '7.28.6' ],
+304 silly audit   '@babel/helpers': [ '7.29.2' ],
+304 silly audit   '@babel/highlight': [ '7.25.9' ],
+304 silly audit   '@babel/parser': [ '7.29.2' ],
+304 silly audit   '@babel/plugin-proposal-decorators': [ '7.29.0' ],
+304 silly audit   '@babel/plugin-proposal-export-default-from': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-syntax-async-generators': [ '7.8.4' ],
+304 silly audit   '@babel/plugin-syntax-bigint': [ '7.8.3' ],
+304 silly audit   '@babel/plugin-syntax-class-properties': [ '7.12.13' ],
+304 silly audit   '@babel/plugin-syntax-class-static-block': [ '7.14.5' ],
+304 silly audit   '@babel/plugin-syntax-decorators': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-syntax-dynamic-import': [ '7.8.3' ],
+304 silly audit   '@babel/plugin-syntax-export-default-from': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-syntax-flow': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-syntax-import-attributes': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-syntax-import-meta': [ '7.10.4' ],
+304 silly audit   '@babel/plugin-syntax-json-strings': [ '7.8.3' ],
+304 silly audit   '@babel/plugin-syntax-jsx': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-syntax-logical-assignment-operators': [ '7.10.4' ],
+304 silly audit   '@babel/plugin-syntax-nullish-coalescing-operator': [ '7.8.3' ],
+304 silly audit   '@babel/plugin-syntax-numeric-separator': [ '7.10.4' ],
+304 silly audit   '@babel/plugin-syntax-object-rest-spread': [ '7.8.3' ],
+304 silly audit   '@babel/plugin-syntax-optional-catch-binding': [ '7.8.3' ],
+304 silly audit   '@babel/plugin-syntax-optional-chaining': [ '7.8.3' ],
+304 silly audit   '@babel/plugin-syntax-private-property-in-object': [ '7.14.5' ],
+304 silly audit   '@babel/plugin-syntax-top-level-await': [ '7.14.5' ],
+304 silly audit   '@babel/plugin-syntax-typescript': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-arrow-functions': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-transform-async-generator-functions': [ '7.29.0' ],
+304 silly audit   '@babel/plugin-transform-async-to-generator': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-block-scoping': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-class-properties': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-class-static-block': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-classes': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-computed-properties': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-destructuring': [ '7.28.5' ],
+304 silly audit   '@babel/plugin-transform-export-namespace-from': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-transform-flow-strip-types': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-transform-for-of': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-transform-function-name': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-transform-literals': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-transform-logical-assignment-operators': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-modules-commonjs': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-named-capturing-groups-regex': [ '7.29.0' ],
+304 silly audit   '@babel/plugin-transform-nullish-coalescing-operator': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-numeric-separator': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-object-rest-spread': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-optional-catch-binding': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-optional-chaining': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-parameters': [ '7.27.7' ],
+304 silly audit   '@babel/plugin-transform-private-methods': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-private-property-in-object': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-react-display-name': [ '7.28.0' ],
+304 silly audit   '@babel/plugin-transform-react-jsx': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-react-jsx-development': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-transform-react-jsx-self': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-transform-react-jsx-source': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-transform-react-pure-annotations': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-transform-regenerator': [ '7.29.0' ],
+304 silly audit   '@babel/plugin-transform-runtime': [ '7.29.0' ],
+304 silly audit   '@babel/plugin-transform-shorthand-properties': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-transform-spread': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-sticky-regex': [ '7.27.1' ],
+304 silly audit   '@babel/plugin-transform-typescript': [ '7.28.6' ],
+304 silly audit   '@babel/plugin-transform-unicode-regex': [ '7.27.1' ],
+304 silly audit   '@babel/preset-react': [ '7.28.5' ],
+304 silly audit   '@babel/preset-typescript': [ '7.28.5' ],
+304 silly audit   '@babel/runtime': [ '7.29.2' ],
+304 silly audit   '@babel/template': [ '7.28.6' ],
+304 silly audit   '@babel/traverse': [ '7.29.0' ],
+304 silly audit   '@babel/types': [ '7.29.0' ],
+304 silly audit   '@expo-google-fonts/material-symbols': [ '0.4.33' ],
+304 silly audit   '@expo/code-signing-certificates': [ '0.0.6' ],
+304 silly audit   '@expo/config': [ '12.0.13' ],
+304 silly audit   '@expo/config-plugins': [ '54.0.4' ],
+304 silly audit   'ansi-styles': [ '4.3.0', '3.2.1', '5.2.0' ],
+304 silly audit   chalk: [ '4.1.2', '2.4.2' ],
+304 silly audit   'color-convert': [ '2.0.1', '1.9.3' ],
+304 silly audit   'color-name': [ '1.1.4', '1.1.3' ],
+304 silly audit   'has-flag': [ '4.0.0', '3.0.0' ],
+304 silly audit   'supports-color': [ '7.2.0', '8.1.1', '5.5.0' ],
+304 silly audit   '@expo/config-types': [ '54.0.10' ],
+304 silly audit   '@expo/devcert': [ '1.2.1' ],
+304 silly audit   debug: [ '3.2.7', '2.6.9', '4.4.3' ],
+304 silly audit   '@expo/devtools': [ '0.1.8' ],
+304 silly audit   '@expo/dom-webview': [ '55.0.5' ],
+304 silly audit   '@expo/env': [ '2.1.1', '2.0.11' ],
+304 silly audit   '@expo/fingerprint': [ '0.15.4' ],
+304 silly audit   '@expo/image-utils': [ '0.8.13' ],
+304 silly audit   '@expo/json-file': [ '10.0.13' ],
+304 silly audit   '@expo/log-box': [ '55.0.11' ],
+304 silly audit   '@expo/metro': [ '54.2.0' ],
+304 silly audit   '@expo/osascript': [ '2.4.2' ],
+304 silly audit   '@expo/package-manager': [ '1.10.4' ],
+304 silly audit   '@expo/plist': [ '0.4.8' ],
+304 silly audit   '@expo/prebuild-config': [ '54.0.8' ],
+304 silly audit   '@expo/require-utils': [ '55.0.4' ],
+304 silly audit   '@expo/schema-utils': [ '55.0.3', '0.1.8' ],
+304 silly audit   '@expo/sdk-runtime-versions': [ '1.0.0' ],
+304 silly audit   '@expo/spawn-async': [ '1.7.2' ],
+304 silly audit   '@expo/sudo-prompt': [ '9.3.2' ],
+304 silly audit   '@expo/ws-tunnel': [ '1.0.6' ],
+304 silly audit   '@expo/xcpretty': [ '4.4.3' ],
+304 silly audit   argparse: [ '2.0.1', '1.0.10' ],
+304 silly audit   'js-yaml': [ '4.1.1', '3.14.2' ],
+304 silly audit   '@isaacs/fs-minipass': [ '4.0.1' ],
+304 silly audit   '@isaacs/ttlcache': [ '1.4.1' ],
+304 silly audit   '@istanbuljs/load-nyc-config': [ '1.1.0' ],
+304 silly audit   camelcase: [ '5.3.1', '6.3.0' ],
+304 silly audit   '@istanbuljs/schema': [ '0.1.6' ],
+304 silly audit   '@jest/create-cache-key-function': [ '29.7.0' ],
+304 silly audit   '@jest/environment': [ '29.7.0' ],
+304 silly audit   '@jest/fake-timers': [ '29.7.0' ],
+304 silly audit   '@jest/schemas': [ '29.6.3' ],
+304 silly audit   '@jest/transform': [ '29.7.0' ],
+304 silly audit   '@jest/types': [ '29.6.3' ],
+304 silly audit   '@jridgewell/gen-mapping': [ '0.3.13' ],
+304 silly audit   '@jridgewell/remapping': [ '2.3.5' ],
+304 silly audit   '@jridgewell/resolve-uri': [ '3.1.2' ],
+304 silly audit   '@jridgewell/source-map': [ '0.3.11' ],
+304 silly audit   '@jridgewell/sourcemap-codec': [ '1.5.5' ],
+304 silly audit   '@jridgewell/trace-mapping': [ '0.3.31' ],
+304 silly audit   '@radix-ui/primitive': [ '1.1.3' ],
+304 silly audit   '@radix-ui/react-compose-refs': [ '1.1.2' ],
+304 silly audit   '@radix-ui/react-context': [ '1.1.2' ],
+304 silly audit   '@radix-ui/react-direction': [ '1.1.1' ],
+304 silly audit   '@radix-ui/react-focus-guards': [ '1.1.3' ],
+304 silly audit   '@radix-ui/react-id': [ '1.1.1' ],
+304 silly audit   '@radix-ui/react-slot': [ '1.2.3' ],
+304 silly audit   '@radix-ui/react-use-callback-ref': [ '1.1.1' ],
+304 silly audit   '@radix-ui/react-use-controllable-state': [ '1.2.2' ],
+304 silly audit   '@radix-ui/react-use-effect-event': [ '0.0.2' ],
+304 silly audit   '@radix-ui/react-use-escape-keydown': [ '1.1.1' ],
+304 silly audit   '@radix-ui/react-use-layout-effect': [ '1.1.1' ],
+304 silly audit   '@react-native/assets-registry': [ '0.81.5' ],
+304 silly audit   '@react-native/babel-plugin-codegen': [ '0.81.5', '0.85.2' ],
+304 silly audit   '@react-native/babel-preset': [ '0.81.5', '0.85.2' ],
+304 silly audit   '@react-native/codegen': [ '0.81.5', '0.85.2' ],
+304 silly audit   'brace-expansion': [ '1.1.14', '2.1.0', '5.0.5' ],
+304 silly audit   glob: [ '7.2.3', '13.0.6' ],
+304 silly audit   'hermes-estree': [ '0.29.1', '0.32.0', '0.33.3', '0.35.0' ],
+304 silly audit   'hermes-parser': [ '0.29.1', '0.32.0', '0.33.3', '0.35.0' ],
+304 silly audit   minimatch: [ '3.1.5', '10.2.5', '9.0.9' ],
+304 silly audit   '@react-native/community-cli-plugin': [ '0.81.5' ],
+304 silly audit   '@react-native/debugger-frontend': [ '0.81.5' ],
+304 silly audit   '@react-native/dev-middleware': [ '0.81.5' ],
+304 silly audit   ws: [ '6.2.3', '8.20.0', '7.5.10' ],
+304 silly audit   '@react-native/gradle-plugin': [ '0.81.5' ],
+304 silly audit   '@react-native/js-polyfills': [ '0.81.5', '0.85.2' ],
+304 silly audit   '@react-native/normalize-colors': [ '0.81.5' ],
+304 silly audit   '@react-navigation/core': [ '7.17.2' ],
+304 silly audit   'escape-string-regexp': [ '4.0.0', '1.0.5', '2.0.0' ],
+304 silly audit   '@react-navigation/elements': [ '2.9.14' ],
+304 silly audit   '@react-navigation/native-stack': [ '7.14.11' ],
+304 silly audit   '@react-navigation/routers': [ '7.5.3' ],
+304 silly audit   '@sinclair/typebox': [ '0.27.10' ],
+304 silly audit   '@sinonjs/commons': [ '3.0.1' ],
+304 silly audit   '@sinonjs/fake-timers': [ '10.3.0' ],
+304 silly audit   '@types/babel__core': [ '7.20.5' ],
+304 silly audit   '@types/babel__generator': [ '7.27.0' ],
+304 silly audit   '@types/babel__template': [ '7.4.4' ],
+304 silly audit   '@types/babel__traverse': [ '7.28.0' ],
+304 silly audit   '@types/graceful-fs': [ '4.1.9' ],
+304 silly audit   '@types/istanbul-lib-coverage': [ '2.0.6' ],
+304 silly audit   '@types/istanbul-lib-report': [ '3.0.3' ],
+304 silly audit   '@types/istanbul-reports': [ '3.0.4' ],
+304 silly audit   '@types/node': [ '25.6.0' ],
+304 silly audit   '@types/react': [ '19.1.17' ],
+304 silly audit   '@types/stack-utils': [ '2.0.3' ],
+304 silly audit   '@types/yargs': [ '17.0.35' ],
+304 silly audit   '@types/yargs-parser': [ '21.0.3' ],
+304 silly audit   '@ungap/structured-clone': [ '1.3.0' ],
+304 silly audit   '@urql/core': [ '5.2.0' ],
+304 silly audit   '@urql/exchange-retry': [ '1.3.2' ],
+304 silly audit   '@xmldom/xmldom': [ '0.8.13' ],
+304 silly audit   'abort-controller': [ '3.0.0' ],
+304 silly audit   accepts: [ '1.3.8', '2.0.0' ],
+304 silly audit   acorn: [ '8.16.0' ],
+304 silly audit   'agent-base': [ '7.1.4' ],
+304 silly audit   anser: [ '1.4.10' ],
+304 silly audit   'ansi-escapes': [ '4.3.2' ],
+304 silly audit   'type-fest': [ '0.21.3', '0.7.1' ],
+304 silly audit   'ansi-regex': [ '5.0.1', '4.1.1' ],
+304 silly audit   'any-promise': [ '1.3.0' ],
+304 silly audit   anymatch: [ '3.1.3' ],
+304 silly audit   appwrite: [ '24.2.0' ],
+304 silly audit   arg: [ '5.0.2' ],
+304 silly audit   'aria-hidden': [ '1.2.6' ],
+304 silly audit   asap: [ '2.0.6' ],
+304 silly audit   'async-limiter': [ '1.0.1' ],
+304 silly audit   asynckit: [ '0.4.0' ],
+304 silly audit   axios: [ '1.15.2' ],
+304 silly audit   'babel-jest': [ '29.7.0' ],
+304 silly audit   'babel-plugin-istanbul': [ '6.1.1' ],
+304 silly audit   'babel-plugin-jest-hoist': [ '29.6.3' ],
+304 silly audit   'babel-plugin-polyfill-corejs2': [ '0.4.17' ],
+304 silly audit   'babel-plugin-polyfill-corejs3': [ '0.13.0' ],
+304 silly audit   'babel-plugin-polyfill-regenerator': [ '0.6.8' ],
+304 silly audit   'babel-plugin-react-compiler': [ '1.0.0' ],
+304 silly audit   'babel-plugin-react-native-web': [ '0.21.2' ],
+304 silly audit   'babel-plugin-syntax-hermes-parser': [ '0.29.1', '0.33.3' ],
+304 silly audit   'babel-plugin-transform-flow-enums': [ '0.0.2' ],
+304 silly audit   'babel-preset-current-node-syntax': [ '1.2.0' ],
+304 silly audit   'babel-preset-jest': [ '29.6.3' ],
+304 silly audit   'balanced-match': [ '1.0.2', '4.0.4' ],
+304 silly audit   'base64-js': [ '1.5.1' ],
+304 silly audit   'baseline-browser-mapping': [ '2.10.21' ],
+304 silly audit   'better-opn': [ '3.0.2' ],
+304 silly audit   open: [ '8.4.2', '7.4.2' ],
+304 silly audit   'big-integer': [ '1.6.52' ],
+304 silly audit   'bignumber.js': [ '9.3.1' ],
+304 silly audit   boolbase: [ '1.0.0' ],
+304 silly audit   'bplist-creator': [ '0.1.0' ],
+304 silly audit   'bplist-parser': [ '0.3.1' ],
+304 silly audit   braces: [ '3.0.3' ],
+304 silly audit   browserslist: [ '4.28.2' ],
+304 silly audit   bser: [ '2.1.1' ],
+304 silly audit   buffer: [ '5.7.1' ],
+304 silly audit   'buffer-from': [ '1.1.2' ],
+304 silly audit   bytes: [ '3.1.2' ],
+304 silly audit   'call-bind-apply-helpers': [ '1.0.2' ],
+304 silly audit   'caniuse-lite': [ '1.0.30001790' ],
+304 silly audit   chownr: [ '3.0.0' ],
+304 silly audit   'chrome-launcher': [ '0.15.2' ],
+304 silly audit   'chromium-edge-launcher': [ '0.2.0' ],
+304 silly audit   'ci-info': [ '2.0.0', '3.9.0' ],
+304 silly audit   'cli-cursor': [ '2.1.0' ],
+304 silly audit   'cli-spinners': [ '2.9.2' ],
+304 silly audit   'client-only': [ '0.0.1' ],
+304 silly audit   cliui: [ '8.0.1' ],
+304 silly audit   clone: [ '1.0.4' ],
+304 silly audit   color: [ '4.2.3' ],
+304 silly audit   'color-string': [ '1.9.1' ],
+304 silly audit   'combined-stream': [ '1.0.8' ],
+304 silly audit   commander: [ '7.2.0', '12.1.0', '4.1.1', '2.20.3' ],
+304 silly audit   compressible: [ '2.0.18' ],
+304 silly audit   compression: [ '1.8.1' ],
+304 silly audit   ms: [ '2.0.0', '2.1.3' ],
+304 silly audit   negotiator: [ '0.6.4', '0.6.3', '1.0.0' ],
+304 silly audit   'concat-map': [ '0.0.1' ],
+304 silly audit   connect: [ '3.7.0' ],
+304 silly audit   'convert-source-map': [ '2.0.0' ],
+304 silly audit   'core-js-compat': [ '3.49.0' ],
+304 silly audit   'cross-spawn': [ '7.0.6' ],
+304 silly audit   'css-select': [ '5.2.2' ],
+304 silly audit   'css-tree': [ '1.1.3' ],
+304 silly audit   'source-map': [ '0.6.1', '0.5.7' ],
+304 silly audit   'css-what': [ '6.2.2' ],
+304 silly audit   csstype: [ '3.2.3' ],
+304 silly audit   'decode-uri-component': [ '0.2.2' ],
+304 silly audit   'deep-extend': [ '0.6.0' ],
+304 silly audit   deepmerge: [ '4.3.1' ],
+304 silly audit   defaults: [ '1.0.4' ],
+304 silly audit   'define-lazy-prop': [ '2.0.0' ],
+304 silly audit   'delayed-stream': [ '1.0.0' ],
+304 silly audit   depd: [ '2.0.0' ],
+304 silly audit   destroy: [ '1.2.0' ],
+304 silly audit   'detect-libc': [ '2.1.2' ],
+304 silly audit   'detect-node-es': [ '1.1.0' ],
+304 silly audit   'dom-serializer': [ '2.0.0' ],
+304 silly audit   domelementtype: [ '2.3.0' ],
+304 silly audit   domhandler: [ '5.0.3' ],
+304 silly audit   domutils: [ '3.2.2' ],
+304 silly audit   dotenv: [ '16.4.7' ],
+304 silly audit   'dotenv-expand': [ '11.0.7' ],
+304 silly audit   'dunder-proto': [ '1.0.1' ],
+304 silly audit   'ee-first': [ '1.1.1' ],
+304 silly audit   'electron-to-chromium': [ '1.5.344' ],
+304 silly audit   'emoji-regex': [ '8.0.0' ],
+304 silly audit   encodeurl: [ '1.0.2', '2.0.0' ],
+304 silly audit   entities: [ '4.5.0' ],
+304 silly audit   'env-editor': [ '0.4.2' ],
+304 silly audit   'error-stack-parser': [ '2.1.4' ],
+304 silly audit   'es-define-property': [ '1.0.1' ],
+304 silly audit   'es-errors': [ '1.3.0' ],
+304 silly audit   'es-object-atoms': [ '1.1.1' ],
+304 silly audit   'es-set-tostringtag': [ '2.1.0' ],
+304 silly audit   escalade: [ '3.2.0' ],
+304 silly audit   'escape-html': [ '1.0.3' ],
+304 silly audit   esprima: [ '4.0.1' ],
+304 silly audit   etag: [ '1.8.1' ],
+304 silly audit   'event-target-shim': [ '5.0.1' ],
+304 silly audit   expo: [ '54.0.33' ],
+304 silly audit   'expo-constants': [ '55.0.15', '18.0.13' ],
+304 silly audit   'expo-font': [ '55.0.6', '14.0.11' ],
+304 silly audit   'expo-glass-effect': [ '55.0.10' ],
+304 silly audit   'expo-image': [ '55.0.9' ],
+304 silly audit   'expo-linear-gradient': [ '55.0.13' ],
+304 silly audit   'expo-linking': [ '55.0.14' ],
+304 silly audit   'expo-modules-autolinking': [ '3.0.24' ],
+304 silly audit   'expo-modules-core': [ '3.0.29' ],
+304 silly audit   'expo-router': [ '55.0.13' ],
+304 silly audit   '@expo/metro-runtime': [ '55.0.10' ],
+304 silly audit   '@radix-ui/react-collection': [ '1.1.7' ],
+304 silly audit   '@radix-ui/react-presence': [ '1.1.5' ],
+304 silly audit   '@radix-ui/react-primitive': [ '2.1.3' ],
+304 silly audit   '@radix-ui/react-roving-focus': [ '1.1.11' ],
+304 silly audit   '@radix-ui/react-tabs': [ '1.1.13' ],
+304 silly audit   'expo-server': [ '55.0.8', '1.0.5' ],
+304 silly audit   'expo-status-bar': [ '3.0.9' ],
+304 silly audit   'expo-symbols': [ '55.0.7' ],
+304 silly audit   '@expo/cli': [ '54.0.23' ],
+304 silly audit   '@expo/metro-config': [ '54.0.14' ],
+304 silly audit   '@expo/vector-icons': [ '15.1.1' ],
+304 silly audit   'babel-preset-expo': [ '54.0.10' ],
+304 silly audit   'expo-asset': [ '12.0.12' ],
+304 silly audit   'expo-file-system': [ '19.0.21' ],
+304 silly audit   'expo-keep-awake': [ '15.0.8' ],
+304 silly audit   picomatch: [ '3.0.2', '2.3.2', '4.0.4' ],
+304 silly audit   'exponential-backoff': [ '3.1.3' ],
+304 silly audit   'fast-deep-equal': [ '3.1.3' ],
+304 silly audit   'fast-json-stable-stringify': [ '2.1.0' ],
+304 silly audit   'fb-watchman': [ '2.0.2' ],
+304 silly audit   'fill-range': [ '7.1.1' ],
+304 silly audit   'filter-obj': [ '1.1.0' ],
+304 silly audit   finalhandler: [ '1.1.2' ],
+304 silly audit   'find-up': [ '4.1.0' ],
+304 silly audit   'flow-enums-runtime': [ '0.0.6' ],
+304 silly audit   'follow-redirects': [ '1.16.0' ],
+304 silly audit   fontfaceobserver: [ '2.3.0' ],
+304 silly audit   'form-data': [ '4.0.5' ],
+304 silly audit   'freeport-async': [ '2.0.0' ],
+304 silly audit   fresh: [ '0.5.2' ],
+304 silly audit   'fs.realpath': [ '1.0.0' ],
+304 silly audit   fsevents: [ '2.3.3' ],
+304 silly audit   'function-bind': [ '1.1.2' ],
+304 silly audit   gensync: [ '1.0.0-beta.2' ],
+304 silly audit   'get-caller-file': [ '2.0.5' ],
+304 silly audit   'get-intrinsic': [ '1.3.0' ],
+304 silly audit   'get-nonce': [ '1.0.1' ],
+304 silly audit   'get-package-type': [ '0.1.0' ],
+304 silly audit   'get-proto': [ '1.0.1' ],
+304 silly audit   getenv: [ '2.0.0' ],
+304 silly audit   gopd: [ '1.2.0' ],
+304 silly audit   'graceful-fs': [ '4.2.11' ],
+304 silly audit   'has-symbols': [ '1.1.0' ],
+304 silly audit   'has-tostringtag': [ '1.0.2' ],
+304 silly audit   hasown: [ '2.0.3' ],
+304 silly audit   'hosted-git-info': [ '7.0.2' ],
+304 silly audit   'lru-cache': [ '10.4.3', '5.1.1', '11.3.5' ],
+304 silly audit   'http-errors': [ '2.0.1' ],
+304 silly audit   statuses: [ '2.0.2', '1.5.0' ],
+304 silly audit   'https-proxy-agent': [ '7.0.6' ],
+304 silly audit   ieee754: [ '1.2.1' ],
+304 silly audit   ignore: [ '5.3.2' ],
+304 silly audit   'image-size': [ '1.2.1' ],
+304 silly audit   imurmurhash: [ '0.1.4' ],
+304 silly audit   inflight: [ '1.0.6' ],
+304 silly audit   inherits: [ '2.0.4' ],
+304 silly audit   ini: [ '1.3.8' ],
+304 silly audit   invariant: [ '2.2.4' ],
+304 silly audit   'is-arrayish': [ '0.3.4' ],
+304 silly audit   'is-core-module': [ '2.16.1' ],
+304 silly audit   'is-docker': [ '2.2.1' ],
+304 silly audit   'is-fullwidth-code-point': [ '3.0.0' ],
+304 silly audit   'is-number': [ '7.0.0' ],
+304 silly audit   'is-wsl': [ '2.2.0' ],
+304 silly audit   isexe: [ '2.0.0' ],
+304 silly audit   'istanbul-lib-coverage': [ '3.2.2' ],
+304 silly audit   'istanbul-lib-instrument': [ '5.2.1' ],
+304 silly audit   'jest-environment-node': [ '29.7.0' ],
+304 silly audit   'jest-get-type': [ '29.6.3' ],
+304 silly audit   'jest-haste-map': [ '29.7.0' ],
+304 silly audit   'jest-message-util': [ '29.7.0' ],
+304 silly audit   'jest-mock': [ '29.7.0' ],
+304 silly audit   'jest-regex-util': [ '29.6.3' ],
+304 silly audit   'jest-util': [ '29.7.0' ],
+304 silly audit   'jest-validate': [ '29.7.0' ],
+304 silly audit   'jest-worker': [ '29.7.0' ],
+304 silly audit   'jimp-compact': [ '0.16.1' ],
+304 silly audit   'js-tokens': [ '4.0.0' ],
+304 silly audit   'jsc-safe-url': [ '0.2.4' ],
+304 silly audit   jsesc: [ '3.1.0' ],
+304 silly audit   'json-bigint': [ '1.0.0' ],
+304 silly audit   json5: [ '2.2.3' ],
+304 silly audit   kleur: [ '3.0.3' ],
+304 silly audit   'lan-network': [ '0.1.7' ],
+304 silly audit   leven: [ '3.1.0' ],
+304 silly audit   'lighthouse-logger': [ '1.4.2' ],
+304 silly audit   lightningcss: [ '1.32.0' ],
+304 silly audit   'lightningcss-android-arm64': [ '1.32.0' ],
+304 silly audit   'lightningcss-darwin-arm64': [ '1.32.0' ],
+304 silly audit   'lightningcss-darwin-x64': [ '1.32.0' ],
+304 silly audit   'lightningcss-freebsd-x64': [ '1.32.0' ],
+304 silly audit   'lightningcss-linux-arm-gnueabihf': [ '1.32.0' ],
+304 silly audit   'lightningcss-linux-arm64-gnu': [ '1.32.0' ],
+304 silly audit   'lightningcss-linux-arm64-musl': [ '1.32.0' ],
+304 silly audit   'lightningcss-linux-x64-gnu': [ '1.32.0' ],
+304 silly audit   'lightningcss-linux-x64-musl': [ '1.32.0' ],
+304 silly audit   'lightningcss-win32-arm64-msvc': [ '1.32.0' ],
+304 silly audit   'lightningcss-win32-x64-msvc': [ '1.32.0' ],
+304 silly audit   'lines-and-columns': [ '1.2.4' ],
+304 silly audit   'locate-path': [ '5.0.0' ],
+304 silly audit   'lodash.debounce': [ '4.0.8' ],
+304 silly audit   'lodash.throttle': [ '4.1.1' ],
+304 silly audit   'log-symbols': [ '2.2.0' ],
+304 silly audit   'loose-envify': [ '1.4.0' ],
+304 silly audit   'lucide-react-native': [ '1.8.0' ],
+304 silly audit   makeerror: [ '1.0.12' ],
+304 silly audit   marky: [ '1.3.0' ],
+304 silly audit   'math-intrinsics': [ '1.1.0' ],
+304 silly audit   'mdn-data': [ '2.0.14' ],
+304 silly audit   'memoize-one': [ '5.2.1' ],
+304 silly audit   'merge-stream': [ '2.0.0' ],
+304 silly audit   metro: [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-babel-transformer': [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-cache': [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-cache-key': [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-config': [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-core': [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-file-map': [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-minify-terser': [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-resolver': [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-runtime': [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-source-map': [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-symbolicate': [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-transform-plugins': [ '0.83.3', '0.84.3' ],
+304 silly audit   'metro-transform-worker': [ '0.83.3', '0.84.3' ],
+304 silly audit   micromatch: [ '4.0.8' ],
+304 silly audit   mime: [ '1.6.0' ],
+304 silly audit   'mime-db': [ '1.52.0', '1.54.0' ],
+304 silly audit   'mime-types': [ '2.1.35', '3.0.2' ],
+304 silly audit   'mimic-fn': [ '1.2.0' ],
+304 silly audit   minimist: [ '1.2.8' ],
+304 silly audit   minipass: [ '7.1.3' ],
+304 silly audit   minizlib: [ '3.1.0' ],
+304 silly audit   mkdirp: [ '1.0.4' ],
+304 silly audit   mz: [ '2.7.0' ],
+304 silly audit   nanoid: [ '3.3.11' ],
+304 silly audit   'nested-error-stacks': [ '2.0.1' ],
+304 silly audit   'node-forge': [ '1.4.0' ],
+304 silly audit   'node-int64': [ '0.4.0' ],
+304 silly audit   'node-releases': [ '2.0.38' ],
+304 silly audit   'normalize-path': [ '3.0.0' ],
+304 silly audit   'npm-package-arg': [ '11.0.3' ],
+304 silly audit   'nth-check': [ '2.1.1' ],
+304 silly audit   nullthrows: [ '1.1.1' ],
+304 silly audit   ob1: [ '0.83.3', '0.84.3' ],
+304 silly audit   'object-assign': [ '4.1.1' ],
+304 silly audit   'on-finished': [ '2.3.0', '2.4.1' ],
+304 silly audit   'on-headers': [ '1.1.0' ],
+304 silly audit   once: [ '1.4.0' ],
+304 silly audit   onetime: [ '2.0.1' ],
+304 silly audit   ora: [ '3.4.0' ],
+304 silly audit   'strip-ansi': [ '5.2.0', '6.0.1' ],
+304 silly audit   'p-limit': [ '3.1.0', '2.3.0' ],
+304 silly audit   'p-locate': [ '4.1.0' ],
+304 silly audit   'p-try': [ '2.2.0' ],
+304 silly audit   'parse-png': [ '2.1.0' ],
+304 silly audit   parseurl: [ '1.3.3' ],
+304 silly audit   'path-exists': [ '4.0.0' ],
+304 silly audit   'path-is-absolute': [ '1.0.1' ],
+304 silly audit   'path-key': [ '3.1.1' ],
+304 silly audit   'path-parse': [ '1.0.7' ],
+304 silly audit   'path-scurry': [ '2.0.2' ],
+304 silly audit   picocolors: [ '1.1.1' ],
+304 silly audit   pirates: [ '4.0.7' ],
+304 silly audit   plist: [ '3.1.0' ],
+304 silly audit   pngjs: [ '3.4.0' ],
+304 silly audit   postcss: [ '8.4.49' ],
+304 silly audit   'pretty-bytes': [ '5.6.0' ],
+304 silly audit   'pretty-format': [ '29.7.0' ],
+304 silly audit   'react-is': [ '18.3.1', '19.2.5', '16.13.1' ],
+304 silly audit   'proc-log': [ '4.2.0' ],
+304 silly audit   progress: [ '2.0.3' ],
+304 silly audit   promise: [ '8.3.0' ],
+304 silly audit   prompts: [ '2.4.2' ],
+304 silly audit   'proxy-from-env': [ '2.1.0' ],
+304 silly audit   punycode: [ '2.3.1' ],
+304 silly audit   'qrcode-terminal': [ '0.11.0' ],
+304 silly audit   'query-string': [ '7.1.3' ],
+304 silly audit   queue: [ '6.0.2' ],
+304 silly audit   'range-parser': [ '1.2.1' ],
+304 silly audit   rc: [ '1.2.8' ],
+304 silly audit   react: [ '19.1.0' ],
+304 silly audit   'react-devtools-core': [ '6.1.5' ],
+304 silly audit   'react-dom': [ '19.2.5' ],
+304 silly audit   'react-fast-compare': [ '3.2.2' ],
+304 silly audit   'react-freeze': [ '1.0.4' ],
+304 silly audit   'react-native': [ '0.81.5' ],
+304 silly audit   'react-native-is-edge-to-edge': [ '1.3.1' ],
+304 silly audit   'react-native-safe-area-context': [ '5.7.0' ],
+304 silly audit   'react-native-screens': [ '4.24.0' ],
+304 silly audit   'react-native-svg': [ '15.15.4' ],
+304 silly audit   'react-native-webview': [ '13.16.1' ],
+304 silly audit   '@react-native/virtualized-lists': [ '0.81.5' ],
+304 silly audit   scheduler: [ '0.26.0', '0.27.0' ],
+304 silly audit   'react-refresh': [ '0.14.2' ],
+304 silly audit   'react-remove-scroll': [ '2.7.2' ],
+304 silly audit   'react-remove-scroll-bar': [ '2.3.8' ],
+304 silly audit   'react-style-singleton': [ '2.2.3' ],
+304 silly audit   regenerate: [ '1.4.2' ],
+304 silly audit   'regenerate-unicode-properties': [ '10.2.2' ],
+304 silly audit   'regenerator-runtime': [ '0.13.11' ],
+304 silly audit   'regexpu-core': [ '6.4.0' ],
+304 silly audit   regjsgen: [ '0.8.0' ],
+304 silly audit   regjsparser: [ '0.13.1' ],
+304 silly audit   'require-directory': [ '2.1.1' ],
+304 silly audit   'require-from-string': [ '2.0.2' ],
+304 silly audit   requireg: [ '0.2.2' ],
+304 silly audit   resolve: [ '1.7.1', '1.22.12' ],
+304 silly audit   'resolve-from': [ '5.0.0' ],
+304 silly audit   'resolve-workspace-root': [ '2.0.1' ],
+304 silly audit   'resolve.exports': [ '2.0.3' ],
+304 silly audit   'restore-cursor': [ '2.0.0' ],
+304 silly audit   rimraf: [ '3.0.2' ],
+304 silly audit   'safe-buffer': [ '5.2.1' ],
+304 silly audit   sax: [ '1.6.0' ],
+304 silly audit   send: [ '0.19.2' ],
+304 silly audit   'serialize-error': [ '2.1.0' ],
+304 silly audit   'serve-static': [ '1.16.3' ],
+304 silly audit   'server-only': [ '0.0.1' ],
+304 silly audit   setprototypeof: [ '1.2.0' ],
+304 silly audit   'sf-symbols-typescript': [ '2.2.0' ],
+304 silly audit   shallowequal: [ '1.1.0' ],
+304 silly audit   'shebang-command': [ '2.0.0' ],
+304 silly audit   'shebang-regex': [ '3.0.0' ],
+304 silly audit   'shell-quote': [ '1.8.3' ],
+304 silly audit   'signal-exit': [ '3.0.7' ],
+304 silly audit   'simple-plist': [ '1.3.1' ],
+304 silly audit   'simple-swizzle': [ '0.2.4' ],
+304 silly audit   sisteransi: [ '1.0.5' ],
+304 silly audit   slash: [ '3.0.0' ],
+304 silly audit   slugify: [ '1.6.9' ],
+304 silly audit   'source-map-js': [ '1.2.1' ],
+304 silly audit   'source-map-support': [ '0.5.21' ],
+304 silly audit   'split-on-first': [ '1.1.0' ],
+304 silly audit   'sprintf-js': [ '1.0.3' ],
+304 silly audit   'stack-utils': [ '2.0.6' ],
+304 silly audit   stackframe: [ '1.3.4' ],
+304 silly audit   'stacktrace-parser': [ '0.1.11' ],
+304 silly audit   'stream-buffers': [ '2.2.0' ],
+304 silly audit   'strict-uri-encode': [ '2.0.0' ],
+304 silly audit   'string-width': [ '4.2.3' ],
+304 silly audit   'strip-json-comments': [ '2.0.1' ],
+304 silly audit   'structured-headers': [ '0.4.1' ],
+304 silly audit   sucrase: [ '3.35.1' ],
+304 silly audit   'supports-hyperlinks': [ '2.3.0' ],
+304 silly audit   'supports-preserve-symlinks-flag': [ '1.0.0' ],
+304 silly audit   tar: [ '7.5.13' ],
+304 silly audit   yallist: [ '5.0.0', '3.1.1' ],
+304 silly audit   'terminal-link': [ '2.1.1' ],
+304 silly audit   terser: [ '5.46.2' ],
+304 silly audit   'test-exclude': [ '6.0.0' ],
+304 silly audit   thenify: [ '3.3.1' ],
+304 silly audit   'thenify-all': [ '1.6.0' ],
+304 silly audit   throat: [ '5.0.0' ],
+304 silly audit   tinyglobby: [ '0.2.16' ],
+304 silly audit   fdir: [ '6.5.0' ],
+304 silly audit   tmpl: [ '1.0.5' ],
+304 silly audit   'to-regex-range': [ '5.0.1' ],
+304 silly audit   toidentifier: [ '1.0.1' ],
+304 silly audit   'ts-interface-checker': [ '0.1.13' ],
+304 silly audit   tslib: [ '2.8.1' ],
+304 silly audit   'type-detect': [ '4.0.8' ],
+304 silly audit   typescript: [ '5.9.3' ],
+304 silly audit   undici: [ '6.25.0' ],
+304 silly audit   'undici-types': [ '7.19.2' ],
+304 silly audit   'unicode-canonical-property-names-ecmascript': [ '2.0.1' ],
+304 silly audit   'unicode-match-property-ecmascript': [ '2.0.0' ],
+304 silly audit   'unicode-match-property-value-ecmascript': [ '2.2.1' ],
+304 silly audit   'unicode-property-aliases-ecmascript': [ '2.2.0' ],
+304 silly audit   unpipe: [ '1.0.0' ],
+304 silly audit   'update-browserslist-db': [ '1.2.3' ],
+304 silly audit   'use-callback-ref': [ '1.3.3' ],
+304 silly audit   'use-latest-callback': [ '0.2.6' ],
+304 silly audit   'use-sidecar': [ '1.1.3' ],
+304 silly audit   'use-sync-external-store': [ '1.6.0' ],
+304 silly audit   'utils-merge': [ '1.0.1' ],
+304 silly audit   uuid: [ '7.0.3' ],
+304 silly audit   'validate-npm-package-name': [ '5.0.1' ],
+304 silly audit   vary: [ '1.1.2' ],
+304 silly audit   vaul: [ '1.1.2' ],
+304 silly audit   '@radix-ui/react-dialog': [ '1.1.15' ],
+304 silly audit   '@radix-ui/react-dismissable-layer': [ '1.1.11' ],
+304 silly audit   '@radix-ui/react-focus-scope': [ '1.1.7' ],
+304 silly audit   '@radix-ui/react-portal': [ '1.1.9' ],
+304 silly audit   vlq: [ '1.0.1' ],
+304 silly audit   walker: [ '1.0.8' ],
+304 silly audit   'warn-once': [ '0.1.1' ],
+304 silly audit   wcwidth: [ '1.0.1' ],
+304 silly audit   'webidl-conversions': [ '5.0.0' ],
+304 silly audit   'whatwg-fetch': [ '3.6.20' ],
+304 silly audit   'whatwg-url-without-unicode': [ '8.0.0-3' ],
+304 silly audit   which: [ '2.0.2' ],
+304 silly audit   wonka: [ '6.3.6' ],
+304 silly audit   'wrap-ansi': [ '7.0.0' ],
+304 silly audit   wrappy: [ '1.0.2' ],
+304 silly audit   'write-file-atomic': [ '4.0.2' ],
+304 silly audit   xcode: [ '3.0.1' ],
+304 silly audit   xml2js: [ '0.6.0' ],
+304 silly audit   xmlbuilder: [ '11.0.1', '15.1.1' ],
+304 silly audit   y18n: [ '5.0.8' ],
+304 silly audit   yaml: [ '2.8.3' ],
+304 silly audit   yargs: [ '17.7.2' ],
+304 silly audit   'yargs-parser': [ '21.1.1' ],
+304 silly audit   'yocto-queue': [ '0.1.0' ],
+304 silly audit   '@react-navigation/bottom-tabs': [ '7.15.9' ],
+304 silly audit   '@react-navigation/native': [ '7.2.2' ],
+304 silly audit   '@react-navigation/stack': [ '7.8.10' ],
+304 silly audit   'react-native-gesture-handler': [ '2.31.1' ],
+304 silly audit   'react-native-reanimated': [ '4.3.0' ],
+304 silly audit   'react-native-worklets': [ '0.8.1' ],
+304 silly audit   '@react-native/metro-config': [ '0.85.2' ],
+304 silly audit   '@react-native/metro-babel-transformer': [ '0.85.2' ],
+304 silly audit   '@egjs/hammerjs': [ '2.0.17' ],
+304 silly audit   '@types/react-test-renderer': [ '19.1.0' ],
+304 silly audit   'hoist-non-react-statics': [ '3.3.2' ],
+304 silly audit   '@types/hammerjs': [ '2.0.46' ],
+304 silly audit   '@babel/plugin-transform-template-literals': [ '7.27.1' ]
+304 silly audit }
+305 http cache @babel/plugin-transform-template-literals@https://registry.npmjs.org/@babel/plugin-transform-template-literals/-/plugin-transform-template-literals-7.27.1.tgz 0ms (cache hit)
+306 http cache @types/hammerjs@https://registry.npmjs.org/@types/hammerjs/-/hammerjs-2.0.46.tgz 0ms (cache hit)
+307 http cache react-is@https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz 0ms (cache hit)
+308 http cache hoist-non-react-statics@https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz 0ms (cache hit)
+309 http cache @egjs/hammerjs@https://registry.npmjs.org/@egjs/hammerjs/-/hammerjs-2.0.17.tgz 0ms (cache hit)
+310 http cache @react-native/metro-babel-transformer@https://registry.npmjs.org/@react-native/metro-babel-transformer/-/metro-babel-transformer-0.85.2.tgz 0ms (cache hit)
+311 http cache @types/react-test-renderer@https://registry.npmjs.org/@types/react-test-renderer/-/react-test-renderer-19.1.0.tgz 0ms (cache hit)
+312 http cache @react-native/codegen@https://registry.npmjs.org/@react-native/codegen/-/codegen-0.85.2.tgz 0ms (cache hit)
+313 http cache hermes-estree@https://registry.npmjs.org/hermes-estree/-/hermes-estree-0.33.3.tgz 0ms (cache hit)
+314 http cache @react-native/babel-plugin-codegen@https://registry.npmjs.org/@react-native/babel-plugin-codegen/-/babel-plugin-codegen-0.85.2.tgz 0ms (cache hit)
+315 http cache hermes-parser@https://registry.npmjs.org/hermes-parser/-/hermes-parser-0.33.3.tgz 0ms (cache hit)
+316 http cache babel-plugin-syntax-hermes-parser@https://registry.npmjs.org/babel-plugin-syntax-hermes-parser/-/babel-plugin-syntax-hermes-parser-0.33.3.tgz 0ms (cache hit)
+317 http cache @react-native/babel-preset@https://registry.npmjs.org/@react-native/babel-preset/-/babel-preset-0.85.2.tgz 0ms (cache hit)
+318 http cache @react-native/metro-config@https://registry.npmjs.org/@react-native/metro-config/-/metro-config-0.85.2.tgz 0ms (cache hit)
+319 http cache has-flag@https://registry.npmjs.org/has-flag/-/has-flag-4.0.0.tgz 0ms (cache hit)
+320 http cache mime-db@https://registry.npmjs.org/mime-db/-/mime-db-1.54.0.tgz 0ms (cache hit)
+321 http cache metro-minify-terser@https://registry.npmjs.org/metro-minify-terser/-/metro-minify-terser-0.84.3.tgz 0ms (cache hit)
+322 http cache hermes-estree@https://registry.npmjs.org/hermes-estree/-/hermes-estree-0.35.0.tgz 0ms (cache hit)
+323 http cache ob1@https://registry.npmjs.org/ob1/-/ob1-0.84.3.tgz 0ms (cache hit)
+324 http cache color-convert@https://registry.npmjs.org/color-convert/-/color-convert-2.0.1.tgz 0ms (cache hit)
+325 http cache color-name@https://registry.npmjs.org/color-name/-/color-name-1.1.4.tgz 0ms (cache hit)
+326 http cache negotiator@https://registry.npmjs.org/negotiator/-/negotiator-1.0.0.tgz 0ms (cache hit)
+327 http cache ansi-styles@https://registry.npmjs.org/ansi-styles/-/ansi-styles-4.3.0.tgz 0ms (cache hit)
+328 http cache mime-types@https://registry.npmjs.org/mime-types/-/mime-types-3.0.2.tgz 0ms (cache hit)
+329 http cache supports-color@https://registry.npmjs.org/supports-color/-/supports-color-7.2.0.tgz 0ms (cache hit)
+330 http cache metro-transform-worker@https://registry.npmjs.org/metro-transform-worker/-/metro-transform-worker-0.84.3.tgz 0ms (cache hit)
+331 http cache metro-transform-plugins@https://registry.npmjs.org/metro-transform-plugins/-/metro-transform-plugins-0.84.3.tgz 0ms (cache hit)
+332 http cache metro-symbolicate@https://registry.npmjs.org/metro-symbolicate/-/metro-symbolicate-0.84.3.tgz 0ms (cache hit)
+333 http cache metro-source-map@https://registry.npmjs.org/metro-source-map/-/metro-source-map-0.84.3.tgz 0ms (cache hit)
+334 http cache metro-resolver@https://registry.npmjs.org/metro-resolver/-/metro-resolver-0.84.3.tgz 0ms (cache hit)
+335 http cache metro-file-map@https://registry.npmjs.org/metro-file-map/-/metro-file-map-0.84.3.tgz 0ms (cache hit)
+336 http cache metro-cache-key@https://registry.npmjs.org/metro-cache-key/-/metro-cache-key-0.84.3.tgz 0ms (cache hit)
+337 http cache metro-babel-transformer@https://registry.npmjs.org/metro-babel-transformer/-/metro-babel-transformer-0.84.3.tgz 0ms (cache hit)
+338 http cache hermes-parser@https://registry.npmjs.org/hermes-parser/-/hermes-parser-0.35.0.tgz 0ms (cache hit)
+339 http cache chalk@https://registry.npmjs.org/chalk/-/chalk-4.1.2.tgz 0ms (cache hit)
+340 http cache accepts@https://registry.npmjs.org/accepts/-/accepts-2.0.0.tgz 0ms (cache hit)
+341 http cache @babel/code-frame@https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.29.0.tgz 0ms (cache hit)
+342 http cache metro-core@https://registry.npmjs.org/metro-core/-/metro-core-0.84.3.tgz 0ms (cache hit)
+343 http cache metro@https://registry.npmjs.org/metro/-/metro-0.84.3.tgz 0ms (cache hit)
+344 http cache metro-cache@https://registry.npmjs.org/metro-cache/-/metro-cache-0.84.3.tgz 0ms (cache hit)
+345 http cache metro-runtime@https://registry.npmjs.org/metro-runtime/-/metro-runtime-0.84.3.tgz 0ms (cache hit)
+346 http cache metro-config@https://registry.npmjs.org/metro-config/-/metro-config-0.84.3.tgz 0ms (cache hit)
+347 http cache @react-native/js-polyfills@https://registry.npmjs.org/@react-native/js-polyfills/-/js-polyfills-0.85.2.tgz 0ms (cache hit)
+348 http cache react-native-worklets@https://registry.npmjs.org/react-native-worklets/-/react-native-worklets-0.8.1.tgz 0ms (cache hit)
+349 http cache react-native-gesture-handler@https://registry.npmjs.org/react-native-gesture-handler/-/react-native-gesture-handler-2.31.1.tgz 0ms (cache hit)
+350 http cache react-native-reanimated@https://registry.npmjs.org/react-native-reanimated/-/react-native-reanimated-4.3.0.tgz 0ms (cache hit)
+351 http cache @react-navigation/stack@https://registry.npmjs.org/@react-navigation/stack/-/stack-7.8.10.tgz 0ms (cache hit)
+352 http cache fsevents@https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz 0ms (cache hit)
+353 silly tarball no local data for @babel/plugin-transform-template-literals@https://registry.npmjs.org/@babel/plugin-transform-template-literals/-/plugin-transform-template-literals-7.27.1.tgz. Extracting by manifest.
+354 silly tarball no local data for @types/hammerjs@https://registry.npmjs.org/@types/hammerjs/-/hammerjs-2.0.46.tgz. Extracting by manifest.
+355 silly tarball no local data for react-is@https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz. Extracting by manifest.
+356 silly tarball no local data for hoist-non-react-statics@https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz. Extracting by manifest.
+357 silly tarball no local data for @egjs/hammerjs@https://registry.npmjs.org/@egjs/hammerjs/-/hammerjs-2.0.17.tgz. Extracting by manifest.
+358 silly tarball no local data for @react-native/metro-babel-transformer@https://registry.npmjs.org/@react-native/metro-babel-transformer/-/metro-babel-transformer-0.85.2.tgz. Extracting by manifest.
+359 silly tarball no local data for @types/react-test-renderer@https://registry.npmjs.org/@types/react-test-renderer/-/react-test-renderer-19.1.0.tgz. Extracting by manifest.
+360 silly tarball no local data for @react-native/codegen@https://registry.npmjs.org/@react-native/codegen/-/codegen-0.85.2.tgz. Extracting by manifest.
+361 silly tarball no local data for hermes-estree@https://registry.npmjs.org/hermes-estree/-/hermes-estree-0.33.3.tgz. Extracting by manifest.
+362 silly tarball no local data for @react-native/babel-plugin-codegen@https://registry.npmjs.org/@react-native/babel-plugin-codegen/-/babel-plugin-codegen-0.85.2.tgz. Extracting by manifest.
+363 silly tarball no local data for hermes-parser@https://registry.npmjs.org/hermes-parser/-/hermes-parser-0.33.3.tgz. Extracting by manifest.
+364 silly tarball no local data for babel-plugin-syntax-hermes-parser@https://registry.npmjs.org/babel-plugin-syntax-hermes-parser/-/babel-plugin-syntax-hermes-parser-0.33.3.tgz. Extracting by manifest.
+365 silly tarball no local data for @react-native/babel-preset@https://registry.npmjs.org/@react-native/babel-preset/-/babel-preset-0.85.2.tgz. Extracting by manifest.
+366 silly tarball no local data for @react-native/metro-config@https://registry.npmjs.org/@react-native/metro-config/-/metro-config-0.85.2.tgz. Extracting by manifest.
+367 silly tarball no local data for mime-db@https://registry.npmjs.org/mime-db/-/mime-db-1.54.0.tgz. Extracting by manifest.
+368 silly tarball no local data for metro-minify-terser@https://registry.npmjs.org/metro-minify-terser/-/metro-minify-terser-0.84.3.tgz. Extracting by manifest.
+369 silly tarball no local data for hermes-estree@https://registry.npmjs.org/hermes-estree/-/hermes-estree-0.35.0.tgz. Extracting by manifest.
+370 silly tarball no local data for ob1@https://registry.npmjs.org/ob1/-/ob1-0.84.3.tgz. Extracting by manifest.
+371 silly tarball no local data for negotiator@https://registry.npmjs.org/negotiator/-/negotiator-1.0.0.tgz. Extracting by manifest.
+372 silly tarball no local data for mime-types@https://registry.npmjs.org/mime-types/-/mime-types-3.0.2.tgz. Extracting by manifest.
+373 silly tarball no local data for metro-transform-worker@https://registry.npmjs.org/metro-transform-worker/-/metro-transform-worker-0.84.3.tgz. Extracting by manifest.
+374 silly tarball no local data for metro-transform-plugins@https://registry.npmjs.org/metro-transform-plugins/-/metro-transform-plugins-0.84.3.tgz. Extracting by manifest.
+375 silly tarball no local data for metro-symbolicate@https://registry.npmjs.org/metro-symbolicate/-/metro-symbolicate-0.84.3.tgz. Extracting by manifest.
+376 silly tarball no local data for metro-source-map@https://registry.npmjs.org/metro-source-map/-/metro-source-map-0.84.3.tgz. Extracting by manifest.
+377 silly tarball no local data for metro-resolver@https://registry.npmjs.org/metro-resolver/-/metro-resolver-0.84.3.tgz. Extracting by manifest.
+378 silly tarball no local data for metro-file-map@https://registry.npmjs.org/metro-file-map/-/metro-file-map-0.84.3.tgz. Extracting by manifest.
+379 silly tarball no local data for metro-cache-key@https://registry.npmjs.org/metro-cache-key/-/metro-cache-key-0.84.3.tgz. Extracting by manifest.
+380 silly tarball no local data for metro-babel-transformer@https://registry.npmjs.org/metro-babel-transformer/-/metro-babel-transformer-0.84.3.tgz. Extracting by manifest.
+381 silly tarball no local data for hermes-parser@https://registry.npmjs.org/hermes-parser/-/hermes-parser-0.35.0.tgz. Extracting by manifest.
+382 silly tarball no local data for accepts@https://registry.npmjs.org/accepts/-/accepts-2.0.0.tgz. Extracting by manifest.
+383 silly tarball no local data for metro-core@https://registry.npmjs.org/metro-core/-/metro-core-0.84.3.tgz. Extracting by manifest.
+384 silly tarball no local data for metro@https://registry.npmjs.org/metro/-/metro-0.84.3.tgz. Extracting by manifest.
+385 silly tarball no local data for metro-cache@https://registry.npmjs.org/metro-cache/-/metro-cache-0.84.3.tgz. Extracting by manifest.
+386 silly tarball no local data for metro-runtime@https://registry.npmjs.org/metro-runtime/-/metro-runtime-0.84.3.tgz. Extracting by manifest.
+387 silly tarball no local data for metro-config@https://registry.npmjs.org/metro-config/-/metro-config-0.84.3.tgz. Extracting by manifest.
+388 silly tarball no local data for @react-native/js-polyfills@https://registry.npmjs.org/@react-native/js-polyfills/-/js-polyfills-0.85.2.tgz. Extracting by manifest.
+389 silly tarball no local data for react-native-worklets@https://registry.npmjs.org/react-native-worklets/-/react-native-worklets-0.8.1.tgz. Extracting by manifest.
+390 silly tarball no local data for react-native-gesture-handler@https://registry.npmjs.org/react-native-gesture-handler/-/react-native-gesture-handler-2.31.1.tgz. Extracting by manifest.
+391 silly tarball no local data for react-native-reanimated@https://registry.npmjs.org/react-native-reanimated/-/react-native-reanimated-4.3.0.tgz. Extracting by manifest.
+392 silly tarball no local data for @react-navigation/stack@https://registry.npmjs.org/@react-navigation/stack/-/stack-7.8.10.tgz. Extracting by manifest.
+393 http fetch GET 200 https://registry.npmjs.org/@types/hammerjs/-/hammerjs-2.0.46.tgz 108ms (cache miss)
+394 http fetch GET 200 https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz 108ms (cache miss)
+395 http fetch GET 200 https://registry.npmjs.org/@types/react-test-renderer/-/react-test-renderer-19.1.0.tgz 107ms (cache miss)
+396 http fetch GET 200 https://registry.npmjs.org/@babel/plugin-transform-template-literals/-/plugin-transform-template-literals-7.27.1.tgz 117ms (cache miss)
+397 http fetch GET 200 https://registry.npmjs.org/metro-minify-terser/-/metro-minify-terser-0.84.3.tgz 113ms (cache miss)
+398 http fetch GET 200 https://registry.npmjs.org/ob1/-/ob1-0.84.3.tgz 113ms (cache miss)
+399 http fetch GET 200 https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz 121ms (cache miss)
+400 http fetch GET 200 https://registry.npmjs.org/mime-db/-/mime-db-1.54.0.tgz 117ms (cache miss)
+401 http fetch GET 200 https://registry.npmjs.org/mime-types/-/mime-types-3.0.2.tgz 115ms (cache miss)
+402 http fetch GET 200 https://registry.npmjs.org/negotiator/-/negotiator-1.0.0.tgz 118ms (cache miss)
+403 http fetch GET 200 https://registry.npmjs.org/babel-plugin-syntax-hermes-parser/-/babel-plugin-syntax-hermes-parser-0.33.3.tgz 141ms (cache miss)
+404 http fetch GET 200 https://registry.npmjs.org/metro-transform-worker/-/metro-transform-worker-0.84.3.tgz 155ms (cache miss)
+405 http fetch GET 200 https://registry.npmjs.org/hermes-estree/-/hermes-estree-0.35.0.tgz 174ms (cache miss)
+406 http fetch GET 200 https://registry.npmjs.org/@react-native/babel-plugin-codegen/-/babel-plugin-codegen-0.85.2.tgz 182ms (cache miss)
+407 http fetch GET 200 https://registry.npmjs.org/metro-symbolicate/-/metro-symbolicate-0.84.3.tgz 197ms (cache miss)
+408 http fetch GET 200 https://registry.npmjs.org/@react-native/babel-preset/-/babel-preset-0.85.2.tgz 208ms (cache miss)
+409 http fetch GET 200 https://registry.npmjs.org/metro-babel-transformer/-/metro-babel-transformer-0.84.3.tgz 211ms (cache miss)
+410 http fetch GET 200 https://registry.npmjs.org/metro-cache-key/-/metro-cache-key-0.84.3.tgz 212ms (cache miss)
+411 http fetch GET 200 https://registry.npmjs.org/accepts/-/accepts-2.0.0.tgz 214ms (cache miss)
+412 http fetch GET 200 https://registry.npmjs.org/metro-transform-plugins/-/metro-transform-plugins-0.84.3.tgz 258ms (cache miss)
+413 http fetch GET 200 https://registry.npmjs.org/metro-core/-/metro-core-0.84.3.tgz 265ms (cache miss)
+414 http fetch GET 200 https://registry.npmjs.org/metro-runtime/-/metro-runtime-0.84.3.tgz 266ms (cache miss)
+415 http fetch GET 200 https://registry.npmjs.org/hermes-estree/-/hermes-estree-0.33.3.tgz 286ms (cache miss)
+416 http fetch GET 200 https://registry.npmjs.org/metro-source-map/-/metro-source-map-0.84.3.tgz 308ms (cache miss)
+417 http fetch GET 200 https://registry.npmjs.org/metro-cache/-/metro-cache-0.84.3.tgz 312ms (cache miss)
+418 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 367ms
+419 silly audit report {
+419 silly audit report   uuid: [
+419 silly audit report     {
+419 silly audit report       id: 1116970,
+419 silly audit report       url: 'https://github.com/advisories/GHSA-w5hq-g745-h8pq',
+419 silly audit report       title: 'uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided',
+419 silly audit report       severity: 'moderate',
+419 silly audit report       vulnerable_versions: '<14.0.0',
+419 silly audit report       cwe: [Array],
+419 silly audit report       cvss: [Object]
+419 silly audit report     }
+419 silly audit report   ]
+419 silly audit report }
+420 silly packumentCache corgi:https://registry.npmjs.org/uuid cache-miss
+421 http fetch GET 200 https://registry.npmjs.org/@react-native/metro-babel-transformer/-/metro-babel-transformer-0.85.2.tgz 356ms (cache miss)
+422 http fetch GET 200 https://registry.npmjs.org/metro-resolver/-/metro-resolver-0.84.3.tgz 348ms (cache miss)
+423 http cache https://registry.npmjs.org/uuid 10ms (cache hit)
+424 silly packumentCache corgi:https://registry.npmjs.org/uuid set size:72733 disposed:false
+425 silly packumentCache corgi:https://registry.npmjs.org/xcode cache-miss
+426 http cache https://registry.npmjs.org/xcode 15ms (cache hit)
+427 silly packumentCache corgi:https://registry.npmjs.org/xcode set size:1850340 disposed:false
+428 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fconfig-plugins cache-miss
+429 http fetch GET 200 https://registry.npmjs.org/metro-config/-/metro-config-0.84.3.tgz 398ms (cache miss)
+430 http cache https://registry.npmjs.org/@expo%2fconfig-plugins 13ms (cache hit)
+431 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fconfig-plugins set size:388145 disposed:false
+432 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fconfig cache-miss
+433 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fprebuild-config cache-miss
+434 silly packumentCache corgi:https://registry.npmjs.org/expo cache-miss
+435 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fcli cache-miss
+436 http cache https://registry.npmjs.org/@expo%2fprebuild-config 12ms (cache hit)
+437 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fprebuild-config set size:350227 disposed:false
+438 http cache https://registry.npmjs.org/@expo%2fconfig 17ms (cache hit)
+439 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fconfig set size:518312 disposed:false
+440 http cache https://registry.npmjs.org/@expo%2fcli 24ms (cache hit)
+441 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fcli set size:1490664 disposed:false
+442 http cache https://registry.npmjs.org/expo 42ms (cache hit)
+443 silly packumentCache corgi:https://registry.npmjs.org/expo set size:1671265 disposed:false
+444 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fmetro-config cache-miss
+445 silly packumentCache corgi:https://registry.npmjs.org/expo-constants cache-miss
+446 http fetch GET 200 https://registry.npmjs.org/@react-native/metro-config/-/metro-config-0.85.2.tgz 510ms (cache miss)
+447 http fetch GET 200 https://registry.npmjs.org/@react-native/js-polyfills/-/js-polyfills-0.85.2.tgz 503ms (cache miss)
+448 http cache https://registry.npmjs.org/expo-constants 26ms (cache hit)
+449 silly packumentCache corgi:https://registry.npmjs.org/expo-constants set size:263022 disposed:false
+450 http cache https://registry.npmjs.org/@expo%2fmetro-config 31ms (cache hit)
+451 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fmetro-config set size:530687 disposed:false
+452 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fdom-webview cache-miss
+453 silly packumentCache corgi:https://registry.npmjs.org/@expo%2flog-box cache-miss
+454 silly packumentCache corgi:https://registry.npmjs.org/expo-font cache-miss
+455 silly packumentCache corgi:https://registry.npmjs.org/expo-glass-effect cache-miss
+456 silly packumentCache corgi:https://registry.npmjs.org/expo-image cache-miss
+457 silly packumentCache corgi:https://registry.npmjs.org/expo-linear-gradient cache-miss
+458 silly packumentCache corgi:https://registry.npmjs.org/expo-router cache-miss
+459 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fmetro-runtime cache-miss
+460 silly packumentCache corgi:https://registry.npmjs.org/expo-symbols cache-miss
+461 silly packumentCache corgi:https://registry.npmjs.org/babel-preset-expo cache-miss
+462 silly packumentCache corgi:https://registry.npmjs.org/expo-asset cache-miss
+463 silly packumentCache corgi:https://registry.npmjs.org/expo-file-system cache-miss
+464 silly packumentCache corgi:https://registry.npmjs.org/expo-keep-awake cache-miss
+465 http cache https://registry.npmjs.org/expo-glass-effect 60ms (cache hit)
+466 silly packumentCache corgi:https://registry.npmjs.org/expo-glass-effect set size:61718 disposed:false
+467 http cache https://registry.npmjs.org/expo-font 62ms (cache hit)
+468 silly packumentCache corgi:https://registry.npmjs.org/expo-font set size:220971 disposed:false
+469 http cache https://registry.npmjs.org/@expo%2flog-box 64ms (cache hit)
+470 silly packumentCache corgi:https://registry.npmjs.org/@expo%2flog-box set size:56400 disposed:false
+471 http cache https://registry.npmjs.org/@expo%2fdom-webview 65ms (cache hit)
+472 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fdom-webview set size:82911 disposed:false
+473 http cache https://registry.npmjs.org/expo-linear-gradient 72ms (cache hit)
+474 silly packumentCache corgi:https://registry.npmjs.org/expo-linear-gradient set size:207744 disposed:false
+475 http cache https://registry.npmjs.org/expo-image 74ms (cache hit)
+476 silly packumentCache corgi:https://registry.npmjs.org/expo-image set size:206571 disposed:false
+477 http cache https://registry.npmjs.org/expo-router 77ms (cache hit)
+478 silly packumentCache corgi:https://registry.npmjs.org/expo-router set size:815124 disposed:false
+479 http cache https://registry.npmjs.org/expo-asset 81ms (cache hit)
+480 silly packumentCache corgi:https://registry.npmjs.org/expo-asset set size:276833 disposed:false
+481 http cache https://registry.npmjs.org/expo-symbols 85ms (cache hit)
+482 silly packumentCache corgi:https://registry.npmjs.org/expo-symbols set size:125078 disposed:false
+483 http cache https://registry.npmjs.org/@expo%2fmetro-runtime 87ms (cache hit)
+484 silly packumentCache corgi:https://registry.npmjs.org/@expo%2fmetro-runtime set size:165973 disposed:false
+485 http cache https://registry.npmjs.org/babel-preset-expo 89ms (cache hit)
+486 silly packumentCache corgi:https://registry.npmjs.org/babel-preset-expo set size:445867 disposed:false
+487 http cache https://registry.npmjs.org/expo-file-system 92ms (cache hit)
+488 silly packumentCache corgi:https://registry.npmjs.org/expo-file-system set size:269288 disposed:false
+489 http cache https://registry.npmjs.org/expo-keep-awake 96ms (cache hit)
+490 silly packumentCache corgi:https://registry.npmjs.org/expo-keep-awake set size:174396 disposed:false
+491 http fetch GET 200 https://registry.npmjs.org/@egjs/hammerjs/-/hammerjs-2.0.17.tgz 643ms (cache miss)
+492 http fetch GET 200 https://registry.npmjs.org/hermes-parser/-/hermes-parser-0.33.3.tgz 677ms (cache miss)
+493 http fetch GET 200 https://registry.npmjs.org/hermes-parser/-/hermes-parser-0.35.0.tgz 679ms (cache miss)
+494 http fetch GET 200 https://registry.npmjs.org/metro-file-map/-/metro-file-map-0.84.3.tgz 700ms (cache miss)
+495 http fetch GET 200 https://registry.npmjs.org/@react-native/codegen/-/codegen-0.85.2.tgz 809ms (cache miss)
+496 http fetch GET 200 https://registry.npmjs.org/@react-navigation/stack/-/stack-7.8.10.tgz 843ms (cache miss)
+497 http fetch GET 200 https://registry.npmjs.org/metro/-/metro-0.84.3.tgz 936ms (cache miss)
+498 http fetch GET 200 https://registry.npmjs.org/react-native-worklets/-/react-native-worklets-0.8.1.tgz 999ms (cache miss)
+499 http fetch GET 200 https://registry.npmjs.org/react-native-gesture-handler/-/react-native-gesture-handler-2.31.1.tgz 1436ms (cache miss)
+500 http fetch GET 200 https://registry.npmjs.org/react-native-reanimated/-/react-native-reanimated-4.3.0.tgz 1767ms (cache miss)
+501 silly ADD node_modules/@babel/plugin-transform-template-literals
+502 silly ADD node_modules/@types/hammerjs
+503 silly ADD node_modules/hoist-non-react-statics
+504 silly ADD node_modules/hoist-non-react-statics/node_modules/react-is
+505 silly ADD node_modules/@types/react-test-renderer
+506 silly ADD node_modules/@egjs/hammerjs
+507 silly ADD node_modules/@react-native/metro-babel-transformer
+508 silly ADD node_modules/@react-native/metro-babel-transformer/node_modules/hermes-estree
+509 silly ADD node_modules/@react-native/metro-babel-transformer/node_modules/@react-native/codegen
+510 silly ADD node_modules/@react-native/metro-babel-transformer/node_modules/babel-plugin-syntax-hermes-parser
+511 silly ADD node_modules/@react-native/metro-babel-transformer/node_modules/@react-native/babel-plugin-codegen
+512 silly ADD node_modules/@react-native/metro-babel-transformer/node_modules/hermes-parser
+513 silly ADD node_modules/@react-native/metro-babel-transformer/node_modules/@react-native/babel-preset
+514 silly ADD node_modules/@react-native/metro-config
+515 silly ADD node_modules/@react-native/metro-config/node_modules/has-flag
+516 silly ADD node_modules/@react-native/metro-config/node_modules/mime-db
+517 silly ADD node_modules/@react-native/metro-config/node_modules/metro-minify-terser
+518 silly ADD node_modules/@react-native/metro-config/node_modules/ob1
+519 silly ADD node_modules/@react-native/metro-config/node_modules/hermes-estree
+520 silly ADD node_modules/@react-native/metro-config/node_modules/color-name
+521 silly ADD node_modules/@react-native/metro-config/node_modules/color-convert
+522 silly ADD node_modules/@react-native/metro-config/node_modules/supports-color
+523 silly ADD node_modules/@react-native/metro-config/node_modules/ansi-styles
+524 silly ADD node_modules/@react-native/metro-config/node_modules/negotiator
+525 silly ADD node_modules/@react-native/metro-config/node_modules/mime-types
+526 silly ADD node_modules/@react-native/metro-config/node_modules/metro-transform-worker
+527 silly ADD node_modules/@react-native/metro-config/node_modules/metro-transform-plugins
+528 silly ADD node_modules/@react-native/metro-config/node_modules/metro-symbolicate
+529 silly ADD node_modules/@react-native/metro-config/node_modules/metro-source-map
+530 silly ADD node_modules/@react-native/metro-config/node_modules/metro-resolver
+531 silly ADD node_modules/@react-native/metro-config/node_modules/metro-file-map
+532 silly ADD node_modules/@react-native/metro-config/node_modules/metro-cache-key
+533 silly ADD node_modules/@react-native/metro-config/node_modules/metro-babel-transformer
+534 silly ADD node_modules/@react-native/metro-config/node_modules/hermes-parser
+535 silly ADD node_modules/@react-native/metro-config/node_modules/chalk
+536 silly ADD node_modules/@react-native/metro-config/node_modules/accepts
+537 silly ADD node_modules/@react-native/metro-config/node_modules/@babel/code-frame
+538 silly ADD node_modules/@react-native/metro-config/node_modules/metro-core
+539 silly ADD node_modules/@react-native/metro-config/node_modules/metro-cache
+540 silly ADD node_modules/@react-native/metro-config/node_modules/metro
+541 silly ADD node_modules/@react-native/metro-config/node_modules/metro-runtime
+542 silly ADD node_modules/@react-native/metro-config/node_modules/metro-config
+543 silly ADD node_modules/@react-native/metro-config/node_modules/@react-native/js-polyfills
+544 silly ADD node_modules/react-native-worklets
+545 silly ADD node_modules/react-native-reanimated
+546 silly ADD node_modules/react-native-gesture-handler
+547 silly ADD node_modules/@react-navigation/stack
+548 silly ADD node_modules/fsevents
+549 silly REMOVE node_modules/@radix-ui/react-slot
+550 verbose cwd /Users/haldwani/Documents/Working/party_dial/ClientMobile
+551 verbose os Darwin 25.4.0
+552 verbose node v25.2.1
+553 verbose npm  v11.6.2
+554 verbose exit 0
+555 info ok

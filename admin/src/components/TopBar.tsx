@@ -14,7 +14,6 @@ import {
   CreditCard,
   Building2,
   Clock,
-  Loader2,
   LogOut,
   ShieldCheck,
   RefreshCw,
@@ -288,9 +287,7 @@ export default function TopBar({ onMenuOpen }: { onMenuOpen?: () => void }) {
                     <button onClick={() => setMailOpen(false)} className="text-slate-300 hover:text-slate-500"><X size={14} /></button>
                   </div>
                   <div className="max-h-72 overflow-y-auto divide-y divide-slate-50">
-                    {loadingNotifs ? (
-                      <div className="py-8 flex justify-center"><Loader2 size={20} className="animate-spin text-[#b66dff]" /></div>
-                    ) : mailMessages.length === 0 ? (
+                    {mailMessages.length === 0 ? (
                       <div className="py-8 text-center">
                         <CheckCircle2 size={28} className="mx-auto text-emerald-300 mb-2" />
                         <p className="text-xs font-bold text-slate-400">No pending alerts</p>
@@ -370,9 +367,7 @@ export default function TopBar({ onMenuOpen }: { onMenuOpen?: () => void }) {
                   </div>
 
                   <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
-                    {loadingNotifs ? (
-                      <div className="py-8 flex justify-center"><Loader2 size={20} className="animate-spin text-[#b66dff]" /></div>
-                    ) : notifications.length === 0 ? (
+                    {notifications.length === 0 ? (
                       <div className="py-10 text-center">
                         <Bell size={28} className="mx-auto text-slate-200 mb-2" />
                         <p className="text-xs font-bold text-slate-400">All caught up!</p>

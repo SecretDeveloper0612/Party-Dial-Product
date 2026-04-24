@@ -657,19 +657,30 @@ export default function Home() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="py-24 px-6 bg-white relative overflow-hidden">
+      <section className="py-16 md:py-24 px-6 bg-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl font-black text-slate-900 mb-20 uppercase">How it <span className="pd-gradient-text">Works</span></h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 relative">
+          <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-12 md:mb-20 uppercase">How it <span className="pd-gradient-text">Works</span></h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16 relative">
+             {/* Horizontal line for desktop */}
              <div className="hidden md:block absolute top-12 left-[20%] right-[20%] h-0.5 bg-slate-100 border-dashed border-b-2"></div>
+             {/* Vertical line for mobile */}
+             <div className="md:hidden absolute left-1/2 top-10 bottom-20 w-px bg-slate-100 border-dashed border-l-2 -translate-x-1/2"></div>
+             
              {steps.map((step, i) => (
-               <div key={i} className="flex flex-col items-center relative z-10">
-                  <div className="w-24 h-24 rounded-full pd-gradient flex items-center justify-center mb-10 shadow-xl shadow-pd-pink/20 scale-110 active:scale-95 transition-transform">
+               <motion.div 
+                 key={i} 
+                 initial={{ opacity: 0, y: 20 }}
+                 whileInView={{ opacity: 1, y: 0 }}
+                 viewport={{ once: true }}
+                 transition={{ delay: i * 0.2 }}
+                 className="flex flex-col items-center relative z-10"
+               >
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full pd-gradient flex items-center justify-center mb-6 md:mb-10 shadow-xl shadow-pd-pink/20 scale-100 md:scale-110 active:scale-95 transition-transform">
                     {step.icon}
                   </div>
-                  <h3 className="text-xl font-black text-slate-900 mb-4">{step.title}</h3>
-                  <p className="text-slate-500 font-medium max-w-xs mx-auto leading-relaxed">{step.desc}</p>
-               </div>
+                  <h3 className="text-lg md:text-xl font-black text-slate-900 mb-3 md:mb-4">{step.title}</h3>
+                  <p className="text-sm md:text-slate-500 font-medium max-w-[280px] md:max-w-xs mx-auto leading-relaxed">{step.desc}</p>
+               </motion.div>
              ))}
           </div>
         </div>

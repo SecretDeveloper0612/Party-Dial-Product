@@ -21,7 +21,6 @@ import {
   TrendingUp,
   History,
   Info,
-  Loader2,
   ChevronRight,
   Trash2,
   Link2
@@ -220,7 +219,7 @@ export default function LeadDistributionVenuesPage() {
                   )}
                 >
                   {loading ? (
-                    <Loader2  size={20} />
+                    "Processing..."
                   ) : (
                     <>
                       <RefreshCw size={20} />
@@ -345,7 +344,6 @@ export default function LeadDistributionVenuesPage() {
                 {logsLoading ? (
                   <tr>
                     <td colSpan={4} className="py-24 text-center">
-                      <Loader2 className=" text-emerald-500 mx-auto mb-4" size={32} />
                       <p className="text-xs font-black uppercase tracking-widest text-slate-400">Syncing logs...</p>
                     </td>
                   </tr>

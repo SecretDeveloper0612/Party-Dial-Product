@@ -28,6 +28,7 @@ import {
   LogOut,
   User,
   CheckCircle2,
+  Smartphone,
   X,
   Sparkle,
   Wallet,
@@ -56,7 +57,6 @@ import {
   Shield,
   CreditCard,
   Globe,
-  Smartphone,
   Key,
   Database,
   Coffee,
@@ -84,6 +84,7 @@ import VenueCalendar from '@/vendor/components/dashboard/VenueCalendar';
 import LeadExplorer from '@/vendor/components/dashboard/LeadExplorer';
 import NotificationDropdown from '@/vendor/components/dashboard/NotificationDropdown';
 import PaymentReminderPopup from '@/vendor/components/PaymentReminderPopup';
+import PartnerInquiryPopup from '@/vendor/components/PartnerInquiryPopup';
 
 import logo from '../logo.jpg';
 
@@ -115,6 +116,7 @@ const planLabels: {[key: string]: string} = {
 export default function VendorDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
+  const [showInquiryPopup, setShowInquiryPopup] = useState(false);
   const [settingsSection, setSettingsSection] = useState('profile');
   const [leadFilter, setLeadFilter] = useState('All');
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -940,10 +942,21 @@ export default function VendorDashboard() {
 
             <div className="space-y-1">
                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 pl-4 mb-4 block opacity-50">Main Menu</span>
-                {tabs.map(item => (
+                {tabs
+                  .filter(item => {
+                    const isFree = venueProfile?.subscriptionPlan === 'free';
+                    if (isFree) {
+                      return ['overview', 'reviews'].includes(item.id);
+                    }
+                    return true;
+                  })
+                  .map(item => (
                   <button
                     key={item.id}
-                    onClick={() => setActiveTab(item.id)}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      if (isMobile) setSidebarOpen(false);
+                    }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[12px] font-bold transition-all ${
                       activeTab === item.id 
                       ? 'bg-pd-pink text-white shadow-lg shadow-pd-pink/20' 
@@ -951,7 +964,9 @@ export default function VendorDashboard() {
                     }`}
                   >
                     {item.icon}
-                    <span className="tracking-wide uppercase text-[10px]">{item.label}</span>
+                    <span className="tracking-wide uppercase text-[10px]">
+                      {venueProfile?.subscriptionPlan === 'free' && item.id === 'overview' ? 'My Listing' : item.label}
+                    </span>
                   </button>
                 ))}
              </div>
@@ -966,7 +981,7 @@ export default function VendorDashboard() {
                     { id: 'pricing', label: 'Manage Pricing', icon: <IndianRupee size={18} />, href: '/dashboard/onboarding/pricing' },
                     { id: 'subscription', label: 'Subscription', icon: <ShieldCheck size={18} />, href: '/dashboard/onboarding/subscription' },
                   ].map(item => (
-                    <Link key={item.id} href={item.href || '#'}>
+                    <Link key={item.id} href={item.href || '#'} onClick={() => isMobile && setSidebarOpen(false)}>
                       <div className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-slate-500 hover:bg-slate-50 hover:text-pd-pink transition-all cursor-pointer">
                         <div className="p-1.5 bg-slate-50 rounded-lg group-hover:bg-white transition-colors">
                            {item.icon}
@@ -983,7 +998,10 @@ export default function VendorDashboard() {
                 {secondaryTabs.map(item => (
                   <button
                     key={item.id}
-                    onClick={() => setActiveTab(item.id)}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      if (isMobile) setSidebarOpen(false);
+                    }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-bold tracking-wide uppercase transition-all ${
                       activeTab === item.id 
                       ? 'bg-slate-100 text-slate-900 border border-slate-200' 
@@ -996,103 +1014,59 @@ export default function VendorDashboard() {
                 ))}
              </div>
 
-             {/* Mobile Subscription Section */}
-             <div className="mt-8 mb-4 px-3 lg:hidden">
-                <div className="p-6 bg-slate-900 rounded-[32px] border border-white/10 shadow-2xl relative overflow-hidden group">
-                    {/* Background Glow */}
-                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-pd-pink/20 blur-[40px] rounded-full group-hover:bg-pd-pink/30 transition-all duration-700"></div>
-                    
-                    {expiryInfo ? (
-                      <>
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-4">
-                               <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)] animate-pulse"></div>
-                               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 leading-none">{expiryInfo.label} ACTIVE</span>
-                            </div>
-                            
-                            <div className="flex items-end justify-between mb-5">
-                                <div className="flex flex-col">
-                                   <span className="text-[20px] font-black text-white italic tracking-tighter leading-none mb-1">{expiryInfo.daysLeft}</span>
-                                   <span className="text-[8px] font-black uppercase text-slate-500 tracking-[0.1em]">Days Remaining</span>
-                                </div>
-                                <div className="text-right">
-                                   <Zap size={16} className="text-pd-pink fill-pd-pink mb-1 ml-auto" />
-                                   <span className="text-[8px] font-black uppercase text-pd-pink tracking-widest italic leading-none">Renewal Required</span>
-                                </div>
-                            </div>
-
-                            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mb-6">
-                                <motion.div 
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${expiryInfo.percent}%` }}
-                                    className={`h-full rounded-full ${
-                                        expiryInfo.daysLeft < 7 
-                                        ? 'bg-gradient-to-r from-red-500 to-rose-600' 
-                                        : 'bg-gradient-to-r from-emerald-400 to-pd-pink'
-                                    }`}
-                                />
-                            </div>
-                        </div>
-                      </>
-                    ) : (
-                        <div className="mb-6 relative z-10 text-center">
-                           <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-400 block mb-2">Premium Partner</span>
-                           <div className="h-1 flex gap-1">
-                              {[1,2,3,4,5].map(i => <div key={i} className="flex-1 bg-white/10 rounded-full"></div>)}
-                           </div>
-                        </div>
-                    )}
-                    
-                    <Link 
-                      href="/dashboard/onboarding/subscription"
-                      onClick={() => setSidebarOpen(false)}
-                      className="relative z-10 w-full h-12 flex items-center justify-center gap-3 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink hover:text-white transition-all shadow-lg active:scale-95"
-                    >
-                      <CreditCard size={14} /> 
-                      Manage Plan
-                    </Link>
-                </div>
-             </div>
          </div>
 
          <div className="mt-auto p-6">
+            <button 
+               onClick={() => window.open('https://play.google.com/store/apps/details?id=com.partydial.partner', '_blank')}
+               className="w-full flex items-center justify-between px-5 py-4 rounded-3xl bg-slate-900 text-white shadow-xl shadow-slate-900/20 hover:bg-pd-pink transition-all group mb-4"
+            >
+               <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                     <Smartphone size={20} className="text-white" />
+                  </div>
+                  <div className="text-left">
+                     <p className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Partner App</p>
+                     <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Download Now</p>
+                  </div>
+               </div>
+               <ChevronRight size={14} className="text-white/40 group-hover:translate-x-1 group-hover:text-white transition-all" />
+            </button>
 
-            
             <button 
                onClick={handleLogout}
-               className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold italic text-red-500 hover:bg-red-50 mt-4 transition-all"
+               className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold italic text-red-500 hover:bg-red-50 transition-all"
             >
                <LogOut size={20} />
                Sign Out
             </button>
-
          </div>
       </motion.aside>
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 min-h-screen flex flex-col max-h-screen overflow-y-auto printable-main relative">
          
-         <header className="h-20 lg:h-16 bg-white border-b border-slate-100 px-4 lg:px-8 flex items-center justify-between sticky top-0 z-40 no-print">
+          <header className="h-20 lg:h-24 bg-white border-b border-slate-100 px-6 lg:px-12 flex items-center justify-between sticky top-0 z-40 no-print transition-all duration-300">
             
             {/* Left Section: Context & Navigation */}
-            <div className="flex items-center gap-3 lg:gap-6">
+            <div className="flex items-center gap-4 lg:gap-8">
                {(isMobile || !sidebarOpen) && (
                   <motion.button 
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setSidebarOpen(true)}
-                    className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-lg shadow-slate-900/10 hover:bg-pd-pink transition-all"
+                    className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-xl shadow-slate-900/10 hover:bg-pd-pink transition-all"
                   >
-                     <Menu size={18} />
+                     <Menu size={22} />
                   </motion.button>
                )}
                
-               <div className="flex flex-col">
-                  <h1 className="text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none mb-1">
+               <div className="flex flex-col justify-center">
+                  <h1 className="text-[10px] lg:text-[12px] font-black text-slate-400 uppercase tracking-[0.3em] leading-none mb-1.5">
                      {formattedDate || 'Loading...'}
                   </h1>
-                  <p className="text-xs lg:text-sm font-black text-slate-900 uppercase italic tracking-tight">
-                     <span className="hidden sm:inline">Partner</span> <span className="text-pd-pink">Console</span> / <span className="capitalize">{activeTab}</span>
+                  <p className="text-sm lg:text-base font-black text-slate-900 uppercase italic tracking-tight leading-none">
+                     <span className="hidden sm:inline">Partner</span> <span className="text-pd-pink">Console</span> / <span className="capitalize text-slate-900/80">{activeTab}</span>
                   </p>
                </div>
             </div>
@@ -1184,8 +1158,8 @@ export default function VendorDashboard() {
                         </p>
                       </div>
                   </div>
-                  <div className="flex relative scale-90 lg:scale-100">
-                     <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-2xl bg-gradient-to-tr from-pd-pink to-purple-500 p-[2px] shadow-lg shadow-pd-pink/20">
+                  <div className="flex relative transition-transform group-hover:scale-105">
+                     <div className="w-11 h-11 lg:w-12 lg:h-12 rounded-2xl bg-gradient-to-tr from-pd-pink to-purple-500 p-[2px] shadow-xl shadow-pd-pink/20">
                         <div className="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center">
                            {(() => {
                               try {
@@ -1196,8 +1170,8 @@ export default function VendorDashboard() {
                                        <Image 
                                           src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${avatar.id}/view?project=69ae84bc001ca4edf8c2`} 
                                           alt="Venue Profile" 
-                                          width={44} 
-                                          height={44} 
+                                          width={48} 
+                                          height={48} 
                                           className="object-cover w-full h-full" 
                                        />
                                     );
@@ -1207,16 +1181,16 @@ export default function VendorDashboard() {
                                  <Image 
                                     src={`https://i.pravatar.cc/100?u=${encodeURIComponent((venueProfile?.venueName || 'partner').trim())}`} 
                                     alt="Default Profile" 
-                                    width={44} 
-                                    height={44} 
+                                    width={48} 
+                                    height={48} 
                                     className="grayscale-[0.4]" 
                                  />
                               );
                            })()}
                         </div>
                      </div>
-                     <div className="absolute -bottom-1 -right-1 w-4 h-4 lg:w-5 lg:h-5 bg-white rounded-xl shadow-md flex items-center justify-center border border-slate-100">
-                        <div className="w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full bg-emerald-400"></div>
+                     <div className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 bg-white rounded-full shadow-lg flex items-center justify-center border-2 border-white">
+                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
                      </div>
                   </div>
                </div>
@@ -1228,7 +1202,7 @@ export default function VendorDashboard() {
             
             {/* Profile Status Indicator */}
             {venueProfile && (
-               <div className="mb-8 flex">
+               <div className="mb-6 lg:mb-8 flex">
                  {(() => {
                    const status = venueProfile.isVerified 
                      ? { label: "Approved Profile", color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20", icon: <ShieldCheck size={14} className="text-emerald-500" /> }
@@ -1289,9 +1263,12 @@ export default function VendorDashboard() {
                       Your profile is currently on the <span className="text-slate-900 font-bold">Free Plan</span>. Purchase a subscription to unlock real-time inquiries, lead management tools, and customer contact details.
                    </p>
                    <div className="flex flex-col sm:flex-row gap-4 items-center">
-                      <Link href="/dashboard/onboarding/subscription" className="px-10 py-5 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest rounded-3xl hover:bg-pd-pink transition-all shadow-2xl active:scale-95 flex items-center gap-3">
-                         Unlock All Features <ArrowUpRight size={18} />
-                      </Link>
+                      <button 
+                         onClick={() => setShowInquiryPopup(true)}
+                         className="px-10 py-5 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest rounded-3xl hover:bg-pd-pink transition-all shadow-2xl active:scale-95 flex items-center gap-3"
+                       >
+                          Unlock All Features <ArrowUpRight size={18} />
+                       </button>
                       <button onClick={() => setActiveTab('support')} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors">
                          Talk to Support
                       </button>
@@ -1321,9 +1298,12 @@ export default function VendorDashboard() {
                    <p className="text-slate-500 font-medium italic max-w-md mx-auto mb-12 leading-relaxed">
                       Managing your sales pipeline and booking flow requires an active subscription. Upgrade today to start converting inquiries into bookings.
                    </p>
-                   <Link href="/dashboard/onboarding/subscription" className="px-10 py-5 bg-pd-purple text-white text-[11px] font-black uppercase tracking-widest rounded-3xl hover:bg-slate-900 transition-all shadow-2xl active:scale-95 flex items-center gap-3">
+                   <button 
+                      onClick={() => setShowInquiryPopup(true)}
+                      className="px-10 py-5 bg-pd-purple text-white text-[11px] font-black uppercase tracking-widest rounded-3xl hover:bg-slate-900 transition-all shadow-2xl active:scale-95 flex items-center gap-3"
+                   >
                       Activate Sales Pipeline <Sparkles size={18} />
-                   </Link>
+                   </button>
                 </motion.div>
               )
             )}
@@ -1424,6 +1404,12 @@ export default function VendorDashboard() {
       <OnboardingPopup 
         isOpen={showOnboarding} 
         onClose={completeOnboarding} 
+      />
+
+      <PartnerInquiryPopup 
+        isOpen={showInquiryPopup}
+        onClose={() => setShowInquiryPopup(false)}
+        venueProfile={venueProfile}
       />
 
       <LeadExplorer 

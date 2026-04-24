@@ -80,15 +80,15 @@ const LeadInbox = ({
                 className="bg-white lg:bg-slate-50 rounded-[28px] lg:rounded-[32px] p-5 lg:p-6 flex flex-col gap-4 lg:gap-5 border border-slate-100 shadow-sm hover:border-slate-300 transition-all font-sans"
               >
                  <div className="flex justify-between items-start">
-                    <div className="flex gap-4 items-center">
-                       <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-black text-xl">
-                          {lead.name ? lead.name.charAt(0).toUpperCase() : 'U'}
-                       </div>
-                       <div>
-                          <h4 className="text-base font-black text-slate-900 flex items-center gap-2">{lead.name}</h4>
-                          <p className="text-[10px] font-bold text-slate-400 mt-0.5 tracking-wide">{lead.time || 'just now'}</p>
-                       </div>
-                    </div>
+                     <div className="flex gap-3 sm:gap-4 items-center">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-black text-lg sm:text-xl shrink-0">
+                           {lead.name ? lead.name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div className="min-w-0">
+                           <h4 className="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2 truncate">{lead.name}</h4>
+                           <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 mt-0.5 tracking-wide">{lead.time || 'just now'}</p>
+                        </div>
+                     </div>
                     <div className="relative">
                        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100/50 text-[10px] font-black rounded-xl uppercase tracking-widest">
                           {lead.status} <ChevronDown size={14} />

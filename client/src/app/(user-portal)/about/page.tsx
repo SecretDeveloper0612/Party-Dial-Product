@@ -269,7 +269,7 @@ export default function AboutUs() {
                  viewport={{ once: true }}
                  className="relative h-[250px] md:h-[500px] rounded-2xl md:rounded-[3rem] overflow-hidden shadow-2xl"
                >
-                 <Image src="/about/office.png" alt="Our Team" fill className="object-cover brightness-105" />
+                 <Image src="/about/event-guests.png" alt="Lively Wedding Reception" fill className="object-cover brightness-105" />
                </motion.div>
             </div>
             <div className="w-full lg:w-1/2 text-center lg:text-left">

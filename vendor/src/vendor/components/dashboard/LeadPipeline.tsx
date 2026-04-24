@@ -138,33 +138,35 @@ const LeadPipeline = ({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="bg-white p-6 rounded-[35px] border border-slate-50 flex flex-col md:flex-row md:items-center justify-between hover:border-pd-pink/30 transition-all shadow-sm group/card gap-6"
+                    className="bg-white p-6 rounded-[35px] border border-slate-50 flex flex-col hover:border-pd-pink/30 transition-all shadow-sm group/card gap-6"
                   >
-                    <div className="flex items-center gap-5">
-                      <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover/card:bg-pd-pink/10 group-hover/card:text-pd-pink transition-colors shrink-0">
-                        <Users size={24} />
-                      </div>
-                      <div className="text-left">
-                        <h4 className="text-base font-black italic uppercase text-slate-900 leading-none mb-1.5">{lead.name}</h4>
-                        <div className="flex flex-wrap gap-x-4 gap-y-1">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase italic tracking-widest">{lead.event} • {lead.guests} Pax</p>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase italic tracking-widest flex items-center gap-1">
-                            <Phone size={10} /> {lead.phone}
-                          </p>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                      <div className="flex items-center gap-4 sm:gap-5">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover/card:bg-pd-pink/10 group-hover/card:text-pd-pink transition-colors shrink-0">
+                          <Users size={20} />
                         </div>
-                        <p className="text-[9px] font-black text-pd-pink uppercase tracking-widest mt-2 opacity-70 bg-pd-pink/5 px-2 py-0.5 rounded-full inline-block">Received: {lead.date}</p>
+                        <div className="text-left min-w-0">
+                          <h4 className="text-sm sm:text-base font-black italic uppercase text-slate-900 leading-none mb-1.5 truncate">{lead.name}</h4>
+                          <div className="flex flex-wrap gap-x-3 sm:gap-x-4 gap-y-1">
+                            <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase italic tracking-widest truncate">{lead.event} • {lead.guests} Pax</p>
+                            <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase italic tracking-widest flex items-center gap-1">
+                              <Phone size={10} /> {lead.phone}
+                            </p>
+                          </div>
+                          <p className="text-[8px] sm:text-[9px] font-black text-pd-pink uppercase tracking-widest mt-2 opacity-70 bg-pd-pink/5 px-2 py-0.5 rounded-full inline-block">Received: {lead.date}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                       {pipelineStages.filter(s => s.id !== activeStage).slice(0, 3).map(s => (
+                      <div className="flex flex-wrap gap-2 items-center">
+                        {pipelineStages.filter(s => s.id !== activeStage).slice(0, 3).map(s => (
                           <button 
                             key={s.id}
                             onClick={(e) => { e.stopPropagation(); updateLeadStatus(lead.id, s.id); }}
-                            className="px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-white hover:bg-slate-900 transition-all border border-slate-100/50 bg-slate-50/50"
+                            className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-white hover:bg-slate-900 transition-all border border-slate-100/50 bg-slate-50/50 flex-1 sm:flex-none text-center"
                           >
-                             Move to {s.id.split(' ')[0]}
+                            {s.id.split(' ')[0]}
                           </button>
-                       ))}
+                        ))}
+                      </div>
                     </div>
                   </motion.div>
                 ))

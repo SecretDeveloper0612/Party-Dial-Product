@@ -70,7 +70,7 @@ const DashboardOverview = ({
                     <span className="w-10 h-[3px] bg-pd-pink"></span>
                     <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Executive Briefing</span>
                  </div>
-                 <h1 className="text-3xl lg:text-4xl xl:text-5xl font-black text-slate-900 uppercase italic tracking-tighter mb-4 lg:mb-6 leading-none">
+                 <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black text-slate-900 uppercase italic tracking-tighter mb-4 lg:mb-6 leading-none">
                     {venueProfile?.venueName || userName || "Your Venue"}
                  </h1>
                  <div className="flex flex-wrap gap-2 lg:gap-4">
@@ -86,7 +86,7 @@ const DashboardOverview = ({
               <div className="flex flex-col gap-3">
                  <button 
                    onClick={() => setActiveTab('leads')}
-                   className="h-12 lg:h-14 px-6 lg:px-10 bg-slate-900 text-white rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] italic hover:bg-pd-pink transition-all shadow-xl shadow-slate-900/5 group"
+                   className="h-12 lg:h-14 px-6 lg:px-10 bg-slate-900 text-white rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] italic hover:bg-pd-pink transition-all shadow-xl shadow-slate-900/5 group w-full sm:w-auto"
                  >
                     Launch Inquiry Manager
                  </button>
@@ -99,7 +99,7 @@ const DashboardOverview = ({
           {stats.map((stat, i) => (
              <motion.div
                key={i}
-               className="bg-white p-4 lg:p-8 rounded-[20px] lg:rounded-[24px] border border-slate-100 shadow-[0_1px_2px_rgba(0,0,0,0.01)] hover:border-pd-pink transition-all"
+               className="bg-white p-5 lg:p-8 rounded-[24px] border border-slate-100 shadow-[0_1px_2px_rgba(0,0,0,0.01)] hover:border-pd-pink transition-all"
              >
                 <div className="flex items-center justify-between mb-6 lg:mb-10">
                    <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-lg ${stat.color} flex items-center justify-center scale-90 lg:scale-100`}>
@@ -110,15 +110,15 @@ const DashboardOverview = ({
                    </span>
                 </div>
                 <h4 className="text-[8px] lg:text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1 lg:mb-2">{stat.label}</h4>
-                <p className="text-lg lg:text-2xl font-black italic text-slate-900 tracking-tight">{stat.value}</p>
+                <p className="text-xl lg:text-2xl font-black italic text-slate-900 tracking-tight">{stat.value}</p>
              </motion.div>
           ))}
         </div>
 
        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-3 bg-white rounded-[32px] border border-slate-100 p-10">
-             <div className="flex items-center justify-between mb-10">
-                <h2 className="text-xl font-black italic tracking-tighter uppercase leading-none">
+          <div className="lg:col-span-3 bg-white rounded-[32px] border border-slate-100 p-6 lg:p-10">
+             <div className="flex items-center justify-between mb-8 lg:mb-10">
+                <h2 className="text-lg lg:text-xl font-black italic tracking-tighter uppercase leading-none">
                    Live <span className="text-pd-pink">Inquiry Feed</span>
                 </h2>
                 <button onClick={() => setActiveTab('leads')} className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-pd-pink transition-colors">View All History</button>
@@ -132,14 +132,14 @@ const DashboardOverview = ({
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.1 }}
-                      className="group p-5 bg-white border border-slate-50 rounded-[20px] flex items-center justify-between hover:border-pd-pink transition-all cursor-pointer"
+                      className="group p-4 sm:p-5 bg-white border border-slate-50 rounded-[24px] flex items-center justify-between hover:border-pd-pink transition-all cursor-pointer"
                     >
-                       <div className="flex items-center gap-5">
-                          <div className="w-12 h-12 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-pd-pink/10 group-hover:text-pd-pink transition-all border border-slate-100 group-hover:border-pd-pink/20">
-                             <Users size={20} />
+                       <div className="flex items-center gap-4 sm:gap-5">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-pd-pink/10 group-hover:text-pd-pink transition-all border border-slate-100 group-hover:border-pd-pink/20 shrink-0">
+                             <Users size={18} />
                           </div>
-                          <div>
-                             <h4 className="text-sm font-black italic uppercase tracking-tight text-slate-900 leading-none mb-1.5">{lead.name}</h4>
+                          <div className="min-w-0">
+                             <h4 className="text-xs sm:text-sm font-black italic uppercase tracking-tight text-slate-900 leading-none mb-1.5 truncate">{lead.name}</h4>
                              <div className="flex items-center gap-2">
                                 <span className="text-[9px] font-bold text-slate-400 flex items-center gap-1 italic lowercase">
                                    <Clock size={10} /> {lead.date}
@@ -149,19 +149,19 @@ const DashboardOverview = ({
                              </div>
                           </div>
                        </div>
-                       <div className="flex flex-col items-end gap-2">
-                          <span className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest ${lead.color}`}>
+                       <div className="flex flex-col items-end gap-2 shrink-0">
+                          <span className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[7px] sm:text-[8px] font-black uppercase tracking-widest ${lead.color}`}>
                              {lead.status}
                           </span>
                        </div>
                     </motion.div>
                   ))
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12 px-6 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
-                     <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-slate-300 mb-4 shadow-sm">
-                        <Zap size={20} />
+                  <div className="flex flex-col items-center justify-center py-10 px-6 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                     <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-300 mb-4 shadow-sm">
+                        <Zap size={18} />
                      </div>
-                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6">No Leads Available</p>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 text-center">No Leads Available</p>
                      {venueProfile?.subscriptionPlan === 'free' || !venueProfile?.subscriptionPlan ? (
                         <button 
                           onClick={() => (window as any).location.href = '/dashboard/onboarding/subscription'}

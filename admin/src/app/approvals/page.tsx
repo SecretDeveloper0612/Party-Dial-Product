@@ -14,7 +14,6 @@ import {
   CreditCard,
   Calendar,
   FileCheck,
-  Loader2,
   Filter,
   RefreshCw,
   AlertCircle,
@@ -351,7 +350,6 @@ export default function ApprovalsQueue() {
       <div className="space-y-4">
         {loading ? (
           <div className="py-20 text-center flex flex-col items-center gap-4">
-            <Loader2 className=" text-[#b66dff]" size={40} />
             <p className="text-xs font-black uppercase text-slate-400 tracking-widest">Loading venue queue...</p>
           </div>
         ) : error ? (
@@ -478,11 +476,8 @@ export default function ApprovalsQueue() {
                       disabled={processingId === venue.id}
                       className="px-6 py-3 grad-purple text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-purple-500/20 hover:scale-[1.02] transition-all relative active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
                     >
-                      {processingId === venue.id ? (
-                        <><Loader2 size={14}  /> Activating...</>
-                      ) : (
-                        <><ShieldCheck size={14} /> Approve & Activate</>
-                      )}
+                      <><ShieldCheck size={14} /> Approve & Activate</>
+
                     </button>
                   ) : (
                     <div className="px-5 py-3 bg-emerald-50 text-emerald-600 rounded-xl font-black text-xs uppercase tracking-widest border border-emerald-100 flex items-center gap-2">

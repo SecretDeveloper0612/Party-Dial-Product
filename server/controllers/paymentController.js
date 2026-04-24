@@ -164,16 +164,33 @@ exports.verifyPayment = async (req, res) => {
         
         updatedBilling.paidSince = new Date().toISOString();
 
-        await databases.updateDocument(
-          DATABASE_ID,
-          VENUES_COLLECTION_ID,
-          targetVenueId,
-          {
-            subscriptionPlan: planName || 'Standard',
-            subscriptionExpiry: expiryDate.toISOString(),
-            billingDetails: JSON.stringify(updatedBilling)
+        try {
+          await databases.updateDocument(
+            DATABASE_ID,
+            VENUES_COLLECTION_ID,
+            targetVenueId,
+            {
+              subscriptionPlan: planName || 'Standard',
+              subscriptionExpiry: expiryDate.toISOString(),
+              billingDetails: JSON.stringify(updatedBilling)
+            }
+          );
+        } catch (updateErr) {
+          // If billingDetails doesn't exist in DB, retry without it
+          if (updateErr.message && updateErr.message.includes('billingDetails')) {
+            await databases.updateDocument(
+              DATABASE_ID,
+              VENUES_COLLECTION_ID,
+              targetVenueId,
+              {
+                subscriptionPlan: planName || 'Standard',
+                subscriptionExpiry: expiryDate.toISOString()
+              }
+            );
+          } else {
+            throw updateErr;
           }
-        );
+        }
       }
     } catch (venueErr) {
       console.error('Failed to update venue subscription:', venueErr.message);

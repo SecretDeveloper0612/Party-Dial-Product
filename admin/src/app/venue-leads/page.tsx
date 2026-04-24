@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Building2, 
@@ -9,7 +10,6 @@ import {
   Phone, 
   Calendar, 
   MoreVertical,
-  Loader2,
   Download,
   Users as UsersIcon,
   MapPin,
@@ -466,7 +466,6 @@ export default function VenueLeadsCheckPage() {
                   {loading ? (
                     <tr>
                       <td colSpan={6} className="p-20 text-center">
-                         <Loader2 className="animate-spin text-indigo-500 mx-auto mb-4" size={32} />
                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Syncing Leads Data...</p>
                       </td>
                     </tr>

@@ -13,7 +13,6 @@ import {
   Building2, 
   Search, 
   Filter, 
-  Loader2, 
   ChevronRight,
   TrendingDown,
   Activity,
@@ -39,11 +38,7 @@ export default function CRMPerformance() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-       <div className=" rounded-full h-8 w-8 border-b-2 border-[#b66dff]"></div>
-    </div>
-  );
+  if (loading) return null;
 
   const totalValue = deals.reduce((acc, curr) => acc + curr.value, 0);
   const conversionRate = deals.length > 0 ? (deals.filter(d => d.stage === 'Closed Won').length / deals.length) * 100 : 0;

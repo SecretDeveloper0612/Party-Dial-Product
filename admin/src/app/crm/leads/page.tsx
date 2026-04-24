@@ -23,7 +23,7 @@ import {
   Paperclip,
   CheckCircle2,
   XCircle,
-  Loader2,
+  XCircle,
   Save,
   Zap,
   PhoneCall,
@@ -251,7 +251,6 @@ export default function CRMLeads() {
                   {loading ? (
                     <tr>
                       <td colSpan={6} className="p-20 text-center">
-                         <Loader2 className=" text-[#b66dff] mx-auto mb-4" size={32} />
                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Synchronizing Lead Matrix...</p>
                       </td>
                     </tr>

@@ -21,7 +21,6 @@ import {
   TrendingUp,
   History,
   Info,
-  Loader2,
   ChevronRight,
   Trash2
 } from "lucide-react";
@@ -332,7 +331,7 @@ export default function LeadDistributionPage() {
                   )}
                 >
                   {loading ? (
-                    <Loader2  size={20} />
+                    "Processing..."
                   ) : (
                     <>
                       <Target size={20} />
@@ -537,7 +536,6 @@ export default function LeadDistributionPage() {
                 {logsLoading ? (
                   <tr>
                     <td colSpan={4} className="py-24 text-center">
-                      <Loader2 className=" text-indigo-500 mx-auto mb-4" size={32} />
                       <p className="text-xs font-black uppercase tracking-widest text-slate-400">Syncing with server...</p>
                     </td>
                   </tr>

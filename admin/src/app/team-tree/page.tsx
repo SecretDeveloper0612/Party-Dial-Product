@@ -14,9 +14,6 @@ import {
   Users,
   Target,
   Maximize2,
-  Minimize2,
-  Loader2,
-  Shield,
   Briefcase,
   GitBranch
 } from "lucide-react";
@@ -171,7 +168,6 @@ export default function TeamStructureView() {
        <div className="flex-1 bg-slate-50/50 rounded-[3rem] border border-slate-100/50 shadow-inner overflow-auto relative custom-scrollbar">
           {loading ? (
              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                <Loader2 className=" text-[#b66dff]" size={40} />
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Loading organizational structure...</p>
              </div>
           ) : (

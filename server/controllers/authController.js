@@ -1,5 +1,5 @@
 const { Client, users, account, databases, client, DATABASE_ID, VENUES_COLLECTION_ID } = require('../config/appwrite');
-const { sendWelcomeEmail } = require('../utils/emailService');
+const { sendWelcomeEmail, sendRegistrationCredentialsEmail } = require('../utils/emailService');
 const dns = require('dns').promises;
 
 
@@ -98,6 +98,8 @@ exports.register = async (req, res) => {
                                 onboardingComplete: false,
                                 isVerified: false,
                                 status: 'active',
+                                subscriptionPlan: req.body.subscriptionPlan || 'None',
+                                accessLevel: req.body.accessLevel || 'standard',
                                 registrationDate: new Date().toISOString()
                             }
                         );
@@ -118,10 +120,51 @@ exports.register = async (req, res) => {
         const tempAccount = new Account(tempClient);
         const session = await tempAccount.createEmailPasswordSession(email, password);
         
-        // Send Welcome Email (Non-blocking but logged)
-        sendWelcomeEmail(email, name)
-            .then(() => console.log(`Welcome email triggered for ${email}`))
-            .catch(err => console.error(`Failed to send welcome email to ${email}:`, err.message));
+        // Send appropriate welcome email based on plan
+        console.log('[DEBUG] Registration Plan Detection:', req.body.subscriptionPlan);
+        const { sendPaymentReminderEmail } = require('../utils/emailService');
+
+        if (req.body.subscriptionPlan === 'free') {
+            console.log('[DEBUG] Sending Credentials Email to:', email);
+            sendRegistrationCredentialsEmail(email, name, email, password)
+                .then(() => console.log(`Free listing credentials email sent to ${email}`))
+                .catch(err => console.error(`Failed to send credentials email to ${email}:`, err.message));
+
+            // --- ⏳ Scheduled Payment Reminder (30 Minutes Later) ---
+            // We use a delayed execution to remind the user to upgrade after they've had a chance to explore.
+            setTimeout(async () => {
+                try {
+                    // Fetch the latest profile to see if they already upgraded in the last 30 mins
+                    // We list by userId to get the most accurate state
+                    const checkResult = await databases.listDocuments(
+                        DATABASE_ID, 
+                        VENUES_COLLECTION_ID, 
+                        [Query.equal('userId', newUser.$id)]
+                    );
+
+                    if (checkResult.documents.length > 0) {
+                        const v = checkResult.documents[0];
+                        const needsReminder = !v.subscriptionPlan || v.subscriptionPlan === 'free' || v.subscriptionPlan === 'None';
+                        
+                        if (needsReminder) {
+                            await sendPaymentReminderEmail(v.contactEmail, v.ownerName || v.venueName);
+                            console.log(`[AUTO] 30-min payment reminder sent to ${v.contactEmail}`);
+                        } else {
+                            console.log(`[SKIP] Payment reminder skipped for ${v.contactEmail} (Already upgraded to ${v.subscriptionPlan})`);
+                        }
+                    }
+                } catch (remErr) {
+                    console.error('Error in 30min payment reminder logic:', remErr.message);
+                }
+            }, 30 * 60 * 1000); 
+            // -------------------------------------------------------
+
+        } else {
+            console.log('[DEBUG] Sending Standard Welcome Email to:', email);
+            sendWelcomeEmail(email, name)
+                .then(() => console.log(`Welcome email triggered for ${email}`))
+                .catch(err => console.error(`Failed to send welcome email to ${email}:`, err.message));
+        }
 
         return res.status(201).json({
             status: 'success',

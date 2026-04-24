@@ -91,7 +91,7 @@ export default function Footer() {
               {[
                 { name: 'Explore Venues', href: '/categories' },
                 { name: 'Event Services', href: '#' },
-                { name: 'About Us', href: '/about' }
+                { name: 'About Us', href: '/about' },
               ].map((link) => (
                 <li key={link.name}>
                   <Link href={link.href} className="group flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-white transition-all duration-300">

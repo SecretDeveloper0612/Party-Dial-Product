@@ -9,7 +9,6 @@ import {
   Clock, 
   CheckCircle2, 
   AlertTriangle,
-  Loader2,
   Building2,
   ArrowRight
 } from "lucide-react";
@@ -177,13 +176,21 @@ export default function ManualAccessPage() {
       </div>
       <div className="text-right">
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Current Status</p>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-end gap-1">
            <span className={cn(
              "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest",
              venue.subscriptionPlan ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-slate-100 text-slate-500"
            )}>
              {venue.subscriptionPlan || 'No Active Plan'}
            </span>
+           <div className="flex gap-1">
+             {!(venue as any).isVerified && (
+               <span className="px-1.5 py-0.5 rounded-[4px] bg-amber-50 text-amber-600 border border-amber-100 text-[6px] font-black uppercase">Unverified</span>
+             )}
+             {(venue as any).status !== 'active' && (
+               <span className="px-1.5 py-0.5 rounded-[4px] bg-rose-50 text-rose-600 border border-rose-100 text-[6px] font-black uppercase">Inactive</span>
+             )}
+           </div>
         </div>
       </div>
     </button>
@@ -228,7 +235,7 @@ export default function ManualAccessPage() {
             </div>
             <div className="max-h-[500px] overflow-y-auto divide-y divide-slate-50">
               {loading ? (
-                <div className="py-20 text-center"><Loader2 className="animate-spin text-slate-400 mx-auto" /></div>
+                <div className="py-20 text-center"></div>
               ) : filteredVenues.map((v) => (
                 <VenueItem 
                   key={v.$id} 
@@ -322,7 +329,8 @@ export default function ManualAccessPage() {
                      type="submit"
                      className="w-full h-16 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-800 shadow-xl shadow-slate-900/10 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                    >
-                     {granting ? <Loader2 className="animate-spin" size={20} /> : <UserPlus size={20} />}
+                     <UserPlus size={20} />
+
                      Execute Manual Override
                    </button>
 
@@ -333,7 +341,8 @@ export default function ManualAccessPage() {
                             disabled={granting || revoking || !selectedVenue.subscriptionPlan}
                             className="w-full h-12 bg-white text-rose-600 border border-rose-100 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 transition-all flex items-center justify-center gap-2 disabled:opacity-30 disabled:grayscale"
                         >
-                            {revoking ? <Loader2 className="animate-spin" size={14} /> : <AlertTriangle size={14} />}
+                            <AlertTriangle size={14} />
+
                             Deactivate Platform Access
                         </button>
                     </div>

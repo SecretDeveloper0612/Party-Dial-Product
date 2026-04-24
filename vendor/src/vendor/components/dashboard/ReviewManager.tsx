@@ -137,7 +137,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
            {reviews.map(review => (
-             <div key={review.$id} className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-pd-soft hover:border-pd-pink/30 hover:shadow-pd-strong transition-all group">
+             <div key={review.$id} className="bg-white p-6 lg:p-8 rounded-[32px] lg:rounded-[40px] border border-slate-100 shadow-pd-soft hover:border-pd-pink/30 hover:shadow-pd-strong transition-all group">
                 <div className="flex items-center gap-4 mb-6">
                    <div className="w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden flex items-center justify-center text-slate-400 border border-slate-50">
                       {review.userEmail ? (
@@ -210,7 +210,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="bg-white w-full max-w-xl rounded-[40px] shadow-2xl overflow-hidden relative z-10 p-8 md:p-12"
+                className="bg-white w-full max-w-xl rounded-[32px] md:rounded-[40px] shadow-2xl overflow-hidden relative z-10 p-6 md:p-12"
              >
                 <div className="flex items-center justify-between mb-8 md:mb-10">
                    <div>
