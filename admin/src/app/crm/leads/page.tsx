@@ -23,7 +23,6 @@ import {
   Paperclip,
   CheckCircle2,
   XCircle,
-  XCircle,
   Save,
   Zap,
   PhoneCall,
