@@ -14,6 +14,7 @@ import {
   Users,
   Target,
   Maximize2,
+  Minimize2,
   Briefcase,
   GitBranch
 } from "lucide-react";
