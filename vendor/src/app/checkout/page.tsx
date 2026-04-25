@@ -80,6 +80,7 @@ function CheckoutContent() {
 
   const fetchPlans = async () => {
     const professionalPlans = [
+      { $id: 'bp10', name: 'Starter 10 PAX Membership', price: 1, description: 'Micro-plan for small intimate gatherings' },
       { $id: 'bp50', name: '0-50 PAX Membership', price: 12045, description: 'Starter exposure for boutique venues' },
       { $id: 'bp100', name: '50-100 PAX Membership', price: 16060, description: 'Growth plan for rising banquet halls' },
       { $id: 'bp200', name: '100-200 PAX Membership', price: 28105, description: 'Premium tier for professional venues' },

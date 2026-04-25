@@ -19,6 +19,7 @@ interface SendQuotationModalProps {
 let cachedVenues: any[] | null = null;
 
 const basePlans = [
+  { id: 'bp10', name: 'Starter 10 PAX (1 Year)', mrp: 1, price: 1, mrpAnnual: 1, annual: 1, pax: 10 },
   { id: 'bp50', name: '0-50 PAX Membership', mrp: 41, price: 33, mrpAnnual: 14965, annual: 12045, pax: 50 },
   { id: 'bp100', name: '50-100 PAX Membership', mrp: 55, price: 44, mrpAnnual: 20075, annual: 16060, pax: 100 },
   { id: 'bp200', name: '100-200 PAX Membership', mrp: 96, price: 77, mrpAnnual: 35040, annual: 28105, pax: 200 },
@@ -890,7 +891,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                                    {selectedAddons.length > 0 && <div className="flex justify-between text-[10px] font-bold text-emerald-400 uppercase tracking-widest"><span>Add-ons ({selectedAddons.length})</span> <span>+₹{totalAddonValue.toLocaleString()}</span></div>}
                                    {discountAmount > 0 && <div className="flex justify-between text-[10px] font-bold text-pink-500 uppercase tracking-widest"><span>Special Discount</span> <span>-₹{discountAmount.toLocaleString()}</span></div>}
                                    <div className="pt-6 border-t border-white/10 flex flex-col items-center gap-4">
-                                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Net Yearly Amount (GST Inc)</p>
+                                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{grandTotal === 1 ? "Net Yearly Investment (Flat Fee)" : "Net Yearly Amount (GST Inc)"}</p>
                                         <div className="text-5xl font-bold tracking-tighter italic">₹{grandTotal.toLocaleString()}</div>
                                    </div>
                                </div>
