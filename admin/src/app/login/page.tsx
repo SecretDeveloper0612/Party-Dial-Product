@@ -9,7 +9,6 @@ import {
   User, 
   Eye, 
   EyeOff, 
-  EyeOff, 
   ChevronRight,
   ShieldAlert
 } from "lucide-react";

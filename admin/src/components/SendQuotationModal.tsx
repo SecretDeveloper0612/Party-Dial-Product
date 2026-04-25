@@ -254,8 +254,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
         p7.node.set(PDFName.of('Annots'), pdfDoc.context.obj([linkAnnotation]));
       }
 
-      const payStr = `Secure Link: ${checkoutLink}`;
-      p7.drawText(payStr, { x: width * 0.12, y: currentY - 30, size: 7, font: normalFont, color: rgb(1, 1, 1) });
+
     }
     return await pdfDoc.save();
   };
@@ -280,13 +279,12 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
     }
   };
 
-  const [origin, setOrigin] = useState("");
-  useEffect(() => { setOrigin(window.location.origin); }, []);
+  const partnerPortalUrl = process.env.NEXT_PUBLIC_VENDOR_URL || "https://partner.partydial.com";
 
   const checkoutLink = useMemo(() => {
-    let link = `${origin}/checkout?venueId=${currentEntityId}&planId=${selectedPlan}`;
-    if (selectedAddons.length > 0) link += `&addonId=${selectedAddons[0]}`;
-    if (discountType === 'percent' && discountValue > 0) link += `&discount=${discountValue}`;
+    let link = `${partnerPortalUrl}/checkout?venueId=${currentEntityId}&planId=${selectedPlan}`;
+    if (selectedAddons.length > 0) link += `&addonId=${selectedAddons.join(',')}`;
+    if (discountValue > 0) link += `&discount=${discountValue}&discountType=${discountType}`;
     if (gstNumber) link += `&gst=${gstNumber}`;
     
     // Add manual details if in manual mode OR if details were edited inline
@@ -305,7 +303,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
       link += `&partnerDetails=${encoded}`;
     }
     return link;
-  }, [origin, currentEntityId, selectedPlan, selectedAddons, discountType, discountValue, gstNumber, manualMode, inlineEditing, manualData]);
+  }, [partnerPortalUrl, currentEntityId, selectedPlan, selectedAddons, discountType, discountValue, gstNumber, manualMode, inlineEditing, manualData]);
 
 
   const handleSend = () => {
@@ -601,6 +599,12 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                                 className="px-4 py-3 bg-violet-100 text-violet-600 rounded-xl text-[10px] font-black uppercase hover:bg-violet-200 transition-all font-black"
                               >
                                 Copy
+                              </button>
+                              <button 
+                                onClick={() => window.open(checkoutLink, '_blank')}
+                                className="px-4 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase hover:bg-slate-800 transition-all font-black"
+                              >
+                                Open
                               </button>
                            </div>
                         </div>

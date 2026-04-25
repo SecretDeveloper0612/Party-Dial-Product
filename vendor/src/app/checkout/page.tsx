@@ -33,6 +33,15 @@ interface Plan {
   duration?: string;
 }
 
+const addonsList = [
+  { id: 'a50', name: '50 PAX Membership', price: 1999 },
+  { id: 'a100', name: '100 PAX Membership', price: 2999 },
+  { id: 'a200', name: '200 PAX Membership', price: 3999 },
+  { id: 'a500', name: '500 PAX Membership', price: 6999 },
+  { id: 'a1000', name: '1000 PAX Membership', price: 9999 },
+  { id: 'a2000', name: '2000 PAX Membership', price: 14999 },
+];
+
 function CheckoutContent() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -44,6 +53,7 @@ function CheckoutContent() {
   const preVenueId = searchParams.get('venueId');
   const preAddonId = searchParams.get('addonId');
   const preDiscount = searchParams.get('discount');
+  const preDiscountType = searchParams.get('discountType') || 'value';
   const preGst = searchParams.get('gst');
   const partnerDetailsEncoded = searchParams.get('partnerDetails');
   
@@ -81,6 +91,9 @@ function CheckoutContent() {
     ];
 
     try {
+      // Set initial plans immediately so they show up even if fetch is slow
+      setPlans(professionalPlans);
+
       const res = await fetch(`${serverUrl}/plans`);
       const result = await res.json();
       if (result.status === "success") {
@@ -92,12 +105,10 @@ function CheckoutContent() {
           }
         });
         setPlans(merged);
-      } else {
-        setPlans(professionalPlans);
       }
     } catch (e) {
       console.error("Failed to fetch plans, using professional defaults.");
-      setPlans(professionalPlans);
+      // plans state is already set to professionalPlans as fallback
     }
   };
 
@@ -183,7 +194,7 @@ function CheckoutContent() {
       const p = plans.find(pl => pl.$id === prePlanId);
       if (p) {
         setSelectedPlan(p);
-        setStep(2); // Skip to billing if plan is pre-selected
+        // We are already at step 1 (Billing) now
       }
     }
   }, [prePlanId, plans]);
@@ -225,22 +236,44 @@ function CheckoutContent() {
   };
 
   const calculateTotal = () => {
-    if (!selectedPlan) return { base: 0, discount: 0, gst: 0, total: 0 };
+    if (!selectedPlan) return { base: 0, addons: [], totalAddonPrice: 0, discount: 0, manualDiscount: 0, total: 0 };
+    
     const base = selectedPlan.price;
-    let discount = 0;
+    const preAddonIds = preAddonId ? preAddonId.split(',') : [];
+    const selectedAddons = addonsList.filter(a => preAddonIds.includes(a.id));
+    const totalAddonPrice = selectedAddons.reduce((sum, a) => sum + a.price, 0);
+    
+    const subtotal = base + totalAddonPrice;
+
+    const manualDiscountValue = preDiscount ? parseInt(preDiscount) : 0;
+    
+    let manualDiscountAmount = 0;
+    if (preDiscountType === 'percent') {
+        manualDiscountAmount = (subtotal * manualDiscountValue) / 100;
+    } else {
+        manualDiscountAmount = manualDiscountValue;
+    }
+    
+    let couponDiscount = 0;
+
     if (appliedCoupon) {
       if (appliedCoupon.discountType === 'percentage') {
-        discount = (base * appliedCoupon.discountValue) / 100;
+        couponDiscount = (subtotal * appliedCoupon.discountValue) / 100;
       } else {
-        discount = appliedCoupon.discountValue;
+        couponDiscount = appliedCoupon.discountValue;
       }
     }
-    const afterDiscount = Math.max(0, base - discount);
+    
+    const totalDiscount = manualDiscountAmount + couponDiscount;
+    const afterDiscount = Math.max(0, subtotal - totalDiscount);
     
     return {
       base,
-      discount,
-      gst: 0,
+      addons: selectedAddons,
+      totalAddonPrice,
+      discount: couponDiscount,
+      manualDiscount: manualDiscountAmount,
+      manualDiscountDisplay: preDiscountType === 'percent' ? `${manualDiscountValue}% off` : `Flat ₹${manualDiscountValue} off`,
       total: afterDiscount
     };
   };
@@ -290,13 +323,16 @@ function CheckoutContent() {
                             planId: selectedPlan.$id,
                             planName: selectedPlan.name,
                             amount: totals.total,
+                            basePrice: totals.base,
+                            addons: totals.addons,
+                            discount: (totals.discount || 0) + (totals.manualDiscount || 0),
                             billingDetails: billingData,
                             couponUsed: appliedCoupon?.code || null
                         })
                     });
                     const result = await verifyRes.json();
                     if (result.status === 'success') {
-                        setStep(4); // Success Step
+                        setStep(3); // Success Step
                     } else {
                         alert("Payment verification failed. Contact support.");
                     }
@@ -327,8 +363,8 @@ function CheckoutContent() {
       
       <div className="max-w-4xl mx-auto">
         {/* Progress Bar */}
-        <div className="flex items-center justify-between mb-12 relative max-w-lg mx-auto">
-           {[1, 2, 3].map((i) => (
+        <div className="flex items-center justify-between mb-12 relative max-w-xs mx-auto">
+           {[1, 2].map((i) => (
              <div key={i} className="flex flex-col items-center z-10">
                 <div className={cn(
                   "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500",
@@ -340,7 +376,7 @@ function CheckoutContent() {
                   "text-[10px] font-black uppercase tracking-widest mt-2",
                   step >= i ? "text-[#b66dff]" : "text-slate-300"
                 )}>
-                  {i === 1 ? 'Details' : i === 2 ? 'Billing' : 'Review'}
+                  {i === 1 ? 'Billing' : 'Review'}
                 </span>
              </div>
            ))}
@@ -348,77 +384,26 @@ function CheckoutContent() {
            <motion.div 
              className="absolute top-5 left-0 h-0.5 grad-brand -z-0" 
              initial={{ width: "0%" }}
-             animate={{ width: `${((step - 1) / 2) * 100}%` }}
+             animate={{ width: `${((step - 1) / 1) * 100}%` }}
            />
         </div>
 
         <AnimatePresence mode="wait">
-          {/* Step 1: Account / Plan Selection */}
+          {/* Step 1: Billing Details */}
           {step === 1 && (
             <motion.div 
               key="step1"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-8"
-            >
-              <div className="text-center">
-                 <h2 className="text-3xl font-black text-slate-800 tracking-tight">Select Subscription Plan</h2>
-                 <p className="text-slate-400 font-medium mt-2">Choose the best plan for your business growth</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {plans.map((p) => (
-                  <button 
-                    key={p.$id}
-                    onClick={() => setSelectedPlan(p)}
-                    className={cn(
-                      "p-8 bg-white border-2 rounded-[2rem] text-left transition-all relative overflow-hidden group",
-                      selectedPlan?.$id === p.$id ? "border-[#b66dff] shadow-2xl shadow-purple-500/10" : "border-slate-100 hover:border-slate-300"
-                    )}
-                  >
-                    <div className="flex justify-between items-start mb-6">
-                       <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-[#b66dff] group-hover:scale-110 transition-transform">
-                          <Zap size={24} />
-                       </div>
-                       {selectedPlan?.$id === p.$id && <CheckCircle2 className="text-[#b66dff]" size={24} />}
-                    </div>
-                    <h3 className="text-xl font-black text-slate-800 mb-2">{p.name}</h3>
-                    <p className="text-xs text-slate-400 font-medium leading-relaxed mb-6">{p.description}</p>
-                    <div className="flex items-baseline gap-1">
-                       <span className="text-3xl font-black text-slate-900">₹{p.price}</span>
-                       <span className="text-xs font-bold text-slate-400">/ {p.duration || 'Year'}</span>
-                    </div>
-                    {selectedPlan?.$id === p.$id && (
-                      <div className="absolute top-0 right-0 grad-brand px-4 py-1 text-[9px] font-black text-white uppercase tracking-widest rounded-bl-xl shadow-lg">
-                        Selected
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex justify-center mt-12">
-                 <button 
-                    disabled={!selectedPlan}
-                    onClick={() => setStep(2)}
-                    className="px-12 h-16 grad-brand text-white rounded-2xl text-sm font-black uppercase tracking-widest shadow-xl shadow-purple-500/20 hover:scale-105 transition-all flex items-center gap-3 disabled:opacity-30"
-                 >
-                    Next Session <ArrowRight size={20} />
-                 </button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 2: Billing Details */}
-          {step === 2 && (
-            <motion.div 
-              key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
               className="max-w-2xl mx-auto"
             >
+              {!selectedPlan && (
+                <div className="bg-rose-50 border border-rose-100 p-6 rounded-3xl mb-8 flex items-center gap-4 text-rose-600">
+                   <ShieldCheck size={24} />
+                   <p className="text-sm font-bold uppercase tracking-tight">No plan selected. Please use a valid quotation link.</p>
+                </div>
+              )}
               <div className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-50 overflow-hidden">
                  <div className="bg-slate-900 p-8 text-white relative">
                     <div className="relative z-10">
@@ -529,14 +514,9 @@ function CheckoutContent() {
 
                     <div className="pt-8 flex gap-4">
                        <button 
-                          onClick={() => setStep(1)}
-                          className="flex-1 h-16 bg-slate-100 text-slate-500 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
-                       >
-                          <ArrowLeft size={16} /> Back
-                       </button>
-                       <button 
-                          onClick={() => validateBilling() && setStep(3)}
-                          className="flex-[2] h-16 grad-brand text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-purple-500/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
+                          onClick={() => validateBilling() && setStep(2)}
+                          disabled={!selectedPlan}
+                          className="flex-1 h-16 grad-brand text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-purple-500/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                        >
                           Review Summary <ChevronRight size={18} />
                        </button>
@@ -546,10 +526,10 @@ function CheckoutContent() {
             </motion.div>
           )}
 
-          {/* Step 3: Order Summary & Review */}
-          {step === 3 && (
+          {/* Step 2: Order Summary & Review */}
+          {step === 2 && (
             <motion.div 
-              key="step3"
+              key="step2"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -604,25 +584,41 @@ function CheckoutContent() {
                     </div>
 
                     {/* Items */}
-                    <div className="flex items-center justify-between">
-                       <div>
-                          <p className="text-sm font-black text-slate-700">{selectedPlan?.name}</p>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Plan Price</p>
-                       </div>
-                       <span className="text-sm font-black text-slate-800">₹{totals.base}</span>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                           <div>
+                              <p className="text-sm font-black text-slate-700">{selectedPlan?.name}</p>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Plan Price</p>
+                           </div>
+                           <span className="text-sm font-black text-slate-800">₹{totals.base}</span>
+                        </div>
+
+                        {totals.addons?.map((addon: any) => (
+                          <div key={addon.id} className="flex items-center justify-between animate-in fade-in slide-in-from-right-2">
+                             <div>
+                                <p className="text-sm font-black text-slate-700">{addon.name}</p>
+                                <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">Add-on Service</p>
+                             </div>
+                             <span className="text-sm font-black text-slate-800">₹{addon.price}</span>
+                          </div>
+                        ))}
                     </div>
-
-
 
                     {/* Breakdown */}
                     <div className="space-y-3 pt-6 border-t border-slate-50">
                        <div className="flex items-center justify-between text-xs font-bold text-slate-500">
                           <span>Subtotal <span className="text-[8px] lowercase italic ml-1">(Include GST)</span></span>
-                          <span>₹{totals.base}</span>
+                          <span>₹{(totals.base + (totals.totalAddonPrice || 0)).toFixed(2)}</span>
                        </div>
+                       {totals.manualDiscount > 0 && (
+                         <div className="flex items-center justify-between text-xs font-bold text-rose-500">
+                            <span>Quotation Discount ({totals.manualDiscountDisplay})</span>
+                            <span>-₹{totals.manualDiscount.toFixed(2)}</span>
+                         </div>
+                       )}
                        {totals.discount > 0 && (
                          <div className="flex items-center justify-between text-xs font-bold text-emerald-500">
-                            <span>Discount ({appliedCoupon?.code})</span>
+                            <span>Coupon ({appliedCoupon?.code})</span>
                             <span>-₹{totals.discount}</span>
                          </div>
                        )}
@@ -643,7 +639,7 @@ function CheckoutContent() {
                     </button>
                     
                     <button 
-                       onClick={() => setStep(2)}
+                       onClick={() => setStep(1)}
                        className="w-full text-center text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-colors py-2"
                     >
                        Edit Billing Details
@@ -658,10 +654,10 @@ function CheckoutContent() {
             </motion.div>
           )}
 
-          {/* Step 4: Success Message */}
-          {step === 4 && (
+          {/* Step 3: Success Message */}
+          {step === 3 && (
             <motion.div 
-              key="step4"
+              key="step3"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-md mx-auto text-center"

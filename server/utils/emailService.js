@@ -37,7 +37,7 @@ const getBaseTemplate = (content, previewText) => `
         .header { background: linear-gradient(135deg, ${BRAND_COLOR}, ${SECONDARY_COLOR}); padding: 40px 20px; text-align: center; }
         .header h1 { margin: 0; color: white; font-size: 28px; font-weight: 800; letter-spacing: -0.025em; }
         .content { padding: 40px 30px; color: #000000; }
-        .footer { padding: 20px; text-align: center; color: #64748b; font-size: 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+        .footer { padding: 30px 20px; text-align: center; color: #64748b; font-size: 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; }
         .button { display: inline-block; padding: 12px 24px; background: ${BRAND_COLOR}; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; }
         .highlight { color: ${BRAND_COLOR}; font-weight: 700; }
         p { margin-bottom: 20px; color: #334155; }
@@ -61,6 +61,9 @@ const getBaseTemplate = (content, previewText) => `
             ${content}
         </div>
         <div class="footer">
+            <div style="margin-bottom: 25px;">
+                <a href="https://partner.partydial.com/login" class="button" style="background-color: ${BG_COLOR} !important; color: white !important; margin-top: 0; font-size: 13px;">Vendor Login</a>
+            </div>
             <p style="margin-bottom: 10px; color: #64748b;">&copy; ${new Date().getFullYear()} PARTYDIAL</p>
             <p style="margin-bottom: 5px; color: #64748b;">A Platform by Preet Tech</p>
             <p style="font-size: 10px; opacity: 0.8; color: #94a3b8;">All billing and operations managed exclusively by Preet Tech</p>
@@ -142,14 +145,10 @@ exports.sendRegistrationCredentialsEmail = (to, name, email, password) => {
 
         <p><strong>What you can do now:</strong></p>
         <ul>
-            <li>Login to the partner portal using the button below</li>
+            <li>Login to the partner portal details</li>
             <li>Complete your venue profile details</li>
             <li>Wait for admin approval to go live</li>
         </ul>
-
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="https://partner.partydial.com/login" class="button" style="color: white !important;">Login to Partner Portal</a>
-        </div>
         
         <p style="margin-top: 30px; font-size: 11px; color: #64748b; font-style: italic;">Note: For security reasons, we recommend changing your password after your first login.</p>
     `, "Welcome to PartyDial! Your login credentials are included inside.");
@@ -246,6 +245,9 @@ exports.sendPaymentConfirmationEmail = (to, name, planName, amount, invoiceInfo 
     const isDetailed = !!invoiceInfo;
     const inv = invoiceInfo || {};
     const billing = inv.billingDetails || {};
+    const addons = inv.addons || [];
+    const discount = inv.discount || 0;
+    const basePrice = inv.basePrice || amount;
     
     const html = getBaseTemplate(`
         <div style="text-align: center; margin-bottom: 30px;">
@@ -267,7 +269,7 @@ exports.sendPaymentConfirmationEmail = (to, name, planName, amount, invoiceInfo 
                  <td width="50%" align="right" valign="top">
                     <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 5px;">Invoice Details</p>
                     <p style="font-size: 13px; font-weight: 700; color: #1e293b; margin: 0;">#${inv.invoiceNumber}</p>
-                    <p style="font-size: 11px; color: #64748b; margin: 2px 0;">${inv.date}</p>
+                    <p style="font-size: 11px; color: #64748b; margin: 2px 0;">${inv.date} at ${new Date().toLocaleTimeString()}</p>
                     <p style="font-size: 11px; color: #166534; font-weight: 700; margin-top: 5px;">Status: Paid</p>
                  </td>
               </tr>
@@ -284,9 +286,30 @@ exports.sendPaymentConfirmationEmail = (to, name, planName, amount, invoiceInfo 
               </thead>
               <tbody>
                  <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td align="left" style="font-size: 13px; font-weight: 700; color: #1e293b;">${planName}</td>
-                    <td align="right" style="font-size: 13px; font-weight: 700; color: #1e293b;">₹${amount}</td>
+                    <td align="left">
+                       <p style="font-size: 13px; font-weight: 700; color: #1e293b; margin: 0;">${planName}</p>
+                       <p style="font-size: 10px; color: #64748b; margin: 2px 0;">Annual Membership Plan</p>
+                    </td>
+                    <td align="right" style="font-size: 13px; font-weight: 700; color: #1e293b;">₹${basePrice.toLocaleString()}</td>
                  </tr>
+                 ${addons.map(addon => `
+                 <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td align="left">
+                       <p style="font-size: 13px; font-weight: 700; color: #1e293b; margin: 0;">${addon.name}</p>
+                       <p style="font-size: 10px; color: #64748b; margin: 2px 0;">Service Add-on</p>
+                    </td>
+                    <td align="right" style="font-size: 13px; font-weight: 700; color: #1e293b;">₹${addon.price.toLocaleString()}</td>
+                 </tr>
+                 `).join('')}
+                 ${discount > 0 ? `
+                 <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td align="left">
+                       <p style="font-size: 13px; font-weight: 700; color: #e11d48; margin: 0;">Special Discount</p>
+                       <p style="font-size: 10px; color: #64748b; margin: 2px 0;">Applied Coupon/Quotation Discount</p>
+                    </td>
+                    <td align="right" style="font-size: 13px; font-weight: 700; color: #e11d48;">-₹${discount.toLocaleString()}</td>
+                 </tr>
+                 ` : ''}
               </tbody>
            </table>
         </div>
@@ -294,12 +317,12 @@ exports.sendPaymentConfirmationEmail = (to, name, planName, amount, invoiceInfo 
         <div style="background: #ffffff; border-top: 2px solid ${BRAND_COLOR}; padding-top: 15px;">
            <table width="100%">
               <tr>
-                 <td align="right" style="font-size: 13px; color: #64748b;">Subtotal:</td>
-                 <td width="100" align="right" style="font-size: 13px; font-weight: 700; color: #1e293b;">₹${amount}</td>
+                 <td align="right" style="font-size: 13px; color: #64748b;">Subtotal (Incl. GST):</td>
+                 <td width="100" align="right" style="font-size: 13px; font-weight: 700; color: #1e293b;">₹${Number(basePrice + addons.reduce((s, a) => s + a.price, 0)).toLocaleString()}</td>
               </tr>
               <tr>
                  <td align="right" style="font-size: 16px; font-weight: 800; color: #1e293b; padding-top: 10px;">Total Paid:</td>
-                 <td width="100" align="right" style="font-size: 18px; font-weight: 800; color: ${BRAND_COLOR}; padding-top: 10px;">₹${amount}</td>
+                 <td width="100" align="right" style="font-size: 18px; font-weight: 800; color: ${BRAND_COLOR}; padding-top: 10px;">₹${Number(amount).toLocaleString()}</td>
               </tr>
            </table>
         </div>
@@ -308,7 +331,7 @@ exports.sendPaymentConfirmationEmail = (to, name, planName, amount, invoiceInfo 
             <p><strong>Order Details:</strong></p>
             <p>Plan: <span class="highlight">${planName}</span></p>
             <p>Amount: <span class="highlight">₹${amount}</span></p>
-            <p>Date: ${new Date().toLocaleDateString()}</p>
+            <p>Date: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
         </div>
         <p>Your subscription is now active. You can now access all premium features of ${planName}.</p>
         `}

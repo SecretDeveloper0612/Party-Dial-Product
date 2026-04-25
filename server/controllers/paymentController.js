@@ -207,7 +207,10 @@ exports.verifyPayment = async (req, res) => {
         {
           invoiceNumber,
           billingDetails,
-          date: new Date().toLocaleDateString()
+          date: new Date().toLocaleDateString(),
+          addons: req.body.addons || [],
+          discount: req.body.discount || 0,
+          basePrice: req.body.basePrice || amount
         }
       )
       .then(() => console.log(`Invoice email sent to ${emailTo}`))
