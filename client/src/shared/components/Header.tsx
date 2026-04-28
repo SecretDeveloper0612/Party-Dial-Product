@@ -64,7 +64,15 @@ export default function Header() {
   const checkSession = async () => {
     try {
       const session = await account.get();
-      setUser(session);
+      const labels = session.labels || [];
+      const isVendor = labels.includes('vendor');
+      const isMasterAdmin = session.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@partydial.com");
+      
+      if (isVendor || isMasterAdmin) {
+        setUser(null);
+      } else {
+        setUser(session);
+      }
     } catch (e) {
       setUser(null);
     }

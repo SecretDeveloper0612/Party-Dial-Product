@@ -55,8 +55,29 @@ export default function VenueLoginPage() {
       // 3. --- Added: Role-Based Access Control ---
       // Distinguish between Vendors and regular Clients (who might share localhost cookies)
       const labels = user.labels || [];
-      const isVendor = labels.includes('vendor');
+      let isVendor = labels.includes('vendor');
       const isMasterAdmin = user.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@partydial.com");
+
+      // Fallback: If no label, check if they exist in the venues collection
+      if (!isVendor && !isMasterAdmin) {
+        try {
+          const { databases } = await import('@/lib/appwrite');
+          const { Query } = await import('appwrite');
+          const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
+          const VENUES_COL_ID = process.env.NEXT_PUBLIC_APPWRITE_VENUES_COLLECTION_ID;
+          
+          if (DATABASE_ID && VENUES_COL_ID) {
+            const venueCheck = await databases.listDocuments(DATABASE_ID, VENUES_COL_ID, [
+              Query.equal('userId', user.$id)
+            ]);
+            if (venueCheck.documents.length > 0) {
+              isVendor = true;
+            }
+          }
+        } catch (fallbackError) {
+          console.warn('Venue fallback check failed:', fallbackError);
+        }
+      }
 
       if (!isVendor && !isMasterAdmin) {
         // This is a Client user trying to log into the Vendor portal

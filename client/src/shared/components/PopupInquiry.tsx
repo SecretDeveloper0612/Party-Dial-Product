@@ -753,6 +753,14 @@ export default function PopupInquiry() {
   const checkAuth = async () => {
     try {
       const user = await account.get();
+      const labels = user.labels || [];
+      const isVendor = labels.includes('vendor');
+      const isMasterAdmin = user.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@partydial.com");
+
+      if (isVendor || isMasterAdmin) {
+        throw new Error("Vendor or Admin cannot use client portal");
+      }
+
       setFormData(prev => ({
         ...prev,
         name: user.name || prev.name,

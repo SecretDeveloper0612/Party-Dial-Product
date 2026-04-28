@@ -109,7 +109,11 @@ export default function VenueDetailPage() {
       try {
         const { account } = await import('@/lib/appwrite');
         const user = await account.get();
-        if (user) {
+        const labels = user.labels || [];
+        const isVendor = labels.includes('vendor');
+        const isMasterAdmin = user.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@partydial.com");
+
+        if (user && !isVendor && !isMasterAdmin) {
           setIsLoggedIn(true);
           setFormData(prev => ({
             ...prev,
