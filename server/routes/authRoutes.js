@@ -10,5 +10,8 @@ router.post('/update-token', authController.updatePushToken);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);
 
+router.post('/complete-registration', authController.completeRegistration);
+router.post('/check-phone', authController.checkPhone);
+
 
 module.exports = router;

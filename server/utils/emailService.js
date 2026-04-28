@@ -241,7 +241,7 @@ exports.sendPasswordResetEmail = (to, resetLink) => {
 /**
  * 6. Payment Successful + Detailed Invoice
  */
-exports.sendPaymentConfirmationEmail = (to, name, planName, amount, invoiceInfo = null) => {
+exports.sendPaymentConfirmationEmail = (to, name, planName, amount, invoiceInfo = null, attachments = []) => {
     const isDetailed = !!invoiceInfo;
     const inv = invoiceInfo || {};
     const billing = inv.billingDetails || {};
@@ -341,7 +341,7 @@ exports.sendPaymentConfirmationEmail = (to, name, planName, amount, invoiceInfo 
         </div>
     `, `Invoice for ₹${amount} - ${planName} generated successfully.`);
 
-    return sendEmail(to, `Tax Invoice: #${inv.invoiceNumber || 'Payment'} - ${planName} 🧾`, html, `Your payment for ${planName} was successful. Invoice attached in HTML content.`);
+    return sendEmail(to, `Tax Invoice: #${inv.invoiceNumber || 'Payment'} - ${planName} 🧾`, html, `Your payment for ${planName} was successful. Please find the attached PDF invoice for your records.`, attachments);
 };
 
 /**

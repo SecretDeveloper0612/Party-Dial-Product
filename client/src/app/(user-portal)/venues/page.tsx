@@ -114,6 +114,15 @@ function VenuesContent() {
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCities, selectedEvent, selectedVenueTypes, budgetRange, selectedCapacity, selectedAmenities, foodPreference, minRating, quickFilters, sortBy]);
 
   // Indian Post API search
   useEffect(() => {
@@ -425,6 +434,12 @@ function VenuesContent() {
   const handleToggle = (list: string[], setList: any, item: string) => {
     setList(list.includes(item) ? list.filter(i => i !== item) : [...list, item]);
   };
+
+  const totalPages = Math.ceil(resultsByLocation.others.length / ITEMS_PER_PAGE);
+  const paginatedOthers = resultsByLocation.others.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 pt-10 pb-20">
@@ -826,10 +841,71 @@ function VenuesContent() {
                      </div>
                    )}
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                     {resultsByLocation.others.map((v, i) => (
+                     {paginatedOthers.map((v, i) => (
                        <VenueCard key={v.id} venue={v} index={i} />
                      ))}
                    </div>
+
+                   {/* Pagination Controls */}
+                   {totalPages > 1 && (
+                     <div className="mt-16 flex items-center justify-center gap-2">
+                       <button 
+                         disabled={currentPage === 1}
+                         onClick={() => {
+                           setCurrentPage(prev => Math.max(1, prev - 1));
+                           window.scrollTo({ top: 0, behavior: 'smooth' });
+                         }}
+                         className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-100 text-slate-400 hover:text-pd-red hover:border-pd-red transition-all disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-100"
+                       >
+                         <ArrowRight size={20} className="rotate-180" />
+                       </button>
+                       
+                       <div className="flex items-center gap-2 bg-white p-2 rounded-[24px] border border-slate-100 shadow-sm">
+                         {[...Array(totalPages)].map((_, i) => {
+                           const pageNum = i + 1;
+                           if (
+                             pageNum === 1 || 
+                             pageNum === totalPages || 
+                             (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                           ) {
+                             return (
+                               <button
+                                 key={pageNum}
+                                 onClick={() => {
+                                   setCurrentPage(pageNum);
+                                   window.scrollTo({ top: 0, behavior: 'smooth' });
+                                 }}
+                                 className={`w-10 h-10 rounded-xl text-xs font-black transition-all ${
+                                   currentPage === pageNum 
+                                     ? 'bg-slate-900 text-white shadow-lg' 
+                                     : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
+                                 }`}
+                                >
+                                 {pageNum}
+                               </button>
+                             );
+                           } else if (
+                             pageNum === currentPage - 2 || 
+                             pageNum === currentPage + 2
+                           ) {
+                             return <span key={pageNum} className="px-1 text-slate-300">...</span>;
+                           }
+                           return null;
+                         })}
+                       </div>
+
+                       <button 
+                         disabled={currentPage === totalPages}
+                         onClick={() => {
+                           setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                           window.scrollTo({ top: 0, behavior: 'smooth' });
+                         }}
+                         className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-100 text-slate-400 hover:text-pd-red hover:border-pd-red transition-all disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-100"
+                       >
+                         <ArrowRight size={20} />
+                       </button>
+                     </div>
+                   )}
                  </div>
                )}
 
@@ -874,10 +950,12 @@ function VenuesContent() {
                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                onClick={() => setShowMobileFilters(false)}
                className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[300]"
+               style={{ willChange: 'opacity, backdrop-filter', transform: 'translateZ(0)' }}
             />
             <motion.div 
                initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+               style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
                className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[40px] z-[310] max-h-[90vh] flex flex-col shadow-2xl"
             >
                <div className="p-6 md:p-10 flex flex-col h-full overflow-hidden">

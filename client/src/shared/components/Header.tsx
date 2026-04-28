@@ -56,8 +56,25 @@ export default function Header() {
     name: '', email: '', phone: '', password: '', confirmPassword: '', agreeTerms: false
   });
 
-  // PWA Install Prompt State
+  // Auth State
+  const [user, setUser] = useState<any>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [signinData, setSigninData] = useState({ email: '', password: '' });
+
+  const checkSession = async () => {
+    try {
+      const session = await account.get();
+      setUser(session);
+    } catch (e) {
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    checkSession();
+    window.addEventListener('auth-change', checkSession);
+    return () => window.removeEventListener('auth-change', checkSession);
+  }, []);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: any) => {
@@ -244,7 +261,7 @@ export default function Header() {
         <nav className="max-w-7xl mx-auto px-4 md:px-6 h-16 sm:h-24 flex items-center justify-between gap-4 md:gap-10">
           <Link href="/" className="flex items-center gap-2 md:gap-4 shrink-0">
              <div className="relative w-28 sm:w-36 h-10 sm:h-12 cursor-pointer hover:scale-105 transition-transform flex items-center">
-                <img src="/logo.jpg" alt="PartyDial" width={140} height={48} className="object-contain" />
+                <img src="/logo-nav.png" alt="PartyDial" width={140} height={48} className="object-contain" />
              </div>
           </Link>
 
@@ -320,12 +337,32 @@ export default function Header() {
              >
                <Download size={18} /> <span>Download App</span>
              </button>
-             <button 
-               onClick={() => setAuthModal({ isOpen: true, type: 'signup' })}
-               className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-pd-red transition-all px-4 py-2 hover:bg-slate-50 rounded-xl"
-             >
-                <User size={18} /> <span>Signup</span>
-             </button>
+              {user ? (
+                <div className="hidden md:flex items-center gap-4">
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-pd-red">Welcome</span>
+                    <span className="text-xs font-bold text-slate-900">{user.name}</span>
+                  </div>
+                  <button 
+                    onClick={async () => {
+                      await account.deleteSession('current');
+                      setUser(null);
+                      window.dispatchEvent(new Event('auth-change'));
+                    }}
+                    className="p-2.5 bg-slate-50 text-slate-400 hover:text-pd-red hover:bg-pd-red/5 rounded-xl transition-all"
+                    title="Logout"
+                  >
+                    <LogOut size={18} />
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setAuthModal({ isOpen: true, type: 'signup' })}
+                  className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-pd-red transition-all px-4 py-2 hover:bg-slate-50 rounded-xl"
+                >
+                    <User size={18} /> <span>Signup</span>
+                </button>
+              )}
              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2.5 text-slate-900 hover:bg-slate-50 rounded-xl border border-slate-100 shadow-sm active:scale-95 transition-all">
                 {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
              </button>
@@ -410,22 +447,45 @@ export default function Header() {
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:bg-pd-red/5 hover:text-pd-red transition-all">Home</Link>
                   <Link href="/categories" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:bg-pd-red/5 hover:text-pd-red transition-all">Categories</Link>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <button 
-                    onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
-                    className="w-full flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-widest text-slate-600 active:bg-slate-50"
-                  >
-                    <User size={16} /> <span>Signup</span>
-                  </button>
-                  <button 
-                    onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
-                    className="w-full flex items-center justify-center gap-2 p-4 bg-slate-900 border border-slate-900 rounded-xl text-xs font-bold uppercase tracking-widest text-white active:scale-95 transition-all"
-                  >
-                    <UserPlus size={16} /> <span>Join Now</span>
-                  </button>
-                </div>
+                </div>                  {user ? (
+                    <div className="col-span-2 p-4 bg-slate-50 rounded-xl flex items-center justify-between">
+                       <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-pd-red/10 text-pd-red flex items-center justify-center">
+                             <User size={20} />
+                          </div>
+                          <div>
+                             <p className="text-[10px] font-black uppercase tracking-widest text-pd-red">Profile</p>
+                             <p className="text-xs font-bold text-slate-900">{user.name}</p>
+                          </div>
+                       </div>
+                       <button 
+                        onClick={async () => {
+                          await account.deleteSession('current');
+                          setUser(null);
+                          setIsMobileMenuOpen(false);
+                          window.dispatchEvent(new Event('auth-change'));
+                        }}
+                        className="p-2 text-slate-400 hover:text-pd-red"
+                       >
+                         <LogOut size={20} />
+                       </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-4 w-full">
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
+                        className="w-full flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-widest text-slate-600 active:bg-slate-50"
+                      >
+                        <User size={16} /> <span>Signup</span>
+                      </button>
+                      <button 
+                        onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
+                        className="w-full flex items-center justify-center gap-2 p-4 bg-slate-900 border border-slate-900 rounded-xl text-xs font-bold uppercase tracking-widest text-white active:scale-95 transition-all"
+                      >
+                        <UserPlus size={16} /> <span>Join Now</span>
+                      </button>
+                    </div>
+                  )}
                 
                 <div className="pt-4 border-t border-slate-100 italic">
                   <button 
@@ -451,15 +511,16 @@ export default function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setAuthModal({ ...authModal, isOpen: false })}
-              className="fixed inset-0 bg-slate-950/60 backdrop-blur-md cursor-pointer"
+              className="fixed inset-0 bg-slate-950/60 backdrop-blur-[8px] cursor-pointer"
+              style={{ willChange: 'opacity, backdrop-filter', transform: 'translateZ(0)' }}
             ></motion.div>
             
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ type: "spring", duration: 0.4, bounce: 0 }}
-              style={{ willChange: "transform, opacity" }}
+              transition={{ type: "tween", duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+              style={{ willChange: "transform, opacity", transform: 'translateZ(0)' }}
               className="relative w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-pd-strong overflow-hidden flex flex-col md:flex-row min-h-[500px] md:min-h-[600px] z-[1001]"
             >
               {/* Left Visual Side */}
@@ -541,14 +602,33 @@ export default function Header() {
                             try {
                               setIsAuthLoading(true);
                               setAuthError('');
-                              try { await account.deleteSession('current'); } catch (e) {}
+                              
+                              // 1. Verify Phone Factor
                               await account.updatePhoneSession(authUserId, otp.join(''));
                               
-                              // Update name if it was a signup
-                              if (signupData.name) {
-                                try { await account.updateName(signupData.name); } catch(e) {}
-                              }
+                              // 2. Complete Registration on Server
+                              const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+                              const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
                               
+                              const regRes = await fetch(`${baseUrl}/auth/complete-registration`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  userId: authUserId,
+                                  name: signupData.name,
+                                  email: signupData.email,
+                                  password: signupData.password
+                                })
+                              });
+
+                              const regResult = await regRes.json();
+                              if (!regRes.ok) throw new Error(regResult.message || 'Failed to complete registration');
+
+                              // 3. Log in with Email/Password
+                              try { await account.deleteSession('current'); } catch (e) {}
+                              await account.createEmailPasswordSession(signupData.email, signupData.password);
+
+                              window.dispatchEvent(new Event('auth-change'));
                               setAuthModal({ ...authModal, isOpen: false });
                             } catch (error: any) {
                               setAuthError(error.message || 'Invalid OTP. Please try again.');
@@ -596,23 +676,56 @@ export default function Header() {
                         setIsAuthLoading(true);
                         setAuthError('');
                         
+                        // Clear existing session
                         try { await account.deleteSession('current'); } catch (e) {}
-                        const phone = '+91' + signupData.phone.replace(/\s/g, '');
                         
                         if (authModal.type === 'signup') {
-                           // For Appwrite, we just create a phone token.
-                           // If user already exists, it works fine too.
+                           const cleanPhone = signupData.phone.replace(/\D/g, '');
+                           if (cleanPhone.length !== 10) throw new Error("Please enter a valid 10-digit mobile number.");
+                           const phone = '+91' + cleanPhone;
+
+                           // 0. Check if phone number is already in use
+                           const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+                           const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
+                           const checkRes = await fetch(`${baseUrl}/auth/check-phone`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ phone })
+                           });
+                           const checkData = await checkRes.json();
+                           if (!checkRes.ok) {
+                              throw new Error(checkData.message || 'This number is already in use, use a different one');
+                           }
+
+                           // 1. Send OTP first
                            const token = await account.createPhoneToken(ID.unique(), phone);
                            setAuthUserId(token.userId);
                            setAuthModal({...authModal, type: 'otp'});
+                           setResendTimer(60);
                         } else {
-                           // Sign In - also uses phone token
-                           const token = await account.createPhoneToken(ID.unique(), phone);
-                           setAuthUserId(token.userId);
-                           setAuthModal({...authModal, type: 'otp'});
+                           // Sign In - Email/Password
+                           await account.createEmailPasswordSession(signinData.email, signinData.password);
+                           const user = await account.get();
+                           
+                           if (!user.phoneVerification) {
+                              const cleanPhone = user.phone?.replace(/\D/g, '').replace('91', '');
+                              if (cleanPhone && cleanPhone.length === 10) {
+                                 try {
+                                    const token = await account.createPhoneToken(user.$id, '+91' + cleanPhone);
+                                    setAuthUserId(token.userId);
+                                    setAuthModal({...authModal, type: 'otp'});
+                                    return;
+                                 } catch (tokenErr) {
+                                    console.error('Header OTP Error:', tokenErr);
+                                 }
+                              }
+                           }
+
+                           window.dispatchEvent(new Event('auth-change'));
+                           setAuthModal({...authModal, isOpen: false});
                         }
                       } catch (error: any) {
-                        setAuthError(error.message || 'Authentication failed. Please check your number.');
+                        setAuthError(error.message || 'Authentication failed. Please check your details.');
                       } finally {
                         setIsAuthLoading(false);
                       }
@@ -622,7 +735,14 @@ export default function Header() {
                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Full Name</label>
                            <div className="relative group">
                               <User size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-red transition-colors" />
-                              <input required type="text" placeholder="John Doe" className="w-full h-14 pl-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" />
+                               <input 
+                                 required 
+                                 type="text" 
+                                 placeholder="John Doe" 
+                                 value={signupData.name}
+                                 onChange={(e) => setSignupData({...signupData, name: e.target.value})}
+                                 className="w-full h-14 pl-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" 
+                               />
                            </div>
                          </div>
                        )}
@@ -631,7 +751,16 @@ export default function Header() {
                           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Email</label>
                           <div className="relative group">
                              <Mail size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-red transition-all" />
-                             <input required type="email" placeholder="name@email.com" className="w-full h-14 pl-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" />
+                             <input 
+                                required 
+                                type="email" 
+                                placeholder="name@email.com" 
+                                value={authModal.type === 'signup' ? signupData.email : signinData.email}
+                                onChange={(e) => authModal.type === 'signup' 
+                                  ? setSignupData({...signupData, email: e.target.value})
+                                  : setSigninData({...signinData, email: e.target.value})}
+                                className="w-full h-14 pl-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" 
+                             />
                           </div>
                        </div>
 
@@ -675,7 +804,10 @@ export default function Header() {
                               required 
                               type={showPassword ? "text" : "password"} 
                               placeholder="••••••••" 
-                              onChange={(e) => authModal.type === 'signup' && setSignupData({...signupData, password: e.target.value})}
+                              value={authModal.type === 'signup' ? signupData.password : signinData.password}
+                              onChange={(e) => authModal.type === 'signup' 
+                                ? setSignupData({...signupData, password: e.target.value})
+                                : setSigninData({...signinData, password: e.target.value})}
                               className="w-full h-14 pl-14 pr-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" 
                              />
                              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors">

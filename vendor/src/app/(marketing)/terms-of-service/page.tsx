@@ -99,7 +99,7 @@ const TermsOfService = () => {
               <SectionHeader title="Agreement Scope" icon={CheckCircle2} color="pd-red" />
               <div className="space-y-4 text-slate-600 font-medium leading-[1.8] text-sm md:text-base italic border-l-2 border-slate-100 pl-6 md:pl-10 text-justify">
                 <p>
-                  This Merchant Agreement ("Agreement") governs the relationship between Preet Tech (operator of "PartyDial") and the Venue Merchant ("Partner"). By registering on the Partner Dashboard, you agree to these commercial terms.
+                  This Merchant Agreement ("Agreement") governs the relationship between Preet Tech OPC Private Limited (operator of "PartyDial") and the Venue Merchant ("Partner"). By registering on the Partner Dashboard, you agree to these commercial terms.
                 </p>
                 <p>
                   PartyDial acts as a Lead Generation and Discovery Engine. We provide the technology infrastructure to connect your venue with qualified event planners and individual customers.
@@ -217,8 +217,8 @@ const TermsOfService = () => {
             </div>
             <div className="mt-16 text-[10px] font-black pointer-events-none text-slate-300 uppercase tracking-[0.4em] space-y-2">
                <p>© 2026 PARTYDIAL</p>
-               <p>A Platform by Preet Tech</p>
-               <p>All billing and operations managed exclusively by Preet Tech</p>
+               <p>A Platform by Preet Tech OPC Private Limited</p>
+               <p>All billing and operations managed exclusively by Preet Tech OPC Private Limited</p>
             </div>
         </div>
       </section>

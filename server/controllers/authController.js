@@ -7,6 +7,41 @@ const dns = require('dns').promises;
 const { ID, Query, Account } = require('node-appwrite');
 
 
+// Check if phone number already exists
+exports.checkPhone = async (req, res) => {
+    try {
+        const { phone } = req.body;
+        if (!phone) {
+            return res.status(400).json({ status: 'error', message: 'Phone number is required' });
+        }
+
+        // Clean phone number (ensure +91 format if missing)
+        let cleanPhone = phone.replace(/\D/g, '');
+        if (cleanPhone.length === 10) {
+            cleanPhone = '+91' + cleanPhone;
+        } else if (!phone.startsWith('+')) {
+            cleanPhone = '+' + cleanPhone;
+        } else {
+            cleanPhone = phone;
+        }
+
+        const userList = await users.list([Query.equal('phone', cleanPhone)]);
+        
+        if (userList.total > 0) {
+            return res.status(400).json({ 
+                status: 'error', 
+                message: 'This number is already in use, use a different one' 
+            });
+        }
+
+        return res.status(200).json({ status: 'success', message: 'Phone number is available' });
+    } catch (error) {
+        console.error('Error checking phone:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+
 // Register a new user
 exports.register = async (req, res) => {
     try {
@@ -65,6 +100,13 @@ exports.register = async (req, res) => {
 
         // Create the user in Appwrite using the admin Users service
         const newUser = await users.create(ID.unique(), email, undefined, password, name);
+        
+        // --- Added: Add 'vendor' label to distinguish from regular clients ---
+        try {
+            await users.updateLabels(newUser.$id, ['vendor']);
+        } catch (labelError) {
+            console.warn('Failed to apply vendor label:', labelError.message);
+        }
         
         // --- Added: Create Venue Profile in Database ---
         try {
@@ -235,7 +277,7 @@ exports.login = async (req, res) => {
         try {
             const session = await tempAccount.createEmailPasswordSession(email, password);
             
-            // Fetch user details and preferences
+            // Fetch user details, preferences, and labels
             const user = await users.get(session.userId);
             const prefs = await users.getPrefs(session.userId);
 
@@ -243,7 +285,7 @@ exports.login = async (req, res) => {
                 status: 'success',
                 message: 'Login successful',
                 session: session,
-                user: { ...user, prefs }
+                user: { ...user, prefs, labels: user.labels || [] }
             });
         } catch (authError) {
             console.error('Auth check failed:', authError.message, authError.type);
@@ -447,3 +489,38 @@ exports.resetPassword = async (req, res) => {
     }
 };
 
+
+// Complete registration after Phone verification
+exports.completeRegistration = async (req, res) => {
+    try {
+        const { userId, email, password, name } = req.body;
+        
+        if (!userId || !email || !password || !name) {
+            return res.status(400).json({ status: 'error', message: 'All fields are required' });
+        }
+
+        // 1. Update User Profile (Email, Password, Name) using Admin privileges
+        await users.updateEmail(userId, email);
+        await users.updatePassword(userId, password);
+        await users.updateName(userId, name);
+        
+        // 2. Apply 'client' label
+        try {
+            await users.updateLabels(userId, ['client']);
+        } catch (labelError) {
+            console.warn('Failed to apply client label:', labelError.message);
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Registration completed successfully'
+        });
+
+    } catch (error) {
+        console.error('Error in completeRegistration:', error);
+        return res.status(error.code || 500).json({
+            status: 'error',
+            message: error.message || 'Error occurred during registration completion'
+        });
+    }
+};

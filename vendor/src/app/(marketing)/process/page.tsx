@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
   Search, ShieldCheck, Zap, ArrowRight, CheckCircle2, 
@@ -143,21 +144,15 @@ export default function ProcessPage() {
           </div>
           
           <div className="mt-16 lg:mt-0 relative">
-             <div className="aspect-[4/3] bg-white rounded-[40px] shadow-2xl border border-slate-200 p-8 overflow-hidden">
-                <div className="flex items-center gap-2 mb-8">
-                   <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                   <div className="w-3 h-3 rounded-full bg-amber-400"></div>
-                   <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
-                </div>
-                <div className="space-y-4">
-                   <div className="h-8 w-1/3 bg-slate-100 rounded-lg"></div>
-                   <div className="h-40 w-full bg-slate-50 rounded-2xl"></div>
-                   <div className="grid grid-cols-2 gap-4">
-                      <div className="h-24 bg-slate-50 rounded-2xl"></div>
-                      <div className="h-24 bg-slate-50 rounded-2xl"></div>
-                   </div>
-                </div>
+             <div className="aspect-[4/3] bg-white rounded-[40px] shadow-2xl border border-slate-200 overflow-hidden relative group">
+                <img 
+                  src="/images/dashboard-process.png" 
+                  alt="PartyDial Digital HQ" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent"></div>
              </div>
+             {/* Floating Mobile Badge */}
              {/* Floating Mobile Badge */}
              <motion.div 
                animate={{ y: [0, -10, 0] }}
@@ -174,107 +169,127 @@ export default function ProcessPage() {
         </div>
       </section>
 
-      {/* 4. COMPARISON CHART - CLEAN PREMIUM VERSION */}
-      <section className="py-24 md:py-32 px-6 bg-slate-900 relative">
+      {/* 4. COMPARISON SECTION - REDESIGNED FOR MOBILE & IMPACT */}
+      <section className="py-24 md:py-40 px-6 bg-[#0B1121] relative overflow-hidden">
+         {/* Background Effects */}
+         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-pd-pink/30 to-transparent"></div>
+         <div className="absolute -top-[200px] -right-[200px] w-[600px] h-[600px] bg-pd-blue/10 rounded-full blur-[150px] opacity-20"></div>
+         <div className="absolute -bottom-[200px] -left-[200px] w-[600px] h-[600px] bg-pd-pink/10 rounded-full blur-[150px] opacity-20"></div>
+
          <div className="max-w-[1280px] mx-auto relative z-10">
-            <div className="text-center mb-24">
+            <div className="text-center mb-20 md:mb-32">
                <motion.div
                  initial={{ opacity: 0, y: 10 }}
                  whileInView={{ opacity: 1, y: 0 }}
-                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pd-pink/10 border border-pd-pink/20 text-pd-pink text-[9px] font-black uppercase tracking-[0.4em] mb-8"
+                 viewport={{ once: true }}
+                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-pd-pink text-[10px] font-black uppercase tracking-[0.4em] mb-8"
                >
-                 Growth Standard v4.0
+                 The Performance Gap
                </motion.div>
-               <h2 className="text-4xl md:text-6xl font-black text-white uppercase italic mb-6">
-                  Superior <span className="pd-gradient-text not-italic">Acquisition.</span>
+               <h2 className="text-4xl md:text-7xl font-black text-white uppercase italic mb-8 leading-none">
+                  Superior <br className="md:hidden" />
+                  <span className="pd-gradient-text not-italic">Acquisition.</span>
                </h2>
-               <p className="text-slate-400 font-medium max-w-2xl mx-auto">
-                  A side-by-side comparison of why the high-growth venues choose us.
+               <p className="text-slate-400 font-medium max-w-2xl mx-auto text-base md:text-lg">
+                  We don't just list venues. We engineer a high-velocity acquisition pipeline that standard platforms can't match.
                </p>
             </div>
 
-            {/* CHART GRID */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-white/10 rounded-[32px] md:rounded-[48px] overflow-hidden bg-white/[0.02] backdrop-blur-3xl shadow-4xl">
-               
-               {/* FEATURE HEADER */}
-               <div className="hidden md:flex flex-col bg-white/5 border-r border-white/5">
-                  <div className="h-32 p-10 flex items-center border-b border-white/5">
-                     <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Platform Feature</span>
-                  </div>
-                  {[
-                     { label: "Lead Ownership", icon: <Smartphone size={16} /> },
-                     { label: "Verification Level", icon: <ShieldCheck size={16} /> },
-                     { label: "Distribution Logic", icon: <Zap size={16} /> },
-                     { label: "Branding Depth", icon: <Globe size={14} /> },
-                     { label: "Response Speed", icon: <Clock size={16} /> }
-                  ].map((f, i) => (
-                     <div key={i} className="flex-1 p-10 border-b border-white/5 flex items-center gap-4">
-                        <div className="text-pd-pink/40">{f.icon}</div>
-                        <span className="text-xs font-black text-slate-200 uppercase italic tracking-wider">{f.label}</span>
-                     </div>
-                  ))}
-               </div>
-
-               {/* OTHERS COLUMN */}
-               <div className="flex flex-col border-r border-white/5 opacity-50">
-                  <div className="h-32 p-10 flex flex-col justify-center items-center border-b border-white/5 text-center bg-slate-950/40">
-                     <span className="text-[9px] font-black text-slate-600 uppercase mb-2">Standard</span>
-                     <span className="text-xl font-black text-slate-500 uppercase italic">Others</span>
-                  </div>
-                  {[
-                     "Shared with ~5 others",
-                     "Email Only (Unverified)",
-                     "Rotating / Scheduled",
-                     "Generic Marketplace Profile",
-                     "Delayed (30-60 mins)"
-                  ].map((v, i) => (
-                     <div key={i} className="flex-1 p-10 border-b border-white/5 flex flex-col items-center justify-center text-center">
-                        <span className="md:hidden text-[9px] font-black text-slate-500 uppercase mb-4 opacity-50 text-white/40">
-                           {["Ownership", "Verification", "Logic", "Branding", "Speed"][i]}
-                        </span>
-                        <div className="w-5 h-5 rounded-full border border-slate-700 flex items-center justify-center mb-4 text-white/40">
-                           <Shield size={10} />
+            {/* COMPARISON CARDS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+               {[
+                  { 
+                    label: "Lead Ownership", 
+                    icon: <Smartphone size={24} />, 
+                    others: "Shared with 5+ competitors", 
+                    pd: "100% Exclusive (1:1)", 
+                    desc: "Leads from your page go only to you. No price wars."
+                  },
+                  { 
+                    label: "Verification Level", 
+                    icon: <ShieldCheck size={24} />, 
+                    others: "Basic Email Only", 
+                    pd: "Dual-Layer (OTP + Intent)", 
+                    desc: "Every caller is verified via WhatsApp OTP before connection."
+                  },
+                  { 
+                    label: "Response Speed", 
+                    icon: <Clock size={24} />, 
+                    others: "Delayed (30-60 mins)", 
+                    pd: "Real-time (< 2 Seconds)", 
+                    desc: "Inbound calls routed to your mobile in under 2 seconds."
+                  },
+                  { 
+                    label: "Branding Depth", 
+                    icon: <Globe size={24} />, 
+                    others: "Generic Catalog Profile", 
+                    pd: "Dedicated Digital HQ", 
+                    desc: "A professional landing page optimized for venue conversions."
+                  },
+                  { 
+                    label: "Distribution Logic", 
+                    icon: <Zap size={24} />, 
+                    others: "Rotating / Scheduled", 
+                    pd: "Priority Instant Routing", 
+                    desc: "You get the lead the moment the intent is captured."
+                  },
+                  { 
+                    label: "Growth Support", 
+                    icon: <Target size={24} />, 
+                    others: "Help Center / Ticketing", 
+                    pd: "Personal Growth Advisor", 
+                    desc: "Direct access to experts to optimize your venue performance."
+                  }
+               ].map((feature, i) => (
+                  <motion.div 
+                    key={i}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="group relative"
+                  >
+                     {/* Card Body */}
+                     <div className="h-full bg-white/5 border border-white/10 rounded-[32px] p-8 md:p-10 transition-all duration-500 hover:bg-white/10 hover:border-pd-pink/30 hover:translate-y-[-8px]">
+                        {/* Icon & Label */}
+                        <div className="flex items-center gap-4 mb-10">
+                           <div className="w-12 h-12 rounded-2xl bg-pd-pink/10 text-pd-pink flex items-center justify-center shadow-lg shadow-pd-pink/5">
+                              {feature.icon}
+                           </div>
+                           <h3 className="text-sm font-black text-white uppercase italic tracking-widest">{feature.label}</h3>
                         </div>
-                        <span className="text-[11px] font-bold text-slate-500 leading-relaxed uppercase">{v}</span>
-                     </div>
-                  ))}
-               </div>
 
-               {/* PARTYDIAL COLUMN (US) */}
-               <div className="flex flex-col bg-gradient-to-b from-pd-pink/10 to-transparent border-t-4 md:border-t-0 md:border-l-4 border-pd-pink relative">
-                  {/* Glowing Highlight */}
-                  <div className="absolute inset-x-0 top-0 h-32 bg-pd-pink/20 blur-[100px] pointer-events-none"></div>
-                  
-                  <div className="h-32 p-10 flex flex-col justify-center items-center border-b border-white/10 text-center relative z-10 bg-pd-pink/5">
-                     <div className="absolute -top-4 px-4 py-1.5 bg-pd-pink text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl">
-                        Recommended Track
-                     </div>
-                      <div className="flex items-center justify-center h-10 w-full px-4">
-                         <span className="pd-logo-white text-2xl">PartyDial</span>
-                      </div>
-                  </div>
-                  {[
-                     "100% Exclusive (1:1)",
-                     "Dual-Layer (OTP + Intent)",
-                     "Priority Instant Routing",
-                     "Dedicated Digital HQ",
-                     "Real-time (< 2 Seconds)"
-                  ].map((v, i) => (
-                     <div key={i} className="flex-1 p-10 border-b border-white/10 flex flex-col items-center justify-center text-center relative z-10">
-                        <span className="md:hidden text-[9px] font-black text-pd-pink uppercase mb-4 opacity-50 tracking-widest leading-relaxed">
-                           {["Ownership", "Verification", "Logic", "Branding", "Speed"][i]}
-                        </span>
-                        <motion.div 
-                           whileHover={{ scale: 1.2 }}
-                           className="w-8 h-8 rounded-full bg-pd-pink text-white flex items-center justify-center mb-4 shadow-xl shadow-pd-pink/30"
-                        >
-                           <Check size={14} strokeWidth={4} />
-                        </motion.div>
-                        <span className="text-[13px] font-black text-white leading-relaxed italic uppercase">{v}</span>
-                     </div>
-                  ))}
-               </div>
+                        {/* Comparison Grid */}
+                        <div className="space-y-6">
+                           <div className="space-y-2 opacity-40 grayscale transition-all group-hover:grayscale-0 group-hover:opacity-60">
+                              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Industry Standard</span>
+                              <p className="text-xs font-bold text-slate-300">{feature.others}</p>
+                           </div>
 
+                           <div className="h-px bg-white/10 w-full"></div>
+
+                           <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                 <span className="text-[10px] font-black text-pd-pink uppercase tracking-widest">The PartyDial Edge</span>
+                                 <div className="h-1 flex-1 bg-pd-pink/20 rounded-full overflow-hidden">
+                                    <motion.div 
+                                       initial={{ width: 0 }}
+                                       whileInView={{ width: '100%' }}
+                                       transition={{ duration: 1, delay: 0.5 }}
+                                       className="h-full bg-pd-pink"
+                                    />
+                                 </div>
+                              </div>
+                              <p className="text-base font-black text-white uppercase italic">{feature.pd}</p>
+                              <p className="text-xs text-slate-400 font-medium leading-relaxed">{feature.desc}</p>
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* Subtle Glow */}
+                     <div className="absolute -inset-1 bg-gradient-to-r from-pd-pink to-pd-blue rounded-[34px] opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500"></div>
+                  </motion.div>
+               ))}
             </div>
          </div>
       </section>
@@ -286,14 +301,19 @@ export default function ProcessPage() {
                Ready to <span className="pd-gradient-text not-italic">Scale?</span>
             </h3>
             <div className="flex flex-wrap gap-8 justify-center items-center">
-               <motion.button 
-                 whileHover={{ scale: 1.05 }}
-                 className="px-12 py-5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] italic shadow-2xl"
-               >
-                 Sign Up Now
-               </motion.button>
+               <Link href="/signup">
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-12 py-5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] italic shadow-2xl"
+                  >
+                    Sign Up Now
+                  </motion.button>
+               </Link>
                <span className="text-slate-400 font-black text-[10px] uppercase">or</span>
-               <button className="text-pd-pink font-black text-[10px] uppercase tracking-widest hover:underline">Talk to Growth Expert</button>
+               <Link href="/contact" className="text-pd-pink font-black text-[10px] uppercase tracking-widest hover:underline transition-all">
+                  Talk to Growth Expert
+               </Link>
             </div>
          </div>
       </section>

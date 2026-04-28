@@ -1069,7 +1069,9 @@ export default function PartnerLandingPage() {
                     <div className="relative z-10">
                        <h4 className="text-sm font-black italic uppercase tracking-widest mb-4">Still have doubts?</h4>
                        <p className="text-slate-400 text-xs mb-8">Our partner success team is available 24/7 to help you dominate your city.</p>
-                       <button className="px-8 py-3 bg-pd-pink text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform">Get Expert Help</button>
+                       <Link href="/contact">
+                          <button className="px-8 py-3 bg-pd-pink text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform">Get Expert Help</button>
+                       </Link>
                     </div>
                     <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-pd-pink/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
                  </div>

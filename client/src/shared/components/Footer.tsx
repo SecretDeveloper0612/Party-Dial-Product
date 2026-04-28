@@ -28,7 +28,7 @@ export default function Footer() {
           <div className="lg:col-span-4 space-y-10 flex flex-col items-center md:items-start text-center md:text-left">
             <div className="flex items-center gap-1">
               <Image 
-                src="/logo-gradient.png" 
+                src="/logo-nav.png" 
                 alt="PartyDial" 
                 width={160} 
                 height={45} 
@@ -151,9 +151,9 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-center md:text-left">
             <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">© 2026 PARTYDIAL</p>
             <div className="hidden md:block w-[1px] h-4 bg-white/10"></div>
-            <p className="text-[10px] font-black text-pd-pink uppercase tracking-[0.2em]">A Platform by Preet Tech</p>
+            <p className="text-[10px] font-black text-pd-pink uppercase tracking-[0.2em]">A Platform by Preet Tech OPC Private Limited</p>
             <div className="hidden md:block w-[1px] h-4 bg-white/10"></div>
-            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] italic">All billing and operations managed exclusively by Preet Tech</p>
+            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] italic">All billing and operations managed exclusively by Preet Tech OPC Private Limited</p>
           </div>
           
         </div>

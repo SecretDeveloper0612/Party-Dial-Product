@@ -1,4 +1,4 @@
-const { Client, Account, Databases, Users, Storage } = require('node-appwrite');
+const { Client, Account, Databases, Users, Storage, ID } = require('node-appwrite');
 
 const endpoint = process.env.APPWRITE_ENDPOINT;
 const project = process.env.APPWRITE_PROJECT_ID;
@@ -34,6 +34,7 @@ module.exports = {
     databases, 
     users, 
     storage,
+    ID,
     DATABASE_ID: databaseId, 
     VENUES_COLLECTION_ID: venuesCollectionId,
     LEADS_COLLECTION_ID: process.env.APPWRITE_LEADS_COLLECTION_ID || '69cf7b100035f0d02235',

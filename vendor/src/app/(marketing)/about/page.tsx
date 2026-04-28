@@ -136,17 +136,17 @@ export default function AboutPage() {
           <div>
             <span className="text-pd-red text-[10px] font-black uppercase tracking-[0.4em] mb-8 block">Corporate Foundation</span>
             <h2 className="text-3xl md:text-5xl font-black text-[#0F172A] uppercase italic mb-8">
-              A <span className="pd-gradient-text not-italic">Preet Tech</span> Venture.
+              A <span className="pd-gradient-text not-italic">Preet Tech OPC Private Limited</span> Venture.
             </h2>
             <p className="text-lg text-slate-600 font-medium leading-relaxed mb-10 text-justify">
-              PartyDial is a flagship ecosystem developed and operated by <strong>Preet Tech </strong>.
+              PartyDial is a flagship ecosystem developed and operated by <strong>Preet Tech OPC Private Limited </strong>.
               Our corporate foundation provides the technological stability and legal compliance required to manage high-volume transactions and enterprise-level venue partnerships across India.
             </p>
 
             <div className="space-y-6">
               {[
-                { t: "Unified Billing", d: "All payments and financial operations are securely managed under the Preet Tech corporate umbrella, ensuring 100% tax compliance and transparent invoicing." },
-                { t: "Proprietary Tech", d: "Our platform is built on Preet Tech's proprietary CRM and routing architecture, optimized specifically for the Indian event industry." },
+                { t: "Unified Billing", d: "All payments and financial operations are securely managed under the Preet Tech OPC Private Limited corporate umbrella, ensuring 100% tax compliance and transparent invoicing." },
+                { t: "Proprietary Tech", d: "Our platform is built on Preet Tech OPC Private Limited's proprietary CRM and routing architecture, optimized specifically for the Indian event industry." },
                 { t: "Administrative HQ", d: "Strategically headquartered in Dehradun, Uttarakhand, our administrative team ensures seamless support for partners nationwide." }
               ].map((item, i) => (
                 <div key={i} className="flex gap-4">

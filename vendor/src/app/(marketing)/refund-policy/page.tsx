@@ -51,14 +51,14 @@ export default function RefundPolicy() {
         <section>
           <h2 className="text-xl font-bold mb-4">5. Platform & Service Fees</h2>
           <p>
-            Any administrative or service fees charged by PartyDial for processing inquiries or managing platform operations are 100% non-refundable. These fees cover the cost of technology, server maintenance, and operational support provided by Preet Tech.
+            Any administrative or service fees charged by PartyDial for processing inquiries or managing platform operations are 100% non-refundable. These fees cover the cost of technology, server maintenance, and operational support provided by Preet Tech OPC Private Limited.
           </p>
         </section>
 
         <div className="mt-12 p-8 bg-slate-50 rounded-xl border border-slate-200">
           <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4 italic">Management Information:</h2>
           <p className="text-sm text-slate-700 leading-relaxed mb-4">
-            This platform and all its financial operations are managed exclusively by <strong>Preet Tech</strong>
+            This platform and all its financial operations are managed exclusively by <strong>Preet Tech OPC Private Limited</strong>
           </p>
           <p className="text-sm text-slate-600">
             For any billing-related clarifications, please contact us at: <br />

@@ -51,6 +51,21 @@ export default function VenueLoginPage() {
 
       // 2. Get user details
       const user = await account.get();
+      
+      // 3. --- Added: Role-Based Access Control ---
+      // Distinguish between Vendors and regular Clients (who might share localhost cookies)
+      const labels = user.labels || [];
+      const isVendor = labels.includes('vendor');
+      const isMasterAdmin = user.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@partydial.com");
+
+      if (!isVendor && !isMasterAdmin) {
+        // This is a Client user trying to log into the Vendor portal
+        await account.deleteSession('current');
+        localStorage.clear();
+        setError('Access Denied: This portal is reserved for Venue Partners only.');
+        setIsSubmitting(false);
+        return;
+      }
 
       localStorage.setItem('auth_session', JSON.stringify(session));
       localStorage.setItem('user', JSON.stringify(user));

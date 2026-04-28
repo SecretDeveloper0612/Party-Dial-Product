@@ -109,6 +109,14 @@ const planLabels: {[key: string]: string} = {
   'pax_1000_2000': 'Elite Live',
   'pax_2000_5000': 'Platinum Live',
   'pax_5000': 'Enterprise Live',
+  '0-50 PAX Membership': 'Starter Live',
+  '50-100 PAX Membership': 'Growth Live',
+  '100-200 PAX Membership': 'Priority Live',
+  '200-500 PAX Membership': 'Featured Live',
+  '500-1000 PAX Membership': 'Premium Live',
+  '1000-2000 PAX Membership': 'Elite Live',
+  '2000-5000 PAX Membership': 'Platinum Live',
+  '5000+ PAX Membership': 'Enterprise Live',
   'trial_30': 'Introductory Offer',
   'free': 'Free Live'
 };
@@ -566,6 +574,13 @@ export default function VendorDashboard() {
         const user = await account.get().catch(() => null);
         if (!isMounted) return;
         if (!user) { router.push('/login'); return; }
+
+        // --- Added: Role-Based Access Control ---
+        // Check if user has vendor label or if they are the master admin
+        const labels = user.labels || [];
+        const isVendor = labels.includes('vendor');
+        const isMasterAdmin = user.$id === 'master_admin';
+
         setUserData(user);
         setIsAuthorized(true);
 
@@ -616,17 +631,26 @@ export default function VendorDashboard() {
                  paidSince = billing?.paidSince;
               } catch (e) {}
 
+              const registrationDate = profile.createdAt || profile.$createdAt;
+              let restrictedSince = registrationDate;
+
+              if (paidSince) {
+                // Use the later of the two dates to be most restrictive
+                const regTime = new Date(registrationDate).getTime();
+                const paidTime = new Date(paidSince).getTime();
+                if (paidTime > regTime) {
+                  restrictedSince = paidSince;
+                }
+              }
+
               const queries = [
                 Query.or([
                   Query.equal('venueId', profile.$id),
                   Query.equal('venueId', 'BROADCAST')
                 ]),
+                Query.greaterThan('$createdAt', restrictedSince),
                 Query.orderDesc('$createdAt')
               ];
-
-              if (paidSince) {
-                queries.push(Query.greaterThan('$createdAt', paidSince));
-              }
 
               const leadsResult = await databases.listDocuments(DATABASE_ID, LEADS_COLLECTION_ID, queries);
               leadsDocuments = leadsResult.documents;
@@ -659,13 +683,28 @@ export default function VendorDashboard() {
                 time: formatLeadTime(doc.$createdAt),
                 rawDate: doc.$createdAt,
                 eventDate: doc.eventDate || extractedDate || null,
-                status: doc.status === 'Quoted' ? 'Quotation Send' : (doc.status === 'In-Progress' ? 'Contacted' : (doc.status === 'Lost' ? 'Lost Leads' : (doc.status || 'New'))),
+                status: (() => {
+                  if (doc.status === 'Lost') return 'Lost Leads';
+                  if (doc.status === 'Booked') return 'Booked';
+                  
+                  // Auto-Lost check: immediately after event date
+                  const eventDateStr = doc.eventDate || extractedDate;
+                  if (eventDateStr) {
+                    const eventDate = new Date(eventDateStr);
+                    const now = new Date();
+                    if (now > eventDate) return 'Lost Leads';
+                  }
+
+                  if (doc.status === 'Quoted') return 'Quotation Send';
+                  if (doc.status === 'In-Progress') return 'Contacted';
+                  return doc.status || 'New';
+                })(),
                 location: doc.city || extractedCity || (extractedPin ? `PIN: ${extractedPin}` : 'Haldwani'),
                 email: doc.email || 'client@mail.com',
                 title: 'Direct Inquiry',
                 starred: false,
                 unread: doc.status === 'New',
-                color: doc.status === 'Booked' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+                color: (doc.status === 'Booked') ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
               };
             });
             
@@ -733,6 +772,13 @@ export default function VendorDashboard() {
             }
           }
         } else {
+          // If no venue document found, we check if they are actually a vendor
+          // This prevents Clients (from port 3000) from seeing the onboarding screen
+          if (!isVendor && !isMasterAdmin) {
+            console.warn('Unauthorized access: User is not a vendor');
+            handleLogout();
+            return;
+          }
           setShowOnboarding(true);
           setIsLoadingLeads(false);
         }
@@ -1100,10 +1146,17 @@ export default function VendorDashboard() {
                     </div>
                   </>
                ) : (
-                  <div className="flex flex-col items-center opacity-40">
-                     <span className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400">Premium Partnership Active</span>
-                     <div className="flex gap-1 mt-1">
-                        {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-6 h-1 bg-slate-200 rounded-full"></div>)}
+                  <div className="flex flex-col items-center">
+                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500">Premium Partnership Active</span>
+                     <div className="flex gap-1.5 mt-1.5">
+                        {[1, 2, 3, 4, 5].map(i => (
+                          <motion.div 
+                            key={i} 
+                            animate={{ opacity: [0.2, 1, 0.2] }}
+                            transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
+                            className="w-8 h-1 grad-brand rounded-full"
+                          />
+                        ))}
                      </div>
                   </div>
                )}

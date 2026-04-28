@@ -1,8 +1,9 @@
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
-const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = require('../config/appwrite');
-const { ID, Query } = require('node-appwrite');
+const { databases, DATABASE_ID, VENUES_COLLECTION_ID, storage, STORAGE_BUCKET_ID } = require('../config/appwrite');
+const { ID, Query, InputFile } = require('node-appwrite');
 const { sendPaymentConfirmationEmail } = require('../utils/emailService');
+const { generateInvoicePDF } = require('../utils/invoiceGenerator');
 
 
 // Payments collection ID from env (we'll create it or use a hardcoded fallback)
@@ -107,6 +108,54 @@ exports.verifyPayment = async (req, res) => {
     const billingDetails = req.body.billingDetails;
     const couponUsed = req.body.couponUsed;
     let invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+    
+    // ── PDF INVOICE GENERATION & STORAGE ──
+    let pdfBuffer = null;
+    let invoiceFileId = null;
+    try {
+      const totalInr = amount / 100;
+      const basePrice = totalInr / 1.18; // Reverse calculate 18% GST
+      const gstAmount = totalInr - basePrice;
+
+      let bill = {};
+      try {
+        bill = typeof billingDetails === 'string' ? JSON.parse(billingDetails) : (billingDetails || {});
+      } catch (e) { bill = {}; }
+
+      const invoiceData = {
+        invoiceNumber,
+        invoiceDate: new Date().toLocaleDateString('en-IN'),
+        venueName: venueName || bill.name || 'Valued Partner',
+        ownerName: bill.ownerName || '',
+        billingAddress: bill.address || bill.fullAddress || '',
+        email: ownerEmail || bill.email || '',
+        mobile: bill.mobile || bill.phone || '',
+        gstNumber: bill.gstNumber || '',
+        planName: planName || 'Standard Subscription',
+        planDuration: '1 Year',
+        planPrice: basePrice.toFixed(2),
+        gstAmount: gstAmount.toFixed(2),
+        totalAmount: totalInr.toFixed(2),
+        paymentMethod: paymentDetails.method || 'Razorpay',
+        transactionId: razorpay_payment_id,
+        paymentDate: new Date().toLocaleDateString('en-IN')
+      };
+
+      pdfBuffer = await generateInvoicePDF(invoiceData);
+
+      // Upload to Appwrite Storage
+      if (pdfBuffer && STORAGE_BUCKET_ID) {
+        const file = await storage.createFile(
+          STORAGE_BUCKET_ID,
+          ID.unique(),
+          InputFile.fromBuffer(pdfBuffer, `Invoice_${invoiceNumber}.pdf`)
+        );
+        invoiceFileId = file.$id;
+        console.log(`Invoice PDF uploaded to Appwrite: ${invoiceFileId}`);
+      }
+    } catch (pdfErr) {
+      console.error('Failed to generate or upload PDF invoice:', pdfErr.message);
+    }
 
     // Store the payment record in Appwrite
     try {
@@ -129,7 +178,8 @@ exports.verifyPayment = async (req, res) => {
           paidAt: new Date().toISOString(),
           invoiceNumber,
           billingDetails: JSON.stringify(billingDetails),
-          couponUsed: couponUsed || ''
+          couponUsed: couponUsed || '',
+          invoiceFileId: invoiceFileId || ''
         }
       );
     } catch (dbErr) {
@@ -199,21 +249,31 @@ exports.verifyPayment = async (req, res) => {
     // Send payment confirmation + Invoice email
     if (ownerEmail || billingDetails?.email) {
       const emailTo = ownerEmail || billingDetails?.email;
+      
+      const attachments = [];
+      if (pdfBuffer) {
+        attachments.push({
+          filename: `Invoice_${invoiceNumber}.pdf`,
+          content: pdfBuffer
+        });
+      }
+
       sendPaymentConfirmationEmail(
         emailTo,
         venueName || billingDetails?.name || 'Partner',
         planName || 'Subscription Plan',
-        amount,
+        amount / 100, // Use INR for display
         {
           invoiceNumber,
           billingDetails,
           date: new Date().toLocaleDateString(),
           addons: req.body.addons || [],
           discount: req.body.discount || 0,
-          basePrice: req.body.basePrice || amount
-        }
+          basePrice: amount / 100 // Fallback
+        },
+        attachments
       )
-      .then(() => console.log(`Invoice email sent to ${emailTo}`))
+      .then(() => console.log(`Invoice email sent to ${emailTo} with attachment`))
       .catch(err => console.error(`Failed to send invoice email:`, err.message));
     }
 

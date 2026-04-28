@@ -26,6 +26,7 @@ interface Payment {
   status: string;
   paidAt: string;
   invoiceNumber?: string;
+  invoiceFileId?: string;
 }
 
 export default function PaymentLogsPage() {
@@ -218,9 +219,22 @@ export default function PaymentLogsPage() {
                     </div>
                   </td>
                   <td className="px-8 py-6 text-right">
-                    <button className="p-2.5 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 shadow-sm transition-all group-hover:scale-105">
-                       <ExternalLink size={16} />
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      {p.invoiceFileId && (
+                        <a 
+                          href={`${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/venues_photos/files/${p.invoiceFileId}/download?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2.5 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-600 hover:bg-indigo-600 hover:text-white shadow-sm transition-all group-hover:scale-105"
+                          title="Download Invoice"
+                        >
+                          <Download size={16} />
+                        </a>
+                      )}
+                      <button className="p-2.5 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-slate-900 shadow-sm transition-all group-hover:scale-105">
+                         <ExternalLink size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

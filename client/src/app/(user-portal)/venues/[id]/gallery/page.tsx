@@ -215,12 +215,14 @@ export default function VenueGalleryPage() {
               exit={{ opacity: 0 }}
               onClick={() => setSelectedImage(null)}
               className="absolute inset-0 bg-slate-950/98 backdrop-blur-sm"
+              style={{ willChange: 'opacity, backdrop-filter', transform: 'translateZ(0)' }}
             ></motion.div>
 
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
               className="relative w-full max-w-7xl h-full flex items-center justify-center"
               onClick={() => setSelectedImage(null)}
             >

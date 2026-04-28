@@ -240,7 +240,7 @@ export default function ContactUs() {
                     </div>
                     <div>
                       <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Office Address</h4>
-                      <p className="text-slate-800 font-bold leading-relaxed">Preet Tech, near Krishna Hospital,<br />Subhash Nagar, Haldwani, Uttarakhand 263139</p>
+                      <p className="text-slate-800 font-bold leading-relaxed">Preet Tech OPC Private Limited, near Krishna Hospital,<br />Subhash Nagar, Haldwani, Uttarakhand 263139</p>
                     </div>
                   </div>
                   
@@ -321,7 +321,7 @@ export default function ContactUs() {
                     <MapPin size={20} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-1 italic">Preet Tech</h4>
+                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-1 italic">Preet Tech OPC Private Limited</h4>
                     <p className="text-xs text-slate-600 font-bold leading-relaxed">
                       near Krishna Hospital, Subhash Nagar,<br />
                       Haldwani, Uttarakhand 263139

@@ -3,12 +3,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
-import { 
-  Search, 
-  MapPin, 
-  ChevronDown, 
-  Download, 
-  User, 
+import {
+  Search,
+  MapPin,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  User,
   LogOut,
   Smartphone,
   Menu,
@@ -30,7 +32,7 @@ import {
   Heart,
   Globe
 } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import VenueCard from '@/shared/components/VenueCard';
 import { Venue } from '@/data/venues';
 
@@ -89,6 +91,7 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isEventDropdownOpen, setIsEventDropdownOpen] = useState(false);
   const eventDropdownRef = useRef<HTMLDivElement>(null);
+  const venueScrollRef = useRef<HTMLDivElement>(null);
 
   // Fetch Location from Indian Post API
   useEffect(() => {
@@ -121,10 +124,10 @@ export default function Home() {
       setIsLoadingLocations(true);
       try {
         const isPincode = /^\d+$/.test(locationInput);
-        const url = isPincode 
+        const url = isPincode
           ? `https://api.postalpincode.in/pincode/${locationInput}`
           : `https://api.postalpincode.in/postoffice/${locationInput}`;
-        
+
         const response = await fetch(url);
         const data = await response.json();
 
@@ -139,7 +142,7 @@ export default function Home() {
               district: office.District,
               state: office.State
             }));
-          
+
           if (formattedSuggestions.length === 0 && offices.length > 0) {
             setSuggestions([{ isError: true, message: 'Only Uttarakhand Pincodes allowed' }]);
           } else {
@@ -212,25 +215,25 @@ export default function Home() {
         const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
         const response = await fetch(`${baseUrl}/venues?verified=true`);
         const result = await response.json();
-        
+
         if (result.status === 'success' && result.data) {
           const allDocs = result.data;
-          
+
           // Calculate counts per category (for now using venueType as a proxy or just randomizing for demo if field missing)
           const counts: Record<string, number> = {};
           categories.forEach(cat => {
             const matchCount = allDocs.filter((v: any) => {
-               // 1. Try to check the specific eventTypes field first (now that we have it from onboarding)
-               if (v.eventTypes) {
-                  try {
-                     const types = typeof v.eventTypes === 'string' ? JSON.parse(v.eventTypes) : v.eventTypes;
-                     if (Array.isArray(types) && types.includes(cat.name)) return true;
-                  } catch (e) {}
-               }
-               
-               // 2. Fallback to name or description (legacy or if not filled)
-               return v.venueType === cat.name || 
-                  (v.description && v.description.toLowerCase().includes(cat.name.toLowerCase()));
+              // 1. Try to check the specific eventTypes field first (now that we have it from onboarding)
+              if (v.eventTypes) {
+                try {
+                  const types = typeof v.eventTypes === 'string' ? JSON.parse(v.eventTypes) : v.eventTypes;
+                  if (Array.isArray(types) && types.includes(cat.name)) return true;
+                } catch (e) { }
+              }
+
+              // 2. Fallback to name or description (legacy or if not filled)
+              return v.venueType === cat.name ||
+                (v.description && v.description.toLowerCase().includes(cat.name.toLowerCase()));
             }).length;
             counts[cat.name] = matchCount;
           });
@@ -267,13 +270,13 @@ export default function Home() {
               return hasName && hasPhotos && hasCapacity;
             })(),
             img: doc.photos ? (() => {
-               try {
-                  const photos = JSON.parse(doc.photos);
-                  const firstId = typeof photos[0] === 'string' ? photos[0] : photos[0].id;
-                  const baseSrv = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
-                  const serverUrl = baseSrv.endsWith('/api') ? baseSrv : `${baseSrv}/api`;
-                  return `${serverUrl}/venues/proxy/image/venues_photos/${firstId}`;
-               } catch(e) { return ""; }
+              try {
+                const photos = JSON.parse(doc.photos);
+                const firstId = typeof photos[0] === 'string' ? photos[0] : photos[0].id;
+                const baseSrv = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+                const serverUrl = baseSrv.endsWith('/api') ? baseSrv : `${baseSrv}/api`;
+                return `${serverUrl}/venues/proxy/image/venues_photos/${firstId}`;
+              } catch (e) { return ""; }
             })() : ""
           }));
 
@@ -285,9 +288,14 @@ export default function Home() {
               .map(item => item.v);
 
           // profileComplete = has real name + has photos + has capacity
-          const completeVenues = weightedShuffle(mapped.filter((v: any) => v.profileComplete === true));
-
-          setLiveVenues(completeVenues.slice(0, 3)); // Show top 3 complete venues
+          const completeVenues = mapped.filter((v: any) => v.profileComplete === true);
+          
+          // Prioritize Paid venues, then shuffle the rest
+          const paidVenues = weightedShuffle(completeVenues.filter((v: any) => v.isPaid));
+          const otherVenues = weightedShuffle(completeVenues.filter((v: any) => !v.isPaid));
+          
+          const finalVenues = [...paidVenues, ...otherVenues];
+          setLiveVenues(finalVenues.slice(0, 15)); // Show up to 15 venues in the new carousel
         }
       } catch (err) {
         console.error('Home: Failed to fetch live venues via backend:', err);
@@ -313,16 +321,16 @@ export default function Home() {
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (formData.eventType) params.set('type', formData.eventType.toLowerCase().replace(/\s+/g, '-'));
-    
+
     if (formData.locations.length > 0) {
       const locationString = formData.locations.map(l => l.display).join(',');
       params.set('location', locationString);
     } else if (locationInput) {
       params.set('location', locationInput);
     }
-    
+
     if (formData.guests) params.set('capacity', formData.guests);
-    
+
     window.location.href = `/venues?${params.toString()}`;
   };
 
@@ -344,6 +352,14 @@ export default function Home() {
     });
   };
 
+  const scrollVenues = (direction: 'left' | 'right') => {
+    if (venueScrollRef.current) {
+      const { scrollLeft, clientWidth } = venueScrollRef.current;
+      const scrollTo = direction === 'left' ? scrollLeft - (clientWidth * 0.8) : scrollLeft + (clientWidth * 0.8);
+      venueScrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
+    }
+  };
+
   return (
     <main className="min-h-screen">
       {/* HERO SECTION */}
@@ -353,16 +369,16 @@ export default function Home() {
             {/* Hero Text */}
             <div className="w-full lg:w-1/2 text-left">
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <h1 className="text-3xl md:text-5xl font-bold text-slate-900 leading-tight mb-4 lg:mb-6">
-                   Find the <span className="text-pd-red">Perfect Venue</span> for Your Event
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0F172A] tracking-tighter leading-[1.1] mb-8 md:mb-10 uppercase">
+                  Find the <span className="pd-gradient-text px-2">Perfect Venue</span> <br /> for Your Event
                 </h1>
                 <p className="text-base md:text-lg text-slate-500 mb-6 lg:mb-8 leading-relaxed">
-                   Get free customized quotes from top venues in minutes. 
-                   Direct connections. Zero brokerage.
+                  Get free customized quotes from top venues in minutes.
+                  Direct connections. Zero brokerage.
                 </p>
                 <div className="flex items-center gap-4 text-xs md:text-sm font-bold text-slate-800">
                   <div className="flex -space-x-2 shrink-0">
-                    {[1,2,3,4].map(i => (
+                    {[1, 2, 3, 4].map(i => (
                       <div key={i} className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
                         <img src={`https://i.pravatar.cc/100?u=${i}`} alt="user" />
                       </div>
@@ -375,159 +391,159 @@ export default function Home() {
 
             {/* Lead Form */}
             <div className="w-full lg:w-1/2">
-               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-6 md:p-10 rounded-[20px] shadow-pd-strong border border-slate-50">
-                  <h3 className="text-lg md:text-xl font-black text-slate-900 mb-6 lg:mb-8 border-l-4 border-pd-red pl-4">Get Free Quotes Now</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Event Type</label>
-                      <div className="relative" ref={eventDropdownRef}>
-                        <button 
-                             type="button"
-                             onClick={() => setIsEventDropdownOpen(!isEventDropdownOpen)}
-                             className={`w-full h-14 bg-slate-50 border ${isEventDropdownOpen ? 'border-pd-purple ring-2 ring-pd-purple/10' : 'border-slate-200'} rounded-xl px-4 text-sm font-bold text-slate-800 outline-none transition-all flex items-center justify-between group`}
+              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-6 md:p-10 rounded-[20px] shadow-pd-strong border border-slate-50">
+                <h3 className="text-lg md:text-xl font-black text-slate-900 mb-6 lg:mb-8 border-l-4 border-pd-red pl-4">Get Free Quotes Now</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Event Type</label>
+                    <div className="relative" ref={eventDropdownRef}>
+                      <button
+                        type="button"
+                        onClick={() => setIsEventDropdownOpen(!isEventDropdownOpen)}
+                        className={`w-full h-14 bg-slate-50 border ${isEventDropdownOpen ? 'border-pd-purple ring-2 ring-pd-purple/10' : 'border-slate-200'} rounded-xl px-4 text-sm font-bold text-slate-800 outline-none transition-all flex items-center justify-between group`}
+                      >
+                        <span className={formData.eventType ? 'text-slate-800' : 'text-slate-400'}>
+                          {formData.eventType || "Select Event"}
+                        </span>
+                        <ChevronDown className={`text-slate-400 transition-transform duration-300 ${isEventDropdownOpen ? 'rotate-180' : ''}`} size={16} />
+                      </button>
+
+                      <AnimatePresence>
+                        {isEventDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 5, scale: 0.98 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 5, scale: 0.98 }}
+                            className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-pd-strong z-[60] py-2 max-h-80 overflow-y-auto"
                           >
-                             <span className={formData.eventType ? 'text-slate-800' : 'text-slate-400'}>
-                                {formData.eventType || "Select Event"}
-                             </span>
-                             <ChevronDown className={`text-slate-400 transition-transform duration-300 ${isEventDropdownOpen ? 'rotate-180' : ''}`} size={16} />
-                          </button>
-
-                          <AnimatePresence>
-                             {isEventDropdownOpen && (
-                                <motion.div 
-                                   initial={{ opacity: 0, y: 5, scale: 0.98 }}
-                                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                                   exit={{ opacity: 0, y: 5, scale: 0.98 }}
-                                   className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-pd-strong z-[60] py-2 max-h-80 overflow-y-auto"
-                                >
-                                   {categories.map((cat, i) => (
-                                      <button
-                                         key={i}
-                                         type="button"
-                                         onClick={() => {
-                                            setFormData({ ...formData, eventType: cat.name });
-                                            setIsEventDropdownOpen(false);
-                                         }}
-                                         className={`w-full text-left px-5 py-3 text-sm font-bold transition-all flex items-center gap-3 hover:bg-slate-50 ${formData.eventType === cat.name ? 'text-pd-red bg-pd-red/[0.03]' : 'text-slate-600 hover:text-slate-900'}`}
-                                      >
-                                         <span className="text-lg">{cat.icon}</span>
-                                         {cat.name}
-                                         {formData.eventType === cat.name && <CheckCircle2 size={14} className="ml-auto" />}
-                                      </button>
-                                   ))}
-                                </motion.div>
-                             )}
-                          </AnimatePresence>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">City / Location</label>
-                      <div className="relative" ref={locationRef}>
-                        <div className={`w-full min-h-14 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 flex flex-wrap items-center gap-2 transition-all focus-within:border-pd-purple`}>
-                          <MapPin className="text-pd-red shrink-0" size={16} />
-                          
-                          {/* Location Chips */}
-                          {formData.locations.map((loc, i) => (
-                            <div key={i} className="flex items-center gap-1 bg-pd-red/10 text-pd-red px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider">
-                              <span>{loc.display}</span>
-                              <button onClick={() => removeLocation(loc.display)} className="hover:text-slate-900 transition-colors">
-                                <X size={10} />
+                            {categories.map((cat, i) => (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => {
+                                  setFormData({ ...formData, eventType: cat.name });
+                                  setIsEventDropdownOpen(false);
+                                }}
+                                className={`w-full text-left px-5 py-3 text-sm font-bold transition-all flex items-center gap-3 hover:bg-slate-50 ${formData.eventType === cat.name ? 'text-pd-red bg-pd-red/[0.03]' : 'text-slate-600 hover:text-slate-900'}`}
+                              >
+                                <span className="text-lg">{cat.icon}</span>
+                                {cat.name}
+                                {formData.eventType === cat.name && <CheckCircle2 size={14} className="ml-auto" />}
                               </button>
-                            </div>
-                          ))}
-
-                          <input 
-                            type="text" 
-                            placeholder={formData.locations.length === 0 ? "Enter Pincode or City" : ""} 
-                            value={locationInput}
-                            onChange={(e) => {
-                              setLocationInput(e.target.value);
-                              setShowSuggestions(true);
-                            }}
-                            onFocus={() => setShowSuggestions(true)}
-                            className="flex-1 bg-transparent border-none text-sm font-bold text-slate-800 outline-none min-w-[120px]" 
-                          />
-                        </div>
-                        
-                        {/* Suggestions Dropdown */}
-                        <AnimatePresence>
-                          {showSuggestions && (locationInput.length >= 3) && (suggestions.length > 0 || isLoadingLocations) && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 5 }}
-                              className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-pd-strong z-50 max-h-60 overflow-y-auto"
-                            >
-                              {isLoadingLocations ? (
-                                <div className="p-4 text-center text-xs text-slate-400 font-bold uppercase tracking-widest animate-pulse">
-                                  Searching...
-                                </div>
-                              ) : (
-                                suggestions.map((s: any, i) => (
-                                  s.isError ? (
-                                    <div key={i} className="p-4 text-center text-[10px] text-pd-red font-black uppercase tracking-widest italic">
-                                      {s.message}
-                                    </div>
-                                  ) : (
-                                    <button
-                                      key={i}
-                                      onClick={() => addLocation(s)}
-                                      className="w-full text-left px-5 py-3.5 hover:bg-slate-50 text-sm font-bold text-slate-700 transition-colors border-b border-slate-50 last:border-none flex items-center justify-between"
-                                    >
-                                      <span>{s.display}</span>
-                                      <span className="text-[10px] text-slate-400 uppercase">{s.state}</span>
-                                    </button>
-                                  )
-                                ))
-                              )}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Event Date</label>
-                       <div className="relative">
-                         <Calendar className="absolute left-4 top-5 text-pd-purple" size={16} />
-                         <input 
-                            type="date" 
-                            value={formData.date}
-                            onChange={(e) => setFormData({...formData, date: e.target.value})}
-                            className="w-full h-14 bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 text-sm font-bold text-slate-800 outline-none focus:border-pd-purple transition-all" 
-                         />
-                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Guest Count</label>
-                      <div className="relative">
-                        <Users className="absolute left-4 top-5 text-pd-blue" size={16} />
-                        <select 
-                          className="w-full h-14 bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-10 text-sm font-bold text-slate-800 outline-none focus:border-pd-purple transition-all appearance-none cursor-pointer"
-                          value={formData.guests}
-                          onChange={(e) => setFormData({ ...formData, guests: e.target.value })}
-                        >
-                          <option value="">Select Capacity</option>
-                          <option value="0-50">0-50 guests</option>
-                          <option value="50-100">50-100 guests</option>
-                          <option value="100-200">100-200 guests</option>
-                          <option value="200-500">200-500 guests</option>
-                          <option value="500-1000">500-1000 guests</option>
-                          <option value="1000-2000">1000-2000 guests</option>
-                          <option value="2000-5000">2000-5000 guests</option>
-                          <option value="5000+">5000+ guests</option>
-                        </select>
-                        <ChevronDown className="absolute right-4 top-5 text-slate-400" size={16} />
-                      </div>
-                    </div>
-
                   </div>
-                  <button 
-                    onClick={handleSearch}
-                    className="w-full pd-btn-primary h-16 mt-8 shadow-xl shadow-pd-pink/20 uppercase tracking-[0.2em] font-black italic"
-                  >
-                    Get Free Quotes <ArrowRight className="inline ml-2" size={18} />
-                  </button>
-               </motion.div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">City / Location</label>
+                    <div className="relative" ref={locationRef}>
+                      <div className={`w-full min-h-14 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 flex flex-wrap items-center gap-2 transition-all focus-within:border-pd-purple`}>
+                        <MapPin className="text-pd-red shrink-0" size={16} />
+
+                        {/* Location Chips */}
+                        {formData.locations.map((loc, i) => (
+                          <div key={i} className="flex items-center gap-1 bg-pd-red/10 text-pd-red px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider">
+                            <span>{loc.display}</span>
+                            <button onClick={() => removeLocation(loc.display)} className="hover:text-slate-900 transition-colors">
+                              <X size={10} />
+                            </button>
+                          </div>
+                        ))}
+
+                        <input
+                          type="text"
+                          placeholder={formData.locations.length === 0 ? "Enter Pincode or City" : ""}
+                          value={locationInput}
+                          onChange={(e) => {
+                            setLocationInput(e.target.value);
+                            setShowSuggestions(true);
+                          }}
+                          onFocus={() => setShowSuggestions(true)}
+                          className="flex-1 bg-transparent border-none text-sm font-bold text-slate-800 outline-none min-w-[120px]"
+                        />
+                      </div>
+
+                      {/* Suggestions Dropdown */}
+                      <AnimatePresence>
+                        {showSuggestions && (locationInput.length >= 3) && (suggestions.length > 0 || isLoadingLocations) && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 5 }}
+                            className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-pd-strong z-50 max-h-60 overflow-y-auto"
+                          >
+                            {isLoadingLocations ? (
+                              <div className="p-4 text-center text-xs text-slate-400 font-bold uppercase tracking-widest animate-pulse">
+                                Searching...
+                              </div>
+                            ) : (
+                              suggestions.map((s: any, i) => (
+                                s.isError ? (
+                                  <div key={i} className="p-4 text-center text-[10px] text-pd-red font-black uppercase tracking-widest italic">
+                                    {s.message}
+                                  </div>
+                                ) : (
+                                  <button
+                                    key={i}
+                                    onClick={() => addLocation(s)}
+                                    className="w-full text-left px-5 py-3.5 hover:bg-slate-50 text-sm font-bold text-slate-700 transition-colors border-b border-slate-50 last:border-none flex items-center justify-between"
+                                  >
+                                    <span>{s.display}</span>
+                                    <span className="text-[10px] text-slate-400 uppercase">{s.state}</span>
+                                  </button>
+                                )
+                              ))
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Event Date</label>
+                    <div className="relative">
+                      <Calendar className="absolute left-4 top-5 text-pd-purple" size={16} />
+                      <input
+                        type="date"
+                        value={formData.date}
+                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                        className="w-full h-14 bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 text-sm font-bold text-slate-800 outline-none focus:border-pd-purple transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Guest Count</label>
+                    <div className="relative">
+                      <Users className="absolute left-4 top-5 text-pd-blue" size={16} />
+                      <select
+                        className="w-full h-14 bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-10 text-sm font-bold text-slate-800 outline-none focus:border-pd-purple transition-all appearance-none cursor-pointer"
+                        value={formData.guests}
+                        onChange={(e) => setFormData({ ...formData, guests: e.target.value })}
+                      >
+                        <option value="">Select Capacity</option>
+                        <option value="0-50">0-50 guests</option>
+                        <option value="50-100">50-100 guests</option>
+                        <option value="100-200">100-200 guests</option>
+                        <option value="200-500">200-500 guests</option>
+                        <option value="500-1000">500-1000 guests</option>
+                        <option value="1000-2000">1000-2000 guests</option>
+                        <option value="2000-5000">2000-5000 guests</option>
+                        <option value="5000+">5000+ guests</option>
+                      </select>
+                      <ChevronDown className="absolute right-4 top-5 text-slate-400" size={16} />
+                    </div>
+                  </div>
+
+                </div>
+                <button
+                  onClick={handleSearch}
+                  className="w-full pd-btn-primary h-16 mt-8 shadow-xl shadow-pd-pink/20 uppercase tracking-[0.2em] font-black italic"
+                >
+                  Get Free Quotes <ArrowRight className="inline ml-2" size={18} />
+                </button>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -537,27 +553,27 @@ export default function Home() {
       <section className="py-6 border-y border-slate-50 bg-white/80 backdrop-blur-sm relative">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="flex flex-wrap md:grid md:grid-cols-3 divide-x divide-slate-100 md:divide-x">
-            
+
             {/* Stat Item 1 */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               className="flex-1 min-w-[33%] md:min-w-0 flex flex-col items-center justify-center text-center gap-1 px-1"
             >
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-pd-red/5 flex items-center justify-center text-pd-red shrink-0 mb-0.5">
-                 <Building2 size={16} className="md:size-[18px]" />
+                <Building2 size={16} className="md:size-[18px]" />
               </div>
               <div className="flex flex-col items-center">
-                 <h3 className="text-xs md:text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">
-                   <AnimatedCounter end={500} suffix="+" />
-                 </h3>
-                 <p className="text-[6px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Venues</p>
+                <h3 className="text-xs md:text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">
+                  <AnimatedCounter end={500} suffix="+" />
+                </h3>
+                <p className="text-[6px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Venues</p>
               </div>
             </motion.div>
-            
+
             {/* Stat Item 2 */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
@@ -565,18 +581,18 @@ export default function Home() {
               className="flex-1 min-w-[33%] md:min-w-0 border-l border-slate-100 md:border-none flex flex-col items-center justify-center text-center gap-1 px-1"
             >
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-pd-purple/5 flex items-center justify-center text-pd-purple shrink-0 mb-0.5">
-                 <Users size={16} className="md:size-[18px]" />
+                <Users size={16} className="md:size-[18px]" />
               </div>
               <div className="flex flex-col items-center">
-                 <h3 className="text-xs md:text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">
-                   <AnimatedCounter end={10000} suffix="+" />
-                 </h3>
-                 <p className="text-[6px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Inquiries</p>
+                <h3 className="text-xs md:text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">
+                  <AnimatedCounter end={10000} suffix="+" />
+                </h3>
+                <p className="text-[6px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Inquiries</p>
               </div>
             </motion.div>
-            
+
             {/* Stat Item 3 */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
@@ -584,13 +600,13 @@ export default function Home() {
               className="flex-1 min-w-[33%] md:min-w-0 border-l border-slate-100 md:border-none flex flex-col items-center justify-center text-center gap-1 px-1"
             >
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-pd-blue/5 flex items-center justify-center text-pd-blue shrink-0 mb-0.5">
-                 <Globe size={16} className="md:size-[18px]" />
+                <Globe size={16} className="md:size-[18px]" />
               </div>
               <div className="flex flex-col items-center">
-                 <h3 className="text-xs md:text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">
-                   <AnimatedCounter end={7} suffix="" />
-                 </h3>
-                 <p className="text-[6px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Cities</p>
+                <h3 className="text-xs md:text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">
+                  <AnimatedCounter end={7} suffix="" />
+                </h3>
+                <p className="text-[6px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Cities</p>
               </div>
             </motion.div>
 
@@ -601,35 +617,57 @@ export default function Home() {
       {/* POPULAR CATEGORIES */}
       <section className="py-16 px-6 bg-white border-t border-slate-50">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 gap-6">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Popular Event Categories</h2>
-              <div className="w-12 h-1 bg-pd-red rounded-full"></div>
+          <div className="flex flex-col md:flex-row items-center md:items-end justify-between mb-10 md:mb-16 gap-8 text-center md:text-left">
+            <div className="max-w-xl">
+              <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 leading-none uppercase">
+                Explore <span className="pd-gradient-text px-1">Categories</span>
+              </h2>
+              <p className="text-slate-500 font-semibold text-sm md:text-base">Find the perfect setting for every occasion, from grand weddings to intimate parties.</p>
             </div>
-            <Link href="/categories">
-              <button className="pd-btn-primary !py-3 !px-8 text-xs italic uppercase tracking-[0.2em] shadow-lg shadow-pd-pink/10">
-                Explore More <ArrowRight className="inline ml-2" size={16} />
+            <Link href="/categories" className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto pd-btn-primary !py-4 !px-10 text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-pd-red/20 active:scale-95">
+                All Categories
               </button>
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
             {categories
               .filter(cat => (categoryCounts[cat.name] || 0) > 0)
               .map((cat, i) => (
-              <Link href={`/venues?type=${cat.name.toLowerCase().replace(/\s+/g, '-')}`} key={i}>
-                <div className="border border-slate-100 rounded-lg overflow-hidden h-64 relative group cursor-pointer">
-                  <img src={cat.img} alt={cat.name} className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" loading="lazy" />
-                  <div className="absolute inset-0 bg-black/40"></div>
-                  {/* Realtime Count Badge */}
-                  <div className="absolute top-4 right-4 bg-pd-red text-white px-3 py-1 rounded-full text-[10px] font-black group-hover:scale-110 transition-transform">
-                    {categoryCounts[cat.name] || 0} Venues
-                  </div>
-                  <div className="absolute bottom-4 left-4">
-                    <h3 className="text-white font-bold text-xs uppercase tracking-wider">{cat.name}</h3>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                <Link href={`/venues?type=${cat.name.toLowerCase().replace(/\s+/g, '-')}`} key={i}>
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.05 }}
+                    whileHover={{ y: -5 }}
+                    className="group relative aspect-square rounded-[40px] md:rounded-[48px] overflow-hidden cursor-pointer shadow-lg hover:shadow-xl transition-all duration-500 will-change-transform"
+                  >
+                    {/* Background Image */}
+                    <img 
+                      src={cat.img} 
+                      alt={cat.name} 
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                      loading="lazy" 
+                    />
+                    
+                    {/* Dark Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 transition-opacity duration-500" />
+
+                    {/* Gradient Badge */}
+                    <div className="absolute top-4 right-4 pd-gradient backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider shadow-lg">
+                      {categoryCounts[cat.name] || 0} Venues
+                    </div>
+
+                    {/* Content */}
+                    <div className="absolute bottom-6 left-6 right-6">
+                      <h3 className="text-white font-bold text-[10px] md:text-xs uppercase tracking-wider leading-tight">
+                        {cat.name}
+                      </h3>
+                    </div>
+                  </motion.div>
+                </Link>
+              ))}
           </div>
         </div>
       </section>
@@ -637,51 +675,108 @@ export default function Home() {
       {/* TOP VENUES NEAR YOU */}
       <section className="py-24 px-6 bg-slate-50">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6 text-center md:text-left">
-            <div>
-              <h2 className="text-4xl font-black text-slate-900 mb-4">Top Venues <span className="pd-gradient-text">Near You</span></h2>
-              <p className="text-slate-500 font-medium">Personally verified luxury venues for your grand celebrations.</p>
+          <div className="flex flex-col md:flex-row items-center md:items-end justify-between mb-12 md:mb-16 gap-8 text-center md:text-left">
+            <div className="max-w-2xl">
+              <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 leading-[1.1] uppercase">
+                Top Venues <span className="pd-gradient-text block sm:inline px-1">Near You</span>
+              </h2>
+              <p className="text-slate-500 font-semibold text-sm md:text-base">Personally verified luxury venues for your grand celebrations.</p>
             </div>
-            <Link href="/venues">
-              <button className="bg-white px-8 py-3 rounded-xl font-bold text-sm border border-slate-200 hover:shadow-pd-soft transition-all uppercase tracking-widest text-slate-600">
-                View All Venues
-              </button>
-            </Link>
+            <div className="flex items-center gap-4 w-full md:w-auto justify-center md:justify-end">
+                <div className="flex items-center gap-2 mr-2">
+                    <button 
+                        onClick={() => scrollVenues('left')}
+                        className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
+                        aria-label="Scroll Left"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+                    <button 
+                        onClick={() => scrollVenues('right')}
+                        className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
+                        aria-label="Scroll Right"
+                    >
+                        <ChevronRight size={20} />
+                    </button>
+                </div>
+                <Link href="/venues" className="hidden sm:block">
+                  <button className="bg-white px-10 py-4 rounded-2xl font-black text-[11px] border border-slate-100 hover:shadow-pd-strong transition-all uppercase tracking-[0.2em] text-slate-500 hover:text-pd-red active:scale-95">
+                    View All
+                  </button>
+                </Link>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+          <div 
+            ref={venueScrollRef}
+            className="flex gap-6 md:gap-8 overflow-x-auto pb-10 scrollbar-hide snap-x snap-mandatory"
+          >
             {displayVenues.map((venue, i) => (
-              <VenueCard key={venue.id} venue={venue} index={i} isPremium={venue.isPaid} />
+              <div key={venue.id} className="min-w-full sm:min-w-[350px] md:min-w-[400px] snap-center">
+                <VenueCard venue={venue} index={i} isPremium={venue.isPaid} />
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="py-16 md:py-24 px-6 bg-white relative overflow-hidden">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-12 md:mb-20 uppercase">How it <span className="pd-gradient-text">Works</span></h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16 relative">
-             {/* Horizontal line for desktop */}
-             <div className="hidden md:block absolute top-12 left-[20%] right-[20%] h-0.5 bg-slate-100 border-dashed border-b-2"></div>
-             {/* Vertical line for mobile */}
-             <div className="md:hidden absolute left-1/2 top-10 bottom-20 w-px bg-slate-100 border-dashed border-l-2 -translate-x-1/2"></div>
-             
-             {steps.map((step, i) => (
-               <motion.div 
-                 key={i} 
-                 initial={{ opacity: 0, y: 20 }}
-                 whileInView={{ opacity: 1, y: 0 }}
-                 viewport={{ once: true }}
-                 transition={{ delay: i * 0.2 }}
-                 className="flex flex-col items-center relative z-10"
-               >
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full pd-gradient flex items-center justify-center mb-6 md:mb-10 shadow-xl shadow-pd-pink/20 scale-100 md:scale-110 active:scale-95 transition-transform">
-                    {step.icon}
+      <section className="py-20 md:py-32 px-6 bg-white relative overflow-hidden">
+        {/* Background Decorative Element */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-pd-red/5 rounded-full blur-[120px] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-16 md:mb-24"
+          >
+            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4 uppercase tracking-tight">How it <span className="pd-gradient-text">Works</span></h2>
+            <p className="text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] md:text-xs">Your journey to the perfect event in 3 simple steps</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-12 relative">
+            {/* Desktop Connection Line */}
+            <div className="hidden md:block absolute top-[60px] left-[15%] right-[15%] h-px bg-slate-200 border-dashed border-b-2 z-0 opacity-50" />
+
+            {steps.map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15, duration: 0.6, ease: "easeOut" }}
+                className="group flex flex-col items-center relative z-10"
+              >
+                {/* Step Number Badge */}
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 md:left-auto md:right-[15%] bg-white text-pd-red border-2 border-pd-red/20 w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black shadow-lg z-20 group-hover:bg-pd-red group-hover:text-white transition-colors duration-300">
+                  0{i + 1}
+                </div>
+
+                {/* Icon Circle */}
+                <div className="relative mb-8 md:mb-10">
+                  {/* Pulsing Glow */}
+                  <div className="absolute inset-0 bg-pd-red/20 rounded-full blur-2xl scale-125 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  <div className="w-24 h-24 md:w-28 md:h-28 rounded-[32px] pd-gradient flex items-center justify-center shadow-2xl shadow-pd-pink/30 relative z-10 group-hover:scale-105 group-hover:rotate-6 transition-all duration-500 ease-out">
+                    {React.isValidElement(step.icon) ? React.cloneElement(step.icon as React.ReactElement<any>, { size: 32, className: "text-white group-hover:scale-110 transition-transform duration-500" }) : step.icon}
                   </div>
-                  <h3 className="text-lg md:text-xl font-black text-slate-900 mb-3 md:mb-4">{step.title}</h3>
-                  <p className="text-sm md:text-slate-500 font-medium max-w-[280px] md:max-w-xs mx-auto leading-relaxed">{step.desc}</p>
-               </motion.div>
-             ))}
+                </div>
+
+                <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-3 group-hover:text-pd-red transition-colors duration-300 tracking-tight">{step.title}</h3>
+                <p className="text-sm md:text-base text-slate-500 font-medium max-w-[280px] md:max-w-xs mx-auto leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+                  {step.desc}
+                </p>
+
+                {/* Mobile Connection Line (Arrow/Line) */}
+                {i < steps.length - 1 && (
+                  <div className="md:hidden mt-12 mb-4 w-px h-12 bg-gradient-to-b from-pd-red/50 to-transparent relative">
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-pd-red/20" />
+                  </div>
+                )}
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -703,51 +798,88 @@ export default function Home() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
-      <section className="py-32 px-6 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl font-black text-[#0F172A] mb-4">Happy <span className="pd-gradient-text">Celebrators</span></h2>
-            <p className="text-slate-400 uppercase tracking-widest font-black text-[10px]">Real stories from our valued clients</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Rahul Malhotra",
-                role: "Wedding Host",
-                text: "PartyDial made our wedding planning so much easier! We received 5 quotes within 2 hours and booked a beautiful palace hotel that was right in our budget. Highly recommended!",
-                avatar: "1"
+      {/* TESTIMONIALS - INFINITE CAROUSEL */}
+      <section className="py-32 bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 mb-20 text-center">
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 uppercase tracking-tight">
+            Happy <span className="pd-gradient-text px-1">Celebrators</span>
+          </h2>
+          <p className="text-slate-400 uppercase tracking-[0.3em] font-black text-[10px] md:text-xs">Real stories from our valued clients</p>
+        </div>
+
+        <div className="relative flex overflow-x-hidden">
+          <motion.div
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{
+              x: {
+                repeat: Infinity,
+                repeatType: "loop",
+                duration: 50,
+                ease: "linear",
               },
-              {
-                name: "Sneha Kapoor",
-                role: "Corporate Planner",
-                text: "As a corporate event planner, I need quick responses. PartyDial delivered! Found an amazing rooftop venue for our team's annual meet in just a day. Incredible service.",
-                avatar: "2"
-              },
-              {
-                name: "Amit Verma",
-                role: "Birthday Host",
-                text: "Found the perfect banquet hall for my son's 1st birthday. The zero brokerage promise is real – we saved a lot and got better deals than booking directly!",
-                avatar: "3"
-              }
-            ].map((t, i) => (
-              <div key={i} className="pd-card p-10 bg-slate-50 relative group hover:bg-white transition-colors duration-500">
-                <Quote className="absolute top-6 right-8 text-slate-200 group-hover:text-pd-red/10 group-hover:rotate-12 transition-all duration-500" size={40} />
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="w-14 h-14 rounded-full bg-slate-200 overflow-hidden ring-4 ring-white shadow-sm group-hover:ring-pd-red/10 transition-all duration-500">
-                    <img src={`https://i.pravatar.cc/150?u=user${t.avatar}`} alt={t.name} />
+            }}
+            className="flex gap-8 whitespace-nowrap py-10 px-4"
+          >
+            {[...Array(2)].map((_, listIdx) => (
+              <div key={listIdx} className="flex gap-8">
+                {[
+                  {
+                    name: "Rahul Malhotra",
+                    role: "Wedding Host",
+                    text: "PartyDial made our wedding planning so much easier! We received 5 quotes within 2 hours and booked a beautiful palace.",
+                    avatar: "1"
+                  },
+                  {
+                    name: "Sneha Kapoor",
+                    role: "Corporate Planner",
+                    text: "As a corporate event planner, I need quick responses. PartyDial delivered! Found an amazing rooftop venue for our team's meet.",
+                    avatar: "2"
+                  },
+                  {
+                    name: "Amit Verma",
+                    role: "Birthday Host",
+                    text: "Found the perfect banquet hall for my son's 1st birthday. The zero brokerage promise is real – we saved a lot!",
+                    avatar: "3"
+                  },
+                  {
+                    name: "Priya Sharma",
+                    role: "Social Media Influencer",
+                    text: "The aesthetic of the venues I found through PartyDial was incredible. Perfect for my content and within budget!",
+                    avatar: "4"
+                  },
+                  {
+                    name: "Vikram Singh",
+                    role: "Business Owner",
+                    text: "Professional service and transparent pricing. No hidden costs. Best platform for premium venue discovery.",
+                    avatar: "5"
+                  }
+                ].map((t, i) => (
+                  <div
+                    key={i}
+                    className="inline-block w-[280px] sm:w-[350px] md:w-[450px] shrink-0 pd-card p-8 md:p-10 bg-slate-50 relative group hover:bg-white transition-all duration-500 whitespace-normal"
+                  >
+                    <Quote className="absolute top-6 right-8 text-slate-200 group-hover:text-pd-red/10 group-hover:rotate-12 transition-all duration-500" size={40} />
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="w-14 h-14 rounded-full bg-slate-200 overflow-hidden ring-4 ring-white shadow-sm group-hover:ring-pd-red/10 transition-all duration-500">
+                        <img src={`https://i.pravatar.cc/150?u=user${t.avatar}`} alt={t.name} className="w-full h-full object-cover" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm italic">{t.name}</h4>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest underline decoration-pd-red decoration-2">{t.role}</p>
+                      </div>
+                    </div>
+                    <p className="text-slate-600 font-medium leading-relaxed italic relative z-10 text-sm md:text-base">
+                      "{t.text}"
+                    </p>
                   </div>
-                  <div>
-                    <h4 className="font-black text-slate-900 text-sm italic">{t.name}</h4>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest underline decoration-pd-red decoration-2">{t.role}</p>
-                  </div>
-                </div>
-                <p className="text-slate-600 font-medium leading-relaxed italic relative z-10">
-                  "{t.text}"
-                </p>
+                ))}
               </div>
             ))}
-          </div>
+          </motion.div>
+
+          {/* Fade effects on edges */}
+          <div className="absolute inset-y-0 left-0 w-32 md:w-64 bg-gradient-to-r from-white to-transparent z-20 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-32 md:w-64 bg-gradient-to-l from-white to-transparent z-20 pointer-events-none" />
         </div>
       </section>
 
@@ -755,11 +887,11 @@ export default function Home() {
       <section className="py-24 px-6 bg-slate-50 border-t border-slate-100">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-black text-slate-900 mb-4 uppercase italic">Got <span className="pd-gradient-text">Questions?</span></h2>
+            <h2 className="text-4xl font-extrabold text-slate-900 mb-4 uppercase">Got <span className="pd-gradient-text px-1">Questions?</span></h2>
             <div className="w-20 h-1.5 bg-pd-red mx-auto rounded-full mb-6"></div>
-            <p className="text-slate-400 font-black uppercase tracking-widest text-[10px]">Everything you need to know about planning your next event</p>
+            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Everything you need to know about planning your next event</p>
           </div>
-          
+
           <div className="space-y-4">
             {[
               { q: "How does PartyDial help me find the right venue?", a: "We match you with the best venues based on your event type, guest count, and budget. You receive real-time quotes and can compare amenities and pricing instantly." },
@@ -768,7 +900,7 @@ export default function Home() {
               { q: "How soon will I receive quotes for my requirement?", a: "Most users receive their first set of personalized quotes within 30-60 minutes of submitting their requirements." },
               { q: "Can I book a site visit through the platform?", a: "Absolutely! Once you receive a quote you like, you can directly message the venue manager or request a free site visit through our 'Help Desk'." }
             ].map((faq, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -776,18 +908,18 @@ export default function Home() {
                 transition={{ duration: 0.4, delay: i * 0.1 }}
                 className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-pd-soft transition-shadow"
               >
-                <button 
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)} 
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full text-left px-8 py-7 flex items-center justify-between group"
                 >
-                  <span className="font-black text-slate-700 text-lg group-hover:text-pd-red transition-colors pr-8 leading-tight">{faq.q}</span>
+                  <span className="font-semibold text-slate-700 text-base group-hover:text-pd-red transition-colors pr-8 leading-tight">{faq.q}</span>
                   <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all ${openFaq === i ? 'bg-pd-red text-white -rotate-180' : 'bg-slate-50 text-slate-400 group-hover:bg-pd-red group-hover:text-white'}`}>
                     <ChevronDown size={18} />
                   </div>
                 </button>
                 <AnimatePresence>
                   {openFaq === i && (
-                    <motion.div 
+                    <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
@@ -810,28 +942,28 @@ export default function Home() {
       <section className="py-12 px-6 md:px-0 bg-slate-50">
         <div className="max-w-6xl mx-auto overflow-hidden">
           <div className="pd-gradient p-8 md:p-16 rounded-[40px] text-white flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16 shadow-[0_32px_80px_-16px_rgba(239,68,68,0.3)] relative">
-             <div className="text-center md:text-left relative z-10 w-full md:w-auto">
-                <h2 className="text-3xl md:text-6xl font-black leading-tight mb-4 md:mb-6 uppercase italic tracking-tighter">Ready to Plan the <br className="hidden md:block" /> Grand <span className="text-white">Celebration?</span></h2>
-                <p className="text-sm md:text-xl font-medium text-white/80 max-w-xl mb-8 md:mb-10">Submit your requirements and get free quotes from 5,000+ luxury venues near you.</p>
-                <div className="flex flex-col items-center md:items-start gap-4">
-                  <button 
-                    onClick={() => window.dispatchEvent(new CustomEvent('open-inquiry-popup'))}
-                    className="w-full md:w-auto bg-white text-slate-900 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-50 transition-all shadow-xl active:scale-95"
-                  >
-                    Submit Requirement <ChevronDown className="inline ml-2 -rotate-90" size={20} />
-                  </button>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-white/50">Average Response Time: 15 Mins</p>
-                </div>
-             </div>
-             
-             {/* Optimized decorative cluster for mobile */}
-             <div className="relative w-48 h-48 md:w-96 md:h-96 opacity-20 md:opacity-100 group shrink-0">
-                <div className="absolute inset-0 bg-white/10 rounded-full blur-3xl" />
-                <LayoutDashboard size={200} className="md:size-[300px] text-white group-hover:rotate-12 transition-transform duration-700" strokeWidth={1} />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Heart size={50} className="md:size-[80px] text-white fill-white animate-bounce" />
-                </div>
-             </div>
+            <div className="text-center md:text-left relative z-10 w-full md:w-auto">
+              <h2 className="text-3xl md:text-6xl font-black leading-tight mb-4 md:mb-6 uppercase tracking-tighter">Ready to Plan the <br className="hidden md:block" /> Grand <span className="text-white">Celebration?</span></h2>
+              <p className="text-sm md:text-xl font-medium text-white/80 max-w-xl mb-8 md:mb-10">Submit your requirements and get free quotes from 5,000+ luxury venues near you.</p>
+              <div className="flex flex-col items-center md:items-start gap-4">
+                <button
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-inquiry-popup'))}
+                  className="w-full md:w-auto bg-white text-slate-900 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-50 transition-all shadow-xl active:scale-95"
+                >
+                  Submit Requirement <ChevronDown className="inline ml-2 -rotate-90" size={20} />
+                </button>
+                <p className="text-[9px] font-black uppercase tracking-widest text-white/50">Average Response Time: 15 Mins</p>
+              </div>
+            </div>
+
+            {/* Optimized decorative cluster for mobile */}
+            <div className="relative w-48 h-48 md:w-96 md:h-96 opacity-20 md:opacity-100 group shrink-0">
+              <div className="absolute inset-0 bg-white/10 rounded-full blur-3xl" />
+              <LayoutDashboard size={200} className="md:size-[300px] text-white group-hover:rotate-12 transition-transform duration-700" strokeWidth={1} />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Heart size={50} className="md:size-[80px] text-white fill-white animate-bounce" />
+              </div>
+            </div>
           </div>
         </div>
       </section>

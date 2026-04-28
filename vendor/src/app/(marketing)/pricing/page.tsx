@@ -683,14 +683,6 @@ export default function PricingPage() {
                   <Zap size={12} className="fill-current text-pink-500" /> Grow Your Wedding & Event Business
                </div>
                
-               <motion.div 
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.3, type: "spring" }}
-                  className="bg-yellow-400 text-slate-900 px-6 py-2 rounded-2xl font-black text-sm uppercase tracking-tighter italic flex items-center gap-2 shadow-[0_10px_30px_rgba(250,204,21,0.3)] animate-bounce"
-               >
-                  <Sparkle size={18} fill="currentColor" /> Limited Time: Flat 27% OFF on All Yearly Plans!
-               </motion.div>
             </div>
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-[900] text-[#0F172A] flex flex-col items-center justify-center gap-2 md:gap-4 mb-8 tracking-tighter uppercase leading-[1.1]">
@@ -976,9 +968,11 @@ export default function PricingPage() {
                              Our partner success team is available 24/7 to help you dominate your city.
                           </p>
                           
-                          <button className="bg-[#FF415E] text-white px-8 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#E63955] transition-all hover:scale-[1.03] active:scale-[0.98] shadow-xl shadow-pink-500/30">
-                             Get Expert Help
-                          </button>
+                          <Link href="/contact">
+                             <button className="bg-[#FF415E] text-white px-8 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#E63955] transition-all hover:scale-[1.03] active:scale-[0.98] shadow-xl shadow-pink-500/30">
+                                Get Expert Help
+                             </button>
+                          </Link>
                        </div>
                     </div>
                   </motion.div>

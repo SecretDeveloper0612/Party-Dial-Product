@@ -79,7 +79,8 @@ export default function ContactPage() {
                         sub: "Mon - Sat, 10am - 7pm",
                         icon: <PhoneCall className="text-pd-blue" />,
                         bg: "bg-pd-blue/5",
-                        action: "Call Now"
+                        action: "Call Now",
+                        href: "tel:+918864959977"
                      },
                      {
                         title: "Official Email",
@@ -87,15 +88,17 @@ export default function ContactPage() {
                         sub: "Avg. response: 2 hours",
                         icon: <Mail className="text-pd-pink" />,
                         bg: "bg-pd-pink/5",
-                        action: "Send Email"
+                        action: "Send Email",
+                        href: "mailto:support@partydial.com"
                      },
                      {
                         title: "Office HQ",
-                        detail: "Preet Tech ",
-                        sub: "Preet Tech, near Krishna Hospital, Subhash Nagar, Haldwani, Uttarakhand 263139",
+                        detail: "Preet Tech OPC Private Limited",
+                        sub: "Preet Tech OPC Private Limited, near Krishna Hospital, Subhash Nagar, Haldwani, Uttarakhand 263139",
                         icon: <MapPin className="text-pd-red" />,
                         bg: "bg-pd-red/5",
-                        action: "Get Directions"
+                        action: "Get Directions",
+                        href: "https://www.google.com/maps/search/?api=1&query=Preet+Tech+OPC+Private+Limited+Haldwani+Uttarakhand"
                      }
                   ].map((channel, i) => (
                      <motion.div
@@ -113,9 +116,14 @@ export default function ContactPage() {
                         <p className="text-xl font-black text-slate-900 mb-1">{channel.detail}</p>
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-tight mb-8">{channel.sub}</p>
 
-                        <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-pd-pink hover:gap-4 transition-all">
+                        <a 
+                           href={channel.href}
+                           target={channel.href.startsWith('http') ? '_blank' : undefined}
+                           rel={channel.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                           className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-pd-pink hover:gap-4 transition-all"
+                        >
                            {channel.action} <ChevronRight size={14} />
-                        </button>
+                        </a>
                      </motion.div>
                   ))}
                </div>
@@ -202,7 +210,7 @@ export default function ContactPage() {
                               >
                                  {isSubmitting ? "Processing..." : (
                                     <>
-                                       Transmit Priority Ticket
+                                       Submit
                                        <Send size={18} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                                     </>
                                  )}
@@ -216,24 +224,6 @@ export default function ContactPage() {
             </div>
          </section>
 
-         {/* 4. MAPPLACEHOLDER / FAQ REDIRECT */}
-         <section className="pb-32 px-6">
-            <div className="max-w-[1440px] mx-auto lg:px-12">
-               <div className="bg-slate-50 rounded-[64px] p-8 md:p-16 flex flex-col md:flex-row items-center justify-between border border-slate-100 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-pd-blue/5 rounded-full blur-[80px]"></div>
-                  <div className="relative z-10 space-y-6 text-center md:text-left">
-                     <h3 className="text-2xl md:text-4xl font-black text-slate-900 italic uppercase">Need instant answers?</h3>
-                     <p className="text-slate-500 font-medium">Browse our extensive knowledge base for quick solutions.</p>
-                     <Link href="/#faq" className="inline-flex h-12 px-10 bg-white border border-slate-200 rounded-xl items-center text-[10px] font-black uppercase tracking-widest hover:bg-pd-blue hover:text-white hover:border-pd-blue transition-all">
-                        View Partner FAQ
-                     </Link>
-                  </div>
-                  <div className="mt-12 md:mt-0 flex gap-12 text-slate-300">
-                     <Globe size={120} strokeWidth={0.5} className="opacity-10" />
-                  </div>
-               </div>
-            </div>
-         </section>
 
       </div>
    );

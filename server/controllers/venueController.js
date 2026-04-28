@@ -9,7 +9,10 @@ const { isVenueEligible, getBucketLabel, getLeadBucketMax } = require('../utils/
 exports.getAllVenues = async (req, res) => {
     try {
         const { verified, city } = req.query;
-        const queries = [Query.orderDesc('$createdAt')];
+        const queries = [
+            Query.orderDesc('$createdAt'),
+            Query.limit(5000) // Increase limit to get all venues
+        ];
 
         if (verified === 'true') {
             queries.push(Query.equal('isVerified', true));
@@ -504,16 +507,35 @@ exports.getVenueLeads = async (req, res) => {
             DATABASE_ID,
             LEADS_COLLECTION_ID,
             [
-                Query.equal('venueId', venueId),
+                Query.or([
+                    Query.equal('venueId', venueId),
+                    Query.equal('venueId', 'BROADCAST')
+                ]),
                 Query.greaterThan('$createdAt', registrationDate),
                 Query.orderDesc('$createdAt')
             ]
         );
 
+        const now = new Date();
+        const mappedLeads = leads.documents.map(doc => {
+            let isLost = false;
+            if (doc.eventDate) {
+                const eventDate = new Date(doc.eventDate);
+                // Mark as lost if event date has passed
+                if (now > eventDate) {
+                    isLost = true;
+                }
+            }
+            return {
+                ...doc,
+                isLost
+            };
+        });
+
         return res.status(200).json({
             status: 'success',
             results: leads.total,
-            data: leads.documents
+            data: mappedLeads
         });
     } catch (error) {
         console.error('Error fetching leads:', error);

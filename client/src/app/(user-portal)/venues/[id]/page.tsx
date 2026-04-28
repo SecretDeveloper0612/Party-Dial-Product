@@ -101,6 +101,37 @@ export default function VenueDetailPage() {
     budget: '',
     requirements: ''
   });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Sync user details if logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { account } = await import('@/lib/appwrite');
+        const user = await account.get();
+        if (user) {
+          setIsLoggedIn(true);
+          setFormData(prev => ({
+            ...prev,
+            name: user.name || prev.name,
+            email: user.email || prev.email,
+            phone: user.phone?.replace('+91', '') || prev.phone
+          }));
+          setNewReview(prev => ({
+            ...prev,
+            name: user.name || prev.name,
+            email: user.email || prev.email
+          }));
+        }
+      } catch (err) {
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkAuth();
+    window.addEventListener('auth-change', checkAuth);
+    return () => window.removeEventListener('auth-change', checkAuth);
+  }, []);
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
   const handleLeadSubmit = async (e: React.FormEvent) => {
@@ -919,14 +950,27 @@ export default function VenueDetailPage() {
                </div>
                <form className="space-y-6" onSubmit={handleLeadSubmit}>
                   <div className="space-y-2">
-                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Full Name</label>
                      <input 
                          required
                          type="text" 
                          placeholder="Enter your name" 
                          value={formData.name}
+                         readOnly={isLoggedIn && !!formData.name}
                          onChange={(e) => setFormData({...formData, name: e.target.value})}
-                         className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all placeholder:text-slate-300" 
+                         className={`w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all placeholder:text-slate-300 ${isLoggedIn && formData.name ? 'opacity-60 cursor-not-allowed' : ''}`} 
+                     />
+                  </div>
+
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Email Address</label>
+                     <input 
+                         required
+                         type="email" 
+                         placeholder="your@email.com" 
+                         value={formData.email}
+                         readOnly={isLoggedIn && !!formData.email}
+                         onChange={(e) => setFormData({...formData, email: e.target.value})}
+                         className={`w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all placeholder:text-slate-300 ${isLoggedIn && formData.email ? 'opacity-60 cursor-not-allowed' : ''}`} 
                      />
                   </div>
                   
@@ -993,8 +1037,11 @@ export default function VenueDetailPage() {
                           required 
                           type="tel" 
                           name="phone"
+                          value={formData.phone}
+                          readOnly={isLoggedIn && !!formData.phone}
                           maxLength={11} // 10 digits + 1 space
                           onChange={(e) => {
+                            if (isLoggedIn && formData.phone) return;
                             let val = e.target.value.replace(/\D/g, ''); // Remove non-digits
                             if (val.length > 10) val = val.slice(0, 10);
                             // Format as 5-5
@@ -1005,7 +1052,7 @@ export default function VenueDetailPage() {
                             setFormData({...formData, phone: formatted});
                           }}
                           placeholder="10 Digit Number" 
-                          className="w-full h-14 pl-16 bg-slate-50 border border-slate-200 rounded-2xl text-base font-black text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-red/5 focus:border-pd-red transition-all placeholder:text-slate-300 placeholder:font-bold tracking-[0.1em]" 
+                          className={`w-full h-14 pl-16 bg-slate-50 border border-slate-200 rounded-2xl text-base font-black text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-red/5 focus:border-pd-red transition-all placeholder:text-slate-300 placeholder:font-bold tracking-[0.1em] ${isLoggedIn && formData.phone ? 'opacity-60 cursor-not-allowed' : ''}`} 
                         />
                      </div>
                   </div>
@@ -1090,13 +1137,16 @@ export default function VenueDetailPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsReviewModalOpen(false)}
-              className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-950/60 backdrop-blur-[8px]"
+              style={{ willChange: 'opacity, backdrop-filter', transform: 'translateZ(0)' }}
             ></motion.div>
             
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "tween", duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+              style={{ willChange: "transform, opacity", transform: 'translateZ(0)' }}
               className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
             >
               <div className="p-8 md:p-12">
@@ -1113,9 +1163,10 @@ export default function VenueDetailPage() {
                              required
                              type="text" 
                              placeholder="Enter your name" 
-                             value={newReview.name}
-                             onChange={(e) => setNewReview({...newReview, name: e.target.value})}
-                             className="w-full p-5 bg-slate-50 border border-slate-100 rounded-[28px] text-sm font-black outline-none focus:border-pd-red transition-all shadow-pd-soft-inner" 
+                              value={newReview.name}
+                              readOnly={isLoggedIn && !!newReview.name}
+                              onChange={(e) => setNewReview({...newReview, name: e.target.value})}
+                              className={`w-full p-5 bg-slate-50 border border-slate-100 rounded-[28px] text-sm font-black outline-none focus:border-pd-red transition-all shadow-pd-soft-inner ${isLoggedIn && newReview.name ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
                        </div>
                        <div className="space-y-2">
@@ -1124,8 +1175,9 @@ export default function VenueDetailPage() {
                              type="email" 
                              placeholder="your@email.com (Optional)" 
                              value={newReview.email}
+                             readOnly={isLoggedIn && !!newReview.email}
                              onChange={(e) => setNewReview({...newReview, email: e.target.value})}
-                             className="w-full p-5 bg-slate-50 border border-slate-100 rounded-[28px] text-sm font-black outline-none focus:border-pd-red transition-all shadow-pd-soft-inner" 
+                             className={`w-full p-5 bg-slate-50 border border-slate-100 rounded-[28px] text-sm font-black outline-none focus:border-pd-red transition-all shadow-pd-soft-inner ${isLoggedIn && newReview.email ? 'opacity-60 cursor-not-allowed' : ''}`}
                           />
                        </div>
                     </div>
@@ -1194,6 +1246,7 @@ export default function VenueDetailPage() {
           initial={{ opacity: 0, y: 100, x: '-50%', scale: 0.9 }}
           animate={{ opacity: 1, y: 0, x: '-50%', scale: 1 }}
           exit={{ opacity: 0, y: 20, x: '-50%', scale: 0.9 }}
+          style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
           className={`fixed bottom-12 left-1/2 -translate-x-1/2 z-[300] px-8 py-5 rounded-[28px] shadow-2xl flex items-center gap-4 border border-white/5 backdrop-blur-xl ${
             toast.type === 'success' ? 'bg-slate-900/90 text-white' : 'bg-red-950/90 text-white'
           }`}

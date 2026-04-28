@@ -35,26 +35,26 @@ import {
 import React, { useRef, useState, useEffect } from 'react';
 
 const AnimatedCounter = ({ end, duration = 2, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
+  const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
-  const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    if (isInView && !started && ref.current) {
-      setStarted(true);
-      const node = ref.current;
-      const controls = animate(0, end, {
-        duration: duration,
-        onUpdate: (value) => {
-          node.textContent = Math.floor(value).toLocaleString() + suffix;
-        },
-        ease: "easeOut"
-      });
-      return () => controls.stop();
+    if (isInView && end > 0) {
+      let startTimestamp: number | null = null;
+      const step = (timestamp: number) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / (duration * 1000), 1);
+        setCount(Math.floor(progress * end));
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      };
+      window.requestAnimationFrame(step);
     }
-  }, [isInView, end, duration, suffix, started]);
+  }, [isInView, end, duration]);
 
-  return <span ref={ref}>0{suffix}</span>;
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 };
 
 // --- ICON MAPPING FOR CITIES ---
@@ -212,10 +212,10 @@ export default function AboutUs() {
         <div className="max-w-7xl mx-auto px-6">
            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-16">
              {[
-               { label: "Verified Venues", val: 5000, suffix: "+" },
-               { label: "Monthly Users", val: 100000, suffix: "+" },
-               { label: "Cities In India", val: 50, suffix: "+" },
-               { label: "Partner Hosts", val: 8000, suffix: "+" }
+               { label: "Verified Venues", val: 54, suffix: "+" },
+               { label: "Monthly Users", val: 1097, suffix: "+" },
+               { label: "Cities In India", val: 12, suffix: "+" },
+               { label: "Partner Hosts", val: 87, suffix: "+" }
              ].map((s, i) => (
                 <div key={i} className="text-center group">
                    <h3 className="text-xl md:text-4xl font-black text-slate-900 mb-1 group-hover:text-pd-red transition-colors">
@@ -238,20 +238,53 @@ export default function AboutUs() {
       </section>
 
       {/* 4. HOW IT WORKS */}
-      <section className="py-10 md:py-16 px-6 bg-slate-50 border-y border-slate-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10 md:mb-12">
-            <h2 className="text-xl md:text-3xl font-extrabold text-slate-900 mb-2">How It <span className="text-pd-red italic opacity-80">Works</span></h2>
-            <p className="text-[10px] md:text-xs text-slate-500 max-w-xl mx-auto italic">Book your dream venue in three simple steps.</p>
+      <section className="py-20 md:py-28 px-6 bg-slate-50 border-y border-slate-100 relative overflow-hidden">
+        {/* Background Decorative Element */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-pd-red/5 rounded-full blur-[100px] pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-16 md:mb-20">
+            <h2 className="text-2xl md:text-4xl font-black text-slate-900 mb-3 uppercase tracking-tight">How It <span className="text-pd-red italic opacity-80">Works</span></h2>
+            <p className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-[0.3em]">Your journey to the perfect event in 3 simple steps</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 relative">
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-12 relative">
+             {/* Desktop Connection Line */}
+             <div className="hidden md:block absolute top-[50px] left-[15%] right-[15%] h-px bg-slate-200 border-dashed border-b-2 z-0 opacity-50" />
+             
              {steps.map((step, i) => (
-               <motion.div key={i} {...fadeUp} transition={{ delay: i * 0.2 }} className="relative bg-white p-6 md:p-8 rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 text-center group">
-                  <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-pd-red/5 flex items-center justify-center text-pd-red mx-auto mb-4 group-hover:bg-pd-red group-hover:text-white transition-all">
-                    {step.icon}
+               <motion.div 
+                 key={i} 
+                 {...fadeUp} 
+                 transition={{ delay: i * 0.15, duration: 0.6 }} 
+                 className="group flex flex-col items-center relative z-10"
+               >
+                  {/* Step Number Badge */}
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 md:left-auto md:right-[15%] bg-white text-pd-red border-2 border-pd-red/20 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black shadow-lg z-20 group-hover:bg-pd-red group-hover:text-white transition-colors duration-300">
+                    0{i + 1}
                   </div>
-                  <h3 className="text-sm md:text-lg font-bold text-slate-900 mb-1">{step.title}</h3>
-                  <p className="text-[10px] md:text-xs text-slate-500 font-medium leading-relaxed italic">{step.desc}</p>
+
+                  {/* Icon Circle */}
+                  <div className="relative mb-8 md:mb-10">
+                    {/* Pulsing Glow */}
+                    <div className="absolute inset-0 bg-pd-red/20 rounded-full blur-2xl scale-125 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-[28px] pd-gradient flex items-center justify-center shadow-2xl shadow-pd-pink/30 relative z-10 group-hover:scale-105 group-hover:rotate-6 transition-all duration-500 ease-out">
+                      {React.isValidElement(step.icon) ? React.cloneElement(step.icon as React.ReactElement<any>, { size: 28, className: "text-white group-hover:scale-110 transition-transform duration-500" }) : step.icon}
+                    </div>
+                  </div>
+
+                  <h3 className="text-lg md:text-xl font-black text-slate-900 mb-3 group-hover:text-pd-red transition-colors duration-300 tracking-tight">{step.title}</h3>
+                  <p className="text-xs md:text-sm text-slate-500 font-medium max-w-[280px] md:max-w-xs mx-auto leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity duration-300 italic">
+                    {step.desc}
+                  </p>
+
+                  {/* Mobile Connection Line */}
+                  {i < steps.length - 1 && (
+                    <div className="md:hidden mt-10 mb-2 w-px h-10 bg-gradient-to-b from-pd-red/50 to-transparent relative">
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-pd-red/20" />
+                    </div>
+                  )}
                </motion.div>
              ))}
           </div>
@@ -443,14 +476,14 @@ export default function AboutUs() {
            <Building2 size={40} className="text-pd-red mx-auto mb-6" />
            <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 mb-6">Corporate <span className="text-pd-red">Foundation</span></h2>
            <p className="text-sm md:text-lg text-slate-600 font-medium leading-relaxed mb-10 italic">
-             PartyDial is a flagship discovery engine owned and operated by <strong>Preet Tech (OPC) Private Limited</strong>. 
+             PartyDial is a flagship discovery engine owned and operated by <strong>Preet Tech OPC Private Limited</strong>. 
              We are committed to building a transparent digital ecosystem for India's event industry. 
-             All billing, compliance, and platform operations are managed exclusively by Preet Tech, ensuring a secure and reliable experience for all our users and partners.
+             All billing, compliance, and platform operations are managed exclusively by Preet Tech OPC Private Limited, ensuring a secure and reliable experience for all our users and partners.
            </p>
            <div className="flex flex-wrap justify-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
-              <span className="px-4 py-2 bg-white rounded-full border border-slate-200">Preet Tech (OPC) Pvt. Ltd.</span>
+              <span className="px-4 py-2 bg-white rounded-full border border-slate-200">Preet Tech OPC Private Limited</span>
               <span className="px-4 py-2 bg-white rounded-full border border-slate-200">ISO Standard Tracking</span>
-              <span className="px-4 py-2 bg-white rounded-full border border-slate-200">Corporate HQ: Dehradun</span>
+              <span className="px-4 py-2 bg-white rounded-full border border-slate-200">Corporate HQ: Haldwani</span>
            </div>
         </div>
       </section>
