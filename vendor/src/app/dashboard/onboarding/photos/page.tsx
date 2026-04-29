@@ -200,9 +200,9 @@ export default function UploadPhotosPage() {
           </Link>
           <div className="flex items-center gap-4">
              <div className="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
-                <div className="w-2/4 h-full bg-pd-pink"></div>
+                <div className="w-2/3 h-full bg-pd-pink"></div>
              </div>
-             <span className="text-[10px] font-black uppercase text-slate-400">Step 2 of 4</span>
+             <span className="text-[10px] font-black uppercase text-slate-400">Step 2 of 3</span>
           </div>
         </div>
 

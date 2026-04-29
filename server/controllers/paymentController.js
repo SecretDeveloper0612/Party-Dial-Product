@@ -83,6 +83,7 @@ exports.verifyPayment = async (req, res) => {
       ownerEmail,
       planId,
       planName,
+      billingDuration,
       amount
     } = req.body;
 
@@ -122,9 +123,18 @@ exports.verifyPayment = async (req, res) => {
         bill = typeof billingDetails === 'string' ? JSON.parse(billingDetails) : (billingDetails || {});
       } catch (e) { bill = {}; }
 
+      const startDate = new Date();
+      let expiryDate = new Date(startDate);
+      const durationMonths = billingDuration === 'quarterly' ? 3 : billingDuration === 'halfYearly' ? 6 : 12;
+      expiryDate.setMonth(expiryDate.getMonth() + durationMonths);
+
+      const durationMap = { quarterly: '3 Months', halfYearly: '6 Months', annually: '12 Months' };
+      const billingDurationLabel = billingDuration === 'quarterly' ? 'Quarterly' : billingDuration === 'halfYearly' ? 'Half-Yearly' : 'Annually';
+      const planDurationStr = `${billingDurationLabel} (${durationMap[billingDuration] || '12 Months'})`;
+
       const invoiceData = {
         invoiceNumber,
-        invoiceDate: new Date().toLocaleDateString('en-IN'),
+        invoiceDate: startDate.toLocaleDateString('en-IN'),
         venueName: venueName || bill.name || 'Valued Partner',
         ownerName: bill.ownerName || '',
         billingAddress: bill.address || bill.fullAddress || '',
@@ -132,13 +142,15 @@ exports.verifyPayment = async (req, res) => {
         mobile: bill.mobile || bill.phone || '',
         gstNumber: bill.gstNumber || '',
         planName: planName || 'Standard Subscription',
-        planDuration: '1 Year',
+        planDuration: planDurationStr,
+        startDate: startDate.toLocaleDateString('en-IN'),
+        expiryDate: expiryDate.toLocaleDateString('en-IN'),
         planPrice: basePrice.toFixed(2),
         gstAmount: gstAmount.toFixed(2),
         totalAmount: totalInr.toFixed(2),
         paymentMethod: paymentDetails.method || 'Razorpay',
         transactionId: razorpay_payment_id,
-        paymentDate: new Date().toLocaleDateString('en-IN')
+        paymentDate: startDate.toLocaleDateString('en-IN')
       };
 
       pdfBuffer = await generateInvoicePDF(invoiceData);
@@ -202,9 +214,10 @@ exports.verifyPayment = async (req, res) => {
     // ── UPDATE VENUE SUBSCRIPTION STATUS ──
     try {
       if (targetVenueId) {
-        let expiryDate = new Date();
-        // Standard 1 year extension
-        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        const startDate = new Date();
+        let expiryDate = new Date(startDate);
+        const durationMonths = billingDuration === 'quarterly' ? 3 : billingDuration === 'halfYearly' ? 6 : 12;
+        expiryDate.setMonth(expiryDate.getMonth() + durationMonths);
 
         // --- ADD PAID_SINCE METADATA ---
         let updatedBilling = {};
@@ -212,7 +225,7 @@ exports.verifyPayment = async (req, res) => {
           updatedBilling = typeof billingDetails === 'string' ? JSON.parse(billingDetails) : (billingDetails || {});
         } catch(e) { updatedBilling = {}; }
         
-        updatedBilling.paidSince = new Date().toISOString();
+        updatedBilling.paidSince = startDate.toISOString();
 
         try {
           await databases.updateDocument(

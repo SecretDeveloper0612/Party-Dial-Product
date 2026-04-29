@@ -84,6 +84,8 @@ export default function SetPricingPage() {
         perPlateVeg: String(parseInt(String(perPlateVeg)) || 0),
         perPlateNonVeg: String(parseInt(String(perPlateNonVeg)) || 0),
         packages: JSON.stringify(packages),
+        onboardingComplete: true,
+        status: 'pending',
         // If creating new, add required defaults
         ...(docId ? {} : {
           userId: user.$id,
@@ -91,9 +93,7 @@ export default function SetPricingPage() {
           ownerName: user.name || 'Owner',
           contactEmail: user.email || '',
           capacity: 1,
-          onboardingComplete: false,
           isVerified: false,
-          status: 'active',
         })
       };
 
@@ -114,7 +114,9 @@ export default function SetPricingPage() {
         setDocId(newDoc.$id);
       }
 
-      router.push('/dashboard/onboarding/subscription');
+      localStorage.setItem('onboardingComplete', 'true');
+      localStorage.setItem('onboardingCompletedAt', new Date().toISOString());
+      router.push('/dashboard');
     } catch (err: any) {
       console.error('Save error:', err);
       alert(`Error: ${err.message || 'Network error while saving pricing.'}`);
@@ -151,9 +153,9 @@ export default function SetPricingPage() {
           </Link>
           <div className="flex items-center gap-4">
              <div className="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
-                <div className="w-3/4 h-full bg-pd-pink"></div>
+                <div className="w-full h-full bg-pd-pink"></div>
              </div>
-             <span className="text-[10px] font-black uppercase text-slate-400">Step 3 of 4</span>
+             <span className="text-[10px] font-black uppercase text-slate-400">Step 3 of 3</span>
           </div>
         </div>
 
@@ -268,7 +270,7 @@ export default function SetPricingPage() {
                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                       ) : (
                         <>
-                          <span className="italic">Save Pricing</span>
+                          <span className="italic">Complete Onboarding</span>
                           <ArrowRight size={18} />
                         </>
                       )}

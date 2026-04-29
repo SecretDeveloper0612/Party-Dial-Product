@@ -1289,6 +1289,7 @@ export default function VendorDashboard() {
                 recentLeads={recentLeads}
                 setActiveTab={setActiveTab}
                 stats={stats}
+                setShowInquiryPopup={setShowInquiryPopup}
               />
             )}
 

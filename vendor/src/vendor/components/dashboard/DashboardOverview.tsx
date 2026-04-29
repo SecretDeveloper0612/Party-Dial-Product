@@ -47,6 +47,7 @@ interface DashboardOverviewProps {
   recentLeads: Lead[];
   setActiveTab: (tab: string) => void;
   stats: Stat[];
+  setShowInquiryPopup: (val: boolean) => void;
 }
 
 const DashboardOverview = ({
@@ -54,7 +55,8 @@ const DashboardOverview = ({
   userName,
   recentLeads,
   setActiveTab,
-  stats
+  stats,
+  setShowInquiryPopup
 }: DashboardOverviewProps) => {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -164,7 +166,7 @@ const DashboardOverview = ({
                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 text-center">No Leads Available</p>
                      {venueProfile?.subscriptionPlan === 'free' || !venueProfile?.subscriptionPlan ? (
                         <button 
-                          onClick={() => (window as any).location.href = '/dashboard/onboarding/subscription'}
+                          onClick={() => setShowInquiryPopup(true)}
                           className="px-6 py-3 bg-white border border-slate-200 text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm"
                         >
                            Upgrade to receive leads

@@ -28,7 +28,7 @@ import { Suspense } from "react";
 interface Plan {
   $id: string;
   name: string;
-  price: number;
+  price: number | { quarterly: number; halfYearly: number; annually: number };
   description: string;
   duration?: string;
 }
@@ -56,6 +56,7 @@ function CheckoutContent() {
   const preDiscountType = searchParams.get('discountType') || 'value';
   const preGst = searchParams.get('gst');
   const partnerDetailsEncoded = searchParams.get('partnerDetails');
+  const preBillingDuration = searchParams.get('billingDuration') || 'annually';
   
   // States
   const [user, setUser] = useState<any>(null);
@@ -80,15 +81,15 @@ function CheckoutContent() {
 
   const fetchPlans = async () => {
     const professionalPlans = [
-      { $id: 'bp10', name: 'Starter 10 PAX Membership', price: 1, description: 'Micro-plan for small intimate gatherings' },
-      { $id: 'bp50', name: '0-50 PAX Membership', price: 12045, description: 'Starter exposure for boutique venues' },
-      { $id: 'bp100', name: '50-100 PAX Membership', price: 16060, description: 'Growth plan for rising banquet halls' },
-      { $id: 'bp200', name: '100-200 PAX Membership', price: 28105, description: 'Premium tier for professional venues' },
-      { $id: 'bp500', name: '200-500 PAX Membership', price: 44895, description: 'Elite membership for major venues' },
-      { $id: 'bp1000', name: '500-1000 PAX Membership', price: 64970, description: 'Ultimate exposure for large halls' },
-      { $id: 'bp2000', name: '1000-2000 PAX Membership', price: 90155, description: 'Grand membership for mega venues' },
-      { $id: 'bp5000', name: '2000-5000 PAX Membership', price: 140160, description: 'Titan membership for destination resorts' },
-      { $id: 'bp9999', name: '5000+ PAX Membership', price: 220095, description: 'Universal membership for group owners' },
+      { $id: 'bp10', name: 'Starter 10 PAX Membership', price: { quarterly: 1, halfYearly: 1, annually: 1 }, description: 'Micro-plan for small intimate gatherings' },
+      { $id: 'bp50', name: '0-50 PAX Membership', price: { quarterly: 3780, halfYearly: 6660, annually: 12045 }, description: 'Starter exposure for boutique venues' },
+      { $id: 'bp100', name: '50-100 PAX Membership', price: { quarterly: 5040, halfYearly: 9000, annually: 16060 }, description: 'Growth plan for rising banquet halls' },
+      { $id: 'bp200', name: '100-200 PAX Membership', price: { quarterly: 8910, halfYearly: 15840, annually: 28105 }, description: 'Premium tier for professional venues' },
+      { $id: 'bp500', name: '200-500 PAX Membership', price: { quarterly: 13500, halfYearly: 24300, annually: 44895 }, description: 'Elite membership for major venues' },
+      { $id: 'bp1000', name: '500-1000 PAX Membership', price: { quarterly: 18900, halfYearly: 34920, annually: 65335 }, description: 'Ultimate exposure for large halls' },
+      { $id: 'bp2000', name: '1000-2000 PAX Membership', price: { quarterly: 26100, halfYearly: 48600, annually: 90885 }, description: 'Grand membership for mega venues' },
+      { $id: 'bp5000', name: '2000-5000 PAX Membership', price: { quarterly: 40500, halfYearly: 75600, annually: 138335 }, description: 'Titan membership for destination resorts' },
+      { $id: 'bp9999', name: '5000+ PAX Membership', price: { quarterly: 63000, halfYearly: 117000, annually: 218635 }, description: 'Universal membership for group owners' },
     ];
 
     try {
@@ -239,7 +240,14 @@ function CheckoutContent() {
   const calculateTotal = () => {
     if (!selectedPlan) return { base: 0, addons: [], totalAddonPrice: 0, discount: 0, manualDiscount: 0, total: 0 };
     
-    const base = selectedPlan.price;
+    let base = 0;
+    if (typeof selectedPlan.price === 'object') {
+      const durationKey = preBillingDuration as 'quarterly' | 'halfYearly' | 'annually';
+      base = selectedPlan.price[durationKey] || selectedPlan.price.annually || 0;
+    } else {
+      base = Number(selectedPlan.price) || 0;
+    }
+
     const preAddonIds = preAddonId ? preAddonId.split(',') : [];
     const selectedAddons = addonsList.filter(a => preAddonIds.includes(a.id));
     const totalAddonPrice = selectedAddons.reduce((sum, a) => sum + a.price, 0);
@@ -323,6 +331,7 @@ function CheckoutContent() {
                             ownerEmail: billingData.email,
                             planId: selectedPlan.$id,
                             planName: selectedPlan.name,
+                            billingDuration: preBillingDuration,
                             amount: totals.total,
                             basePrice: totals.base,
                             addons: totals.addons,
@@ -589,7 +598,10 @@ function CheckoutContent() {
                         <div className="flex items-center justify-between">
                            <div>
                               <p className="text-sm font-black text-slate-700">{selectedPlan?.name}</p>
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Plan Price</p>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                Plan Price • {preBillingDuration === 'quarterly' ? 'Quarterly' : preBillingDuration === 'halfYearly' ? 'Half-Yearly' : 'Annually'} 
+                                 ({preBillingDuration === 'quarterly' ? '3 Months' : preBillingDuration === 'halfYearly' ? '6 Months' : '12 Months'})
+                              </p>
                            </div>
                            <span className="text-sm font-black text-slate-800">₹{totals.base}</span>
                         </div>

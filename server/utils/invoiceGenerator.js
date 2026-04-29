@@ -34,7 +34,9 @@ exports.generateInvoicePDF = async (data) => {
                 totalAmount,
                 paymentMethod,
                 transactionId,
-                paymentDate
+                paymentDate,
+                startDate,
+                expiryDate
             } = data;
 
             // ─── PAGE BORDER ───
@@ -132,6 +134,12 @@ exports.generateInvoicePDF = async (data) => {
                 .text(`Method: ${paymentMethod}`, 50, paymentInfoTop + 15)
                 .text(`Transaction ID: ${transactionId}`, 50, paymentInfoTop + 30)
                 .text(`Payment Date: ${paymentDate}`, 50, paymentInfoTop + 45);
+
+            // ─── SUBSCRIPTION DETAILS ───
+            doc.text('SUBSCRIPTION DETAILS', 350, paymentInfoTop, { fontWeight: 'bold' })
+                .text(`Billing Cycle: ${planDuration}`, 350, paymentInfoTop + 15)
+                .text(`Start Date: ${startDate || paymentDate}`, 350, paymentInfoTop + 30)
+                .text(`Valid Till: ${expiryDate || 'N/A'}`, 350, paymentInfoTop + 45);
 
             // ─── FOOTER & DECLARATION ───
             const footerTop = 730;

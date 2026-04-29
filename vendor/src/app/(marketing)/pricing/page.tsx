@@ -38,8 +38,8 @@ const pricingPlans = [
     id: 1,
     name: "Upto 50 PAX",
     packName: "Starter Pack",
-    mrp: 14965,
-    price: 12045,
+    mrp: { quarterly: 4500, halfYearly: 8250, annually: 14965 },
+    price: { quarterly: 3780, halfYearly: 6660, annually: 12045 },
     leads: "Unlimited Leads",
     features: [
       "Basic listing visibility",
@@ -55,8 +55,8 @@ const pricingPlans = [
     id: 2,
     name: "50–100 PAX",
     packName: "Growth Pack",
-    mrp: 20075,
-    price: 16060,
+    mrp: { quarterly: 6300, halfYearly: 11000, annually: 20075 },
+    price: { quarterly: 5040, halfYearly: 9000, annually: 16060 },
     leads: "Unlimited Leads",
     features: [
       "Improved listing visibility",
@@ -72,8 +72,8 @@ const pricingPlans = [
     id: 3,
     name: "100–200 PAX",
     packName: "Priority Pack",
-    mrp: 35040,
-    price: 28105,
+    mrp: { quarterly: 10500, halfYearly: 19000, annually: 35040 },
+    price: { quarterly: 8910, halfYearly: 15840, annually: 28105 },
     leads: "Unlimited Leads",
     features: [
       "Priority listing in search results",
@@ -89,8 +89,8 @@ const pricingPlans = [
     id: 4,
     name: "200–500 PAX",
     packName: "Featured Pack",
-    mrp: 56940,
-    price: 44895,
+    mrp: { quarterly: 16000, halfYearly: 30000, annually: 56940 },
+    price: { quarterly: 13500, halfYearly: 24300, annually: 44895 },
     leads: "Unlimited Leads",
     features: [
       "Featured placement in listings",
@@ -106,8 +106,8 @@ const pricingPlans = [
     id: 5,
     name: "500–1000 PAX",
     packName: "Premium Pack",
-    mrp: 79935,
-    price: 65335,
+    mrp: { quarterly: 22500, halfYearly: 42500, annually: 79935 },
+    price: { quarterly: 18900, halfYearly: 34920, annually: 65335 },
     leads: "Unlimited Leads",
     features: [
       "Premium placement in listings",
@@ -123,8 +123,8 @@ const pricingPlans = [
     id: 6,
     name: "1000–2000 PAX",
     packName: "Elite Pack",
-    mrp: 109865,
-    price: 90885,
+    mrp: { quarterly: 31000, halfYearly: 57500, annually: 109865 },
+    price: { quarterly: 26100, halfYearly: 48600, annually: 90885 },
     leads: "Unlimited Leads",
     features: [
       "Top city visibility",
@@ -140,8 +140,8 @@ const pricingPlans = [
     id: 7,
     name: "2000–5000 PAX",
     packName: "Platinum Pack",
-    mrp: 179945,
-    price: 138335,
+    mrp: { quarterly: 50000, halfYearly: 95000, annually: 179945 },
+    price: { quarterly: 40500, halfYearly: 75600, annually: 138335 },
     leads: "Unlimited Leads",
     features: [
       "High priority ranking",
@@ -157,8 +157,8 @@ const pricingPlans = [
     id: 8,
     name: "5000+ PAX",
     packName: "Enterprise Pack",
-    mrp: 300030,
-    price: 218635,
+    mrp: { quarterly: 82000, halfYearly: 155000, annually: 300030 },
+    price: { quarterly: 63000, halfYearly: 117000, annually: 218635 },
     leads: "Unlimited Leads",
     features: [
       "Exclusive lead priority",
@@ -228,7 +228,7 @@ const GridBackground = () => (
   </div>
 );
 
-const InquiryPopup = React.memo(({ plan, isOpen, onClose }: { plan: typeof pricingPlans[0] | null, isOpen: boolean, onClose: () => void }) => {
+const InquiryPopup = React.memo(({ plan, billingDuration, isOpen, onClose }: { plan: typeof pricingPlans[0] | null, billingDuration: 'quarterly' | 'halfYearly' | 'annually', isOpen: boolean, onClose: () => void }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -319,7 +319,7 @@ const InquiryPopup = React.memo(({ plan, isOpen, onClose }: { plan: typeof prici
           name: formData.name,
           phone: formData.phone,
           email: formData.email,
-          plan: selectedPlan ? `${selectedPlan.name} (${selectedPlan.packName})` : 'Custom',
+          plan: selectedPlan ? `${selectedPlan.name} (${selectedPlan.packName}) - Billed ${billingDuration === 'quarterly' ? 'Quarterly' : billingDuration === 'halfYearly' ? 'Half-Yearly' : 'Annually'}` : 'Custom',
           venueName: formData.venueName,
           city: formData.city,
           pincode: formData.pincode,
@@ -533,8 +533,16 @@ const InquiryPopup = React.memo(({ plan, isOpen, onClose }: { plan: typeof prici
 
 InquiryPopup.displayName = 'InquiryPopup';
 
-const PricingCard = React.memo(({ plan, onSelect }: { plan: typeof pricingPlans[0], onSelect: (plan: typeof pricingPlans[0]) => void }) => {
-  const discount = Math.round(((plan.mrp - plan.price) / plan.mrp) * 100);
+const PricingCard = React.memo(({ plan, onSelect, billingDuration }: { plan: typeof pricingPlans[0], onSelect: (plan: typeof pricingPlans[0]) => void, billingDuration: 'quarterly' | 'halfYearly' | 'annually' }) => {
+  const currentMrp = plan.mrp[billingDuration];
+  const currentPrice = plan.price[billingDuration];
+  const discount = Math.round(((currentMrp - currentPrice) / currentMrp) * 100);
+  
+  const days = billingDuration === 'quarterly' ? 90 : billingDuration === 'halfYearly' ? 180 : 365;
+  const dailyMrp = Math.round(currentMrp / days);
+  const dailyPrice = Math.round(currentPrice / days);
+
+  const billingLabel = billingDuration === 'quarterly' ? 'Billed Quarterly' : billingDuration === 'halfYearly' ? 'Billed Half-Yearly' : 'Billed Annually';
   
   return (
     <motion.div
@@ -563,12 +571,12 @@ const PricingCard = React.memo(({ plan, onSelect }: { plan: typeof pricingPlans[
                <span className="text-[10px] font-black text-pd-purple uppercase tracking-[0.2em] mt-1">{plan.packName}</span>
             </div>
           <div className="space-y-1">
-            <p className="text-sm text-slate-400 line-through font-medium leading-none">₹{Math.round(plan.mrp / 365).toLocaleString()}</p>
+            <p className="text-sm text-slate-400 line-through font-medium leading-none">₹{dailyMrp.toLocaleString()}</p>
             <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-extrabold text-slate-900 tracking-tighter">₹{Math.round(plan.price / 365).toLocaleString()}</span>
+              <span className="text-4xl font-extrabold text-slate-900 tracking-tighter">₹{dailyPrice.toLocaleString()}</span>
               <span className="text-slate-500 text-xs font-medium uppercase tracking-widest">/ day</span>
             </div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Billed Annually</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{billingLabel}</p>
           </div>
         </div>
 
@@ -592,7 +600,10 @@ const PricingCard = React.memo(({ plan, onSelect }: { plan: typeof pricingPlans[
         </div>
 
         <button 
-          onClick={() => onSelect(plan)}
+          onClick={() => {
+            localStorage.setItem('billingDuration', billingDuration);
+            onSelect(plan);
+          }}
           className={`w-full py-4 rounded-full text-sm font-bold uppercase tracking-widest transition-all ${
             plan.popular 
               ? `${gradientStyle} text-white shadow-lg shadow-pink-500/20 hover:scale-[1.02] hover:shadow-pink-500/40`
@@ -655,6 +666,7 @@ FaqItem.displayName = 'FaqItem';
 export default function PricingPage() {
   const [selectedAddon, setSelectedAddon] = useState<number | null>(null);
   const [inquiryPlan, setInquiryPlan] = useState<typeof pricingPlans[0] | null>(null);
+  const [billingDuration, setBillingDuration] = useState<'quarterly' | 'halfYearly' | 'annually'>('annually');
 
   return (
     <div className="bg-slate-50 min-h-screen text-slate-900 selection:bg-pink-500 selection:text-white font-sans antialiased">
@@ -663,6 +675,7 @@ export default function PricingPage() {
         {inquiryPlan && (
           <InquiryPopup 
             plan={inquiryPlan} 
+            billingDuration={billingDuration}
             isOpen={!!inquiryPlan} 
             onClose={() => setInquiryPlan(null)} 
           />
@@ -725,9 +738,39 @@ export default function PricingPage() {
           </svg>
         </div>
 
-        <div className="max-w-7xl mx-auto text-center mb-16">
+        <div className="max-w-7xl mx-auto text-center mb-10">
           <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-2 tracking-tight uppercase italic">Pricing</h2>
           <p className="text-slate-500 font-bold text-lg">(According to Pax, you serve)</p>
+          
+          <div className="flex justify-center mt-8 mb-4">
+            <div className="inline-flex bg-white p-1.5 rounded-full shadow-sm border border-slate-200">
+              {(['quarterly', 'halfYearly', 'annually'] as const).map((duration) => (
+                <button
+                  key={duration}
+                  onClick={() => setBillingDuration(duration)}
+                  className={`px-6 py-3 rounded-full text-sm font-bold capitalize transition-all duration-300 ${
+                    billingDuration === duration
+                      ? 'bg-slate-900 text-white shadow-md'
+                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                  }`}
+                >
+                  {duration === 'halfYearly' ? 'Half-Yearly' : duration}
+                </button>
+              ))}
+            </div>
+          </div>
+          <motion.div 
+            key={billingDuration}
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-emerald-500 font-black text-[10px] uppercase tracking-widest mt-4 flex items-center justify-center gap-2"
+          >
+             <Sparkle size={14} fill="currentColor" />
+             {billingDuration === 'annually' && 'Save up to 23% with Annual Billing'}
+             {billingDuration === 'halfYearly' && 'Save up to 18% with Half-Yearly Billing'}
+             {billingDuration === 'quarterly' && 'Save up to 10% with Quarterly Billing'}
+             <Sparkle size={14} fill="currentColor" />
+          </motion.div>
         </div>
 
         <div className="max-w-[1440px] mx-auto relative px-4">
@@ -743,7 +786,7 @@ export default function PricingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {pricingPlans.map((plan) => (
-              <PricingCard key={plan.id} plan={plan} onSelect={setInquiryPlan} />
+              <PricingCard key={plan.id} plan={plan} onSelect={setInquiryPlan} billingDuration={billingDuration} />
             ))}
           </div>
         </div>

@@ -19,15 +19,15 @@ interface SendQuotationModalProps {
 let cachedVenues: any[] | null = null;
 
 const basePlans = [
-  { id: 'bp10', name: 'Starter 10 PAX (1 Year)', mrp: 1, price: 1, mrpAnnual: 1, annual: 1, pax: 10 },
-  { id: 'bp50', name: '0-50 PAX Membership', mrp: 41, price: 33, mrpAnnual: 14965, annual: 12045, pax: 50 },
-  { id: 'bp100', name: '50-100 PAX Membership', mrp: 55, price: 44, mrpAnnual: 20075, annual: 16060, pax: 100 },
-  { id: 'bp200', name: '100-200 PAX Membership', mrp: 96, price: 77, mrpAnnual: 35040, annual: 28105, pax: 200 },
-  { id: 'bp500', name: '200-500 PAX Membership', mrp: 156, price: 123, mrpAnnual: 56940, annual: 44895, pax: 500 },
-  { id: 'bp1000', name: '500-1000 PAX Membership', mrp: 219, price: 178, mrpAnnual: 79935, annual: 64970, pax: 1000 },
-  { id: 'bp2000', name: '1000-2000 PAX Membership', mrp: 301, price: 247, mrpAnnual: 109865, annual: 90155, pax: 2000 },
-  { id: 'bp5000', name: '2000-5000 PAX Membership', mrp: 493, price: 384, mrpAnnual: 179945, annual: 140160, pax: 5000 },
-  { id: 'bp9999', name: '5000+ PAX Membership', mrp: 822, price: 603, mrpAnnual: 300030, annual: 220095, pax: 9999 },
+  { id: 'bp10', name: 'Starter 10 PAX', pax: 10, mrp: { quarterly: 1, halfYearly: 1, annually: 1 }, price: { quarterly: 1, halfYearly: 1, annually: 1 } },
+  { id: 'bp50', name: '0-50 PAX Membership', pax: 50, mrp: { quarterly: 4500, halfYearly: 8250, annually: 14965 }, price: { quarterly: 3780, halfYearly: 6660, annually: 12045 } },
+  { id: 'bp100', name: '50-100 PAX Membership', pax: 100, mrp: { quarterly: 6300, halfYearly: 11000, annually: 20075 }, price: { quarterly: 5040, halfYearly: 9000, annually: 16060 } },
+  { id: 'bp200', name: '100-200 PAX Membership', pax: 200, mrp: { quarterly: 10500, halfYearly: 19000, annually: 35040 }, price: { quarterly: 8910, halfYearly: 15840, annually: 28105 } },
+  { id: 'bp500', name: '200-500 PAX Membership', pax: 500, mrp: { quarterly: 16000, halfYearly: 30000, annually: 56940 }, price: { quarterly: 13500, halfYearly: 24300, annually: 44895 } },
+  { id: 'bp1000', name: '500-1000 PAX Membership', pax: 1000, mrp: { quarterly: 22500, halfYearly: 42500, annually: 79935 }, price: { quarterly: 18900, halfYearly: 34920, annually: 65335 } },
+  { id: 'bp2000', name: '1000-2000 PAX Membership', pax: 2000, mrp: { quarterly: 31000, halfYearly: 57500, annually: 109865 }, price: { quarterly: 26100, halfYearly: 48600, annually: 90885 } },
+  { id: 'bp5000', name: '2000-5000 PAX Membership', pax: 5000, mrp: { quarterly: 50000, halfYearly: 95000, annually: 179945 }, price: { quarterly: 40500, halfYearly: 75600, annually: 138335 } },
+  { id: 'bp9999', name: '5000+ PAX Membership', pax: 9999, mrp: { quarterly: 82000, halfYearly: 155000, annually: 300030 }, price: { quarterly: 63000, halfYearly: 117000, annually: 218635 } },
 ];
 
 const addons = [
@@ -44,6 +44,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [discountType, setDiscountType] = useState<'percent' | 'value'>('percent');
+  const [billingDuration, setBillingDuration] = useState<'quarterly' | 'halfYearly' | 'annually'>('annually');
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [step, setStep] = useState(0);
@@ -117,7 +118,8 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
     [manualMode, venueDetails, entityId]
   );
 
-  const baseValue = useMemo(() => activePlan?.annual || 0, [activePlan]);
+  const baseValue = useMemo(() => activePlan?.price[billingDuration] || 0, [activePlan, billingDuration]);
+  const baseMrp = useMemo(() => activePlan?.mrp[billingDuration] || 0, [activePlan, billingDuration]);
 
   const totalAddonValue = useMemo(() => 
     selectedAddons.reduce((sum, id) => {
@@ -184,9 +186,17 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
       const { width, height } = p7.getSize();
       const startY = height * 0.72; 
       const rowHeight = 35;
-      const stdRateStr = `Rs. ${activePlan?.mrpAnnual?.toLocaleString() || '0'}`;
+      
+      const durationMap = { quarterly: '3 Months', halfYearly: '6 Months', annually: '12 Months' };
+      const durationLabel = billingDuration === 'quarterly' ? 'Quarterly' : billingDuration === 'halfYearly' ? 'Half-Yearly' : 'Annually';
+      const subPeriod = durationMap[billingDuration];
+
+      const stdRateStr = `Rs. ${baseMrp.toLocaleString() || '0'}`;
       p7.drawText(`${activePlan?.name || 'Standard Membership'} (Standard Rate)`, { x: width * 0.12, y: startY + 45, size: 16, font: normalFont, color: rgb(1, 1, 1) });
       p7.drawText(stdRateStr, { x: width * 0.88 - normalFont.widthOfTextAtSize(stdRateStr, 16), y: startY + 45, size: 16, font: normalFont, color: rgb(1, 1, 1) });
+      
+      p7.drawText(`Billing: ${durationLabel} (Valid for ${subPeriod})`, { x: width * 0.12, y: startY + 25, size: 12, font: normalFont, color: rgb(0.8, 0.8, 0.8) });
+
       p7.drawText(`Exclusive Partner Offer`, { x: width * 0.12, y: startY, size: 25, font, color: rgb(1, 1, 1) });
       const baseRateStr = `Rs. ${baseValue.toLocaleString()}`;
       p7.drawText(baseRateStr, { x: width * 0.88 - font.widthOfTextAtSize(baseRateStr, 25), y: startY, size: 25, font, color: rgb(1, 1, 1) });
@@ -284,6 +294,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
 
   const checkoutLink = useMemo(() => {
     let link = `${partnerPortalUrl}/checkout?venueId=${currentEntityId}&planId=${selectedPlan}`;
+    if (billingDuration) link += `&billingDuration=${billingDuration}`;
     if (selectedAddons.length > 0) link += `&addonId=${selectedAddons.join(',')}`;
     if (discountValue > 0) link += `&discount=${discountValue}&discountType=${discountType}`;
     if (gstNumber) link += `&gst=${gstNumber}`;
@@ -363,6 +374,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
     setSelectedPlan(null);
     setSelectedAddons([]);
     setDiscountValue(0);
+    setBillingDuration('annually');
     setIsSuccess(false);
     setStep(entityId === 'QUICK-QUOTE' ? 0 : 1);
     setSelectedAccount("");
@@ -806,34 +818,59 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                       <div className="lg:col-span-7 space-y-8 animate-in fade-in duration-500">
                         <div className="space-y-4">
                           <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center"><Zap size={14} /></div>
-                            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">01. Membership Plan</h3>
+                             <div className="w-6 h-6 rounded bg-amber-50 text-amber-600 flex items-center justify-center"><Zap size={14} /></div>
+                             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">01. Billing Duration</h3>
+                          </div>
+                          <div className="flex bg-slate-100 p-1.5 rounded-2xl">
+                             {(['quarterly', 'halfYearly', 'annually'] as const).map((duration) => (
+                                <button
+                                   key={duration}
+                                   onClick={() => setBillingDuration(duration)}
+                                   className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all", billingDuration === duration ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600")}
+                                >
+                                   {duration === 'halfYearly' ? 'Half-Yearly' : duration}
+                                </button>
+                             ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center"><Target size={14} /></div>
+                            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">02. Membership Plan</h3>
                           </div>
                           <div className="grid grid-cols-2 gap-3">
-                            {basePlans.map((plan) => (
-                              <button key={plan.id} onClick={() => { setSelectedPlan(plan.id); setSelectedAddons([]); }} className={cn("p-4 rounded-xl border text-left transition-all relative bg-white", selectedPlan === plan.id ? "border-slate-900 ring-4 ring-slate-900/5 shadow-sm" : "border-slate-100 hover:border-slate-200 hover:shadow-sm")}>
-                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">{plan.name}</p>
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                     <span className="text-[10px] font-bold text-slate-400 line-through">₹{plan.mrp}</span>
-                                     <span className="px-1.5 py-0.5 bg-pink-50 text-pink-500 text-[8px] font-bold rounded uppercase tracking-tighter">Save {Math.round((1 - plan.price/plan.mrp) * 100)}%</span>
+                            {basePlans.map((plan) => {
+                              const planMrp = plan.mrp[billingDuration];
+                              const planPrice = plan.price[billingDuration];
+                              const days = billingDuration === 'quarterly' ? 90 : billingDuration === 'halfYearly' ? 180 : 365;
+                              const dailyPrice = Math.round(planPrice / days);
+                              const dailyMrp = Math.round(planMrp / days);
+                              return (
+                                <button key={plan.id} onClick={() => { setSelectedPlan(plan.id); setSelectedAddons([]); }} className={cn("p-4 rounded-xl border text-left transition-all relative bg-white", selectedPlan === plan.id ? "border-slate-900 ring-4 ring-slate-900/5 shadow-sm" : "border-slate-100 hover:border-slate-200 hover:shadow-sm")}>
+                                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">{plan.name}</p>
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                       <span className="text-[10px] font-bold text-slate-400 line-through">₹{dailyMrp}</span>
+                                       <span className="px-1.5 py-0.5 bg-pink-50 text-pink-500 text-[8px] font-bold rounded uppercase tracking-tighter">Save {Math.round((1 - planPrice/planMrp) * 100)}%</span>
+                                    </div>
+                                    <div className="flex items-baseline gap-1">
+                                      <span className="text-xl font-bold text-slate-900">₹{dailyPrice}</span>
+                                      <span className="text-[9px] font-bold text-slate-400">/DAY</span>
+                                    </div>
                                   </div>
-                                  <div className="flex items-baseline gap-1">
-                                    <span className="text-xl font-bold text-slate-900">₹{plan.price}</span>
-                                    <span className="text-[9px] font-bold text-slate-400">/DAY</span>
-                                  </div>
-                                </div>
-                                {selectedPlan === plan.id && <div className="absolute top-3 right-3 text-slate-900"><CheckCircle2 size={18} fill="currentColor" className="text-white bg-slate-900 rounded-full" /></div>}
-                              </button>
-                            ))}
+                                  {selectedPlan === plan.id && <div className="absolute top-3 right-3 text-slate-900"><CheckCircle2 size={18} fill="currentColor" className="text-white bg-slate-900 rounded-full" /></div>}
+                                </button>
+                              );
+                            })}
                           </div>
                         </div>
 
                         {selectedPlan && (
                           <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                             <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded bg-emerald-50 text-emerald-600 flex items-center justify-center"><Target size={14} /></div>
-                              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">02. Service Add-ons</h3>
+                              <div className="w-6 h-6 rounded bg-emerald-50 text-emerald-600 flex items-center justify-center"><Plus size={14} /></div>
+                              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">03. Service Add-ons</h3>
                             </div>
                             <div className="grid grid-cols-1 gap-2">
                               {availableAddons.map((addon) => (
@@ -858,7 +895,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
                              <div className="flex items-center gap-2">
                                <div className="w-6 h-6 rounded bg-pink-50 text-pink-600 flex items-center justify-center"><Plus size={14} /></div>
-                               <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">03. Special Discount</h3>
+                               <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">04. Special Discount</h3>
                              </div>
                              <div className="flex items-center gap-2">
                                <div className="flex bg-slate-100 p-1 rounded-xl">
