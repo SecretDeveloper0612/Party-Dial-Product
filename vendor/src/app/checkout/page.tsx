@@ -408,11 +408,40 @@ function CheckoutContent() {
               exit={{ opacity: 0, x: -20 }}
               className="max-w-2xl mx-auto"
             >
-              {!selectedPlan && (
+              {!selectedPlan ? (
                 <div className="bg-rose-50 border border-rose-100 p-6 rounded-3xl mb-8 flex items-center gap-4 text-rose-600">
                    <ShieldCheck size={24} />
                    <p className="text-sm font-bold uppercase tracking-tight">No plan selected. Please use a valid quotation link.</p>
                 </div>
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-50 overflow-hidden mb-8"
+                >
+                  <div className="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl grad-brand flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
+                        <Zap size={28} fill="currentColor" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-slate-800 leading-tight">{selectedPlan.name}</h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="px-2.5 py-1 bg-violet-50 text-violet-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-violet-100">
+                            {preBillingDuration === 'quarterly' ? 'Quarterly' : preBillingDuration === 'halfYearly' ? 'Half-Yearly' : 'Annually'}
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            {preBillingDuration === 'quarterly' ? '3 Months' : preBillingDuration === 'halfYearly' ? '6 Months' : '12 Months'} Period
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-center sm:text-right bg-slate-50 sm:bg-transparent p-4 sm:p-0 rounded-2xl w-full sm:w-auto">
+                      <p className="text-3xl font-black text-[#b66dff]">₹{totals.total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Total Payable Amount</p>
+                    </div>
+                  </div>
+                </motion.div>
               )}
               <div className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-50 overflow-hidden">
                  <div className="bg-slate-900 p-8 text-white relative">
@@ -596,14 +625,20 @@ function CheckoutContent() {
                     {/* Items */}
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                           <div>
-                              <p className="text-sm font-black text-slate-700">{selectedPlan?.name}</p>
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                                Plan Price • {preBillingDuration === 'quarterly' ? 'Quarterly' : preBillingDuration === 'halfYearly' ? 'Half-Yearly' : 'Annually'} 
-                                 ({preBillingDuration === 'quarterly' ? '3 Months' : preBillingDuration === 'halfYearly' ? '6 Months' : '12 Months'})
-                              </p>
-                           </div>
-                           <span className="text-sm font-black text-slate-800">₹{totals.base}</span>
+                            <div className="flex-1">
+                               <p className="text-sm font-black text-slate-800">{selectedPlan?.name}</p>
+                               <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                                  <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[9px] font-black uppercase tracking-wider border border-slate-200">
+                                    {preBillingDuration === 'quarterly' ? 'Quarterly' : preBillingDuration === 'halfYearly' ? 'Half-Yearly' : 'Annually'}
+                                  </span>
+                                  <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
+                                    {preBillingDuration === 'quarterly' ? '3 Months' : preBillingDuration === 'halfYearly' ? '6 Months' : '12 Months'} Subscription
+                                  </span>
+                               </div>
+                            </div>
+                            <div className="text-right">
+                               <span className="text-base font-black text-slate-900">₹{totals.base.toLocaleString('en-IN')}</span>
+                            </div>
                         </div>
 
                         {totals.addons?.map((addon: any) => (

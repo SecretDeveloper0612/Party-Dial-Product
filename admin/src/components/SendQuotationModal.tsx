@@ -317,6 +317,28 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
     return link;
   }, [partnerPortalUrl, currentEntityId, selectedPlan, selectedAddons, discountType, discountValue, gstNumber, manualMode, inlineEditing, manualData]);
 
+  // Memoized Lists for Performance (Moved to Top Level to comply with Rules of Hooks)
+  const filteredAccounts = useMemo(() => {
+    return accounts.filter(acc => 
+      !venueSearch || 
+      (acc.venueName || acc.name || "").toLowerCase().includes(venueSearch.toLowerCase()) ||
+      (acc.city || "").toLowerCase().includes(venueSearch.toLowerCase())
+    ).slice(0, 50);
+  }, [accounts, venueSearch]);
+
+  const memoizedPlans = useMemo(() => basePlans.map((plan) => {
+    const planMrp = plan.mrp[billingDuration];
+    const planPrice = plan.price[billingDuration];
+    const days = billingDuration === 'quarterly' ? 90 : billingDuration === 'halfYearly' ? 180 : 365;
+    const dailyPrice = Math.round(planPrice / days);
+    const dailyMrp = Math.round(planMrp / days);
+    return { ...plan, planMrp, planPrice, dailyPrice, dailyMrp };
+  }), [billingDuration]);
+
+  const memoizedAddons = useMemo(() => availableAddons.map((addon) => {
+    return { ...addon, isSelected: selectedAddons.includes(addon.id) };
+  }), [availableAddons, selectedAddons]);
+
 
   const handleSend = () => {
     setLoading(true);
@@ -419,39 +441,33 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                     </div>
 
                     <div className="max-h-[300px] overflow-y-auto custom-scrollbar space-y-2 pr-2">
-                       {accounts
-                         .filter(acc => 
-                           !venueSearch || 
-                           (acc.venueName || acc.name || "").toLowerCase().includes(venueSearch.toLowerCase()) ||
-                           (acc.city || "").toLowerCase().includes(venueSearch.toLowerCase())
-                         )
-                         .slice(0, 50)
-                         .map(acc => (
-                           <button 
-                             key={acc.$id} 
-                             onClick={() => { setSelectedAccount(acc.$id); setStep(1); }}
-                             className="w-full p-4 rounded-2xl border-2 border-slate-50 hover:border-violet-200 hover:bg-violet-50/50 transition-all text-left flex items-center justify-between group bg-white shadow-sm"
-                           >
-                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-white group-hover:text-violet-500 transition-colors">
-                                   <Home size={18} />
-                                </div>
-                                <div>
-                                   <p className="text-sm font-black text-slate-700 group-hover:text-violet-600 transition-colors uppercase tracking-tight">{acc.venueName || acc.name}</p>
-                                   <div className="flex items-center gap-2 mt-0.5">
-                                      <MapPin size={10} className="text-slate-300" />
-                                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{acc.city} — {acc.pincode}</p>
-                                   </div>
-                                </div>
-                             </div>
-                             <ChevronRight size={18} className="text-slate-200 group-hover:text-violet-500 transition-all translate-x-0 group-hover:translate-x-1" />
-                           </button>
-                         ))}
-                       {accounts.filter(acc => !venueSearch || (acc.venueName || acc.name || "").toLowerCase().includes(venueSearch.toLowerCase())).length === 0 && (
-                          <div className="py-12 text-center">
-                             <p className="text-xs font-black uppercase tracking-widest text-slate-300 italic">No venues match your search</p>
-                          </div>
-                       )}
+                        {filteredAccounts.length === 0 ? (
+                           <div className="py-12 text-center">
+                              <p className="text-xs font-black uppercase tracking-widest text-slate-300 italic">No venues match your search</p>
+                           </div>
+                        ) : (
+                          filteredAccounts.map(acc => (
+                            <button 
+                              key={acc.$id} 
+                              onClick={() => { setSelectedAccount(acc.$id); setStep(1); }}
+                              className="w-full p-4 rounded-2xl border-2 border-slate-50 hover:border-violet-200 hover:bg-violet-50/50 transition-all text-left flex items-center justify-between group bg-white shadow-sm"
+                            >
+                              <div className="flex items-center gap-4">
+                                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-white group-hover:text-violet-500 transition-colors">
+                                    <Home size={18} />
+                                 </div>
+                                 <div>
+                                    <p className="text-sm font-black text-slate-700 group-hover:text-violet-600 transition-colors uppercase tracking-tight">{acc.venueName || acc.name}</p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                       <MapPin size={10} className="text-slate-300" />
+                                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{acc.city} — {acc.pincode}</p>
+                                    </div>
+                                 </div>
+                              </div>
+                              <ChevronRight size={18} className="text-slate-200 group-hover:text-violet-500 transition-all translate-x-0 group-hover:translate-x-1" />
+                            </button>
+                          ))
+                        )}
                     </div>
                     
                     <div className="flex items-center gap-4 py-2">
@@ -840,26 +856,29 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">02. Membership Plan</h3>
                           </div>
                           <div className="grid grid-cols-2 gap-3">
-                            {basePlans.map((plan) => {
-                              const planMrp = plan.mrp[billingDuration];
-                              const planPrice = plan.price[billingDuration];
-                              const days = billingDuration === 'quarterly' ? 90 : billingDuration === 'halfYearly' ? 180 : 365;
-                              const dailyPrice = Math.round(planPrice / days);
-                              const dailyMrp = Math.round(planMrp / days);
+                            {memoizedPlans.map((plan) => {
+                              const isSelected = selectedPlan === plan.id;
                               return (
-                                <button key={plan.id} onClick={() => { setSelectedPlan(plan.id); setSelectedAddons([]); }} className={cn("p-4 rounded-xl border text-left transition-all relative bg-white", selectedPlan === plan.id ? "border-slate-900 ring-4 ring-slate-900/5 shadow-sm" : "border-slate-100 hover:border-slate-200 hover:shadow-sm")}>
+                                <button 
+                                  key={plan.id} 
+                                  onClick={() => { setSelectedPlan(plan.id); setSelectedAddons([]); }} 
+                                  className={cn(
+                                    "p-4 rounded-xl border text-left transition-all relative bg-white", 
+                                    isSelected ? "border-slate-900 ring-4 ring-slate-900/5 shadow-sm" : "border-slate-100 hover:border-slate-200 hover:shadow-sm"
+                                  )}
+                                >
                                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">{plan.name}</p>
                                   <div className="space-y-1">
                                     <div className="flex items-center gap-2">
-                                       <span className="text-[10px] font-bold text-slate-400 line-through">₹{dailyMrp}</span>
-                                       <span className="px-1.5 py-0.5 bg-pink-50 text-pink-500 text-[8px] font-bold rounded uppercase tracking-tighter">Save {Math.round((1 - planPrice/planMrp) * 100)}%</span>
+                                       <span className="text-[10px] font-bold text-slate-400 line-through">₹{plan.dailyMrp}</span>
+                                       <span className="px-1.5 py-0.5 bg-pink-50 text-pink-500 text-[8px] font-bold rounded uppercase tracking-tighter">Save {Math.round((1 - plan.planPrice/plan.planMrp) * 100)}%</span>
                                     </div>
                                     <div className="flex items-baseline gap-1">
-                                      <span className="text-xl font-bold text-slate-900">₹{dailyPrice}</span>
+                                      <span className="text-xl font-bold text-slate-900">₹{plan.dailyPrice}</span>
                                       <span className="text-[9px] font-bold text-slate-400">/DAY</span>
                                     </div>
                                   </div>
-                                  {selectedPlan === plan.id && <div className="absolute top-3 right-3 text-slate-900"><CheckCircle2 size={18} fill="currentColor" className="text-white bg-slate-900 rounded-full" /></div>}
+                                  {isSelected && <div className="absolute top-3 right-3 text-slate-900"><CheckCircle2 size={18} fill="currentColor" className="text-white bg-slate-900 rounded-full" /></div>}
                                 </button>
                               );
                             })}
@@ -873,15 +892,22 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                               <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">03. Service Add-ons</h3>
                             </div>
                             <div className="grid grid-cols-1 gap-2">
-                              {availableAddons.map((addon) => (
-                                <button key={addon.id} onClick={() => toggleAddon(addon.id)} className={cn("p-4 rounded-xl border text-left transition-all flex items-center justify-between", selectedAddons.includes(addon.id) ? "border-emerald-500 bg-emerald-50/20" : "border-slate-100 bg-white hover:border-slate-300")}>
+                              {memoizedAddons.map((addon) => (
+                                <button 
+                                  key={addon.id} 
+                                  onClick={() => toggleAddon(addon.id)} 
+                                  className={cn(
+                                    "p-4 rounded-xl border text-left transition-all flex items-center justify-between", 
+                                    addon.isSelected ? "border-emerald-500 bg-emerald-50/20" : "border-slate-100 bg-white hover:border-slate-300"
+                                  )}
+                                >
                                   <div>
                                     <p className="text-xs font-bold text-slate-900">{addon.name}</p>
                                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Capacity: {addon.pax} PAX</p>
                                   </div>
                                   <div className="text-right">
                                     <p className="text-xs font-bold text-slate-900">₹{addon.price.toLocaleString()}</p>
-                                    <p className="text-[9px] text-emerald-600 font-bold uppercase tracking-tighter mt-0.5">{selectedAddons.includes(addon.id) ? "Selected" : "Add to plan"}</p>
+                                    <p className="text-[9px] text-emerald-600 font-bold uppercase tracking-tighter mt-0.5">{addon.isSelected ? "Selected" : "Add to plan"}</p>
                                   </div>
                                 </button>
                               ))}
