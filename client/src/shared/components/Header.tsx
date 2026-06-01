@@ -339,6 +339,9 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
+             <Link href="/ai-search" className="hidden lg:flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-pd-purple transition-all px-4 py-2 hover:bg-slate-50 rounded-xl">
+               <Zap size={18} className="text-pd-purple" /> <span>AI Search</span>
+             </Link>
              <button 
                 onClick={handleDownloadApp}
                 className="hidden lg:flex items-center gap-3 pd-btn-primary !px-7 !py-3.5 !text-xs tracking-wider uppercase active:scale-95 shadow-pd-soft"
@@ -455,6 +458,7 @@ export default function Header() {
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:bg-pd-red/5 hover:text-pd-red transition-all">Home</Link>
                   <Link href="/categories" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:bg-pd-red/5 hover:text-pd-red transition-all">Categories</Link>
+                  <Link href="/ai-search" onClick={() => setIsMobileMenuOpen(false)} className="col-span-2 flex items-center justify-center gap-2 p-4 bg-pd-purple/5 border border-pd-purple/20 rounded-xl text-sm font-bold text-pd-purple hover:bg-pd-purple/10 transition-all"><Zap size={18} /> AI Search</Link>
                 </div>                  {user ? (
                     <div className="col-span-2 p-4 bg-slate-50 rounded-xl flex items-center justify-between">
                        <div className="flex items-center gap-3">
@@ -515,11 +519,8 @@ export default function Header() {
         {authModal.isOpen && (
           <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-6 overflow-y-auto no-scrollbar">
             <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
               onClick={() => setAuthModal({ ...authModal, isOpen: false })}
-              className="fixed inset-0 bg-slate-950/60 backdrop-blur-[8px] cursor-pointer"
+              className="fixed inset-0 bg-slate-950/40 backdrop-blur-[4px] cursor-pointer"
               style={{ willChange: 'opacity, backdrop-filter', transform: 'translateZ(0)' }}
             ></motion.div>
             
@@ -529,7 +530,7 @@ export default function Header() {
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ type: "tween", duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
               style={{ willChange: "transform, opacity", transform: 'translateZ(0)' }}
-              className="relative w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-pd-strong overflow-hidden flex flex-col md:flex-row min-h-[500px] md:min-h-[600px] z-[1001]"
+              className="relative w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-pd-strong overflow-hidden flex flex-col md:flex-row min-h-[500px] md:min-h-[600px] z-[1001] transform-gpu"
             >
               {/* Left Visual Side */}
               <div className="hidden lg:block w-[45%] relative bg-slate-900 border-r border-slate-100 p-12 text-white">

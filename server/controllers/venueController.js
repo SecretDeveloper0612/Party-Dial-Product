@@ -161,8 +161,6 @@ exports.updateVenue = async (req, res) => {
             'capacity',
             'venueType',
             'gstNumber',
-            'subscriptionPlan',
-            'subscriptionExpiry',
             'billingDetails',
             'onboardingComplete'
         ];

@@ -3,38 +3,11 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  User, 
-  Shield, 
-  Bell, 
-  CreditCard, 
-  ChevronRight, 
-  MapPin,
-  Sparkles, 
-  Building2, 
-  Users, 
-  Wind, 
-  Car, 
-  Wifi, 
-  Utensils, 
-  Music, 
-  Image as ImageIcon,
-  CheckCircle2,
-  IndianRupee,
-  Smartphone,
-  Key,
-  Mail,
-  FileText,
-  Plus,
-  Minus,
-  Zap,
-  Trees,
-  ChefHat,
-  Palette,
-  Heart,
-  ShieldCheck,
-  Building,
-  Trash2,
-  Target
+  User, Shield, Bell, CreditCard, ChevronRight, ChevronDown, MapPin,
+  Sparkles, Building2, Users, Wind, Car, Wifi, Utensils, Music, 
+  Image as ImageIcon, CheckCircle2, IndianRupee, Smartphone,
+  Key, Mail, FileText, Plus, Minus, Zap, Trees, ChefHat,
+  Palette, Heart, ShieldCheck, Building, Trash2, Target, Camera
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -64,21 +37,10 @@ const DashboardSettings = ({
 }: DashboardSettingsProps) => {
 
   const eventTypesList = [
-    "Birthday Party",
-    "Wedding Events",
-    "Pre-Wedding Events",
-    "Anniversary Party",
-    "Corporate Events",
-    "Kitty Party",
-    "Family Functions",
-    "Festival Parties",
-    "Social Gatherings",
-    "Kids Parties",
-    "Bachelor / Bachelorette Party",
-    "Housewarming Party",
-    "Baby Shower",
-    "Engagement Ceremony",
-    "Entertainment / Theme Parties"
+    "Birthday Party", "Wedding Events", "Pre-Wedding Events", "Anniversary Party",
+    "Corporate Events", "Kitty Party", "Family Functions", "Festival Parties",
+    "Social Gatherings", "Kids Parties", "Bachelor / Bachelorette Party",
+    "Housewarming Party", "Baby Shower", "Engagement Ceremony", "Entertainment / Theme Parties"
   ];
 
   const amenities = React.useMemo(() => {
@@ -118,7 +80,6 @@ const DashboardSettings = ({
       const { storage, databases, DATABASE_ID, VENUES_COLLECTION_ID, STORAGE_BUCKET_ID, ID } = await import('@/lib/appwrite');
       const category = activeGalleryCategory === 'All Photos' ? 'Interior' : activeGalleryCategory;
 
-      // Upload all files sequentially and collect results
       const newPhotos: { id: string; category: string }[] = [];
       for (let i = 0; i < files.length; i++) {
         setUploadProgress({ current: i + 1, total: files.length });
@@ -136,7 +97,6 @@ const DashboardSettings = ({
         return;
       }
 
-      // Single document update after all uploads
       const updatedPhotos = [...photoIds, ...newPhotos];
       await databases.updateDocument(
         DATABASE_ID,
@@ -179,7 +139,6 @@ const DashboardSettings = ({
         file
       );
 
-      // Remove existing profile photo if any, and add new one
       const otherPhotos = photoIds.filter((p: any) => p.category !== 'Profile');
       const newProfilePhoto = { id: uploadedFile.$id, category: 'Profile' };
       const updatedPhotos = [newProfilePhoto, ...otherPhotos];
@@ -238,402 +197,316 @@ const DashboardSettings = ({
   const [deleteConfirm, setDeleteConfirm] = React.useState({ show: false, photoId: '' });
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 lg:space-y-10">
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-6xl mx-auto space-y-6">
 
-      {/* ── Custom Delete Confirmation Popup ── */}
-      {deleteConfirm.show && (
-        <div
-          className="fixed inset-0 z-[999] flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(15,23,42,0.55)' }}
-          onClick={() => setDeleteConfirm({ show: false, photoId: '' })}
-        >
+      {/* Delete Confirmation Popup */}
+      <AnimatePresence>
+        {deleteConfirm.show && (
           <div
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-[28px] p-8 shadow-2xl border border-slate-100 max-w-sm w-full text-center"
-            style={{ willChange: 'transform', animation: 'popIn 0.15s ease-out forwards' }}
+            className="fixed inset-0 z-[999] flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(15,23,42,0.4)', backdropFilter: 'blur(4px)' }}
+            onClick={() => setDeleteConfirm({ show: false, photoId: '' })}
           >
-            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-red-50 flex items-center justify-center">
-              <Trash2 size={26} className="text-red-500" />
-            </div>
-            <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-2">
-              Remove Photo?
-            </h3>
-            <p className="text-sm text-slate-400 font-medium leading-relaxed mb-7">
-              This photo will be permanently removed from your gallery.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDeleteConfirm({ show: false, photoId: '' })}
-                className="flex-1 py-3.5 rounded-2xl border border-slate-200 text-slate-600 text-[11px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDeletePhoto}
-                className="flex-1 py-3.5 rounded-2xl bg-red-500 text-white text-[11px] font-black uppercase tracking-widest hover:bg-red-600 transition-colors shadow-lg shadow-red-200"
-              >
-                Delete
-              </button>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl p-8 shadow-2xl border border-slate-100 max-w-sm w-full text-center"
+            >
+              <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-red-50 flex items-center justify-center border border-red-100 shadow-sm">
+                <Trash2 size={24} className="text-red-500" />
+              </div>
+              <h3 className="text-lg font-extrabold text-slate-900 mb-2">
+                Remove Photo?
+              </h3>
+              <p className="text-sm text-slate-500 font-medium mb-8">
+                This photo will be permanently removed from your gallery. This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteConfirm({ show: false, photoId: '' })}
+                  className="flex-1 py-3 bg-slate-50 hover:bg-slate-100 rounded-xl text-sm font-bold text-slate-600 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeletePhoto}
+                  className="flex-1 py-3 bg-red-500 hover:bg-red-600 rounded-xl text-white text-sm font-bold shadow-sm transition-colors"
+                >
+                  Delete Photo
+                </button>
+              </div>
+            </motion.div>
           </div>
-          <style>{`@keyframes popIn { from { transform: scale(0.92) translateY(8px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }`}</style>
-        </div>
-      )}
-       <header className="px-2 lg:px-0">
-          <h1 className="text-2xl lg:text-4xl font-black text-slate-900 uppercase italic tracking-tighter mb-2 leading-none">Console <span className="text-pd-pink">Settings</span></h1>
-          <p className="text-[10px] lg:text-sm font-medium text-slate-500 italic">Advanced control panel for your professional venue presence.</p>
-       </header>
+        )}
+      </AnimatePresence>
 
-       <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-sm">
+         <div>
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Venue Settings</h1>
+            <p className="text-sm font-medium text-slate-500">Configure your professional profile, gallery, and offerings</p>
+         </div>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
           {/* Settings Sidebar */}
-          <aside className="w-full lg:w-80 flex flex-col gap-2 px-2 lg:px-0">
+          <aside className="w-full lg:w-72 flex flex-col gap-2 shrink-0 lg:sticky lg:top-32 h-fit">
              {[
-                { id: 'profile', label: 'Venue Identity', icon: <Building2 size={18} />, color: 'text-blue-500', sub: 'Branding & Details' },
-                { id: 'photos', label: 'Media Gallery', icon: <ImageIcon size={18} />, color: 'text-purple-500', sub: 'Photos & Videos' },
-                { id: 'halls_section', label: 'Venue Spaces', icon: <Building size={18} />, color: 'text-emerald-500', sub: 'Halls & Lawns' },
-                { id: 'pricing_section', label: 'Event Pricing', icon: <IndianRupee size={18} />, color: 'text-rose-500', sub: 'Plate rates & Fees' },
-
+                { id: 'profile', label: 'Venue Identity', icon: <Building2 size={16} />, color: 'bg-blue-500' },
+                { id: 'photos', label: 'Media Gallery', icon: <ImageIcon size={16} />, color: 'bg-purple-500' },
+                { id: 'halls_section', label: 'Venue Spaces', icon: <Building size={16} />, color: 'bg-emerald-500' },
+                { id: 'pricing_section', label: 'Event Pricing', icon: <IndianRupee size={16} />, color: 'bg-rose-500' },
              ].map(section => (
                 <button 
                   key={section.id}
                   onClick={() => setSettingsSection(section.id)}
-                  className={`flex items-center justify-between p-4 rounded-[22px] transition-all group ${settingsSection === section.id ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20' : 'bg-white border border-slate-50 hover:bg-slate-50'}`}
+                  className={`flex items-center justify-between p-4 rounded-2xl transition-all group border ${settingsSection === section.id ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-white border-slate-200/60 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}`}
                 >
                    <div className="flex items-center gap-3">
-                      <div className={`p-2.5 rounded-xl ${settingsSection === section.id ? 'bg-white/10 text-white' : 'bg-slate-50 ' + section.color} transition-all`}>
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm ${settingsSection === section.id ? 'bg-white/20' : section.color}`}>
                          {section.icon}
                       </div>
-                      <div className="text-left">
-                         <p className={`text-[10px] font-black uppercase tracking-widest ${settingsSection === section.id ? 'text-white' : 'text-slate-900'}`}>{section.label}</p>
-                         <p className={`text-[8px] font-bold uppercase tracking-widest ${settingsSection === section.id ? 'text-slate-400' : 'text-slate-400'}`}>{section.sub}</p>
-                      </div>
+                      <span className={`text-sm font-bold ${settingsSection === section.id ? 'text-white' : 'text-slate-700'}`}>{section.label}</span>
                    </div>
-                   <ChevronRight size={14} className={`transition-transform ${settingsSection === section.id ? 'translate-x-1 opacity-100' : 'opacity-0'}`} />
+                   <ChevronRight size={16} className={`transition-transform ${settingsSection === section.id ? 'opacity-100' : 'opacity-0 -translate-x-2'}`} />
                 </button>
              ))}
-
-
           </aside>
 
           {/* Content Area */}
-          <div className="flex-1 bg-white rounded-[32px] lg:rounded-[50px] border border-slate-100 shadow-pd-soft p-6 lg:p-12 min-h-[500px] lg:min-h-[700px] relative overflow-hidden">
-             <AnimatePresence mode="popLayout">
+          <div className="flex-1 bg-white rounded-3xl border border-slate-200/60 shadow-sm p-6 md:p-8 relative min-h-[600px] overflow-hidden">
+             <AnimatePresence mode="wait">
                 {settingsSection === 'profile' && (
                    <motion.div 
                      key="profile"
-                     layout
-                     initial={{ opacity: 0, scale: 0.98 }}
-                     animate={{ opacity: 1, scale: 1 }}
-                     exit={{ opacity: 0, scale: 0.98 }}
-                     transition={{ duration: 0.2 }}
-                     className="space-y-12"
+                     initial={{ opacity: 0, x: 20 }}
+                     animate={{ opacity: 1, x: 0 }}
+                     exit={{ opacity: 0, x: -20 }}
+                     transition={{ duration: 0.3 }}
+                     className="space-y-10"
                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                         <div className="space-y-12">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                         {/* Left Column */}
+                         <div className="space-y-8">
                             <section>
-                               <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Brand Representative</h3>
-                               <div className="flex items-center gap-8 mb-10">
+                               <h3 className="text-lg font-extrabold text-slate-900 mb-6">Brand Representative</h3>
+                               <div className="flex items-center gap-6">
                                   <div className="relative group">
-                                     <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-3xl bg-gradient-to-tr from-pd-pink to-purple-500 p-[2px] shadow-2xl shadow-pd-pink/20">
-                                        <div className="w-full h-full rounded-[22px] bg-white overflow-hidden flex items-center justify-center">
-                                           {(photoIds.find((p: any) => p.category === 'Profile')) ? (
-                                              <Image 
-                                                src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${photoIds.find((p: any) => p.category === 'Profile').id}/view?project=69ae84bc001ca4edf8c2`} 
-                                                alt="Profile" 
-                                                width={112} 
-                                                height={112} 
-                                                className="object-cover w-full h-full"
-                                              />
-                                           ) : (
-                                              <div className="flex flex-col items-center gap-1">
-                                                 <User className="text-slate-200" size={32} />
-                                              </div>
-                                           )}
-                                        </div>
+                                     <div className="w-24 h-24 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+                                        {(photoIds.find((p: any) => p.category === 'Profile')) ? (
+                                           <Image 
+                                             src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${photoIds.find((p: any) => p.category === 'Profile').id}/view?project=69ae84bc001ca4edf8c2`} 
+                                             alt="Profile" 
+                                             width={96} 
+                                             height={96} 
+                                             className="object-cover w-full h-full"
+                                           />
+                                        ) : (
+                                           <Camera className="text-slate-300" size={32} />
+                                        )}
                                      </div>
                                      <button 
                                        onClick={() => avatarInputRef.current?.click()}
-                                       className="absolute -bottom-2 -right-2 w-10 h-10 bg-white shadow-xl rounded-xl flex items-center justify-center text-slate-400 hover:text-pd-pink hover:scale-110 transition-all border border-slate-50"
+                                       className="absolute -bottom-2 -right-2 w-8 h-8 bg-slate-900 text-white shadow-md rounded-lg flex items-center justify-center hover:bg-pd-pink hover:scale-105 transition-all"
                                      >
-                                        <ImageIcon size={18} />
+                                        <ImageIcon size={14} />
                                      </button>
                                      <input type="file" hidden ref={avatarInputRef} accept="image/*" onChange={handleAvatarUpload} />
                                   </div>
-                                  <div className="flex-1">
-                                     <p className="text-[11px] font-black italic uppercase text-slate-900 leading-none mb-2">Change Logo</p>
-                                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">This image will represent your venue across the platform.</p>
+                                  <div>
+                                     <p className="text-sm font-extrabold text-slate-900 mb-1">Display Logo</p>
+                                     <p className="text-xs font-medium text-slate-500 leading-relaxed max-w-[200px]">Update your primary profile picture that appears in search results.</p>
                                   </div>
                                </div>
                             </section>
 
                             <section>
-                               <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Venue Identity</h3>
-                               <div className="space-y-6">
-                                  <div className="space-y-3">
-                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">Display Name</label>
-                                     <div className="relative group">
-                                        <Building2 className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-pd-pink transition-colors" size={18} />
+                               <h3 className="text-lg font-extrabold text-slate-900 mb-6">Venue Details</h3>
+                               <div className="space-y-5">
+                                  <div className="space-y-1.5">
+                                     <label className="text-xs font-bold text-slate-700">Display Name</label>
+                                     <div className="relative">
+                                        <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                                         <input 
                                           type="text" 
                                           value={venueProfile?.venueName || ""} 
                                           onChange={(e) => handleProfileUpdate('venueName', e.target.value)}
-                                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-5 pl-16 pr-8 text-sm font-black italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner" 
+                                          className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-11 pr-4 text-sm font-medium outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all" 
                                         />
                                      </div>
                                   </div>
-                                  <div className="space-y-3">
-                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">Owner/Representative Name</label>
-                                     <div className="relative group">
-                                        <User className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-pd-pink transition-colors" size={18} />
+                                  <div className="space-y-1.5">
+                                     <label className="text-xs font-bold text-slate-700">Owner Name</label>
+                                     <div className="relative">
+                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                                         <input 
                                           type="text" 
                                           placeholder="e.g. Rahul Sharma"
                                           value={venueProfile?.ownerName || ""} 
                                           onChange={(e) => handleProfileUpdate('ownerName', e.target.value)}
-                                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-5 pl-16 pr-8 text-sm font-black italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner" 
+                                          className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-11 pr-4 text-sm font-medium outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all" 
                                         />
                                      </div>
                                   </div>
-                                  <div className="space-y-3">
-                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">Guest Capacity Range</label>
-                                     <div className="relative group">
-                                        <Users className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-pd-pink transition-colors" size={18} />
-                                        <select 
+                                  <div className="space-y-1.5">
+                                     <label className="text-xs font-bold text-slate-700">Guest Capacity Range</label>
+                                     <div className="relative">
+                                        <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                                        <input 
+                                          type="text"
+                                          readOnly
                                           value={(() => {
                                              const cap = parseInt(venueProfile?.capacity);
-                                             if (cap >= 5001) return '5000+';
-                                             if (cap >= 2001) return '2000-5000';
-                                             if (cap >= 1001) return '1000-2000';
-                                             if (cap >= 501)  return '500-1000';
-                                             if (cap >= 201)  return '200-500';
-                                             if (cap >= 101)  return '100-200';
-                                             if (cap >= 51)   return '50-100';
-                                             if (cap >= 1)    return '0-50';
-                                             return '';
+                                             if (cap >= 5001) return '5000+ Guests';
+                                             if (cap >= 2001) return '2000-5000 Guests';
+                                             if (cap >= 1001) return '1000-2000 Guests';
+                                             if (cap >= 501)  return '500-1000 Guests';
+                                             if (cap >= 201)  return '200-500 Guests';
+                                             if (cap >= 101)  return '100-200 Guests';
+                                             if (cap >= 51)   return '50-100 Guests';
+                                             if (cap >= 1)    return '0-50 Guests';
+                                             return 'Not Specified';
                                           })()} 
-                                          onChange={(e) => {
-                                             const val = e.target.value;
-                                             if (!val) {
-                                                handleProfileUpdate('capacity', 0);
-                                                return;
-                                             }
-                                             let numericCap = 0;
-                                             if (val === '5000+') {
-                                                numericCap = 10000;
-                                             } else if (val.includes('-')) {
-                                                const parts = val.split('-');
-                                                numericCap = parseInt(parts[parts.length - 1]) || 0;
-                                             }
-                                             handleProfileUpdate('capacity', numericCap);
-                                          }}
-                                          className="w-full h-16 bg-slate-50 border border-slate-100 rounded-2xl pl-16 pr-8 text-sm font-black italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner appearance-none"
-                                        >
-                                           <option value="">Select Capacity</option>
-                                           <option value="0-50">0-50 Guests</option>
-                                           <option value="50-100">50-100 Guests</option>
-                                           <option value="100-200">100-200 Guests</option>
-                                           <option value="200-500">200-500 Guests</option>
-                                           <option value="500-1000">500-1000 Guests</option>
-                                           <option value="1000-2000">1000-2000 Guests</option>
-                                           <option value="2000-5000">2000-5000 Guests</option>
-                                           <option value="5000+">5000+ Guests</option>
-                                        </select>
+                                          className="w-full bg-slate-100 border border-slate-200/60 rounded-xl py-3 pl-11 pr-4 text-sm font-medium text-slate-500 outline-none cursor-not-allowed"
+                                        />
                                      </div>
                                   </div>
-                                  <div className="space-y-3">
-                                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">Key Landmark</label>
-                                      <div className="relative group">
-                                         <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-pd-pink transition-colors" size={18} />
+                                  <div className="space-y-1.5">
+                                      <label className="text-xs font-bold text-slate-700">Landmark</label>
+                                      <div className="relative">
+                                         <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                                          <input 
                                            type="text" 
-                                           placeholder="e.g. Near City Center Mall"
+                                           placeholder="e.g. Near City Center"
                                            value={venueProfile?.landmark || ""} 
                                            onChange={(e) => handleProfileUpdate('landmark', e.target.value)}
-                                           className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-5 pl-16 pr-8 text-sm font-black italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner" 
+                                           className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-11 pr-4 text-sm font-medium outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all" 
                                          />
-                                      </div>
-                                   </div>
-
-                                   <div className="space-y-3 pt-6 border-t border-slate-50">
-                                      <h4 className="text-[11px] font-black text-slate-900 uppercase italic tracking-widest mb-4 flex items-center gap-2">
-                                         <ShieldCheck size={14} className="text-emerald-500" />
-                                         Billing & Tax Information
-                                      </h4>
-                                      
-                                      <div className="space-y-3">
-                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">Detailed Billing Address</label>
-                                         <textarea 
-                                           rows={3}
-                                           value={venueProfile?.address || ""} 
-                                           onChange={(e) => handleProfileUpdate('address', e.target.value)}
-                                           placeholder="Complete address for invoices..."
-                                           className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-5 text-sm font-bold italic outline-none focus:border-pd-pink focus:bg-white transition-all shadow-inner resize-none" 
-                                         />
-                                      </div>
-
-                                      <div className="grid grid-cols-2 gap-4">
-                                         <div className="space-y-2">
-                                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">City</label>
-                                            <input 
-                                              type="text" 
-                                              value={venueProfile?.city || ""} 
-                                              onChange={(e) => handleProfileUpdate('city', e.target.value)}
-                                              className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-xs font-bold italic outline-none focus:border-pd-pink" 
-                                            />
-                                         </div>
-                                         <div className="space-y-2">
-                                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">State</label>
-                                            <input 
-                                              type="text" 
-                                              value={venueProfile?.state || ""} 
-                                              onChange={(e) => handleProfileUpdate('state', e.target.value)}
-                                              className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-xs font-bold italic outline-none focus:border-pd-pink" 
-                                            />
-                                         </div>
-                                      </div>
-
-                                      <div className="grid grid-cols-2 gap-4">
-                                         <div className="space-y-2">
-                                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">Pincode</label>
-                                            <input 
-                                              type="text" 
-                                              value={venueProfile?.pincode || ""} 
-                                              onChange={(e) => handleProfileUpdate('pincode', e.target.value)}
-                                              className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-xs font-bold italic outline-none focus:border-pd-pink" 
-                                            />
-                                         </div>
-                                         <div className="space-y-2">
-                                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">GST Number (Optional)</label>
-                                            <input 
-                                              type="text" 
-                                              value={venueProfile?.gstNumber || ""} 
-                                              onChange={(e) => handleProfileUpdate('gstNumber', e.target.value.toUpperCase())}
-                                              className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-xs font-bold italic uppercase outline-none focus:border-pd-pink" 
-                                            />
-                                         </div>
                                       </div>
                                    </div>
                                </div>
                             </section>
 
-                             <section>
-                                <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Parties We Organize</h3>
-                                <div className="flex flex-wrap gap-2 text-wrap">
-                                   {eventTypesList.map((type) => {
-                                      const isActive = eventTypes.includes(type);
-                                      return (
-                                         <button 
-                                           key={type}
-                                           onClick={() => handleEventTypeToggle(type)}
-                                           className={`px-4 py-2 rounded-full border transition-all text-[9px] font-black uppercase tracking-widest ${isActive ? 'bg-pd-red border-pd-red text-white shadow-lg' : 'bg-white border-slate-100 text-slate-400 hover:border-pd-red/30'}`}
-                                         >
-                                            {type}
-                                         </button>
-                                      );
-                                   })}
-                                </div>
-                             </section>
+                            <section>
+                               <h3 className="text-lg font-extrabold text-slate-900 mb-4 flex items-center gap-2">
+                                  Billing Information
+                               </h3>
+                               <div className="space-y-4">
+                                  <div className="space-y-1.5">
+                                     <label className="text-xs font-bold text-slate-700">Address</label>
+                                     <textarea 
+                                       rows={2}
+                                       value={venueProfile?.address || ""} 
+                                       onChange={(e) => handleProfileUpdate('address', e.target.value)}
+                                       className="w-full bg-slate-50 border border-slate-200/60 rounded-xl p-3 text-sm font-medium outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all resize-none" 
+                                     />
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                     <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-700">City</label>
+                                        <input 
+                                          type="text" 
+                                          value={venueProfile?.city || ""} 
+                                          onChange={(e) => handleProfileUpdate('city', e.target.value)}
+                                          className="w-full bg-slate-50 border border-slate-200/60 rounded-xl p-3 text-sm font-medium outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10" 
+                                        />
+                                     </div>
+                                     <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-700">State</label>
+                                        <input 
+                                          type="text" 
+                                          value={venueProfile?.state || ""} 
+                                          onChange={(e) => handleProfileUpdate('state', e.target.value)}
+                                          className="w-full bg-slate-50 border border-slate-200/60 rounded-xl p-3 text-sm font-medium outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10" 
+                                        />
+                                     </div>
+                                  </div>
+                               </div>
+                            </section>
+                         </div>
 
-                             <section>
-                                <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Venue Bio / Description</h3>
-                                <div className="space-y-3">
-                                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block ml-1">About Your Venue</label>
-                                   <textarea 
-                                     rows={6}
-                                     value={venueProfile?.description || ""} 
-                                     onChange={(e) => handleProfileUpdate('description', e.target.value)}
-                                     placeholder="Tell customers about your venue's ambiance, specialties, and unique features..."
-                                     className="w-full bg-slate-50 border border-slate-100 rounded-[24px] p-6 text-sm font-medium text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none resize-none leading-relaxed shadow-inner" 
-                                   />
-                                   <p className="text-[9px] text-slate-400 font-bold italic text-right uppercase tracking-[0.2em]">Minimum 200 characters recommended</p>
-                                </div>
-                             </section>
-                          </div>
+                         {/* Right Column */}
+                         <div className="space-y-8">
+                            <section>
+                               <h3 className="text-lg font-extrabold text-slate-900 mb-6">About the Venue</h3>
+                               <div className="space-y-1.5">
+                                  <label className="text-xs font-bold text-slate-700">Bio & Description</label>
+                                  <textarea 
+                                    rows={5}
+                                    value={venueProfile?.description || ""} 
+                                    onChange={(e) => handleProfileUpdate('description', e.target.value)}
+                                    placeholder="Tell customers about your venue's ambiance..."
+                                    className="w-full bg-slate-50 border border-slate-200/60 rounded-xl p-4 text-sm font-medium focus:bg-white focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all outline-none resize-none" 
+                                  />
+                               </div>
+                            </section>
 
-                          <div className="space-y-12">
-                             <section>
-                                <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight mb-8">Amenities & Features</h3>
-                                <div className="grid grid-cols-2 gap-3">
-                                   {[
-                                      { id: 'ac', label: 'Air Conditioning', icon: <Wind size={14} /> },
-                                      { id: 'parking', label: 'Parking Available', icon: <Car size={14} /> },
-                                      { id: 'power', label: 'Power Backup', icon: <Zap size={14} /> },
-                                      { id: 'indoor', label: 'Indoor Hall', icon: <Building size={14} /> },
-                                      { id: 'outdoor', label: 'Outdoor Lawn', icon: <Trees size={14} /> },
-                                      { id: 'catering_in', label: 'In-house Catering', icon: <Utensils size={14} /> },
-                                      { id: 'catering_out', label: 'Outside Catering Allowed', icon: <ChefHat size={14} /> },
-                                      { id: 'dj', label: 'DJ Allowed', icon: <Music size={14} /> },
-                                      { id: 'decoration', label: 'Decoration Available', icon: <Palette size={14} /> },
-                                      { id: 'bridal', label: 'Bridal Room', icon: <Heart size={14} /> },
-                                      { id: 'security', label: 'Security Available', icon: <ShieldCheck size={14} /> },
-                                      { id: 'wifi', label: 'Wi-Fi Available', icon: <Wifi size={14} /> }
-                                   ].map((amenity) => {
-                                      const isActive = amenities.includes(amenity.id);
-                                      return (
-                                         <button 
-                                           key={amenity.id}
-                                           onClick={() => handleAmenityToggle(amenity.id)}
-                                           className={`flex items-center gap-3 p-4 rounded-xl border transition-all text-left ${isActive ? 'bg-slate-900 border-slate-900 text-white shadow-lg' : 'bg-white border-slate-100 text-slate-400 hover:border-pd-pink'}`}
-                                         >
-                                            <div className={isActive ? 'text-pd-pink' : 'text-slate-300'}>{amenity.icon}</div>
-                                            <span className="text-[10px] font-black uppercase tracking-wider leading-tight">{amenity.label}</span>
-                                         </button>
-                                      );
-                                   })}
-                                </div>
-                             </section>
+                            <section>
+                               <h3 className="text-lg font-extrabold text-slate-900 mb-4">Supported Events</h3>
+                               <div className="flex flex-wrap gap-2">
+                                  {eventTypesList.map((type) => {
+                                     const isActive = eventTypes.includes(type);
+                                     return (
+                                        <button 
+                                          key={type}
+                                          onClick={() => handleEventTypeToggle(type)}
+                                          className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${isActive ? 'bg-slate-900 border-slate-900 text-white shadow-sm' : 'bg-slate-50 border-slate-200/60 text-slate-600 hover:border-slate-300'}`}
+                                        >
+                                           {type}
+                                        </button>
+                                     );
+                                  })}
+                               </div>
+                            </section>
 
-                             <section>
-                                <div className="flex items-center justify-between mb-8">
-                                   <h3 className="text-base font-black text-slate-900 uppercase italic tracking-tight">Gallery Snapshot</h3>
-                                   <button onClick={() => setSettingsSection('photos')} className="text-[9px] font-black uppercase text-pd-pink hover:text-slate-900 transition-colors tracking-widest">Update All</button>
-                                </div>
-                                <div className="grid grid-cols-3 gap-4">
-                                   {[0, 1, 2].map(idx => {
-                                       const galleryPhotos = photoIds.filter((p: any) => p.category !== 'Profile');
-                                       const photo = galleryPhotos[idx];
-                                       const photoId = typeof photo === 'object' ? photo?.id : photo;
-                                       return (
-                                          <div key={idx} className="aspect-square rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden relative group">
-                                             {photoId ? (
-                                                <Image 
-                                                   src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${photoId}/view?project=69ae84bc001ca4edf8c2`} 
-                                                  alt="Venue Gallery" 
-                                                  fill 
-                                                  className="object-cover group-hover:scale-110 transition-transform duration-500" 
-                                                />
-                                             ) : (
-                                                <div className="absolute inset-0 flex items-center justify-center bg-slate-50">
-                                                   <ImageIcon className="text-slate-200" size={20} />
-                                                </div>
-                                             )}
-                                             <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                <ImageIcon className="text-white" size={20} />
-                                             </div>
-                                          </div>
-                                       );
-                                   })}
-                                </div>
-                             </section>
-                          </div>
+                            <section>
+                               <h3 className="text-lg font-extrabold text-slate-900 mb-4">Amenities</h3>
+                               <div className="grid grid-cols-2 gap-3">
+                                  {[
+                                     { id: 'ac', label: 'Air Conditioning', icon: <Wind size={16} /> },
+                                     { id: 'parking', label: 'Parking Available', icon: <Car size={16} /> },
+                                     { id: 'power', label: 'Power Backup', icon: <Zap size={16} /> },
+                                     { id: 'indoor', label: 'Indoor Hall', icon: <Building size={16} /> },
+                                     { id: 'outdoor', label: 'Outdoor Lawn', icon: <Trees size={16} /> },
+                                     { id: 'catering_in', label: 'In-house Catering', icon: <Utensils size={16} /> },
+                                     { id: 'catering_out', label: 'Outside Catering', icon: <ChefHat size={16} /> },
+                                     { id: 'dj', label: 'DJ Allowed', icon: <Music size={16} /> },
+                                     { id: 'decoration', label: 'Decoration', icon: <Palette size={16} /> },
+                                     { id: 'bridal', label: 'Bridal Room', icon: <Heart size={16} /> },
+                                     { id: 'security', label: 'Security', icon: <ShieldCheck size={16} /> },
+                                     { id: 'wifi', label: 'Wi-Fi', icon: <Wifi size={16} /> }
+                                  ].map((amenity) => {
+                                     const isActive = amenities.includes(amenity.id);
+                                     return (
+                                        <button 
+                                          key={amenity.id}
+                                          onClick={() => handleAmenityToggle(amenity.id)}
+                                          className={`flex items-center gap-2 p-3 rounded-xl border transition-all text-left ${isActive ? 'bg-emerald-50 border-emerald-200 text-emerald-800 shadow-sm' : 'bg-slate-50 border-slate-200/60 text-slate-600 hover:border-slate-300'}`}
+                                        >
+                                           <div className={isActive ? 'text-emerald-500' : 'text-slate-400'}>{amenity.icon}</div>
+                                           <span className="text-xs font-bold leading-tight">{amenity.label}</span>
+                                        </button>
+                                     );
+                                  })}
+                               </div>
+                            </section>
+                         </div>
                       </div>
 
-                      <div className="pt-10 border-t border-slate-100 flex items-center justify-between">
-                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-                               <CheckCircle2 size={20} />
-                            </div>
-                            <p className="text-[10px] font-medium text-slate-500 leading-relaxed italic">Last verified: Today at 02:30 PM <br/> All changes reflect instantly on the portal.</p>
+                      <div className="pt-8 mt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                         <div className="flex items-center gap-3">
+                            <CheckCircle2 size={18} className="text-emerald-500" />
+                            <p className="text-sm font-medium text-slate-500">Changes reflect instantly on your live profile.</p>
                          </div>
-                         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                            <button 
-                              onClick={saveProfileSettings}
-                              disabled={isUpdatingProfile}
-                              className="w-full sm:w-auto px-12 py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-pd-pink transition-all shadow-2xl shadow-slate-900/20 disabled:opacity-50"
-                            >
-                               {isUpdatingProfile ? 'SYNCHRONIZING...' : 'FORCE UPDATE PROFILE'}
-                            </button>
-                         </div>
+                         <button 
+                           onClick={saveProfileSettings}
+                           disabled={isUpdatingProfile}
+                           className="w-full sm:w-auto px-8 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-md hover:bg-slate-800 transition-all disabled:opacity-50"
+                         >
+                            {isUpdatingProfile ? 'Saving...' : 'Save Profile Changes'}
+                         </button>
                       </div>
                    </motion.div>
                 )}
@@ -641,28 +514,26 @@ const DashboardSettings = ({
                 {settingsSection === 'halls_section' && (
                    <motion.div 
                      key="halls"
-                     layout
-                     initial={{ opacity: 0, scale: 0.98 }}
-                     animate={{ opacity: 1, scale: 1 }}
-                     exit={{ opacity: 0, scale: 0.98 }}
-                     transition={{ duration: 0.2 }}
-                     className="space-y-10"
+                     initial={{ opacity: 0, x: 20 }}
+                     animate={{ opacity: 1, x: 0 }}
+                     exit={{ opacity: 0, x: -20 }}
+                     transition={{ duration: 0.3 }}
+                     className="space-y-8"
                    >
-                      <header className="flex items-center justify-between">
+                      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                          <div>
-                            <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter leading-none mb-2">Available <span className="text-emerald-500">Spaces</span></h3>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">List all individual halls, lawns, or dining areas available at your venue.</p>
+                            <h3 className="text-xl font-extrabold text-slate-900">Venue Spaces</h3>
+                            <p className="text-sm font-medium text-slate-500">List and manage individual halls, lawns, or dining areas.</p>
                          </div>
                          <button 
                            onClick={() => {
                               const current = Array.isArray(venueProfile?.halls) ? venueProfile.halls : [];
-                              const updated = [...current, { id: Date.now(), name: 'Main Banquet Hall', capacity: venueProfile.capacity || '500', area: '5000 SQ FT' }];
+                              const updated = [...current, { id: Date.now(), name: 'New Space', capacity: venueProfile.capacity || '500', area: '5000 SQ FT' }];
                               handleProfileUpdate('halls', updated);
                            }}
-                           className="bg-slate-900 text-white px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 transition-all flex items-center gap-2"
+                           className="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-sm"
                          >
-                            Add New Hall/Space
-                            <Plus className="text-white" size={14} />
+                            <Plus size={16} /> Add Space
                          </button>
                       </header>
  
@@ -672,53 +543,53 @@ const DashboardSettings = ({
                             
                             if (halls.length === 0) {
                                return (
-                                  <div className="py-20 text-center bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
-                                     <Building className="mx-auto text-slate-300 mb-4" size={48} />
-                                     <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">No spaces defined yet</h4>
-                                     <p className="text-[10px] font-medium text-slate-400 mt-2 mb-6">Add your banquet halls, lawns, or poolside areas here.</p>
+                                  <div className="py-20 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                     <Building className="mx-auto text-slate-300 mb-3" size={40} />
+                                     <h4 className="text-base font-extrabold text-slate-900">No spaces defined</h4>
+                                     <p className="text-sm font-medium text-slate-500 mt-1 mb-6 max-w-sm mx-auto">Add your banquet halls, lawns, or specific event areas here.</p>
                                   </div>
                                );
                             }
  
                             return halls.map((hall: any) => (
-                               <div key={hall.id} className="p-5 lg:p-8 bg-white border border-slate-100 rounded-[30px] flex flex-col md:flex-row md:items-center justify-between group hover:border-emerald-500 shadow-sm transition-all gap-6">
-                                  <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
+                               <div key={hall.id} className="p-6 bg-slate-50 border border-slate-200/60 rounded-2xl flex flex-col md:flex-row md:items-end justify-between gap-6 group hover:border-slate-300 transition-all">
+                                  <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                                      <div className="space-y-1.5">
-                                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Space Name</label>
+                                        <label className="text-xs font-bold text-slate-700">Space Name</label>
                                         <input 
                                            value={hall.name}
                                            onChange={(e) => {
                                               const updated = halls.map((h: any) => h.id === hall.id ? { ...h, name: e.target.value } : h);
                                               handleProfileUpdate('halls', updated);
                                            }}
-                                           className="text-sm font-black text-slate-900 uppercase italic bg-slate-50 rounded-xl px-4 py-3 outline-none w-full focus:bg-white border border-transparent focus:border-emerald-500/20"
+                                           className="w-full bg-white border border-slate-200/60 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10"
                                            placeholder="e.g. Royal Ballroom"
                                         />
                                      </div>
                                      <div className="space-y-1.5">
-                                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Capacity (Guests)</label>
+                                        <label className="text-xs font-bold text-slate-700">Capacity (Guests)</label>
                                         <div className="relative">
-                                           <Users size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                                           <Users size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                                            <input 
                                               value={hall.capacity}
                                               onChange={(e) => {
                                                  const updated = halls.map((h: any) => h.id === hall.id ? { ...h, capacity: e.target.value } : h);
                                                  handleProfileUpdate('halls', updated);
                                               }}
-                                              className="text-sm font-black text-slate-900 bg-slate-50 rounded-xl pl-10 pr-4 py-3 outline-none w-full focus:bg-white border border-transparent focus:border-emerald-500/20"
+                                              className="w-full bg-white border border-slate-200/60 rounded-xl pl-10 pr-4 py-2.5 text-sm font-bold outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10"
                                               placeholder="500"
                                            />
                                         </div>
                                      </div>
                                      <div className="space-y-1.5">
-                                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Area (SQ FT/Size)</label>
+                                        <label className="text-xs font-bold text-slate-700">Area (Size)</label>
                                         <input 
                                            value={hall.area}
                                            onChange={(e) => {
                                               const updated = halls.map((h: any) => h.id === hall.id ? { ...h, area: e.target.value } : h);
                                               handleProfileUpdate('halls', updated);
                                            }}
-                                           className="text-sm font-black text-slate-900 bg-slate-50 rounded-xl px-4 py-3 outline-none w-full focus:bg-white border border-transparent focus:border-emerald-500/20"
+                                           className="w-full bg-white border border-slate-200/60 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10"
                                            placeholder="12,000 SQ FT"
                                         />
                                      </div>
@@ -728,23 +599,22 @@ const DashboardSettings = ({
                                         const updated = halls.filter((h: any) => h.id !== hall.id);
                                         handleProfileUpdate('halls', updated);
                                      }}
-                                     className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-300 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-all shrink-0"
+                                     className="w-10 h-10 rounded-xl bg-white border border-slate-200/60 text-slate-400 flex items-center justify-center hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all shrink-0"
                                   >
-                                     <Trash2 size={20} />
+                                     <Trash2 size={16} />
                                   </button>
                                </div>
                             ));
                          })()}
                       </div>
  
-                      <div className="pt-10 border-t border-slate-100 flex items-center justify-between">
-                         <p className="text-[10px] font-medium text-slate-400 italic">Define each space so clients can estimate fit for their guest list.</p>
+                      <div className="pt-6 border-t border-slate-100 flex items-center justify-end">
                          <button 
                            onClick={saveProfileSettings}
                            disabled={isUpdatingProfile}
-                           className="px-12 py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-900/10 disabled:opacity-50"
+                           className="px-8 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-md hover:bg-slate-800 transition-all disabled:opacity-50"
                          >
-                            {isUpdatingProfile ? 'SYNCHRONIZING...' : 'SAVE ALL SPACES'}
+                            {isUpdatingProfile ? 'Saving...' : 'Save Spaces'}
                          </button>
                       </div>
                    </motion.div>
@@ -753,111 +623,97 @@ const DashboardSettings = ({
                 {settingsSection === 'photos' && (
                    <motion.div 
                      key="photos"
-                     layout
-                     initial={{ opacity: 0, scale: 0.98 }}
-                     animate={{ opacity: 1, scale: 1 }}
-                     exit={{ opacity: 0, scale: 0.98 }}
-                     transition={{ duration: 0.2 }}
-                     className="space-y-10"
+                     initial={{ opacity: 0, x: 20 }}
+                     animate={{ opacity: 1, x: 0 }}
+                     exit={{ opacity: 0, x: -20 }}
+                     transition={{ duration: 0.3 }}
+                     className="space-y-8"
                    >
-                      <header className="flex items-center justify-between">
+                      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                          <div>
-                            <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter leading-none mb-2">Venue <span className="text-pd-pink">Gallery</span></h3>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Upload high-definition photos to showcase your venue.</p>
+                            <h3 className="text-xl font-extrabold text-slate-900">Venue Media Gallery</h3>
+                            <p className="text-sm font-medium text-slate-500">Upload and manage high-quality photos to attract customers.</p>
                          </div>
                          <div className="flex items-center gap-3">
                            <button 
                              onClick={() => fileInputRef.current?.click()}
                              disabled={isUploadingPhoto}
-                             className="bg-slate-900 text-white px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-pd-pink transition-all flex items-center gap-2 disabled:opacity-60"
+                             className="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all flex items-center gap-2 disabled:opacity-60 shadow-sm"
                            >
                              {isUploadingPhoto ? (
                                <>
-                                 <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                 {uploadProgress.total > 0 ? `Uploading ${uploadProgress.current}/${uploadProgress.total}...` : 'Uploading...'}
+                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                 {uploadProgress.total > 0 ? `Uploading ${uploadProgress.current}/${uploadProgress.total}` : 'Uploading...'}
                                </>
                              ) : (
-                               <>Upload Photos <Plus className="text-white" size={14} /></>
+                               <><Plus size={16} /> Upload Photos</>
                              )}
                            </button>
-                           {!isUploadingPhoto && (
-                             <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Select multiple</span>
-                           )}
                          </div>
                          <input type="file" hidden ref={fileInputRef} accept="image/*" multiple onChange={handlePhotoUpload} />
                       </header>
 
-                      {/* Gallery Category Filter Bar */}
-                      <div className="flex bg-slate-100/50 p-1 rounded-2xl w-fit overflow-x-auto no-scrollbar max-w-full">
+                      {/* Gallery Category Filter */}
+                      <div className="flex bg-slate-50 p-1.5 rounded-xl w-fit overflow-x-auto border border-slate-200/60 max-w-full no-scrollbar">
                          {galleryCategories.map((cat: string) => (
                             <button
                                key={cat}
                                onClick={() => setActiveGalleryCategory(cat)}
-                               className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeGalleryCategory === cat ? 'bg-white text-pd-pink shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeGalleryCategory === cat ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
                             >
                                {cat}
                             </button>
                          ))}
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                          {photoIds
                            .filter((p: any) => p.category !== 'Profile')
                            .filter((p: any) => activeGalleryCategory === "All Photos" || p.category === activeGalleryCategory)
                            .map((p: any) => (
-                            <div key={p.id} className="aspect-video relative rounded-3xl overflow-hidden border border-slate-100 group shadow-lg">
+                            <div key={p.id} className="aspect-square relative rounded-2xl overflow-hidden border border-slate-200/60 group shadow-sm">
                                <Image 
                                   src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${p.id}/view?project=69ae84bc001ca4edf8c2`} 
                                   alt="Gallery" 
                                   fill 
-                                  className="object-cover group-hover:scale-110 transition-transform duration-700" 
+                                  className="object-cover group-hover:scale-110 transition-transform duration-500" 
                                />
                                <div className="absolute top-2 left-2">
-                                  <span className="px-2 py-0.5 bg-white/90 backdrop-blur-md rounded-lg text-[7px] font-black uppercase tracking-widest text-slate-900 border border-slate-100">{p.category}</span>
+                                  <span className="px-2 py-1 bg-white/90 backdrop-blur-sm rounded-md text-[10px] font-bold text-slate-700 border border-slate-200/60 shadow-sm">
+                                    {p.category}
+                                  </span>
                                </div>
-                               <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                               <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                   <button 
                                     onClick={() => removePhoto(p.id)}
-                                    className="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center hover:bg-white hover:text-red-500 transition-all shadow-xl"
+                                    className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-all shadow-md transform scale-90 group-hover:scale-100"
                                   >
-                                     <Minus size={20} />
+                                     <Trash2 size={18} />
                                   </button>
                                </div>
                             </div>
                          ))}
                          
                          {(photoIds.filter((p: any) => activeGalleryCategory === "All Photos" || p.category === activeGalleryCategory).length === 0) && !isUploadingPhoto && (
-                            <div className="col-span-full py-20 text-center bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
-                               <ImageIcon className="mx-auto text-slate-300 mb-4" size={48} />
-                               <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">No photos in {activeGalleryCategory}</h4>
-                               <p className="text-[10px] font-medium text-slate-400 mt-2 mb-6">Upload photos to this category to showcase your venue.</p>
+                            <div className="col-span-full py-20 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                               <ImageIcon className="mx-auto text-slate-300 mb-3" size={40} />
+                               <h4 className="text-base font-extrabold text-slate-900">No photos in {activeGalleryCategory}</h4>
+                               <p className="text-sm font-medium text-slate-500 mt-1 mb-5">Upload photos here to showcase your venue's aesthetic.</p>
                                <button 
                                  onClick={() => fileInputRef.current?.click()}
-                                 className="px-10 py-4 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-pd-pink transition-all"
+                                 className="px-6 py-2.5 bg-white border border-slate-200/60 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm"
                                >
-                                  Upload to {activeGalleryCategory === "All Photos" ? "Gallery" : activeGalleryCategory}
+                                  Select Photos
                                </button>
                             </div>
                          )}
 
                          {isUploadingPhoto && (
-                            <div className="aspect-video relative rounded-3xl overflow-hidden border border-slate-100 bg-slate-50 flex items-center justify-center animate-pulse">
-                               <div className="w-8 h-8 border-4 border-pd-pink border-t-transparent rounded-full animate-spin" />
+                            <div className="aspect-square relative rounded-2xl border border-slate-200/60 bg-slate-50 flex flex-col items-center justify-center animate-pulse gap-2">
+                               <div className="w-6 h-6 border-2 border-slate-300 border-t-slate-500 rounded-full animate-spin" />
+                               <span className="text-xs font-bold text-slate-500">Uploading...</span>
                             </div>
                          )}
-                      </div>
-                      
-                      <div className="p-8 bg-slate-900 rounded-[35px] text-white flex items-center justify-between">
-                         <div className="flex items-center gap-6">
-                            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-pd-pink">
-                               <Sparkles size={24} />
-                            </div>
-                            <div>
-                               <h4 className="text-sm font-black italic uppercase leading-none mb-1">HD Gallery optimization</h4>
-                               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Our AI processes your photos for maximum brilliance.</p>
-                            </div>
-                         </div>
-                         <button onClick={() => setSettingsSection('profile')} className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Back to Profile</button>
                       </div>
                    </motion.div>
                 )}
@@ -865,87 +721,84 @@ const DashboardSettings = ({
                  {settingsSection === 'pricing_section' && (
                     <motion.div 
                       key="pricing"
-                      layout
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.98 }}
-                      transition={{ duration: 0.2 }}
-                      className="space-y-12"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-10"
                     >
-                       <section className="max-w-2xl">
-                          <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tight mb-2">Standard Plate Rates</h3>
-                          <p className="text-xs text-slate-400 font-medium uppercase tracking-widest mb-10">Define your base pricing for vegetarian and non-vegetarian offerings.</p>
+                       <section className="max-w-3xl">
+                          <h3 className="text-xl font-extrabold text-slate-900 mb-1">Standard Plate Rates</h3>
+                          <p className="text-sm font-medium text-slate-500 mb-8">Define your baseline pricing to help clients estimate their budget.</p>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                             <div className="space-y-4">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block ml-1">Pure Veg Rate</label>
-                                <div className="relative group">
-                                   <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                                      <div className="w-4 h-4 rounded-sm border-2 border-emerald-500 flex items-center justify-center">
-                                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                      </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                             <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                                   <div className="w-4 h-4 rounded-sm border border-emerald-500 flex items-center justify-center">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                    </div>
+                                   Vegetarian Rate
+                                </label>
+                                <div className="relative">
+                                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
                                    <input 
                                      type="number" 
                                      value={venueProfile?.perPlateVeg || ""} 
                                      onChange={(e) => handleProfileUpdate('perPlateVeg', e.target.value)}
-                                     placeholder="000"
-                                     className="w-full bg-slate-50 border border-slate-100 rounded-[24px] py-6 pl-16 pr-8 text-lg font-black italic outline-none focus:border-emerald-500 focus:bg-white transition-all shadow-inner" 
+                                     placeholder="0"
+                                     className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-10 pr-16 text-lg font-bold outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all" 
                                    />
-                                   <span className="absolute right-8 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">/ PLATE</span>
+                                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">/ Plate</span>
                                 </div>
                              </div>
 
-                             <div className="space-y-4">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block ml-1">Non-Veg Rate</label>
-                                <div className="relative group">
-                                   <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                                      <div className="w-4 h-4 rounded-sm border-2 border-red-500 flex items-center justify-center">
-                                         <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                                      </div>
+                             <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                                   <div className="w-4 h-4 rounded-sm border border-red-500 flex items-center justify-center">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
                                    </div>
+                                   Non-Vegetarian Rate
+                                </label>
+                                <div className="relative">
+                                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
                                    <input 
                                      type="number" 
                                      value={venueProfile?.perPlateNonVeg || ""} 
                                      onChange={(e) => handleProfileUpdate('perPlateNonVeg', e.target.value)}
-                                     placeholder="000"
-                                     className="w-full bg-slate-50 border border-slate-100 rounded-[24px] py-6 pl-16 pr-8 text-lg font-black italic outline-none focus:border-red-500 focus:bg-white transition-all shadow-inner" 
+                                     placeholder="0"
+                                     className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-10 pr-16 text-lg font-bold outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all" 
                                    />
-                                   <span className="absolute right-8 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">/ PLATE</span>
+                                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">/ Plate</span>
                                 </div>
                              </div>
                           </div>
 
-                          <div className="p-8 bg-slate-900 rounded-[35px] text-white flex items-center justify-between border border-pd-pink/20 shadow-2xl shadow-pd-pink/10">
-                             <div className="flex items-center gap-6">
-                                <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-pd-pink">
-                                   <Sparkles size={24} />
-                                </div>
-                                <div>
-                                   <h4 className="text-sm font-black italic uppercase leading-none mb-1 text-pd-pink">Smart Pricing Insight</h4>
-                                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">Dynamic rates help you appear in more sorted searches.</p>
-                                </div>
+                          <div className="p-6 bg-slate-50 border border-slate-200/60 rounded-2xl flex items-start gap-4">
+                             <div className="w-10 h-10 bg-white rounded-xl border border-slate-200/60 flex items-center justify-center text-amber-500 shrink-0">
+                                <Sparkles size={20} />
+                             </div>
+                             <div>
+                                <h4 className="text-sm font-extrabold text-slate-900 mb-1">Smart Pricing Insight</h4>
+                                <p className="text-sm text-slate-600 font-medium leading-relaxed">Setting accurate rates helps match you with higher-quality leads and improves your visibility in sorted search results.</p>
                              </div>
                           </div>
                        </section>
 
-                       <section className="p-8 bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200 text-center">
-                          <Target className="mx-auto text-slate-300 mb-4" size={48} />
-                          <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">Subscription Managed</h4>
-                          <p className="text-[10px] font-medium text-slate-400 mt-2">
-                             Your pricing is currently managed via your platform subscription. <br/>
-                             Individual package definitions are currently disabled.
+                       <section className="p-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200/80 text-center">
+                          <Target className="mx-auto text-slate-400 mb-3" size={32} />
+                          <h4 className="text-base font-extrabold text-slate-900 mb-1">Advanced Packages</h4>
+                          <p className="text-sm text-slate-500 font-medium">
+                             Custom package definitions and detailed menus are managed via your main subscription.
                           </p>
                        </section>
 
-                       <div className="pt-10 border-t border-slate-100 flex items-center justify-end">
-
+                       <div className="pt-6 border-t border-slate-100 flex items-center justify-end">
                           <button 
                             onClick={saveProfileSettings}
                             disabled={isUpdatingProfile}
-                            className="px-12 py-5 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-pd-pink transition-all shadow-2xl shadow-slate-900/20 disabled:opacity-50"
+                            className="px-8 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-md hover:bg-slate-800 transition-all disabled:opacity-50"
                           >
-                             {isUpdatingProfile ? 'SAVING CHANGES...' : 'UPDATE PRICING'}
+                             {isUpdatingProfile ? 'Saving...' : 'Save Pricing'}
                           </button>
                        </div>
                     </motion.div>

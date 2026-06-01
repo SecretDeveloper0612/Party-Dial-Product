@@ -1,4 +1,4 @@
-const { sendQuotationEmail } = require('../utils/emailService');
+const { sendQuotationEmail, sendClientQuotationEmail } = require('../utils/emailService');
 
 exports.sendQuotationEmail = async (req, res) => {
   try {
@@ -25,6 +25,36 @@ exports.sendQuotationEmail = async (req, res) => {
     res.json({ status: 'success', message: 'Quotation sent to ' + email });
   } catch (error) {
     console.error('Email send error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+exports.sendClientQuotation = async (req, res) => {
+  try {
+    const { clientEmail, pdfData, ...quotationData } = req.body;
+
+    if (!clientEmail) {
+      return res.status(400).json({ status: 'error', message: 'Client email is required' });
+    }
+
+    let attachments = [];
+    if (pdfData) {
+       const fileName = `Quotation_${(quotationData.clientName || 'Client').replace(/\s+/g, '_')}_${quotationData.venueName || 'Venue'}.pdf`;
+       attachments = [
+          {
+             filename: fileName,
+             content: pdfData,
+             encoding: 'base64',
+             contentType: 'application/pdf'
+          }
+       ];
+    }
+
+    await sendClientQuotationEmail(clientEmail, quotationData, attachments);
+
+    res.json({ status: 'success', message: 'Quotation emailed to ' + clientEmail });
+  } catch (error) {
+    console.error('Client email send error:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
 };

@@ -107,75 +107,77 @@ const PartnerInquiryPopup = ({ isOpen, onClose, venueProfile }: PartnerInquiryPo
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4 sm:p-6">
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            transition={{ duration: 0.15 }}
+            className="absolute inset-0 bg-slate-900/60"
             onClick={onClose}
           />
           
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-[500px] bg-white rounded-[40px] shadow-2xl overflow-hidden z-10"
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-2xl overflow-hidden z-10 border border-slate-100"
           >
             <button 
               onClick={onClose}
-              className="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-all z-20"
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-colors z-20"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
 
-            <div className="p-8 md:p-10">
+            <div className="p-8">
               {isSuccess ? (
                 <div className="py-12 text-center">
-                  <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 mx-auto mb-6">
-                    <CheckCircle2 size={40} />
+                  <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 mx-auto mb-5">
+                    <CheckCircle2 size={32} />
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-2 uppercase italic">Inquiry Sent!</h3>
-                  <p className="text-slate-500 font-bold italic">Our partnership team will contact you shortly.</p>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">Inquiry Sent!</h3>
+                  <p className="text-sm text-slate-500 font-medium">Our partnership team will contact you shortly.</p>
                 </div>
               ) : (
                 <>
-                  <div className="mb-8">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-pd-pink/5 text-pd-pink rounded-full mb-4">
-                      <Sparkles size={14} className="animate-pulse" />
-                      <span className="text-[10px] font-black uppercase tracking-widest">Quick Enquiry</span>
+                  <div className="mb-6">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-pd-blue/5 text-pd-blue rounded-md mb-4 border border-pd-blue/10">
+                      <Sparkles size={12} className="animate-pulse" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Quick Enquiry</span>
                     </div>
-                    <h2 className="text-3xl font-black text-slate-900 mb-1 leading-none italic uppercase">
-                      Partner <span className="text-pd-purple">Enquiry</span>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-1">
+                      Partner Enquiry
                     </h2>
-                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest italic">Complete the form to get started</p>
+                    <p className="text-sm text-slate-500 font-medium">Complete the form below to get started</p>
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2">Full Name</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Full Name</label>
                         <div className="relative group">
-                          <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors" />
+                          <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-blue transition-colors" />
                           <input 
                             type="text" 
                             required
-                            className="w-full h-14 bg-slate-50 border border-transparent rounded-2xl pl-12 pr-4 text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none italic"
-                            placeholder="Full Name"
+                            className="w-full h-11 bg-white border border-slate-200 rounded-lg pl-10 pr-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                            placeholder="John Doe"
                             value={formData.name}
                             onChange={e => setFormData({...formData, name: e.target.value})}
                           />
                         </div>
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2">Phone Number</label>
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Phone Number</label>
                         <div className="relative group">
-                          <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors" />
+                          <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-blue transition-colors" />
                           <input 
                             type="tel" 
                             required
-                            className="w-full h-14 bg-slate-50 border border-transparent rounded-2xl pl-12 pr-4 text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none italic"
-                            placeholder="Phone"
+                            className="w-full h-11 bg-white border border-slate-200 rounded-lg pl-10 pr-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                            placeholder="+91 00000 00000"
                             value={formData.phone}
                             onChange={e => setFormData({...formData, phone: e.target.value})}
                           />
@@ -183,27 +185,27 @@ const PartnerInquiryPopup = ({ isOpen, onClose, venueProfile }: PartnerInquiryPo
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2">Email Address</label>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Email Address</label>
                       <div className="relative group">
-                        <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors" />
+                        <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-blue transition-colors" />
                         <input 
                           type="email" 
                           required
-                          className="w-full h-14 bg-slate-50 border border-transparent rounded-2xl pl-12 pr-4 text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none italic"
-                          placeholder="Email"
+                          className="w-full h-11 bg-white border border-slate-200 rounded-lg pl-10 pr-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                          placeholder="john@example.com"
                           value={formData.email}
                           onChange={e => setFormData({...formData, email: e.target.value})}
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2">Preferred Plan</label>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Preferred Plan</label>
                       <div className="relative group">
-                        <LayoutGrid size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors" />
+                        <LayoutGrid size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-blue transition-colors" />
                         <select 
-                          className="w-full h-14 bg-slate-50 border border-transparent rounded-2xl pl-12 pr-10 text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none appearance-none cursor-pointer italic"
+                          className="w-full h-11 bg-white border border-slate-200 rounded-lg pl-10 pr-10 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none appearance-none cursor-pointer"
                           value={formData.plan}
                           onChange={e => setFormData({...formData, plan: e.target.value})}
                         >
@@ -211,32 +213,32 @@ const PartnerInquiryPopup = ({ isOpen, onClose, venueProfile }: PartnerInquiryPo
                             <option key={p.id} value={p.label}>{p.label}</option>
                           ))}
                         </select>
-                        <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-pd-pink transition-colors" />
+                        <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-pd-blue transition-colors" />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2">Venue Name</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Venue Name</label>
                         <div className="relative group">
-                          <Building2 size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors" />
+                          <Building2 size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-blue transition-colors" />
                           <input 
                             type="text" 
-                            className="w-full h-14 bg-slate-50 border border-transparent rounded-2xl pl-12 pr-4 text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none italic"
-                            placeholder="Venue"
+                            className="w-full h-11 bg-white border border-slate-200 rounded-lg pl-10 pr-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                            placeholder="Grand Hotel"
                             value={formData.venueName}
                             onChange={e => setFormData({...formData, venueName: e.target.value})}
                           />
                         </div>
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2">Pincode</label>
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Pincode</label>
                         <div className="relative group">
-                          <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors" />
+                          <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-blue transition-colors" />
                           <input 
                             type="text" 
-                            className="w-full h-14 bg-slate-50 border border-transparent rounded-2xl pl-12 pr-4 text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none italic"
-                            placeholder="Pincode"
+                            className="w-full h-11 bg-white border border-slate-200 rounded-lg pl-10 pr-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                            placeholder="110001"
                             value={formData.pincode}
                             onChange={e => setFormData({...formData, pincode: e.target.value})}
                           />
@@ -244,14 +246,14 @@ const PartnerInquiryPopup = ({ isOpen, onClose, venueProfile }: PartnerInquiryPo
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2">City / Area</label>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">City / Area</label>
                       <div className="relative group">
-                        <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors" />
+                        <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-blue transition-colors" />
                         <input 
                           type="text" 
-                          className="w-full h-14 bg-slate-50 border border-transparent rounded-2xl pl-12 pr-4 text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none italic"
-                          placeholder="Select Area"
+                          className="w-full h-11 bg-white border border-slate-200 rounded-lg pl-10 pr-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                          placeholder="New Delhi"
                           value={formData.city}
                           onChange={e => setFormData({...formData, city: e.target.value})}
                         />
@@ -261,12 +263,12 @@ const PartnerInquiryPopup = ({ isOpen, onClose, venueProfile }: PartnerInquiryPo
                     <button 
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full h-16 bg-gradient-to-r from-pd-pink to-blue-500 text-white rounded-3xl text-[11px] font-black uppercase tracking-[0.2em] italic shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3 mt-6 hover:shadow-pd-pink/20"
+                      className="w-full h-12 bg-slate-900 hover:bg-pd-blue text-white rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2 mt-6"
                     >
                       {isSubmitting ? (
                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       ) : (
-                        <>Submit Inquiry <Send size={18} /></>
+                        <>Submit Inquiry <Send size={16} /></>
                       )}
                     </button>
                   </form>

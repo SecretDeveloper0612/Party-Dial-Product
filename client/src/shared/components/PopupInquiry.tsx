@@ -8,15 +8,13 @@ import { useSearchParams } from 'next/navigation';
 
 type Step = 'inquiry' | 'signup' | 'otp' | 'login';
 
-// Memoized Backdrop with lighter blur
 const PopupBackdrop = memo(({ onClick }: { onClick: () => void }) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
     onClick={onClick}
-    className="fixed inset-0 bg-slate-950/60 backdrop-blur-[8px] cursor-pointer transition-transform"
-    style={{ willChange: 'opacity, backdrop-filter', transform: 'translateZ(0)' }}
+    className="fixed inset-0 bg-slate-950/70 cursor-pointer"
   />
 ));
 PopupBackdrop.displayName = 'PopupBackdrop';
@@ -70,8 +68,7 @@ StepIndicator.displayName = 'StepIndicator';
 // Memoized Header Decoration
 const PopupHeader = memo(({ onClose, step, onBack }: { onClose: () => void, step: Step, onBack?: () => void }) => (
   <div className="bg-slate-900 h-24 relative flex items-center px-6 lg:px-10 border-b border-white/5 rounded-t-[2.5rem] overflow-hidden shrink-0">
-    <div className="absolute top-0 right-0 w-48 h-48 bg-pd-red/10 rounded-full blur-[80px] -mr-20 -mt-20 pointer-events-none" style={{ willChange: 'transform' }} />
-    <div className="absolute bottom-0 left-0 w-32 h-32 bg-pd-blue/5 rounded-full blur-[60px] -ml-16 -mb-16 pointer-events-none" style={{ willChange: 'transform' }} />
+    {/* Performance: Removed heavy blur filters that caused typing lag */}
 
     <div className="relative z-10 flex items-center gap-5 w-full">
       {step !== 'inquiry' && onBack && (
@@ -975,6 +972,8 @@ export default function PopupInquiry() {
 
   const closePopup = useCallback(() => setIsOpen(false), []);
 
+  const handleBackToSignup = useCallback(() => setStep('signup'), []);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -986,12 +985,11 @@ export default function PopupInquiry() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: "100%", scale: 1 }}
             transition={{ type: "tween", duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-            style={{ willChange: "transform, opacity", transform: 'translateZ(0)' }}
             className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2rem] shadow-2xl border border-slate-100 max-h-[92vh] sm:max-h-[95vh] flex flex-col overflow-hidden"
           >
             <div className="sm:hidden w-12 h-1.5 bg-slate-200 rounded-full mx-auto mt-4 mb-1 shrink-0" />
 
-            <PopupHeader onClose={closePopup} step={step} onBack={step === 'otp' ? () => setStep('signup') : undefined} />
+            <PopupHeader onClose={closePopup} step={step} onBack={step === 'otp' ? handleBackToSignup : undefined} />
             <StepIndicator currentStep={step} />
 
             <div className="p-5 sm:p-10 overflow-y-auto no-scrollbar flex-1 pb-10 sm:pb-10 bg-white relative">

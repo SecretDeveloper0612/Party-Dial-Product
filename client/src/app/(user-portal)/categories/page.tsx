@@ -159,7 +159,6 @@ const FILTERS = [
 
 export default function CategoriesPage() {
   const [activeFilter, setActiveFilter] = useState("All");
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredCategories = useMemo(() => {
@@ -171,140 +170,156 @@ export default function CategoriesPage() {
   }, [searchQuery, activeFilter]);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* HERO */}
-      <section className="py-12 px-6 bg-slate-50">
-        <div className="max-w-5xl mx-auto text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            Explore 70+ Event Categories
-          </h1>
-          <p className="text-slate-500 mb-8 max-w-2xl mx-auto">
-            From intimate family functions to grand corporate summits, find the perfect specialized venue for any occasion.
-          </p>
+    <div className="min-h-screen bg-slate-50">
+      {/* PREMIUM HERO SECTION */}
+      <section className="relative pt-32 pb-24 px-6 overflow-hidden">
+        {/* Dynamic Background */}
+        <div className="absolute inset-0 bg-slate-950">
+          <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-pd-pink/20 rounded-full blur-[120px] mix-blend-screen opacity-50 pointer-events-none" />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-pd-blue/20 rounded-full blur-[120px] mix-blend-screen opacity-50 pointer-events-none" />
+          {/* Subtle Grid overlay */}
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
+        </div>
 
-          <div className="flex flex-col gap-6 items-center justify-center">
-            <div className="relative w-full max-w-xl">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-              <input 
-                type="text" 
-                placeholder="Search specific event type (e.g. Sangeet, Product Launch...)" 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-14 pl-12 pr-4 bg-white border border-slate-200 rounded-xl text-base shadow-sm outline-none focus:border-pd-red transition-all"
-              />
-            </div>
-            
-            {/* Filter Selector (Responsive) */}
-            <div className="w-full">
-              {/* Mobile View: Professional Dropdown */}
-              <div className="md:hidden relative w-full px-4">
-                <button 
-                  onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                  className="w-full flex items-center justify-between px-5 py-4 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800 shadow-sm"
-                >
-                  <span className="flex items-center gap-2">
-                    <Layout size={16} className="text-pd-red" />
-                    {activeFilter === "All" ? "Filter by Category" : activeFilter}
-                  </span>
-                  <ChevronDown size={18} className={`text-slate-400 transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`} />
-                </button>
-                <AnimatePresence>
-                  {isCategoryOpen && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full left-4 right-4 bg-white border border-slate-100 rounded-xl shadow-xl py-2 z-[110] mt-2 max-h-[350px] overflow-y-auto"
-                    >
-                      {FILTERS.map((filter) => (
-                        <button
-                          key={filter}
-                          onClick={() => { setActiveFilter(filter); setIsCategoryOpen(false); }}
-                          className={`w-full text-left px-5 py-4 text-sm font-semibold border-b border-slate-50 last:border-0 transition-colors ${
-                            activeFilter === filter ? 'text-pd-red bg-pd-red/5' : 'text-slate-600'
-                          }`}
-                        >
-                          {filter}
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter leading-none">
+              Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-purple-400 to-pd-blue">Categories</span>
+            </h1>
+            <p className="text-slate-400 font-medium text-lg md:text-xl max-w-2xl mx-auto mb-12">
+              From intimate family functions to grand corporate summits, discover the perfect specialized venue for your next extraordinary event.
+            </p>
 
-              {/* Desktop View: Pill Grid */}
-              <div className="hidden md:flex flex-wrap gap-2 justify-center">
-                {FILTERS.map((filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => setActiveFilter(filter)}
-                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
-                      activeFilter === filter 
-                      ? 'bg-pd-red border-pd-red text-white shadow-md' 
-                      : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400'
-                    }`}
-                  >
-                    {filter}
+            {/* Glowing Search Bar */}
+            <div className="relative max-w-2xl mx-auto group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-pd-pink via-purple-500 to-pd-blue rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500 pointer-events-none"></div>
+              <div className="relative flex items-center bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl">
+                <Search className="text-slate-400 ml-4 mr-2" size={24} />
+                <input 
+                  type="text" 
+                  placeholder="Find your perfect venue type (e.g. Sangeet...)" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-transparent text-white placeholder-slate-500 outline-none text-base md:text-lg py-4 px-2"
+                />
+                <div className="bg-gradient-to-r from-pd-pink to-pd-blue p-[2px] rounded-xl ml-2 shrink-0">
+                  <button className="bg-slate-900 text-white px-6 py-3 rounded-[10px] font-bold tracking-wider uppercase text-xs hover:bg-transparent transition-colors">
+                    Search
                   </button>
-                ))}
+                </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* CARD GRID */}
-      <section className="py-16 px-6">
+      {/* FILTER STICKY BAR */}
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-slate-200 shadow-sm py-4 px-6">
+        <div className="max-w-7xl mx-auto flex items-center gap-3 overflow-x-auto scrollbar-hide snap-x">
+          {FILTERS.map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`snap-center whitespace-nowrap px-6 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${
+                activeFilter === filter 
+                ? 'bg-slate-900 text-white shadow-lg scale-105 border border-slate-800' 
+                : 'bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* PREMIUM CARDS GRID */}
+      <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredCategories.map((cat) => (
-              <Link 
-                href={`/venues?category=${cat.slug}`} 
-                key={cat.id}
-                className="group border border-slate-100 rounded-xl overflow-hidden hover:border-pd-red transition-all hover:shadow-lg bg-white"
-              >
-                <div className="aspect-[16/10] relative bg-slate-100 overflow-hidden">
-                  <img src={cat.img} alt={cat.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                  <div className="absolute top-3 left-3 px-2 py-1 bg-white/95 rounded-md text-[9px] font-black text-slate-800 uppercase tracking-widest backdrop-blur shadow-sm">
-                    {cat.tag}
-                  </div>
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-pd-red bg-pd-red/5 p-1.5 rounded-lg">{cat.icon}</span>
-                    <h3 className="font-bold text-slate-900 group-hover:text-pd-red transition-colors text-sm line-clamp-1">
-                      {cat.title}
-                    </h3>
-                  </div>
-                  <p className="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed h-8">
-                    {cat.description}
-                  </p>
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{cat.count}</span>
-                    <div className="flex items-center gap-1 text-[10px] font-black text-pd-red uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                      Book Now <ArrowRight size={12} />
+          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <AnimatePresence mode="popLayout">
+              {filteredCategories.map((cat, i) => (
+                <motion.div 
+                  key={cat.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.4, delay: i * 0.05 }}
+                >
+                  <Link 
+                    href={`/venues?category=${cat.slug}`} 
+                    className="group block h-full bg-white rounded-[2rem] p-3 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:border-pd-pink/20 transition-all duration-500 hover:-translate-y-2 relative"
+                  >
+                    {/* Glowing gradient hover background */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-pd-pink/5 via-transparent to-pd-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem] pointer-events-none" />
+                    
+                    <div className="aspect-[4/3] relative rounded-[1.5rem] overflow-hidden mb-5">
+                      <img 
+                        src={cat.img} 
+                        alt={cat.title} 
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" 
+                        loading="lazy" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity pointer-events-none" />
+                      
+                      {/* Top floating pill */}
+                      <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm pointer-events-none">
+                        {cat.tag}
+                      </div>
+
+                      {/* Bottom icon & Title */}
+                      <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3 pointer-events-none">
+                        <div className="w-10 h-10 rounded-full bg-pd-pink flex items-center justify-center text-white shadow-lg shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-500">
+                          {cat.icon}
+                        </div>
+                        <h3 className="font-black text-white text-lg leading-tight drop-shadow-md">
+                          {cat.title}
+                        </h3>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                    
+                    <div className="px-3 pb-3 relative z-10 flex flex-col h-[calc(100%-14rem)] min-h-[100px]">
+                      <p className="text-sm text-slate-500 line-clamp-2 mb-4 leading-relaxed flex-1">
+                        {cat.description}
+                      </p>
+                      <div className="flex items-center justify-between pt-4 border-t border-slate-50 mt-auto">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-md">{cat.count}</span>
+                        <div className="flex items-center gap-1.5 text-[11px] font-black text-pd-pink uppercase tracking-widest bg-pd-pink/10 px-3 py-1.5 rounded-full group-hover:bg-pd-pink group-hover:text-white transition-colors duration-300">
+                          Explore <ArrowRight size={14} />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
           
           {filteredCategories.length === 0 && (
-            <div className="text-center py-20 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-              <Search className="mx-auto text-slate-300 mb-4" size={48} />
-              <p className="text-slate-500 font-bold">No categories found matching "{searchQuery}"</p>
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              className="text-center py-32 bg-white rounded-[3rem] border border-slate-100 shadow-sm mt-8"
+            >
+              <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Search className="text-slate-300" size={40} />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 mb-2">No categories found</h3>
+              <p className="text-slate-500 font-medium mb-8">We couldn't find any category matching "{searchQuery}"</p>
               <button 
                 onClick={() => { setSearchQuery(""); setActiveFilter("All"); }}
-                className="mt-4 text-pd-red text-sm font-bold underline"
+                className="bg-slate-900 text-white px-8 py-4 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-pd-pink transition-colors shadow-lg shadow-slate-900/20"
               >
-                Show all categories
+                Clear Search
               </button>
-            </div>
+            </motion.div>
           )}
         </div>
       </section>
-      
     </div>
   );
 }

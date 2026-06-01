@@ -39,18 +39,28 @@ export default function ContactPage() {
                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-pd-pink text-[10px] font-black uppercase tracking-[0.4em] mb-8"
+                  className="inline-flex items-center gap-2 mb-8"
                >
-                  <ShieldCheck size={12} className="fill-pd-pink/10" /> Priority Partner Success
+                  {/* PARTYDIAL LOGO PILL */}
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm shadow-lg">
+                     <div className="w-7 h-7 rounded-[10px] bg-pd-pink flex items-center justify-center">
+                        <span className="text-white font-black italic text-sm leading-none pt-0.5 pr-0.5">P</span>
+                     </div>
+                     <span className="text-white font-black italic tracking-tight text-sm pr-1">PARTYDIAL</span>
+                  </div>
+                  {/* PARTNER PILL */}
+                  <div className="flex items-center h-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm shadow-lg">
+                     <span className="text-white font-black uppercase italic tracking-[0.2em] text-[11px] leading-none">PARTNER</span>
+                  </div>
                </motion.div>
                <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="text-4xl md:text-7xl font-black text-white italic uppercase leading-tight mb-8"
+                  className="text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight uppercase leading-[1.1] mb-8"
                >
                   Let's build your <br />
-                  <span className="pd-gradient-text not-italic">Legacy together.</span>
+                  <span className="pd-gradient-text italic">Legacy together.</span>
                </motion.h1>
                <motion.p
                   initial={{ opacity: 0 }}
@@ -64,14 +74,16 @@ export default function ContactPage() {
             </div>
 
             {/* Abstract background shapes */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-pd-blue/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 opacity-20"></div>
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-pd-pink/20 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 opacity-20"></div>
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-pd-blue/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 opacity-20 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-pd-pink/20 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 opacity-20 pointer-events-none"></div>
          </section>
 
-         {/* 2. CONTACT CHANNELS */}
-         <section className="py-24 px-6 relative">
+         {/* 2. CONTACT CHANNELS & FORM */}
+         <section className="py-24 px-6 relative bg-slate-50">
             <div className="max-w-[1440px] mx-auto lg:px-12">
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
+               
+               {/* Channels Grid */}
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24 lg:mb-32">
                   {[
                      {
                         title: "Direct Support",
@@ -93,65 +105,64 @@ export default function ContactPage() {
                      },
                      {
                         title: "Office HQ",
-                        detail: "Preet Tech OPC Private Limited",
-                        sub: "Preet Tech OPC Private Limited, near Krishna Hospital, Subhash Nagar, Haldwani, Uttarakhand 263139",
+                        detail: "Preet Tech",
+                        sub: "Subhash Nagar, Haldwani, UK 263139",
                         icon: <MapPin className="text-pd-red" />,
                         bg: "bg-pd-red/5",
                         action: "Get Directions",
                         href: "https://www.google.com/maps/search/?api=1&query=Preet+Tech+OPC+Private+Limited+Haldwani+Uttarakhand"
                      }
                   ].map((channel, i) => (
-                     <motion.div
+                     <div
                         key={i}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: i * 0.1 }}
-                        className="p-8 rounded-[40px] border border-slate-100 hover:shadow-perfect-pd transition-all group"
+                        className="p-8 md:p-10 bg-white rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:border-slate-200 transition-all duration-500 ease-out group"
                      >
-                        <div className={`w-14 h-14 rounded-2xl ${channel.bg} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform`}>
+                        <div className={`w-14 h-14 rounded-2xl ${channel.bg} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500 ease-out`}>
                            {channel.icon}
                         </div>
-                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">{channel.title}</h3>
-                        <p className="text-xl font-black text-slate-900 mb-1">{channel.detail}</p>
+                        <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{channel.title}</h3>
+                        <p className="text-xl md:text-2xl font-black text-[#0F172A] tracking-tight uppercase mb-1">{channel.detail}</p>
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-tight mb-8">{channel.sub}</p>
 
                         <a 
                            href={channel.href}
                            target={channel.href.startsWith('http') ? '_blank' : undefined}
                            rel={channel.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                           className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-pd-pink hover:gap-4 transition-all"
+                           className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-pd-pink group-hover:gap-4 transition-all duration-300"
                         >
                            {channel.action} <ChevronRight size={14} />
                         </a>
-                     </motion.div>
+                     </div>
                   ))}
                </div>
 
                {/* 3. CONTACT FORM ENGINE */}
-               <div className="flex flex-col lg:flex-row gap-20 items-center">
+               <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-center">
                   {/* Left Content */}
                   <div className="flex-1 space-y-12">
                      <div>
-                        <h2 className="text-3xl md:text-5xl font-black text-[#0F172A] uppercase italic leading-none mb-8">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-sm text-slate-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6">
+                           <MessageSquare size={12} className="text-pd-pink" /> 24/7 Priority Support
+                        </div>
+                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-6">
                            Send a <br />
-                           <span className="pd-gradient-text not-italic">Priority Message.</span>
+                           <span className="pd-gradient-text italic">Priority Message.</span>
                         </h2>
-                        <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                        <p className="text-lg text-slate-500 font-medium leading-relaxed max-w-xl">
                            Our specialized advisors will analyze your inquiry and reach back with
                            tailored solutions for your venue's growth.
                         </p>
                      </div>
 
-                     <div className="space-y-8">
+                     <div className="space-y-6">
                         {[
                            { icon: <Zap className="text-pd-pink" size={18} />, text: "Instant ticket creation" },
                            { icon: <CheckCircle2 className="text-emerald-500" size={18} />, text: "Direct route to Success Manager" },
                            { icon: <Clock className="text-pd-blue" size={18} />, text: "24-hour SLA guaranteed" }
                         ].map((item, i) => (
-                           <div key={i} className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center">{item.icon}</div>
-                              <span className="text-sm font-black uppercase tracking-widest text-slate-900">{item.text}</span>
+                           <div key={i} className="flex items-center gap-5 p-4 bg-white border border-slate-100 rounded-[20px] shadow-sm">
+                              <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">{item.icon}</div>
+                              <span className="text-sm font-black uppercase tracking-widest text-[#0F172A]">{item.text}</span>
                            </div>
                         ))}
                      </div>
@@ -159,24 +170,24 @@ export default function ContactPage() {
 
                   {/* Right Form */}
                   <div className="flex-1 w-full max-w-xl">
-                     <div className="bg-slate-900 rounded-[48px] p-8 md:p-12 relative overflow-hidden shadow-2xl">
-                        {/* Background Visual */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-pd-pink/10 rounded-full blur-[100px] pointer-events-none"></div>
+                     <div className="bg-white rounded-[40px] p-8 md:p-12 relative overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-slate-200 group">
+                        {/* Subtle Background Glow inside form */}
+                        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-gradient-to-bl from-pd-pink/5 via-pd-blue/5 to-transparent rounded-full blur-[80px] pointer-events-none transition-transform duration-1000 group-hover:scale-110"></div>
 
                         {submitted ? (
                            <motion.div
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
-                              className="text-center py-20"
+                              className="text-center py-20 relative z-10"
                            >
-                              <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl shadow-emerald-500/20">
-                                 <CheckCircle2 size={40} className="text-white" />
+                              <div className="w-20 h-20 bg-emerald-50 rounded-[24px] border border-emerald-100 flex items-center justify-center mx-auto mb-8 shadow-sm">
+                                 <CheckCircle2 size={40} className="text-emerald-500" />
                               </div>
-                              <h3 className="text-2xl font-black text-white uppercase italic mb-4">Message Sent!</h3>
-                              <p className="text-slate-400 font-medium mb-10">Our team has received your priority ticket. Expect a call shortly.</p>
+                              <h3 className="text-2xl font-black text-[#0F172A] tracking-tight uppercase mb-4">Message Sent!</h3>
+                              <p className="text-slate-500 font-medium mb-10 max-w-xs mx-auto">Our team has received your priority ticket. Expect a call shortly.</p>
                               <button
                                  onClick={() => setSubmitted(false)}
-                                 className="text-[10px] font-black uppercase tracking-widest text-pd-pink border-b border-pd-pink/30 pb-1"
+                                 className="text-[10px] font-black uppercase tracking-widest text-pd-pink border-b border-pd-pink/30 pb-1 hover:border-pd-pink transition-colors"
                               >
                                  Send another message
                               </button>
@@ -185,37 +196,35 @@ export default function ContactPage() {
                            <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                  <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">YOUR NAME</label>
-                                    <input required className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-6 text-white text-sm font-bold focus:border-pd-pink outline-none transition-all" placeholder="John Doe" />
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Your Name</label>
+                                    <input required className="w-full h-14 bg-slate-50 border border-slate-200 rounded-[20px] px-6 text-[#0F172A] text-sm font-bold focus:border-pd-pink focus:bg-white focus:shadow-[0_0_0_4px_rgba(236,72,153,0.1)] outline-none transition-all" placeholder="John Doe" />
                                  </div>
                                  <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">VENUE NAME</label>
-                                    <input required className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-6 text-white text-sm font-bold focus:border-pd-pink outline-none transition-all" placeholder="Royal Banquet" />
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Venue Name</label>
+                                    <input required className="w-full h-14 bg-slate-50 border border-slate-200 rounded-[20px] px-6 text-[#0F172A] text-sm font-bold focus:border-pd-pink focus:bg-white focus:shadow-[0_0_0_4px_rgba(236,72,153,0.1)] outline-none transition-all" placeholder="Royal Banquet" />
                                  </div>
                               </div>
                               <div className="space-y-2">
-                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">BUSINESS EMAIL</label>
-                                 <input required type="email" className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-6 text-white text-sm font-bold focus:border-pd-pink outline-none transition-all" placeholder="owner@venue.com" />
+                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Business Email</label>
+                                 <input required type="email" className="w-full h-14 bg-slate-50 border border-slate-200 rounded-[20px] px-6 text-[#0F172A] text-sm font-bold focus:border-pd-pink focus:bg-white focus:shadow-[0_0_0_4px_rgba(236,72,153,0.1)] outline-none transition-all" placeholder="owner@venue.com" />
                               </div>
                               <div className="space-y-2">
-                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">MESSAGE</label>
-                                 <textarea required className="w-full h-32 bg-white/5 border border-white/10 rounded-2xl p-6 text-white text-sm font-bold focus:border-pd-pink outline-none transition-all resize-none" placeholder="I'm interested in the Premium Growth Plan..."></textarea>
+                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Message</label>
+                                 <textarea required className="w-full h-32 bg-slate-50 border border-slate-200 rounded-[20px] p-6 text-[#0F172A] text-sm font-bold focus:border-pd-pink focus:bg-white focus:shadow-[0_0_0_4px_rgba(236,72,153,0.1)] outline-none transition-all resize-none" placeholder="I'm interested in the Premium Growth Plan..."></textarea>
                               </div>
 
-                              <motion.button
-                                 whileHover={{ scale: 1.02 }}
-                                 whileTap={{ scale: 0.98 }}
+                              <button
                                  disabled={isSubmitting}
-                                 className="w-full h-16 bg-pd-red text-white rounded-3xl text-sm font-black uppercase tracking-[0.4em] italic shadow-2xl flex items-center justify-center gap-4 group disabled:opacity-50"
+                                 className="w-full h-16 bg-slate-900 text-white rounded-[24px] text-[10px] font-black uppercase tracking-[0.3em] italic shadow-2xl hover:bg-slate-800 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-all duration-300 flex items-center justify-center gap-4 group/btn disabled:opacity-50 disabled:hover:translate-y-0"
                               >
                                  {isSubmitting ? "Processing..." : (
                                     <>
                                        Submit
-                                       <Send size={18} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                                       <Send size={16} className="transition-transform duration-300 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1" />
                                     </>
                                  )}
-                              </motion.button>
-                              <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest text-center">Identity & Data encrypted via SSL v3.0</p>
+                              </button>
+                              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-center pt-2">Identity & Data encrypted via SSL v3.0</p>
                            </form>
                         )}
                      </div>

@@ -131,12 +131,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       )}>
         {/* Brand */}
         <div className="h-[var(--header-h)] flex items-center justify-between px-6 shrink-0 border-b border-slate-50">
-          <Link href="/" className="flex items-center no-underline" onClick={onClose}>
+          <Link href="/" className="flex items-center gap-3 no-underline" onClick={onClose}>
              <img 
                src="/logo.jpg" 
                alt="PartyDial Logo" 
-               className="h-10 w-auto rounded-lg object-contain shadow-sm hover:scale-105 transition-transform"
+               className="h-9 w-auto rounded-lg object-contain shadow-sm"
              />
+             <span className="font-black text-slate-800 text-lg tracking-tight">Admin</span>
           </Link>
           {/* Close button — mobile only */}
           <button

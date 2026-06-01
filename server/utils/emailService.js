@@ -467,3 +467,97 @@ exports.sendQuotationEmail = (to, venueName, planName, amount, checkoutLink, att
 
     return sendEmail(to, `Exclusive Growth Proposal: ${venueName} x PartyDial 🎊`, html, `Proposal for ${planName} membership.`, attachments);
 };
+
+/**
+ * 12. Client-Facing Event Quotation Email (sent from Vendor to Client)
+ */
+exports.sendClientQuotationEmail = (to, data, attachments = []) => {
+    const { clientName, venueName, venueEmail, eventType, eventDate, guestCount, lineItems = [], subtotal, gstRate, gstAmount, total, specialRequests, signatory } = data;
+
+    const lineItemsHtml = lineItems.filter(i => i.label && i.amount > 0).map(item => `
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 10px 0; font-size: 13px; color: #334155;">${item.label}</td>
+            <td align="right" style="padding: 10px 0; font-size: 13px; font-weight: 700; color: #1e293b;">₹${Number(item.amount).toLocaleString('en-IN')}</td>
+        </tr>
+    `).join('');
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation from ${venueName}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; margin: 0; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #8B5CF6, #EC4899); padding: 40px 30px; text-align: center;">
+            <h1 style="margin: 0; color: white; font-size: 26px; font-weight: 800; letter-spacing: -0.025em;">${venueName}</h1>
+            <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0; font-size: 14px;">Event Quotation & Proposal</p>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 40px 35px;">
+            <h2 style="color: #1e293b; font-size: 20px; margin: 0 0 8px;">Dear ${clientName},</h2>
+            <p style="color: #64748b; font-size: 14px; margin: 0 0 30px; line-height: 1.6;">Thank you for your interest! Please find below your personalized event proposal. The full PDF quotation is also attached to this email for your records.</p>
+
+            <!-- Event Details -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.1em; margin: 0 0 15px;">Event Details</p>
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    ${eventType ? `<tr><td style="font-size: 12px; color: #64748b; padding: 4px 0;">Event Type</td><td align="right" style="font-size: 12px; font-weight: 700; color: #1e293b;">${eventType}</td></tr>` : ''}
+                    ${eventDate ? `<tr><td style="font-size: 12px; color: #64748b; padding: 4px 0;">Event Date</td><td align="right" style="font-size: 12px; font-weight: 700; color: #1e293b;">${eventDate}</td></tr>` : ''}
+                    ${guestCount ? `<tr><td style="font-size: 12px; color: #64748b; padding: 4px 0;">Guest Count</td><td align="right" style="font-size: 12px; font-weight: 700; color: #1e293b;">${guestCount} Pax</td></tr>` : ''}
+                </table>
+            </div>
+
+            <!-- Line Items -->
+            ${lineItemsHtml ? `
+            <div style="margin-bottom: 25px;">
+                <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.1em; margin: 0 0 12px;">Services Included</p>
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    ${lineItemsHtml}
+                </table>
+            </div>` : ''}
+
+            <!-- Financial Summary -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.1em; margin: 0 0 15px;">Financial Summary</p>
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr><td style="font-size: 13px; color: #64748b; padding: 4px 0;">Subtotal</td><td align="right" style="font-size: 13px; color: #1e293b;">₹${Number(subtotal).toLocaleString('en-IN')}</td></tr>
+                    ${gstRate > 0 ? `<tr><td style="font-size: 13px; color: #64748b; padding: 4px 0;">GST (${gstRate}%)</td><td align="right" style="font-size: 13px; color: #1e293b;">₹${Number(gstAmount).toLocaleString('en-IN')}</td></tr>` : ''}
+                    <tr><td colspan="2"><div style="border-top: 1px solid #e2e8f0; margin: 10px 0;"></div></td></tr>
+                    <tr><td style="font-size: 15px; font-weight: 800; color: #1e293b; padding: 4px 0;">Grand Total</td><td align="right" style="font-size: 18px; font-weight: 800; color: #8B5CF6;">₹${Number(total).toLocaleString('en-IN')}</td></tr>
+                </table>
+            </div>
+
+            ${specialRequests ? `
+            <div style="background: #fffbeb; border: 1px solid #fef08a; border-radius: 12px; padding: 15px; margin-bottom: 25px;">
+                <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #a16207; letter-spacing: 0.1em; margin: 0 0 8px;">Special Notes</p>
+                <p style="font-size: 13px; color: #713f12; margin: 0; line-height: 1.5;">${specialRequests}</p>
+            </div>` : ''}
+
+            <p style="color: #64748b; font-size: 13px; line-height: 1.6;">To confirm your booking or for any questions, simply reply to this email or contact us directly. We look forward to making your event truly special!</p>
+
+            <!-- Signatory -->
+            <div style="margin-top: 35px; padding-top: 25px; border-top: 1px solid #e2e8f0;">
+                <div style="width: 140px; border-top: 2px solid #94a3b8; padding-top: 10px;">
+                    <p style="font-size: 13px; font-weight: 700; color: #1e293b; margin: 0;">${signatory || venueName}</p>
+                    <p style="font-size: 11px; color: #64748b; margin: 3px 0 0;">Authorized Signatory</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="padding: 25px 30px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
+            <p style="color: #64748b; font-size: 12px; margin: 0;">This quotation was sent via <strong>Party Dial</strong> on behalf of ${venueName}</p>
+            ${venueEmail ? `<p style="color: #94a3b8; font-size: 11px; margin: 5px 0 0;">Sent from: ${venueEmail}</p>` : ''}
+        </div>
+    </div>
+</body>
+</html>`;
+
+    return sendEmail(to, `Event Proposal from ${venueName} 🎊`, html, `Dear ${clientName}, please find your event quotation from ${venueName} attached.`, attachments);
+};

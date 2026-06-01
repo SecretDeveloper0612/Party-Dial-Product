@@ -7,6 +7,8 @@ if (dns.setDefaultResultOrder) {
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const helmet = require('helmet');
+const { apiLimiter, authLimiter } = require('./middleware/rateLimiter');
 
 // Import essential routes
 const authRoutes = require('./routes/authRoutes');
@@ -35,6 +37,28 @@ automateGSheetSync();
 
 const app = express();
 const PORT = process.env.PORT || 5005;
+
+// Trust proxy for Cloudflare
+app.set('trust proxy', 1);
+
+// Security Headers (CSP is relaxed to avoid breaking Appwrite/Razorpay)
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: false, // Disable for now to ensure Razorpay/Appwrite isn't broken
+}));
+
+// Prevent Cloudflare from caching API routes
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
+// Apply rate limiters
+app.use('/api', apiLimiter);
+app.use('/api/auth', authLimiter);
+app.use('/api/users/login', authLimiter); // if there is a specific login route
 
 // Routes
 const allowedOrigins = [

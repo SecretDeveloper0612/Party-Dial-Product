@@ -442,16 +442,34 @@ function VenuesContent() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-10 pb-20">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col lg:flex-row gap-10">
+    <div className="min-h-screen bg-slate-50">
+      {/* PREMIUM HERO BANNER */}
+      <div className="bg-slate-950 pt-32 pb-20 px-6 relative overflow-hidden mb-12">
+        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-pd-pink/20 rounded-full blur-[120px] mix-blend-screen opacity-50 pointer-events-none" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-pd-blue/20 rounded-full blur-[120px] mix-blend-screen opacity-50 pointer-events-none" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto relative z-10 text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }}>
+             <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter leading-none">
+               Find Your Perfect <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-purple-400 to-pd-blue">Venue</span>
+             </h1>
+             <p className="text-slate-400 font-medium text-lg max-w-2xl mx-auto">
+               Browse through our curated list of premium spaces. Use the filters to find exactly what you need for your next unforgettable event.
+             </p>
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 pb-20">
+        <div className="flex flex-col lg:flex-row gap-8">
           
           {/* DESKTOP SIDEBAR */}
           <aside className="hidden lg:block w-[320px] shrink-0">
-             <div className="sticky top-6 space-y-8 bg-white p-8 rounded-[40px] border border-slate-100 shadow-pd-soft overflow-y-auto max-h-[calc(100vh-100px)] no-scrollbar">
-                <div className="flex items-center justify-between mb-2">
-                   <h3 className="text-xl font-black text-slate-900 italic">Filters</h3>
-                   <button onClick={clearFilters} className="text-[10px] font-black text-pd-red uppercase tracking-widest hover:underline">Clear All</button>
+             <div className="sticky top-6 space-y-8 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-y-auto max-h-[calc(100vh-40px)] no-scrollbar">
+                <div className="flex items-center justify-between mb-4 pb-6 border-b border-slate-50">
+                   <h3 className="text-2xl font-black text-slate-900 tracking-tight">Filters</h3>
+                   <button onClick={clearFilters} className="text-[10px] font-black text-pd-pink uppercase tracking-widest hover:text-white transition-colors bg-pd-pink/10 hover:bg-pd-pink px-4 py-2 rounded-full">Clear All</button>
                 </div>
 
                 <div className="space-y-4">
@@ -724,12 +742,12 @@ function VenuesContent() {
 
           {/* MAIN LISTINGS */}
           <main className="flex-1 min-w-0">
-             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
+             <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-10 gap-6 bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-black text-slate-900 italic mb-2 tracking-tight">Discover Venues</h1>
-                  <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mb-2">Discover Venues</h2>
+                  <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest bg-slate-50 inline-block px-3 py-1.5 rounded-lg border border-slate-100">
                     {resultsByLocation.premium.length + resultsByLocation.others.length} Results
-                    {resultsByLocation.premium.length > 0 && ` · ${resultsByLocation.premium.length} Premium`}
+                    {resultsByLocation.premium.length > 0 && <span className="text-amber-500 ml-1">· {resultsByLocation.premium.length} Premium</span>}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-nowrap pb-2 md:pb-0">
@@ -797,14 +815,16 @@ function VenuesContent() {
 
                {/* ── PREMIUM VENUES ── */}
                {resultsByLocation.premium.length > 0 && (
-                 <div>
-                   <div className="flex items-center gap-4 mb-6">
-                     <div className="flex items-center gap-2">
-                       <span className="text-lg">⭐</span>
-                       <h2 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Premium Venues</h2>
-                       <span className="px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-full text-[9px] font-black text-amber-600 uppercase tracking-widest">
-                         {resultsByLocation.premium.length} Featured
-                       </span>
+                 <div className="mb-16">
+                   <div className="flex items-center gap-4 mb-8">
+                     <div className="flex items-center gap-3 bg-gradient-to-r from-amber-500/10 to-transparent p-2 pr-6 rounded-2xl border border-amber-500/20">
+                       <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20">
+                         <Star size={20} className="fill-white" />
+                       </div>
+                       <div>
+                         <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Premium Venues</h2>
+                         <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Handpicked & Verified</p>
+                       </div>
                      </div>
                      <div className="h-px bg-gradient-to-r from-amber-200 to-transparent flex-1" />
                    </div>
@@ -818,9 +838,9 @@ function VenuesContent() {
 
                {/* ── DIVIDER ── */}
                {resultsByLocation.premium.length > 0 && resultsByLocation.others.length > 0 && (
-                 <div className="flex items-center gap-4">
+                 <div className="flex items-center gap-4 py-8">
                    <div className="h-px bg-slate-200 flex-1" />
-                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-3 py-1.5 bg-white border border-slate-100 rounded-full">Other Venues</span>
+                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 py-2 bg-slate-50 rounded-full border border-slate-200">Other Available Venues</span>
                    <div className="h-px bg-slate-200 flex-1" />
                  </div>
                )}
@@ -829,13 +849,15 @@ function VenuesContent() {
                {resultsByLocation.others.length > 0 && (
                  <div>
                    {resultsByLocation.premium.length === 0 && (
-                     <div className="flex items-center gap-4 mb-6">
-                       <div className="flex items-center gap-2">
-                         <span className="text-lg">📍</span>
-                         <h2 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Available Venues</h2>
-                         <span className="px-2.5 py-1 bg-slate-100 rounded-full text-[9px] font-black text-slate-500 uppercase tracking-widest">
-                           {resultsByLocation.others.length} Venues
-                         </span>
+                     <div className="flex items-center gap-4 mb-8">
+                       <div className="flex items-center gap-3 bg-slate-100/80 p-2 pr-6 rounded-2xl border border-slate-200">
+                         <div className="w-10 h-10 rounded-xl bg-slate-800 text-white flex items-center justify-center shadow-lg shadow-slate-900/10">
+                           <MapPin size={20} />
+                         </div>
+                         <div>
+                           <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Available Venues</h2>
+                           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{resultsByLocation.others.length} Matches Found</p>
+                         </div>
                        </div>
                        <div className="h-px bg-slate-200 flex-1" />
                      </div>
@@ -911,13 +933,15 @@ function VenuesContent() {
 
                {/* ── EMPTY STATE ── */}
                {resultsByLocation.premium.length === 0 && resultsByLocation.others.length === 0 && (
-                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-24 text-center">
-                    <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
+                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-24 text-center bg-white rounded-[3rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] mt-8">
+                    <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
                        <Filter size={40} />
                     </div>
-                    <h3 className="text-2xl font-black text-slate-900 mb-2">No venues match those requirements</h3>
-                    <p className="text-slate-500 font-medium mb-8">Try adjusting your filters or search criteria.</p>
-                    <button onClick={clearFilters} className="pd-btn-primary !px-10 !py-4 text-[10px] font-black tracking-widest uppercase italic">Reset All Filters</button>
+                    <h3 className="text-2xl font-black text-slate-900 mb-2">No venues found</h3>
+                    <p className="text-slate-500 font-medium mb-8">We couldn't find any venues matching those filters.</p>
+                    <button onClick={clearFilters} className="bg-slate-900 text-white px-8 py-4 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-pd-pink transition-colors shadow-lg shadow-slate-900/20">
+                      Reset Filters
+                    </button>
                  </motion.div>
                )}
 

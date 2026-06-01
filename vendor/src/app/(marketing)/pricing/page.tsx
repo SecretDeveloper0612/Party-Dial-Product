@@ -341,191 +341,193 @@ const InquiryPopup = React.memo(({ plan, billingDuration, isOpen, onClose }: { p
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
         onClick={onClose}
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/60"
       />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        transition={{ type: "spring", duration: 0.4, bounce: 0 }}
-        className="relative w-full max-w-lg bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl will-change-transform"
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-2xl z-10 border border-slate-100 flex flex-col max-h-[90vh]"
       >
-        <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
-        
         <button 
            onClick={onClose} 
-           className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all z-20"
+           className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-colors z-20"
         >
-          <Plus className="rotate-45" size={20} />
+          <Plus className="rotate-45" size={18} />
         </button>
 
-        {!isSubmitted ? (
-          <div className="relative z-10 text-left">
-            <div className="mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-pink-50 rounded-full text-pink-500 text-[10px] font-black uppercase tracking-widest mb-3 border border-pink-100">
-                <Sparkle size={10} fill="currentColor" /> Quick Enquiry
-              </div>
-              <h2 className="text-2xl font-[900] text-slate-900 tracking-tight leading-none uppercase italic">Partner <span className="text-pd-purple">Enquiry</span></h2>
-              <p className="mt-2 text-slate-500 font-bold text-[10px] uppercase tracking-widest leading-none">Complete the form to get started</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
-                  <input 
-                    required 
-                    type="text" 
-                    placeholder="Rahul Sharma"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
-                  />
+        <div className="p-8 overflow-y-auto custom-scrollbar">
+          {!isSubmitted ? (
+            <div className="relative z-10 text-left">
+              <div className="mb-6">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-pd-blue/5 text-pd-blue rounded-md mb-4 border border-pd-blue/10">
+                  <Sparkle size={12} fill="currentColor" className="animate-pulse" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Quick Enquiry</span>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number</label>
-                  <input 
-                    required 
-                    type="tel" 
-                    placeholder="9876543210"
-                    value={formData.phone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
-                  />
-                </div>
+                <h2 className="text-2xl font-bold text-slate-900 mb-1">
+                  Partner Enquiry
+                </h2>
+                <p className="text-sm text-slate-500 font-medium">Complete the form below to get started</p>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
-                <input 
-                  required 
-                  type="email" 
-                  placeholder="rahul@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
-                />
-              </div>
-              
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Preferred Plan</label>
-                <div className="relative">
-                  <select 
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none appearance-none cursor-pointer pr-10"
-                    value={formData.selectedPlanId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, selectedPlanId: parseInt(e.target.value) }))}
-                  >
-                    {pricingPlans.map(p => (
-                      <option key={p.id} value={p.id}>{p.name} ({p.packName})</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Venue Name</label>
-                  <input 
-                    required 
-                    type="text" 
-                    placeholder="Orchid Grand"
-                    value={formData.venueName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, venueName: e.target.value }))}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
-                  />
-                </div>
-
-                <div className="group space-y-1 relative">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Pincode</label>
-                  <div className="relative">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Full Name</label>
                     <input 
                       required 
                       type="text" 
-                      placeholder="Pincode"
-                      value={formData.pincode}
-                      onChange={(e) => {
-                        setFormData(prev => ({ ...prev, pincode: e.target.value }));
-                        setShowSuggestions(true);
-                      }}
-                      onFocus={() => setShowSuggestions(true)}
-                      autoComplete="off"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
+                      placeholder="John Doe"
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
                     />
-                    {isLoadingPincode && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-pd-pink" size={14} />}
-                    
-                    <AnimatePresence>
-                      {showSuggestions && suggestions.length > 0 && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          className="absolute left-0 right-0 top-[110%] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[120] max-h-60 overflow-y-auto p-1 custom-scrollbar"
-                        >
-                          {suggestions.map((s, idx) => (
-                            <button 
-                              key={idx}
-                              type="button"
-                              onClick={() => selectPincode(s)}
-                              className="w-full text-left px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-pd-pink transition-all rounded-xl flex items-center gap-2"
-                            >
-                              <MapPin size={10} /> {s.display} ({s.pincode})
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Phone Number</label>
+                    <input 
+                      required 
+                      type="tel" 
+                      placeholder="+91 00000 00000"
+                      value={formData.phone}
+                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                      className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                    />
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">City / Area</label>
-                <input 
-                  required 
-                  type="text" 
-                  placeholder="Select area from pincode"
-                  value={formData.city}
-                  onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
-                />
-              </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Email Address</label>
+                  <input 
+                    required 
+                    type="email" 
+                    placeholder="john@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                  />
+                </div>
+                
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Preferred Plan</label>
+                  <div className="relative">
+                    <select 
+                      className="w-full h-11 bg-white border border-slate-200 rounded-lg pl-4 pr-10 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none appearance-none cursor-pointer"
+                      value={formData.selectedPlanId}
+                      onChange={(e) => setFormData(prev => ({ ...prev, selectedPlanId: parseInt(e.target.value) }))}
+                    >
+                      {pricingPlans.map(p => (
+                        <option key={p.id} value={p.id}>{p.name} ({p.packName})</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                  </div>
+                </div>
 
-              <button 
-                disabled={isSubmitting}
-                className={`w-full mt-4 py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg text-white ${gradientStyle} hover:translate-y-[-2px] active:translate-y-[0] disabled:opacity-70 disabled:grayscale`}
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Inquiry'}
-              </button>
-            </form>
-          </div>
-        ) : (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-8"
-          >
-            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 size={32} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Venue Name</label>
+                    <input 
+                      required 
+                      type="text" 
+                      placeholder="Grand Hotel"
+                      value={formData.venueName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, venueName: e.target.value }))}
+                      className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                    />
+                  </div>
+
+                  <div className="group space-y-1 relative">
+                    <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Pincode</label>
+                    <div className="relative">
+                      <input 
+                        required 
+                        type="text" 
+                        placeholder="110001"
+                        value={formData.pincode}
+                        onChange={(e) => {
+                          setFormData(prev => ({ ...prev, pincode: e.target.value }));
+                          setShowSuggestions(true);
+                        }}
+                        onFocus={() => setShowSuggestions(true)}
+                        autoComplete="off"
+                        className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                      />
+                      {isLoadingPincode && <Loader2 className="absolute right-3.5 top-1/2 -translate-y-1/2 animate-spin text-pd-blue" size={14} />}
+                      
+                      <AnimatePresence>
+                        {showSuggestions && suggestions.length > 0 && (
+                          <motion.div 
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            className="absolute left-0 right-0 top-[110%] bg-white border border-slate-100 rounded-lg shadow-xl z-50 max-h-48 overflow-y-auto p-1 custom-scrollbar"
+                          >
+                            {suggestions.map((s, idx) => (
+                              <button 
+                                key={idx}
+                                type="button"
+                                onClick={() => selectPincode(s)}
+                                className="w-full text-left px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-pd-blue transition-colors rounded-md flex items-center gap-2"
+                              >
+                                <MapPin size={12} /> {s.display} ({s.pincode})
+                              </button>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">City / Area</label>
+                  <input 
+                    required 
+                    type="text" 
+                    placeholder="New Delhi"
+                    value={formData.city}
+                    onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                  />
+                </div>
+
+                <button 
+                  disabled={isSubmitting}
+                  className="w-full h-12 bg-slate-900 hover:bg-pd-blue text-white rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2 mt-6"
+                >
+                  {isSubmitting ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <>Submit Inquiry <ChevronRight size={16} /></>
+                  )}
+                </button>
+              </form>
             </div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic mb-2">Success!</h2>
-            <p className="text-slate-500 text-xs font-bold leading-relaxed px-4">
-              Our team will reach out to you within <span className="text-pink-600">4 working hours</span>.
-            </p>
-            <button 
-              onClick={onClose}
-              className="mt-8 px-8 py-3 bg-slate-900 text-white rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-slate-800 transition-colors"
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-12"
             >
-              Close
-            </button>
-          </motion.div>
-        )}
+              <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto mb-5">
+                <CheckCircle2 size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Inquiry Sent!</h3>
+              <p className="text-sm text-slate-500 font-medium">
+                Our team will reach out to you within <span className="text-pd-blue font-bold">4 working hours</span>.
+              </p>
+            </motion.div>
+          )}
+        </div>
       </motion.div>
     </div>
   );
@@ -683,7 +685,7 @@ export default function PricingPage() {
       </AnimatePresence>
 
       {/* 1. BRAND-ALIGNED COMPARE HERO */}
-      <section className="relative py-8 bg-white overflow-hidden border-b border-slate-50">
+      <section className="relative pt-32 pb-16 bg-white overflow-hidden border-b border-slate-50">
         <GridBackground />
         <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
           <motion.div

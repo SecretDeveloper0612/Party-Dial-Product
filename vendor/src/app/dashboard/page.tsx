@@ -64,13 +64,16 @@ import {
   Music,
   Wind,
   Wifi,
-  Car
+  Car,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import OnboardingPopup from '@/vendor/components/OnboardingPopup';
+import QuotationManager from '@/vendor/components/dashboard/QuotationManager';
 import DashboardOverview from '@/vendor/components/dashboard/DashboardOverview';
 import LeadInbox from '@/vendor/components/dashboard/LeadInbox';
 import LeadPipeline from '@/vendor/components/dashboard/LeadPipeline';
@@ -85,6 +88,7 @@ import LeadExplorer from '@/vendor/components/dashboard/LeadExplorer';
 import NotificationDropdown from '@/vendor/components/dashboard/NotificationDropdown';
 import PaymentReminderPopup from '@/vendor/components/PaymentReminderPopup';
 import PartnerInquiryPopup from '@/vendor/components/PartnerInquiryPopup';
+import VerificationModal from '@/vendor/components/dashboard/VerificationModal';
 
 import logo from '../logo.jpg';
 
@@ -92,6 +96,7 @@ const tabs = [
   { id: 'overview', label: 'Overview', icon: <BarChart3 size={18} /> },
   { id: 'leads', label: 'Leads', icon: <Zap size={18} /> },
   { id: 'pipeline', label: 'Pipeline', icon: <Target size={18} /> },
+  { id: 'quotations', label: 'Quotations', icon: <FileText size={18} /> },
   { id: 'reviews', label: 'Reviews', icon: <MessageSquareQuote size={18} /> },
 ];
 
@@ -125,6 +130,7 @@ export default function VendorDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
   const [showInquiryPopup, setShowInquiryPopup] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [settingsSection, setSettingsSection] = useState('profile');
   const [leadFilter, setLeadFilter] = useState('All');
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -136,6 +142,32 @@ export default function VendorDashboard() {
   const [recentLeads, setRecentLeads] = useState<any[]>([]);
   const [isLoadingLeads, setIsLoadingLeads] = useState(true);
   const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+  
+  // Fetch reviews to compute Average Rating in Overview
+  const [reviewsData, setReviewsData] = useState<any[]>([]);
+  React.useEffect(() => {
+    if (!venueProfile?.$id) return;
+    const fetchReviews = async () => {
+      try {
+        const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+        const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
+        const res = await fetch(`${baseUrl}/venues/${venueProfile.$id}/reviews`);
+        
+        if (!res.ok) return; // Fail silently on 404/500
+        
+        const json = await res.json();
+        if (json?.status === 'success') {
+          setReviewsData(json.data || []);
+        }
+      } catch (e) {
+        // Mute console.error to prevent Next.js overlay popups during local dev
+        // when the backend server is offline.
+        console.warn('Backend unavailable, using default local reviews.');
+      }
+    };
+    fetchReviews();
+  }, [venueProfile?.$id]);
+
 
   // Helper to format date consistent with dashboard design
   const formatLeadDate = (isoDate: string) => {
@@ -161,23 +193,14 @@ export default function VendorDashboard() {
     const todayLeadsCount = recentLeads.filter(l => l.date === today).length;
 
     // 3. Average Rating
-    const rating = venueProfile?.rating || 0.0;
+    const calculatedRating = reviewsData.length > 0
+      ? reviewsData.reduce((acc, r) => acc + (Number(r.rating) || 0), 0) / reviewsData.length
+      : 0.0;
+    const rating = venueProfile?.rating || calculatedRating;
 
-    // 4. Total Sales calculation (Booked leads * Estimated Revenue)
+    // 4. Total Bookings calculation
     const bookedLeads = recentLeads.filter(l => l.status === 'Booked');
-    const avgPlatePrice = ((venueProfile?.perPlateVeg || 0) + (venueProfile?.perPlateNonVeg || 0)) / 2 || 0;
-    
-    const estimatedTotalSales = bookedLeads.reduce((acc, lead) => {
-       const pax = parseInt(lead.guests) || 0;
-       return acc + (pax * avgPlatePrice);
-    }, 0);
-
-    // Format sales for display
-    const formatSales = (amt: number) => {
-       if (amt >= 100000) return `₹${(amt / 100000).toFixed(1)}L`;
-       if (amt >= 1000) return `₹${(amt / 1000).toFixed(1)}K`;
-       return `₹${amt}`;
-    };
+    const totalBookingsCount = bookedLeads.length;
 
     return [
       { 
@@ -205,15 +228,15 @@ export default function VendorDashboard() {
         isUp: true 
       },
       { 
-        label: 'Total Sales', 
-        value: estimatedTotalSales > 0 ? formatSales(estimatedTotalSales) : '₹0', 
-        icon: <IndianRupee size={20} />, 
+        label: 'Total Bookings', 
+        value: totalBookingsCount.toString(), 
+        icon: <CheckCircle2 size={20} />, 
         color: 'bg-pink-50 text-pink-600', 
-        trend: estimatedTotalSales > 0 ? '+5.2%' : '0%', 
-        isUp: estimatedTotalSales > 0 
+        trend: totalBookingsCount > 0 ? 'Growing' : '0%', 
+        isUp: totalBookingsCount > 0 
       },
     ];
-  }, [recentLeads, venueProfile]);
+  }, [recentLeads, venueProfile, reviewsData]);
 
   // Subscription Expiry Calculation
   const expiryInfo = useMemo(() => {
@@ -413,7 +436,8 @@ export default function VendorDashboard() {
        { id: 3, label: 'Decoration & Setup', amount: 0 },
     ],
     selectedImages: [] as string[],
-    leadId: ''
+    leadId: '',
+    signatory: ''
   });
 
   const filteredAdvancedLeads = useMemo(() => {
@@ -444,7 +468,7 @@ export default function VendorDashboard() {
     { id: 'Followups', color: 'bg-amber-500', text: 'text-amber-600', icon: <CalendarDays size={14} /> },
     { id: 'Quotation Send', color: 'bg-pink-500', text: 'text-pink-600', icon: <IndianRupee size={14} /> },
     { id: 'Booked', color: 'bg-emerald-500', text: 'text-emerald-600', icon: <CheckCircle2 size={14} /> },
-    { id: 'Lost Leads', color: 'bg-red-500', text: 'text-red-600', icon: <XCircle size={14} /> }
+    { id: 'Lost', color: 'bg-red-500', text: 'text-red-600', icon: <XCircle size={14} /> }
   ];
 
   const updateLeadStatus = async (leadId: string, newStatus: string) => {
@@ -498,6 +522,18 @@ export default function VendorDashboard() {
     setIsUpdatingProfile(true);
     try {
       const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
+      const currentBillingDetails = typeof venueProfile.billingDetails === 'string' 
+        ? JSON.parse(venueProfile.billingDetails || '{}') 
+        : (venueProfile.billingDetails || {});
+      
+      const updatedBillingDetails = {
+        ...currentBillingDetails,
+        ownerName: venueProfile.ownerName || '',
+        address: venueProfile.address || '',
+        city: venueProfile.city || '',
+        state: venueProfile.state || ''
+      };
+
       await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueProfile.$id, {
         venueName: venueProfile.venueName,
         capacity: !isNaN(parseInt(String(venueProfile.capacity))) ? Math.max(1, Math.min(10000, parseInt(String(venueProfile.capacity)))) : 1, 
@@ -507,6 +543,7 @@ export default function VendorDashboard() {
         amenities: venueProfile.amenities,
         eventTypes: venueProfile.eventTypes,
         landmark: venueProfile.landmark || '',
+        billingDetails: JSON.stringify(updatedBillingDetails),
         packages: JSON.stringify({
            packages: Array.isArray(venueProfile.packages) ? venueProfile.packages : [],
            halls: Array.isArray(venueProfile.halls) ? venueProfile.halls : []
@@ -604,10 +641,21 @@ export default function VendorDashboard() {
              }
           } catch(e) { console.warn('Failed to parse merged packages data'); }
           
+          let billing_data: any = {};
+          try {
+             if (profile.billingDetails) {
+                 billing_data = typeof profile.billingDetails === 'string' ? JSON.parse(profile.billingDetails) : profile.billingDetails;
+             }
+          } catch(e) {}
+
           setVenueProfile({
              ...profile,
              packages: p_data.packages || [],
-             halls: p_data.halls || []
+             halls: p_data.halls || [],
+             ownerName: billing_data.ownerName || profile.ownerName || '',
+             address: billing_data.address || profile.address || '',
+             city: billing_data.city || profile.city || '',
+             state: billing_data.state || profile.state || ''
           });
 
           // Hard expiry check for Trial Plan (Expires April 30th)
@@ -682,9 +730,10 @@ export default function VendorDashboard() {
                 date: formatLeadDate(doc.$createdAt),
                 time: formatLeadTime(doc.$createdAt),
                 rawDate: doc.$createdAt,
+                updatedAt: doc.$updatedAt || doc.$createdAt,
                 eventDate: doc.eventDate || extractedDate || null,
                 status: (() => {
-                  if (doc.status === 'Lost') return 'Lost Leads';
+                  if (doc.status === 'Lost') return 'Lost';
                   if (doc.status === 'Booked') return 'Booked';
                   
                   // Auto-Lost check: immediately after event date
@@ -692,7 +741,7 @@ export default function VendorDashboard() {
                   if (eventDateStr) {
                     const eventDate = new Date(eventDateStr);
                     const now = new Date();
-                    if (now > eventDate) return 'Lost Leads';
+                    if (now > eventDate) return 'Lost';
                   }
 
                   if (doc.status === 'Quoted') return 'Quotation Send';
@@ -819,7 +868,35 @@ export default function VendorDashboard() {
             if (!payload) return;
 
             if (response.events.some(e => e.includes('databases.*.collections.' + VENUES_COLLECTION_ID))) {
-              setVenueProfile(payload);
+              let p_data: any = { packages: [], halls: [] };
+              try {
+                 if (payload.packages) {
+                    const parsed = JSON.parse(payload.packages);
+                    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                       p_data = parsed;
+                    } else {
+                       p_data.packages = Array.isArray(parsed) ? parsed : [];
+                    }
+                 }
+              } catch(e) { console.warn('Failed to parse merged packages data'); }
+              
+              let billing_data: any = {};
+              try {
+                 if (payload.billingDetails) {
+                     billing_data = typeof payload.billingDetails === 'string' ? JSON.parse(payload.billingDetails) : payload.billingDetails;
+                 }
+              } catch(e) {}
+
+              setVenueProfile({
+                 ...payload,
+                 packages: p_data.packages || [],
+                 halls: p_data.halls || [],
+                 ownerName: billing_data.ownerName || payload.ownerName || '',
+                 address: billing_data.address || payload.address || '',
+                 city: billing_data.city || payload.city || '',
+                 state: billing_data.state || payload.state || ''
+              });
+
               setShowOnboarding(!payload.onboardingComplete);
               // Auto-hide payment reminder if payment is now complete
               if (payload.subscriptionPlan && payload.subscriptionPlan !== 'free') {
@@ -842,8 +919,9 @@ export default function VendorDashboard() {
                     date: formatLeadDate(payload.$createdAt || new Date().toISOString()),
                     time: formatLeadTime(payload.$createdAt || new Date().toISOString()),
                     rawDate: payload.$createdAt || new Date().toISOString(),
+                    updatedAt: payload.$updatedAt || payload.$createdAt || new Date().toISOString(),
                     eventDate: payload.eventDate || extractedDate || null,
-                    status: payload.status === 'Quoted' ? 'Quotation Send' : (payload.status === 'In-Progress' ? 'Contacted' : (payload.status === 'Lost' || payload.status === 'Lost Leads' ? 'Lost Leads' : (payload.status || 'New'))),
+                    status: payload.status === 'Quoted' ? 'Quotation Send' : (payload.status === 'In-Progress' ? 'Contacted' : (payload.status === 'Lost' || payload.status === 'Lost Leads' ? 'Lost' : (payload.status || 'New'))),
                     location: payload.city || extractedCity || (extractedPin ? `PIN: ${extractedPin}` : 'Haldwani'),
                     email: payload.email || 'client@mail.com',
                     title: 'Direct Inquiry',
@@ -927,15 +1005,7 @@ export default function VendorDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 font-pd flex relative">
       
-      {/* PAYMENT REMINDER POPUP */}
-      <PaymentReminderPopup 
-        isOpen={showPaymentReminder} 
-        onClose={() => {
-          setShowPaymentReminder(false);
-          localStorage.setItem('paymentReminderDismissed', 'true');
-        }} 
-        venueName={venueProfile?.venueName}
-      />
+
 
       {/* MOBILE OVERLAY */}
       <AnimatePresence>
@@ -954,15 +1024,16 @@ export default function VendorDashboard() {
       <motion.aside 
         initial={false}
         animate={{ 
-          width: sidebarOpen ? (isMobile ? 280 : 280) : 0, 
-          opacity: sidebarOpen ? 1 : (isMobile ? 0 : 0),
+          width: sidebarOpen ? (isMobile ? 280 : 280) : (isMobile ? 0 : 88), 
+          opacity: sidebarOpen ? 1 : (isMobile ? 0 : 1),
           x: isMobile && !sidebarOpen ? -280 : 0
         }}
-        className={`bg-white border-r border-slate-200/60 flex flex-col fixed md:sticky top-0 h-screen z-[70] md:z-50 overflow-hidden no-print transition-all duration-300 ${!sidebarOpen && !isMobile ? 'pointer-events-none' : ''}`}
+        transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+        className={`bg-white border-r border-slate-200/60 flex flex-col fixed md:sticky top-0 h-[100dvh] z-[70] md:z-50 overflow-hidden no-print shadow-[4px_0_24px_rgba(0,0,0,0.02)]`}
       >
-         <div className="p-8 pb-4 flex-1 w-[280px] scrollbar-hide overflow-y-auto">
-            <div className="flex items-center justify-between mb-16 px-2">
-               <Link href="/" className="group">
+         <div className={`py-8 pb-4 flex-1 w-full scrollbar-hide overflow-y-auto overflow-x-hidden ${sidebarOpen ? 'px-8' : 'px-4'}`}>
+            <div className={`flex items-center ${sidebarOpen ? 'justify-between mb-16 px-2' : 'justify-center mb-16'}`}>
+               <Link href="/" className={`group ${sidebarOpen ? 'block' : 'hidden'}`}>
                   <div className="flex flex-col items-start gap-1">
                      <div className="w-40 h-10 relative">
                         <Image 
@@ -979,15 +1050,22 @@ export default function VendorDashboard() {
                   </div>
                </Link>
                <button 
-                  onClick={() => setSidebarOpen(false)}
-                  className="w-11 h-11 rounded-[20px] bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-pd-pink hover:text-white transition-all border border-slate-100 shadow-sm active:scale-90 group/close"
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className={`w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:shadow-md hover:bg-slate-50 active:scale-90 group/close border border-slate-50/50 ${!sidebarOpen ? 'mx-auto' : ''}`}
+                  title={sidebarOpen ? "Close sidebar" : "Open sidebar"}
                >
-                  <X size={18} className="group-hover:rotate-90 transition-transform duration-500" />
+                  {sidebarOpen ? (
+                    <PanelLeftClose size={20} strokeWidth={2} className="group-hover:-translate-x-0.5 transition-transform duration-300" />
+                  ) : (
+                    <PanelLeftOpen size={20} strokeWidth={2} className="group-hover:translate-x-0.5 transition-transform duration-300" />
+                  )}
                </button>
             </div>
 
             <div className="space-y-1">
-               <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 pl-4 mb-4 block opacity-50">Main Menu</span>
+               <span className={`text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 mb-4 block opacity-50 ${sidebarOpen ? 'pl-4' : 'text-center pl-0'}`}>
+                  {sidebarOpen ? 'Main Menu' : 'Menu'}
+               </span>
                 {tabs
                   .filter(item => {
                     const isFree = venueProfile?.subscriptionPlan === 'free';
@@ -1003,16 +1081,21 @@ export default function VendorDashboard() {
                       setActiveTab(item.id);
                       if (isMobile) setSidebarOpen(false);
                     }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[12px] font-bold transition-all ${
+                    className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3.5 rounded-2xl text-[13px] font-extrabold transition-colors duration-200 ${
                       activeTab === item.id 
-                      ? 'bg-pd-pink text-white shadow-lg shadow-pd-pink/20' 
+                      ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/10' 
                       : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                     }`}
+                    title={!sidebarOpen ? item.label : undefined}
                   >
-                    {item.icon}
-                    <span className="tracking-wide uppercase text-[10px]">
-                      {venueProfile?.subscriptionPlan === 'free' && item.id === 'overview' ? 'My Listing' : item.label}
-                    </span>
+                    <div className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110 text-pd-pink' : ''}`}>
+                      {item.icon}
+                    </div>
+                    {sidebarOpen && (
+                      <span className="tracking-wide whitespace-nowrap">
+                        {venueProfile?.subscriptionPlan === 'free' && item.id === 'overview' ? 'My Listing' : item.label}
+                      </span>
+                    )}
                   </button>
                 ))}
              </div>
@@ -1020,7 +1103,9 @@ export default function VendorDashboard() {
               {/* Listing Management - Only visible during onboarding */}
              {!isOnboardingComplete && (
                <div className="space-y-1 mt-6 px-2">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 pl-4 mb-2 block opacity-60">Listing Management</span>
+                  <span className={`text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 block opacity-60 ${sidebarOpen ? 'pl-4' : 'text-center pl-0'}`}>
+                    {sidebarOpen ? 'Listing Management' : 'Listing'}
+                  </span>
                   {[
                     { id: 'profile', label: 'Set Profile', icon: <User size={18} />, href: '/dashboard/onboarding/profile' },
                     { id: 'photos', label: 'Upload Photos', icon: <ImageIcon size={18} />, href: '/dashboard/onboarding/photos' },
@@ -1028,11 +1113,11 @@ export default function VendorDashboard() {
                     { id: 'subscription', label: 'Subscription', icon: <ShieldCheck size={18} />, href: '/dashboard/onboarding/subscription' },
                   ].map(item => (
                     <Link key={item.id} href={item.href || '#'} onClick={() => isMobile && setSidebarOpen(false)}>
-                      <div className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-slate-500 hover:bg-slate-50 hover:text-pd-pink transition-all cursor-pointer">
+                      <div className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-slate-500 hover:bg-slate-50 hover:text-pd-pink transition-all cursor-pointer`} title={!sidebarOpen ? item.label : undefined}>
                         <div className="p-1.5 bg-slate-50 rounded-lg group-hover:bg-white transition-colors">
                            {item.icon}
                         </div>
-                        {item.label}
+                        {sidebarOpen && <span className="whitespace-nowrap">{item.label}</span>}
                       </div>
                     </Link>
                   ))}
@@ -1040,7 +1125,9 @@ export default function VendorDashboard() {
              )}
 
              <div className="space-y-1 mt-6">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-4 mb-2 block">System</span>
+                <span className={`text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block ${sidebarOpen ? 'pl-4' : 'text-center pl-0'}`}>
+                  System
+                </span>
                 {secondaryTabs.map(item => (
                   <button
                     key={item.id}
@@ -1048,137 +1135,161 @@ export default function VendorDashboard() {
                       setActiveTab(item.id);
                       if (isMobile) setSidebarOpen(false);
                     }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-bold tracking-wide uppercase transition-all ${
+                    className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3.5 rounded-2xl text-[13px] font-extrabold transition-colors duration-200 ${
                       activeTab === item.id 
-                      ? 'bg-slate-100 text-slate-900 border border-slate-200' 
+                      ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/10' 
                       : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                     }`}
+                    title={!sidebarOpen ? item.label : undefined}
                   >
-                    {item.icon}
-                    {item.label}
+                    <div className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110 text-pd-pink' : ''}`}>
+                      {item.icon}
+                    </div>
+                    {sidebarOpen && <span className="whitespace-nowrap">{item.label}</span>}
                   </button>
                 ))}
              </div>
 
          </div>
 
-         <div className="mt-auto p-6">
+         <div className={`mt-auto ${sidebarOpen ? 'p-6' : 'p-4 flex flex-col items-center'}`}>
             <button 
                onClick={() => window.open('https://play.google.com/store/apps/details?id=com.partydial.partner', '_blank')}
-               className="w-full flex items-center justify-between px-5 py-4 rounded-3xl bg-slate-900 text-white shadow-xl shadow-slate-900/20 hover:bg-pd-pink transition-all group mb-4"
+               className={`w-full flex items-center ${sidebarOpen ? 'justify-between px-5' : 'justify-center px-0'} py-4 rounded-3xl bg-slate-900 text-white shadow-xl shadow-slate-900/20 hover:bg-pd-pink transition-colors group mb-4`}
+               title={!sidebarOpen ? "Download Partner App" : undefined}
             >
                <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
                      <Smartphone size={20} className="text-white" />
                   </div>
-                  <div className="text-left">
-                     <p className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Partner App</p>
-                     <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Download Now</p>
-                  </div>
+                  {sidebarOpen && (
+                    <div className="text-left">
+                       <p className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Partner App</p>
+                       <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Download Now</p>
+                    </div>
+                  )}
                </div>
-               <ChevronRight size={14} className="text-white/40 group-hover:translate-x-1 group-hover:text-white transition-all" />
+               {sidebarOpen && <ChevronRight size={14} className="text-white/40 group-hover:translate-x-1 group-hover:text-white transition-all" />}
             </button>
 
             <button 
                onClick={handleLogout}
-               className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold italic text-red-500 hover:bg-red-50 transition-all"
+               className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3 rounded-2xl text-sm font-bold italic text-red-500 hover:bg-red-50 transition-colors`}
+               title={!sidebarOpen ? "Sign Out" : undefined}
             >
                <LogOut size={20} />
-               Sign Out
+               {sidebarOpen && <span>Sign Out</span>}
             </button>
          </div>
       </motion.aside>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 min-h-screen flex flex-col max-h-screen overflow-y-auto printable-main relative">
+      <main className="flex-1 min-h-screen flex flex-col max-h-screen overflow-y-scroll printable-main relative bg-slate-50">
          
-          <header className="h-20 lg:h-24 bg-white border-b border-slate-100 px-6 lg:px-12 flex items-center justify-between sticky top-0 z-40 no-print transition-all duration-300">
+          <header className="shrink-0 h-20 lg:h-24 bg-white/70 backdrop-blur-2xl border-b border-slate-200/50 px-6 lg:px-10 flex items-center justify-between sticky top-0 z-40 no-print transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_4px_20px_rgba(0,0,0,0.02)]">
             
             {/* Left Section: Context & Navigation */}
-            <div className="flex items-center gap-4 lg:gap-8">
-               {(isMobile || !sidebarOpen) && (
+            <div className="flex items-center gap-4 lg:gap-6">
+               {isMobile && !sidebarOpen && (
                   <motion.button 
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setSidebarOpen(true)}
-                    className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-xl shadow-slate-900/10 hover:bg-pd-pink transition-all"
+                    className="w-11 h-11 rounded-xl bg-white border border-slate-200/60 flex items-center justify-center text-slate-600 shadow-sm hover:border-slate-300 hover:text-slate-900 transition-all"
+                    title="Open sidebar"
                   >
-                     <Menu size={22} />
+                     <PanelLeftOpen size={20} strokeWidth={2} />
                   </motion.button>
                )}
                
                <div className="flex flex-col justify-center">
-                  <h1 className="text-[10px] lg:text-[12px] font-black text-slate-400 uppercase tracking-[0.3em] leading-none mb-1.5">
-                     {formattedDate || 'Loading...'}
-                  </h1>
-                  <p className="text-sm lg:text-base font-black text-slate-900 uppercase italic tracking-tight leading-none">
-                     <span className="hidden sm:inline">Partner</span> <span className="text-pd-pink">Console</span> / <span className="capitalize text-slate-900/80">{activeTab}</span>
-                  </p>
+                  <div className="flex items-center gap-2 mb-1.5">
+                     <div className="px-2 py-0.5 bg-slate-100/80 rounded-md border border-slate-200/50 text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">
+                        {formattedDate || 'Loading...'}
+                     </div>
+                  </div>
+                  <div className="text-xl lg:text-2xl font-extrabold tracking-tight leading-none flex items-center gap-2.5">
+                     <div className="flex items-center gap-1.5">
+                        <span className="hidden sm:inline text-slate-800">Partner</span>
+                        <span className="bg-gradient-to-r from-pd-pink to-purple-500 bg-clip-text text-transparent">Console</span>
+                     </div>
+                     <div className="w-1 h-4 bg-slate-200 rounded-full mx-0.5"></div>
+                     <span className="capitalize text-slate-500 font-bold">{activeTab}</span>
+                  </div>
                </div>
             </div>
 
             {/* Center Section: Plan Validity Status */}
-            <div className="hidden xl:flex flex-col items-center gap-1.5 min-w-[320px] px-6">
-               {expiryInfo ? (
-                  <>
-                    <div className="flex items-center justify-between w-full px-1">
-                       <div className="flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-pd-pink animate-pulse"></span>
-                          <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
-                             {expiryInfo.label} <span className="text-slate-900 italic">Validity</span>
-                          </span>
+            <div className="hidden xl:flex items-center justify-center flex-1 px-8">
+               <div className="bg-white/60 backdrop-blur-md border border-slate-200/50 shadow-[0_2px_10px_rgba(0,0,0,0.02)] rounded-2xl p-2.5 px-5 flex flex-col min-w-[340px]">
+                  {expiryInfo ? (
+                     <>
+                       <div className="flex items-center justify-between w-full mb-2">
+                          <div className="flex items-center gap-2">
+                             <div className="relative flex items-center justify-center">
+                                <span className="absolute w-2 h-2 rounded-full bg-pd-pink animate-ping opacity-75"></span>
+                                <span className="relative w-1.5 h-1.5 rounded-full bg-pd-pink"></span>
+                             </div>
+                             <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
+                                {expiryInfo.label} <span className="text-slate-800 italic">Validity</span>
+                             </span>
+                          </div>
+                          <div className="bg-slate-100/80 px-2 py-0.5 rounded text-[10px] font-black text-slate-800 italic tracking-tighter">
+                             {expiryInfo.daysLeft > 0 ? `${expiryInfo.daysLeft} Days Left` : 'Expired'}
+                          </div>
                        </div>
-                       <span className="text-[10px] font-black text-slate-900 italic tracking-tighter">
-                          {expiryInfo.daysLeft > 0 ? `${expiryInfo.daysLeft} Days Left` : 'Expired'}
-                       </span>
-                    </div>
-                    <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/40 p-0.5 shadow-inner">
-                       <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: `${expiryInfo.percent}%` }}
-                          transition={{ duration: 1.5, ease: "circOut", delay: 0.5 }}
-                          className={`h-full rounded-full shadow-sm ${
-                             expiryInfo.daysLeft < 7 
-                               ? 'bg-gradient-to-r from-red-500 to-rose-600' 
-                               : 'bg-gradient-to-r from-emerald-400 via-pd-pink to-purple-600'
-                          }`}
-                       />
-                    </div>
-                  </>
-               ) : (
-                  <div className="flex flex-col items-center">
-                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500">Premium Partnership Active</span>
-                     <div className="flex gap-1.5 mt-1.5">
-                        {[1, 2, 3, 4, 5].map(i => (
+                       <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden shadow-inner">
                           <motion.div 
-                            key={i} 
-                            animate={{ opacity: [0.2, 1, 0.2] }}
-                            transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
-                            className="w-8 h-1 grad-brand rounded-full"
+                             initial={{ width: 0 }}
+                             animate={{ width: `${expiryInfo.percent}%` }}
+                             transition={{ duration: 1.5, ease: "circOut", delay: 0.5 }}
+                             className={`h-full rounded-full shadow-sm ${
+                                expiryInfo.daysLeft < 7 
+                                  ? 'bg-gradient-to-r from-red-500 to-rose-500' 
+                                  : 'bg-gradient-to-r from-emerald-400 via-teal-400 to-pd-pink'
+                             }`}
                           />
-                        ))}
+                       </div>
+                     </>
+                  ) : (
+                     <div className="flex flex-col items-center justify-center py-1">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 mb-2">Receiving Live Updates</span>
+                        <div className="flex gap-1.5">
+                           {[1, 2, 3, 4, 5].map(i => (
+                             <motion.div 
+                               key={i} 
+                               animate={{ opacity: [0.2, 1, 0.2] }}
+                               transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
+                               className="w-10 h-1 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full"
+                             />
+                           ))}
+                        </div>
                      </div>
-                  </div>
-               )}
+                  )}
+               </div>
             </div>
 
-            <div className="flex items-center gap-2 lg:gap-4">
+            <div className="flex items-center gap-3 lg:gap-5">
 
-
-               <div className="hidden sm:flex items-center gap-3 bg-slate-50 p-1.5 px-3 rounded-[20px] border border-slate-100/50 mr-1 lg:mr-2">
-                  <div className="flex items-center gap-2 pr-2 border-r border-slate-200">
-                    <div className={`w-2 h-2 rounded-full ${isRealtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`}></div>
+               <div className="hidden sm:flex items-center bg-white border border-slate-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-2xl p-1 pr-1.5 mr-1">
+                  <div className="flex items-center gap-2 px-3 py-1.5">
+                    <div className={`relative flex items-center justify-center`}>
+                       <div className={`absolute w-2.5 h-2.5 rounded-full ${isRealtimeConnected ? 'bg-emerald-500 animate-ping opacity-60' : 'bg-slate-300'}`}></div>
+                       <div className={`relative w-1.5 h-1.5 rounded-full ${isRealtimeConnected ? 'bg-emerald-500' : 'bg-slate-400'}`}></div>
+                    </div>
                     <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Live Sync</span>
                   </div>
+
+                  <div className="w-[1px] h-6 bg-slate-200/60 mx-1"></div>
 
                   <div className="relative">
                     <button 
                       onClick={() => setShowNotifDropdown(!showNotifDropdown)}
-                      className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-slate-400 hover:text-pd-pink hover:bg-pd-pink/5 transition-all relative border border-slate-100 shadow-sm"
+                      className="w-[38px] h-[38px] rounded-xl bg-slate-50/80 flex items-center justify-center text-slate-600 hover:text-pd-pink hover:bg-pd-pink/5 hover:shadow-sm transition-all relative group"
                     >
-                      <Bell size={18} />
+                      <Bell size={18} className="group-hover:scale-110 transition-transform duration-300" />
                       {unreadLeadsCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-pd-pink text-white text-[8px] font-black flex items-center justify-center rounded-full border-[3px] border-white">
+                        <span className="absolute -top-1 -right-1 w-[18px] h-[18px] bg-gradient-to-tr from-pd-pink to-rose-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow-md">
                           {unreadLeadsCount}
                         </span>
                       )}
@@ -1192,28 +1303,37 @@ export default function VendorDashboard() {
                       lastClearedTime={lastClearedTime}
                     />
                   </div>
-
-
                </div>
                
-               <div className="hidden lg:block h-8 w-[1px] bg-slate-200/50 mx-1"></div>
+               <div className="hidden lg:block h-8 w-[1px] bg-slate-200/50"></div>
 
+               {venueProfile && !venueProfile.isVerified && venueProfile.onboardingComplete && (
+                  <button 
+                     onClick={(e) => {
+                        e.stopPropagation();
+                        setShowVerificationModal(true);
+                     }}
+                     className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-black tracking-widest uppercase shadow-md hover:shadow-lg hover:scale-105 transition-all"
+                  >
+                     Verify Profile
+                  </button>
+               )}
                <div 
                   onClick={() => { setActiveTab('settings'); setSettingsSection('profile'); }}
-                  className="flex items-center gap-2 lg:gap-3 pl-1 lg:pl-3 cursor-pointer group active:scale-95 transition-transform"
+                  className="flex items-center gap-3 lg:gap-4 pl-1 cursor-pointer group hover:opacity-90 active:scale-[0.98] transition-all"
                >
-                  <div className="text-right hidden md:block">
-                     <p className="text-[11px] lg:text-[13px] font-black text-slate-900 italic tracking-tighter uppercase whitespace-nowrap leading-none mb-1">{venueProfile?.venueName || userData?.name || "Your Venue"}</p>
-                      <div className="flex items-center gap-2 justify-end">
-                        <span className={`w-1.5 h-1.5 rounded-full ${isRealtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></span>
-                        <p className={`text-[8px] lg:text-[10px] ${isRealtimeConnected ? 'text-emerald-500' : 'text-rose-500'} font-black uppercase tracking-widest leading-none`}>
-                           {isRealtimeConnected ? (planLabels[venueProfile?.subscriptionPlan] || 'Live') : 'Reconnecting...'}
+                  <div className="text-right hidden md:flex flex-col items-end">
+                     <p className="text-[14px] font-[900] text-slate-900 leading-none mb-1 group-hover:text-pd-pink transition-colors">{venueProfile?.venueName || userData?.name || "Your Venue"}</p>
+                      <div className="flex items-center gap-1.5 bg-emerald-50/50 px-2 py-0.5 rounded border border-emerald-100">
+                        <span className={`w-1.5 h-1.5 rounded-full ${isRealtimeConnected ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500'}`}></span>
+                        <p className={`text-[9px] ${isRealtimeConnected ? 'text-emerald-600' : 'text-rose-600'} font-black uppercase tracking-widest leading-none`}>
+                           {isRealtimeConnected ? (planLabels[venueProfile?.subscriptionPlan] || 'Live') : 'Reconnecting'}
                         </p>
                       </div>
                   </div>
-                  <div className="flex relative transition-transform group-hover:scale-105">
-                     <div className="w-11 h-11 lg:w-12 lg:h-12 rounded-2xl bg-gradient-to-tr from-pd-pink to-purple-500 p-[2px] shadow-xl shadow-pd-pink/20">
-                        <div className="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center">
+                  <div className="relative">
+                     <div className="w-[46px] h-[46px] lg:w-[50px] lg:h-[50px] rounded-2xl bg-gradient-to-tr from-pd-pink via-purple-500 to-emerald-400 p-[2px] shadow-lg shadow-slate-200/50 group-hover:shadow-pd-pink/20 group-hover:scale-105 transition-all duration-300">
+                        <div className="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center border-2 border-white">
                            {(() => {
                               try {
                                  const photos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
@@ -1242,8 +1362,8 @@ export default function VendorDashboard() {
                            })()}
                         </div>
                      </div>
-                     <div className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 bg-white rounded-full shadow-lg flex items-center justify-center border-2 border-white">
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full shadow-md flex items-center justify-center border-2 border-white">
+                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
                      </div>
                   </div>
                </div>
@@ -1254,7 +1374,7 @@ export default function VendorDashboard() {
          <div className="p-4 lg:p-8">
             
             {/* Profile Status Indicator */}
-            {venueProfile && (
+            {activeTab === 'overview' && venueProfile && (
                <div className="mb-6 lg:mb-8 flex">
                  {(() => {
                    const status = venueProfile.isVerified 
@@ -1288,7 +1408,7 @@ export default function VendorDashboard() {
                 userName={userData?.name}
                 recentLeads={recentLeads}
                 setActiveTab={setActiveTab}
-                stats={stats}
+                averageRating={venueProfile?.rating || (reviewsData.length > 0 ? reviewsData.reduce((acc, r) => acc + (Number(r.rating) || 0), 0) / reviewsData.length : 0.0)}
                 setShowInquiryPopup={setShowInquiryPopup}
               />
             )}
@@ -1331,13 +1451,32 @@ export default function VendorDashboard() {
               )
             )}
 
+            {activeTab === 'quotations' && (
+              <QuotationManager 
+                quoteData={quoteData}
+                setQuoteData={setQuoteData}
+                handleFinalize={handleFinalize}
+                isFinalizing={isFinalizing}
+                qtnSuccess={qtnSuccess}
+                setActiveTab={setActiveTab}
+                logo={logo}
+                handleDownload={() => {}}
+                handleSend={() => {}}
+                venueProfile={venueProfile}
+                showToast={showToast}
+                subtotal={subtotal}
+                gstAmount={gstAmount}
+                totalWithTax={totalWithTax}
+              />
+            )}
+
             {activeTab === 'pipeline' && (
               (venueProfile?.subscriptionPlan && venueProfile?.subscriptionPlan !== 'free') ? (
                 <LeadPipeline 
                   recentLeads={recentLeads}
                   pipelineStages={PIPELINE_STAGES}
                   updateLeadStatus={updateLeadStatus}
-                  setLeadView={setLeadView}
+                  setActiveTab={setActiveTab}
                 />
               ) : (
                 <motion.div 
@@ -1463,6 +1602,12 @@ export default function VendorDashboard() {
       <PartnerInquiryPopup 
         isOpen={showInquiryPopup}
         onClose={() => setShowInquiryPopup(false)}
+        venueProfile={venueProfile}
+      />
+
+      <VerificationModal
+        isOpen={showVerificationModal}
+        onClose={() => setShowVerificationModal(false)}
         venueProfile={venueProfile}
       />
 

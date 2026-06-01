@@ -38,7 +38,10 @@ import {
   Building,
   Wifi,
   Phone,
-  MessageCircle
+  MessageCircle,
+  User,
+  Mail,
+  PartyPopper
 } from 'lucide-react';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { Camera, Trash2, Edit3, Filter as FilterIcon } from 'lucide-react';
@@ -580,28 +583,31 @@ export default function VenueDetailPage() {
       </section>
 
       {/* 2. VENUE TITLE & HIGHLIGHTS */}
-      <section className="px-4 md:px-6 -mt-16 md:-mt-20 relative z-20">
+      <section className="px-4 md:px-6 -mt-24 md:-mt-32 relative z-20">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white p-6 md:p-12 rounded-[32px] md:rounded-[40px] shadow-pd-strong flex flex-col md:flex-row gap-8 md:gap-10 items-start md:items-center">
-            <div className="flex-1 w-full">
-               <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-4">
-                  <div className="bg-green-50 text-green-600 px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg flex items-center gap-1.5 border border-green-100 uppercase text-[8px] md:text-[10px] font-black tracking-widest">
-                     <CheckCircle2 size={10} className="md:w-3 md:h-3" /> Verified Venue
+          <div className="bg-white p-8 md:p-14 rounded-[3rem] shadow-[0_30px_80px_rgba(0,0,0,0.08)] flex flex-col lg:flex-row gap-10 lg:gap-14 items-start lg:items-center border border-white/50 backdrop-blur-3xl relative overflow-hidden">
+            {/* Subtle premium background glow inside the card */}
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-pd-pink/10 rounded-full blur-3xl pointer-events-none" />
+            
+            <div className="flex-1 w-full relative z-10">
+               <div className="flex flex-wrap items-center gap-3 mb-6">
+                  <div className="bg-green-50 text-green-600 px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-green-100 uppercase text-[9px] md:text-[10px] font-black tracking-widest">
+                     <CheckCircle2 size={12} className="md:w-3 md:h-3" /> Verified Venue
                   </div>
                   {venue.popular && (
-                    <div className="bg-pd-pink/10 text-pd-pink px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg flex items-center gap-1.5 border border-pd-pink/20 uppercase text-[8px] md:text-[10px] font-black tracking-widest">
-                       <Star size={10} className="fill-pd-pink md:w-3 md:h-3" /> Popular Venue
+                    <div className="bg-gradient-to-r from-pd-pink/10 to-transparent text-pd-pink px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-pd-pink/20 uppercase text-[9px] md:text-[10px] font-black tracking-widest">
+                       <Star size={12} className="fill-pd-pink md:w-3 md:h-3" /> Popular Venue
                     </div>
                   )}
-                  <div className="flex items-center gap-1 md:ml-0 bg-slate-50 px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg border border-slate-100 font-black text-[10px] md:text-xs text-slate-800">
-                     <Star size={12} className="text-yellow-400 fill-yellow-400 md:w-[14px] md:h-[14px]" /> {ratingStats.avg}
+                  <div className="flex items-center gap-1.5 md:ml-0 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100 font-black text-[10px] md:text-xs text-slate-800">
+                     <Star size={14} className="text-yellow-400 fill-yellow-400" /> {ratingStats.avg}
                      <span className="text-slate-400 font-bold opacity-70">({ratingStats.total} Reviews)</span>
                   </div>
                </div>
-               <h1 className="text-2xl md:text-4xl font-black text-slate-900 mb-3">{venue.name}</h1>
-               <div className="flex items-center gap-2 text-slate-500 font-bold text-xs md:text-sm">
-                 <MapPin className="text-pd-red shrink-0" size={16} />
-                 <span>{venue.location}</span>
+               <h1 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tighter leading-none">{venue.name}</h1>
+               <div className="flex items-center gap-2.5 text-slate-500 font-bold text-xs md:text-sm">
+                 <MapPin className="text-pd-red shrink-0" size={18} />
+                 <span className="leading-relaxed">{venue.location}</span>
                </div>
                
                 {venue.isPaid && (
@@ -680,14 +686,14 @@ export default function VenueDetailPage() {
 
             {/* Amenities Grid */}
             <div>
-              <h2 className="text-xl font-black text-slate-900 mb-6 border-l-4 border-pd-purple pl-4">Key Amenities</h2>
+              <h2 className="text-2xl font-black text-slate-900 mb-8 border-l-4 border-pd-purple pl-5 uppercase tracking-widest italic">Key Amenities</h2>
                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
                  {venue.amenities.map((amenity: any, i: number) => (
-                   <div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 flex flex-col items-center text-center gap-3 hover:shadow-pd-soft transition-all group">
-                      <div className="w-12 h-12 bg-pd-purple/5 text-pd-purple rounded-xl flex items-center justify-center group-hover:bg-pd-purple group-hover:text-white transition-colors">
+                   <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-100 flex flex-col items-center text-center gap-4 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-1 transition-all group">
+                      <div className="w-14 h-14 bg-pd-purple/5 text-pd-purple rounded-2xl flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-pd-purple group-hover:to-pd-pink group-hover:text-white transition-all shadow-sm">
                         {amenity.icon}
                       </div>
-                      <span className="text-xs font-black text-slate-700 uppercase tracking-widest">{amenity.name}</span>
+                      <span className="text-[10px] md:text-xs font-black text-slate-700 uppercase tracking-widest">{amenity.name}</span>
                    </div>
                  ))}
               </div>
@@ -717,24 +723,24 @@ export default function VenueDetailPage() {
             {/* Custom Packages Section */}
             {venue.packages && venue.packages.length > 0 && (
                <div>
-                  <h2 className="text-xl font-black text-slate-900 mb-8 border-l-4 border-pd-pink pl-4 uppercase tracking-widest">Special Packages</h2>
+                  <h2 className="text-2xl font-black text-slate-900 mb-8 border-l-4 border-pd-pink pl-5 uppercase tracking-widest italic">Special Packages</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                      {venue.packages.map((pkg: any, i: number) => (
                         <motion.div 
                            key={i}
                            whileHover={{ y: -5 }}
-                           className="bg-white p-8 rounded-[35px] border border-slate-100 shadow-pd-soft relative overflow-hidden group"
+                           className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgb(0,0,0,0.08)] relative overflow-hidden group transition-all"
                         >
-                           <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink/5 rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+                           <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink/5 rounded-bl-[100px] -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-125"></div>
                            
                            <div className="relative z-10">
-                              <div className="flex justify-between items-start mb-4">
-                                 <h4 className="text-lg font-black text-slate-900 uppercase italic tracking-tighter leading-none">{pkg.name}</h4>
-                                 <div className="flex items-center text-pd-pink font-black text-xl italic leading-none">
+                              <div className="flex justify-between items-start mb-6">
+                                 <h4 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">{pkg.name}</h4>
+                                 <div className="flex items-center text-pd-pink font-black text-2xl italic leading-none drop-shadow-sm">
                                     <span className="text-sm mr-0.5">₹</span>{pkg.price}
                                  </div>
                               </div>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6 leading-relaxed">
+                              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">
                                  {pkg.desc}
                               </p>
                            </div>
@@ -943,51 +949,69 @@ export default function VenueDetailPage() {
           </div>
 
           {/* RIGHT SIDEBAR (Sticky Form) */}
-          <aside className="w-full lg:w-[400px] shrink-0">
-            <div className="sticky top-28 bg-white p-8 md:p-10 rounded-[32px] border border-slate-100 shadow-pd-strong">
-               <div className="text-center mb-8 pb-8 border-b border-slate-50">
-                  <div className="text-pd-red font-black text-[10px] uppercase tracking-[0.3em] mb-4 flex justify-center items-center gap-2">
+          <aside className="w-full lg:w-[420px] shrink-0">
+            <div className="sticky top-28 bg-white p-8 md:p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.06)] relative overflow-hidden">
+               {/* Premium Top Line Glow effect for form */}
+               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pd-pink via-purple-400 to-pd-blue"></div>
+               
+               <div className="text-center mb-10 pb-8 border-b border-slate-50">
+                  <div className="text-pd-pink font-black text-[10px] uppercase tracking-[0.3em] mb-4 flex justify-center items-center gap-2 bg-pd-pink/5 inline-flex px-4 py-1.5 rounded-full mx-auto">
                     <CheckCircle2 size={16} /> Direct Lead Contact
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-2">Get Free Customized Quotes</h3>
-                  <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Zero Brokerage. Direct Rates.</p>
+                  <h3 className="text-3xl font-black text-slate-900 mb-3 tracking-tight leading-none">Get Free Customized Quotes</h3>
+                  <p className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-widest">Zero Brokerage. Direct Rates.</p>
                </div>
-               <form className="space-y-6" onSubmit={handleLeadSubmit}>
-                  <div className="space-y-2">
-                     <input 
-                         required
-                         type="text" 
-                         placeholder="Enter your name" 
-                         value={formData.name}
-                         readOnly={isLoggedIn && !!formData.name}
-                         onChange={(e) => setFormData({...formData, name: e.target.value})}
-                         className={`w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all placeholder:text-slate-300 ${isLoggedIn && formData.name ? 'opacity-60 cursor-not-allowed' : ''}`} 
-                     />
+               <form className="space-y-5" onSubmit={handleLeadSubmit}>
+                  <div className="space-y-1.5">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Full Name</label>
+                     <div className="relative group">
+                       <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors">
+                         <User size={18} />
+                       </div>
+                       <input 
+                           required
+                           type="text" 
+                           placeholder="Enter your name" 
+                           value={formData.name}
+                           readOnly={isLoggedIn && !!formData.name}
+                           onChange={(e) => setFormData({...formData, name: e.target.value})}
+                           className={`w-full h-14 pl-12 pr-6 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-black text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-pink/10 focus:border-pd-pink transition-all placeholder:text-slate-300 ${isLoggedIn && formData.name ? 'opacity-60 cursor-not-allowed' : ''}`} 
+                       />
+                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Email Address</label>
-                     <input 
-                         required
-                         type="email" 
-                         placeholder="your@email.com" 
-                         value={formData.email}
-                         readOnly={isLoggedIn && !!formData.email}
-                         onChange={(e) => setFormData({...formData, email: e.target.value})}
-                         className={`w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all placeholder:text-slate-300 ${isLoggedIn && formData.email ? 'opacity-60 cursor-not-allowed' : ''}`} 
-                     />
+                     <div className="relative group">
+                       <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors">
+                         <Mail size={18} />
+                       </div>
+                       <input 
+                           required
+                           type="email" 
+                           placeholder="your@email.com" 
+                           value={formData.email}
+                           readOnly={isLoggedIn && !!formData.email}
+                           onChange={(e) => setFormData({...formData, email: e.target.value})}
+                           className={`w-full h-14 pl-12 pr-6 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-black text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-pink/10 focus:border-pd-pink transition-all placeholder:text-slate-300 ${isLoggedIn && formData.email ? 'opacity-60 cursor-not-allowed' : ''}`} 
+                       />
+                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
-                     <div className="space-y-2">
+                     <div className="space-y-1.5">
                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Event Type</label>
-                         <div className="relative">
+                         <div className="relative group">
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors">
+                              <PartyPopper size={16} />
+                            </div>
                             <select 
+                                required
                                 value={formData.eventType}
                                 onChange={(e) => setFormData({...formData, eventType: e.target.value})}
-                                className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all appearance-none cursor-pointer pr-10"
+                                className="w-full h-14 pl-11 pr-10 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-black text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-pink/10 focus:border-pd-pink transition-all appearance-none cursor-pointer"
                             >
-                                <option value="">Select Event</option>
+                                <option value="" disabled>Select Event</option>
                                 <option value="Birthday Party">Birthday Party</option>
                                 <option value="Wedding Events">Wedding Events</option>
                                 <option value="Pre-Wedding Events">Pre-Wedding Events</option>
@@ -1004,19 +1028,22 @@ export default function VenueDetailPage() {
                                 <option value="Engagement Ceremony">Engagement Ceremony</option>
                                 <option value="Entertainment / Theme Parties">Entertainment / Theme Parties</option>
                             </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
                          </div>
                      </div>
-                     <div className="space-y-2">
+                     <div className="space-y-1.5">
                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Guest Count</label>
-                         <div className="relative">
+                         <div className="relative group">
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors">
+                              <Users size={16} />
+                            </div>
                             <select 
                                 required
                                 value={formData.guests}
                                 onChange={(e) => setFormData({...formData, guests: e.target.value})}
-                                className="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-base font-black text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all appearance-none cursor-pointer pr-10" 
+                                className="w-full h-14 pl-11 pr-10 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-black text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-pink/10 focus:border-pd-pink transition-all appearance-none cursor-pointer" 
                             >
-                                <option value="">Select Capacity</option>
+                                <option value="" disabled>Select Size</option>
                                 <option value="0-50">0-50 guests</option>
                                 <option value="50-100">50-100 guests</option>
                                 <option value="100-200">100-200 guests</option>
@@ -1026,58 +1053,80 @@ export default function VenueDetailPage() {
                                 <option value="2000-5000">2000-5000 guests</option>
                                 <option value="5000+">5000+ guests</option>
                             </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
                          </div>
                      </div>
                   </div>
 
-                  <div className="space-y-2">
-                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Phone Number</label>
-                     <div className="relative group">
-                        <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10">
-                           <span className="text-sm font-black text-slate-800 tracking-tighter shrink-0">+91</span>
-                        </div>
-                        <input 
-                          required 
-                          type="tel" 
-                          name="phone"
-                          value={formData.phone}
-                          readOnly={isLoggedIn && !!formData.phone}
-                          maxLength={11} // 10 digits + 1 space
-                          onChange={(e) => {
-                            if (isLoggedIn && formData.phone) return;
-                            let val = e.target.value.replace(/\D/g, ''); // Remove non-digits
-                            if (val.length > 10) val = val.slice(0, 10);
-                            // Format as 5-5
-                            let formatted = val;
-                            if (val.length > 5) {
-                               formatted = val.slice(0, 5) + ' ' + val.slice(5);
-                            }
-                            setFormData({...formData, phone: formatted});
-                          }}
-                          placeholder="10 Digit Number" 
-                          className={`w-full h-14 pl-16 bg-slate-50 border border-slate-200 rounded-2xl text-base font-black text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-red/5 focus:border-pd-red transition-all placeholder:text-slate-300 placeholder:font-bold tracking-[0.1em] ${isLoggedIn && formData.phone ? 'opacity-60 cursor-not-allowed' : ''}`} 
-                        />
+                  <div className="grid grid-cols-2 gap-4">
+                     <div className="space-y-1.5">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Event Date</label>
+                         <div className="relative group">
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors z-10 pointer-events-none">
+                              <Calendar size={16} />
+                            </div>
+                            <input 
+                                required
+                                type="date" 
+                                value={formData.eventDate}
+                                onChange={(e) => setFormData({...formData, eventDate: e.target.value})}
+                                min={new Date().toISOString().split('T')[0]} // Prevents selecting past dates
+                                className="w-full h-14 pl-11 pr-4 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-pink/10 focus:border-pd-pink transition-all appearance-none cursor-pointer" 
+                            />
+                         </div>
+                     </div>
+
+                     <div className="space-y-1.5">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Phone</label>
+                         <div className="relative group">
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10">
+                               <span className="text-sm font-black text-slate-800 tracking-tighter shrink-0">+91</span>
+                               <div className="w-px h-4 bg-slate-300 mx-2"></div>
+                            </div>
+                            <input 
+                              required 
+                              type="tel" 
+                              name="phone"
+                              value={formData.phone}
+                              readOnly={isLoggedIn && !!formData.phone}
+                              maxLength={11} // 10 digits + 1 space
+                              onChange={(e) => {
+                                if (isLoggedIn && formData.phone) return;
+                                let val = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                                if (val.length > 10) val = val.slice(0, 10);
+                                // Format as 5-5
+                                let formatted = val;
+                                if (val.length > 5) {
+                                   formatted = val.slice(0, 5) + ' ' + val.slice(5);
+                                }
+                                setFormData({...formData, phone: formatted});
+                              }}
+                              placeholder="10 Digits" 
+                              className={`w-full h-14 pl-[4.5rem] pr-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-black text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-pink/10 focus:border-pd-pink transition-all placeholder:text-slate-300 tracking-[0.05em] ${isLoggedIn && formData.phone ? 'opacity-60 cursor-not-allowed' : ''}`} 
+                            />
+                         </div>
                      </div>
                   </div>
 
-                  <div className="space-y-2">
-                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Requirement Notes</label>
+                  <div className="space-y-1.5">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 flex items-center gap-1.5">
+                       <MessageSquare size={12} /> Requirement Notes
+                     </label>
                      <textarea 
                          placeholder="e.g. Need rooms, catering required..." 
                          rows={3} 
                          value={formData.requirements}
                          onChange={(e) => setFormData({...formData, requirements: e.target.value})}
-                         className="w-full p-6 bg-slate-50 border border-slate-200 rounded-3xl text-sm font-bold text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-red/5 focus:border-pd-red transition-all"
+                         className="w-full p-5 bg-slate-50 border border-slate-100 rounded-[1.25rem] text-sm font-bold text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-pd-pink/10 focus:border-pd-pink transition-all resize-none placeholder:text-slate-300"
                      ></textarea>
                   </div>
 
                  <button 
                     type="submit"
                     disabled={isSubmittingLead}
-                    className="w-full pd-btn-primary py-5 text-sm tracking-[0.2em] font-black uppercase italic shadow-2xl shadow-pd-pink/20 flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-50"
+                    className="w-full bg-gradient-to-r from-pd-pink to-purple-500 hover:to-pd-pink text-white py-4 text-sm tracking-[0.2em] font-black uppercase italic rounded-2xl shadow-[0_10px_30px_rgba(255,59,107,0.3)] hover:shadow-[0_15px_40px_rgba(255,59,107,0.4)] flex items-center justify-center gap-3 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50"
                  >
-                    {isSubmittingLead ? 'Sending...' : 'Get Best Rates'} <Send size={20} />
+                    {isSubmittingLead ? 'Sending...' : 'Get Best Rates'} <Send size={18} />
                  </button>
 
                  <p className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest px-4 leading-relaxed">

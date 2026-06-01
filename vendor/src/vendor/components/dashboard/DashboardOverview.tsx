@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Zap, 
@@ -10,7 +10,12 @@ import {
   Users, 
   Clock, 
   TrendingUp, 
-  Sparkles 
+  Sparkles,
+  ArrowRight,
+  MoreHorizontal,
+  Calendar,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 
 interface Lead {
@@ -46,7 +51,8 @@ interface DashboardOverviewProps {
   userName?: string;
   recentLeads: Lead[];
   setActiveTab: (tab: string) => void;
-  stats: Stat[];
+  stats?: Stat[]; // Keep optional for backwards compatibility before page.tsx is updated
+  averageRating?: number; // Receive averageRating directly
   setShowInquiryPopup: (val: boolean) => void;
 }
 
@@ -56,129 +62,259 @@ const DashboardOverview = ({
   recentLeads,
   setActiveTab,
   stats,
+  averageRating = 0,
   setShowInquiryPopup
 }: DashboardOverviewProps) => {
+
+  const [timeFilter, setTimeFilter] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'all'>('monthly');
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
+  // Compute stats locally based on timeFilter
+  const filteredStats = useMemo(() => {
+    const now = new Date();
+    
+    // Helper to check if a date string is within the current filter range
+    const isWithinRange = (dateString: string | undefined | null) => {
+      if (timeFilter === 'all') return true;
+      if (!dateString) return false;
+      
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return false;
+
+      if (timeFilter === 'today') {
+        return date.toDateString() === now.toDateString();
+      }
+      if (timeFilter === 'weekly') {
+        const weekAgo = new Date();
+        weekAgo.setDate(now.getDate() - 7);
+        return date >= weekAgo;
+      }
+      if (timeFilter === 'monthly') {
+        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+      }
+      if (timeFilter === 'yearly') {
+        return date.getFullYear() === now.getFullYear();
+      }
+      return true;
+    };
+
+    // Filter leads by creation/update date
+    const filteredLeads = recentLeads.filter(l => {
+        // Use the updatedAt field so that when a lead changes status to "Booked" today, it reflects in today's stats.
+        // Fall back to rawDate or eventDate if updatedAt isn't available.
+        const relevantDate = (l as any).updatedAt || (l as any).rawDate || (l as any).eventDate;
+        if (relevantDate) return isWithinRange(relevantDate);
+        return isWithinRange(l.date);
+    });
+
+    const totalLeads = filteredLeads.length;
+    const bookedLeads = filteredLeads.filter(l => l.status === 'Booked').length;
+    const lostLeads = filteredLeads.filter(l => l.status === 'Lost').length;
+    
+    return [
+      { 
+        label: 'Total Leads', 
+        value: totalLeads.toString(), 
+        icon: <Users size={20} />, 
+        color: 'bg-blue-50 text-blue-600', 
+        trend: timeFilter === 'all' ? 'All Time' : 'Current', 
+        isUp: totalLeads > 0 
+      },
+      { 
+        label: 'Booked Leads', 
+        value: bookedLeads.toString(), 
+        icon: <CheckCircle2 size={20} />, 
+        color: 'bg-emerald-50 text-emerald-600', 
+        trend: bookedLeads > 0 ? 'Success' : '0%', 
+        isUp: bookedLeads > 0 
+      },
+      { 
+        label: 'Lost Leads', 
+        value: lostLeads.toString(), 
+        icon: <XCircle size={20} />, 
+        color: 'bg-rose-50 text-rose-600', 
+        trend: lostLeads > 0 ? 'Action Needed' : '0%', 
+        isUp: false 
+      },
+      { 
+        label: 'Average Rating', 
+        value: averageRating.toFixed(1), 
+        icon: <Star size={20} />, 
+        color: 'bg-amber-50 text-amber-600', 
+        trend: '0.0%', 
+        isUp: true 
+      },
+    ];
+  }, [recentLeads, timeFilter, averageRating]);
+
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="space-y-6 lg:space-y-8"
+    >
         
-        {/* Executive Hero Banner */}
-        <div className="relative overflow-hidden bg-white border border-slate-100 rounded-[24px] lg:rounded-[30px] p-6 lg:p-12 mb-6 lg:mb-10 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-           <div className="absolute top-0 right-0 w-full lg:w-1/4 h-full bg-slate-50/50"></div>
-           <div className="absolute top-0 right-0 w-[1px] h-full bg-slate-100 hidden lg:block"></div>
+        {/* Premium Welcome Header */}
+        <div className="relative overflow-hidden bg-white border border-slate-200/60 rounded-3xl p-8 lg:p-10 shadow-sm">
+           {/* Abstract Background Element */}
+           <div className="absolute -top-24 -right-24 w-96 h-96 bg-gradient-to-br from-pd-pink/10 to-pd-purple/5 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
            
-           <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 lg:gap-10">
+           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
-                 <div className="flex items-center gap-3 mb-4 lg:mb-8">
-                    <span className="w-10 h-[3px] bg-pd-pink"></span>
-                    <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Executive Briefing</span>
-                 </div>
-                 <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black text-slate-900 uppercase italic tracking-tighter mb-4 lg:mb-6 leading-none">
-                    {venueProfile?.venueName || userName || "Your Venue"}
-                 </h1>
-                 <div className="flex flex-wrap gap-2 lg:gap-4">
-                    <div className="flex items-center gap-2 px-3 lg:px-4 py-1.5 lg:py-2 bg-slate-900 text-white rounded-lg text-[8px] lg:text-[9px] font-black uppercase tracking-widest">
-                       {recentLeads.length} Inquiries
-                    </div>
-                    <div className="flex items-center gap-2 px-3 lg:px-4 py-1.5 lg:py-2 bg-emerald-50 text-emerald-600 rounded-lg text-[8px] lg:text-[9px] font-black uppercase tracking-widest">
-                       Top tier
-                    </div>
-                 </div>
+                 <motion.h1 
+                    initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
+                    className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-2"
+                 >
+                    {getGreeting()}, <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">{venueProfile?.venueName || userName || "Partner"}</span>
+                 </motion.h1>
+                 <motion.p 
+                    initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
+                    className="text-slate-500 font-medium text-sm"
+                 >
+                    Here's what's happening with your venue today.
+                 </motion.p>
               </div>
               
-              <div className="flex flex-col gap-3">
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="flex gap-3">
                  <button 
                    onClick={() => setActiveTab('leads')}
-                   className="h-12 lg:h-14 px-6 lg:px-10 bg-slate-900 text-white rounded-xl text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] italic hover:bg-pd-pink transition-all shadow-xl shadow-slate-900/5 group w-full sm:w-auto"
+                   className="h-11 px-6 bg-slate-900 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-slate-900/10 hover:bg-slate-800 hover:shadow-lg active:scale-95 flex items-center gap-2"
                  >
-                    Launch Inquiry Manager
+                    View Pipeline <ArrowRight size={14} />
                  </button>
-              </div>
+              </motion.div>
            </div>
         </div>
 
-        {/* Minimal Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-6 mb-8 lg:mb-12">
-          {stats.map((stat, i) => (
+         {/* Time Filter & Stats Grid */}
+         <div className="flex flex-col gap-4">
+           <div className="flex justify-end items-center px-1">
+             <div className="bg-white border border-slate-200/60 p-1 rounded-xl flex items-center shadow-sm">
+                <Calendar size={14} className="text-slate-400 mx-2" />
+                <select 
+                  value={timeFilter}
+                  onChange={(e) => setTimeFilter(e.target.value as any)}
+                  className="bg-transparent text-[11px] font-bold text-slate-700 outline-none pr-3 cursor-pointer"
+                >
+                   <option value="today">Today</option>
+                   <option value="weekly">This Week</option>
+                   <option value="monthly">This Month</option>
+                   <option value="yearly">This Year</option>
+                   <option value="all">All Time</option>
+                </select>
+             </div>
+           </div>
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+             {filteredStats.map((stat, i) => (
              <motion.div
+               initial={{ opacity: 0, y: 15 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ delay: 0.1 + (i * 0.05), ease: "easeOut" }}
                key={i}
-               className="bg-white p-5 lg:p-8 rounded-[24px] border border-slate-100 shadow-[0_1px_2px_rgba(0,0,0,0.01)] hover:border-pd-pink transition-all"
+               className="group bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
              >
-                <div className="flex items-center justify-between mb-6 lg:mb-10">
-                   <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-lg ${stat.color} flex items-center justify-center scale-90 lg:scale-100`}>
-                      {stat.icon}
-                   </div>
-                   <span className={`text-[8px] lg:text-[9px] font-black uppercase tracking-widest ${stat.isUp ? 'text-emerald-500' : 'text-red-500'}`}>
-                      {stat.trend}
-                   </span>
+                {/* Subtle Hover Glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white to-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-4">
+                     <div className={`w-10 h-10 rounded-[14px] ${stat.color} flex items-center justify-center transition-transform group-hover:scale-110 duration-300`}>
+                        {stat.icon}
+                     </div>
+                     <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${stat.isUp ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                        {stat.isUp ? <TrendingUp size={12} /> : <TrendingUp size={12} className="rotate-180" />}
+                        {stat.trend}
+                     </div>
+                  </div>
+                  <h4 className="text-xs font-semibold text-slate-500 mb-1">{stat.label}</h4>
+                  <p className="text-2xl font-extrabold text-slate-900 tracking-tight">{stat.value}</p>
                 </div>
-                <h4 className="text-[8px] lg:text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1 lg:mb-2">{stat.label}</h4>
-                <p className="text-xl lg:text-2xl font-black italic text-slate-900 tracking-tight">{stat.value}</p>
              </motion.div>
           ))}
         </div>
+      </div>
 
-       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-3 bg-white rounded-[32px] border border-slate-100 p-6 lg:p-10">
-             <div className="flex items-center justify-between mb-8 lg:mb-10">
-                <h2 className="text-lg lg:text-xl font-black italic tracking-tighter uppercase leading-none">
-                   Live <span className="text-pd-pink">Inquiry Feed</span>
-                </h2>
-                <button onClick={() => setActiveTab('leads')} className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-pd-pink transition-colors">View All History</button>
+       {/* Feed Section */}
+       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="lg:col-span-3 bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col">
+             
+             {/* Header */}
+             <div className="px-6 lg:px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-white/50 backdrop-blur-sm">
+                <div className="flex items-center gap-3">
+                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                   <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                      Recent Activity
+                   </h2>
+                </div>
+                <button onClick={() => setActiveTab('leads')} className="text-xs font-semibold text-pd-pink hover:text-pd-pink/80 transition-colors flex items-center gap-1">
+                   View All <ArrowRight size={14} />
+                </button>
              </div>
              
-             <div className="grid grid-cols-1 gap-4">
+             {/* Data Table / List */}
+             <div className="flex-1 bg-slate-50/30 p-2 lg:p-4">
                 {recentLeads.length > 0 ? (
-                  [...recentLeads].slice(0, 4).map((lead, i) => (
-                    <motion.div 
-                      key={lead.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="group p-4 sm:p-5 bg-white border border-slate-50 rounded-[24px] flex items-center justify-between hover:border-pd-pink transition-all cursor-pointer"
-                    >
-                       <div className="flex items-center gap-4 sm:gap-5">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-pd-pink/10 group-hover:text-pd-pink transition-all border border-slate-100 group-hover:border-pd-pink/20 shrink-0">
-                             <Users size={18} />
-                          </div>
-                          <div className="min-w-0">
-                             <h4 className="text-xs sm:text-sm font-black italic uppercase tracking-tight text-slate-900 leading-none mb-1.5 truncate">{lead.name}</h4>
-                             <div className="flex items-center gap-2">
-                                <span className="text-[9px] font-bold text-slate-400 flex items-center gap-1 italic lowercase">
-                                   <Clock size={10} /> {lead.date}
-                                </span>
-                                <span className="w-1 h-1 rounded-full bg-slate-200"></span>
-                                <span className="text-[8px] font-black text-pd-pink uppercase tracking-widest leading-none">{lead.event}</span>
-                             </div>
-                          </div>
-                       </div>
-                       <div className="flex flex-col items-end gap-2 shrink-0">
-                          <span className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[7px] sm:text-[8px] font-black uppercase tracking-widest ${lead.color}`}>
-                             {lead.status}
-                          </span>
-                       </div>
-                    </motion.div>
-                  ))
+                  <div className="space-y-2">
+                    {[...recentLeads].slice(0, 5).map((lead, i) => (
+                      <motion.div 
+                        key={lead.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 + (i * 0.05) }}
+                        onClick={() => setActiveTab('leads')}
+                        className="group p-4 bg-white border border-slate-200/50 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between hover:shadow-md hover:border-slate-300 transition-all cursor-pointer gap-4 sm:gap-0"
+                      >
+                         <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-slate-100 to-slate-50 flex items-center justify-center text-slate-400 group-hover:text-pd-pink border border-slate-200/50 shrink-0 shadow-sm transition-colors">
+                               <Users size={16} />
+                            </div>
+                            <div>
+                               <h4 className="text-sm font-bold text-slate-900 mb-0.5">{lead.name}</h4>
+                               <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                                  <span className="flex items-center gap-1">
+                                     <Clock size={12} className="opacity-70" /> {lead.date}
+                                  </span>
+                                  <span className="w-1 h-1 rounded-full bg-slate-300" />
+                                  <span className="text-slate-600">{lead.event}</span>
+                               </div>
+                            </div>
+                         </div>
+                         
+                         <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${lead.color} border border-current/10`}>
+                               {lead.status}
+                            </span>
+                         </div>
+                      </motion.div>
+                    ))}
+                  </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-10 px-6 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
-                     <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-300 mb-4 shadow-sm">
-                        <Zap size={18} />
+                  <div className="flex flex-col items-center justify-center py-16 px-6">
+                     <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-300 mb-4 shadow-sm border border-slate-100">
+                        <Zap size={24} />
                      </div>
-                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 text-center">No Leads Available</p>
+                     <h3 className="text-sm font-bold text-slate-900 mb-1">No Leads Yet</h3>
+                     <p className="text-xs text-slate-500 mb-6 text-center max-w-xs">When customers inquire about your venue, they will appear here in real-time.</p>
+                     
                      {venueProfile?.subscriptionPlan === 'free' || !venueProfile?.subscriptionPlan ? (
                         <button 
                           onClick={() => setShowInquiryPopup(true)}
-                          className="px-6 py-3 bg-white border border-slate-200 text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm"
+                          className="px-6 py-2.5 bg-pd-pink text-white text-xs font-bold rounded-xl hover:bg-pd-pink/90 transition-all shadow-md shadow-pd-pink/20"
                         >
-                           Upgrade to receive leads
+                           Upgrade to Receive Leads
                         </button>
-                     ) : (
-                        <p className="text-[9px] font-bold text-slate-400 italic">Waiting for your first inquiry...</p>
-                     )}
+                     ) : null}
                   </div>
                 )}
              </div>
           </div>
-
 
        </div>
     </motion.div>

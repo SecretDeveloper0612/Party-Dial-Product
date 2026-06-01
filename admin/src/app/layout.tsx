@@ -11,6 +11,8 @@ import AuthGuard from "@/components/AuthGuard";
 
 const inter = Inter({ subsets: ["latin"] });
 
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -23,6 +25,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <title>PartyDial Admin</title>
+        <meta name="description" content="PartyDial Administration Dashboard" />
+        <link rel="icon" href="/favicon.jpg" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
         {/* Google Tag Manager */}
         <Script id="google-tag-manager" strategy="afterInteractive">
@@ -48,22 +53,22 @@ export default function RootLayout({
         </noscript>
         {/* End Google Tag Manager (noscript) */}
         <AuthGuard>
-           {isStandalonePage ? (
-             <div className="min-h-screen">
-                {children}
-             </div>
-           ) : (
-             <div className="flex min-h-screen">
-                <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-                {/* Main: no left margin on mobile, full sidebar margin on lg+ */}
-                <main className="flex-1 lg:ml-[var(--sidebar-w)] transition-[margin] duration-300 min-h-screen w-full">
-                  <TopBar onMenuOpen={() => setSidebarOpen(true)} />
-                  <div className="p-4 sm:p-6 lg:p-10 min-h-[calc(100vh-var(--header-h))]">
-                    {children}
-                  </div>
-                </main>
-             </div>
-           )}
+          {isStandalonePage ? (
+            <div className="min-h-screen">
+              {children}
+            </div>
+          ) : (
+            <div className="flex min-h-screen">
+              <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+              {/* Main: no left margin on mobile, full sidebar margin on lg+ */}
+              <main className="flex-1 lg:ml-[var(--sidebar-w)] transition-[margin] duration-300 min-h-screen w-full">
+                <TopBar onMenuOpen={() => setSidebarOpen(true)} />
+                <div className="p-4 sm:p-6 lg:p-10 min-h-[calc(100vh-var(--header-h))]">
+                  {children}
+                </div>
+              </main>
+            </div>
+          )}
         </AuthGuard>
       </body>
     </html>

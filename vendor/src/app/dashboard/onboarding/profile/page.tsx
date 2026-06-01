@@ -175,29 +175,28 @@ export default function CompleteProfilePage() {
       const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
       const { ID } = await import('appwrite');
       
-      const payload = {
+      const payload: any = {
         description,
         amenities: JSON.stringify(selectedAmenities),
         eventTypes: JSON.stringify(selectedEventTypes),
         landmark,
-        contactNumber: userData?.phone || '',
-        city: userData?.city || 'Haldwani',
-        state: userData?.state || 'Uttarakhand',
-        pincode: userData?.pincode || '263139',
-        venueType: userData?.venueType || 'Banquet Hall',
-        // Removed capacity from here to avoid overwriting signup data
-        // If creating new, add required defaults
-        ...(docId ? {} : {
-          userId: userData?.$id,
-          venueName: userData?.name || 'My Venue',
-          ownerName: userData?.name || 'Owner',
-          contactEmail: userData?.email || '',
-          capacity: 1,
-          onboardingComplete: false,
-          isVerified: false,
-          status: 'active',
-        })
       };
+
+      if (!docId) {
+        payload.contactNumber = userData?.phone || '';
+        payload.city = userData?.city || 'Haldwani';
+        payload.state = userData?.state || 'Uttarakhand';
+        payload.pincode = userData?.pincode || '263139';
+        payload.venueType = userData?.venueType || 'Banquet Hall';
+        payload.userId = userData?.$id;
+        payload.venueName = userData?.name || 'My Venue';
+        payload.ownerName = userData?.name || 'Owner';
+        payload.contactEmail = userData?.email || '';
+        payload.capacity = 1;
+        payload.onboardingComplete = false;
+        payload.isVerified = false;
+        payload.status = 'active';
+      }
 
       if (docId) {
         await databases.updateDocument(

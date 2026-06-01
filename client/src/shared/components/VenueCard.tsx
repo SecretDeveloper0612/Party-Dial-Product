@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { MapPin, Star, CheckCircle2, Zap, ArrowRight } from 'lucide-react';
+import { MapPin, Star, CheckCircle2, Zap, ArrowRight, IndianRupee, Users } from 'lucide-react';
 import { Venue } from '@/data/venues';
 
 interface VenueCardProps {
@@ -34,105 +34,141 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ delay: i * 0.05 }}
-      className={`pd-card group bg-white overflow-hidden h-full flex flex-col transition-all ${
+      className={`group relative w-full h-full bg-white rounded-[24px] md:rounded-[32px] overflow-hidden flex flex-col transition-all duration-500 will-change-transform ${
         isPremium
-          ? 'border-2 border-amber-100 shadow-xl shadow-amber-50'
-          : 'border border-slate-100 shadow-pd-soft'
+          ? 'border border-amber-200/50 shadow-xl shadow-amber-500/5 hover:shadow-2xl hover:shadow-amber-500/10 hover:-translate-y-1'
+          : 'border border-slate-100 shadow-lg shadow-slate-200/50 hover:shadow-2xl hover:shadow-slate-200/80 hover:-translate-y-1'
       }`}
     >
-        <div className="relative aspect-[16/10] md:h-56 overflow-hidden bg-slate-50 flex items-center justify-center">
-           {v.img ? (
-             <img src={v.img} alt={v.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
-           ) : (
-             <div className="flex flex-col items-center gap-2 opacity-20 group-hover:opacity-30 transition-opacity">
-                <img src="/logo.jpg" alt="PartyDial" className="w-24 grayscale" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">No Photos Uploaded</span>
-             </div>
-           )}
-           <div className="absolute top-4 left-4 flex gap-2">
-             {isPremium && (
-               <div className="bg-gradient-to-r from-amber-400 to-orange-400 px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-white shadow-xl">
-                  <Star size={10} fill="white" />
-                  <span className="text-[9px] font-black uppercase tracking-widest">Featured</span>
-               </div>
-             )}
-             {!isPremium && v.verified && (
-               <div className="bg-white/95 px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-xl border border-slate-100">
-                  <CheckCircle2 size={12} className="text-green-500" />
-                  <span className="text-[9px] font-black uppercase text-slate-800 tracking-widest">Verified</span>
-               </div>
-             )}
-             {v.isNew && !isPremium && (
-               <div className="bg-pd-purple px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-white shadow-xl">
-                  <Zap size={12} fill="white" />
-                  <span className="text-[9px] font-black uppercase tracking-widest">New</span>
-                </div>
-             )}
+      {/* Image Container */}
+      <div className="relative aspect-[4/3] md:h-64 w-full overflow-hidden bg-slate-100">
+        {v.img ? (
+          <img 
+            src={v.img} 
+            alt={v.name} 
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" 
+            loading="lazy" 
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-20 group-hover:opacity-30 transition-opacity">
+            <img src="/logo.jpg" alt="PartyDial" className="w-24 grayscale" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">No Photos Uploaded</span>
+          </div>
+        )}
+        
+        {/* Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent opacity-80" />
+        {isPremium && (
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent mix-blend-overlay" />
+        )}
+        
+        {/* Top Badges */}
+        <div className="absolute top-4 inset-x-4 flex items-start justify-between gap-2">
+          <div className="flex flex-wrap gap-2">
+            {isPremium && (
+              <div className="bg-gradient-to-r from-amber-400 to-orange-500 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-white shadow-lg border border-white/20 backdrop-blur-sm">
+                <Star size={10} fill="white" />
+                <span className="text-[9px] font-bold uppercase tracking-widest">Featured</span>
+              </div>
+            )}
+            {!isPremium && v.verified && (
+              <div className="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg border border-white/30 text-white">
+                <CheckCircle2 size={12} className="text-green-400" />
+                <span className="text-[9px] font-bold uppercase tracking-widest">Verified</span>
+              </div>
+            )}
+            {v.isNew && !isPremium && (
+              <div className="bg-pd-purple/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 text-white shadow-lg border border-white/20">
+                <Zap size={12} fill="white" />
+                <span className="text-[9px] font-bold uppercase tracking-widest">New</span>
+              </div>
+            )}
           </div>
           
-          {/* Rating Badge - Top Right */}
-          <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-white/20 shadow-xl flex items-center gap-1">
-             <Star size={10} className="text-yellow-400 fill-yellow-400" />
-             <span className="text-[10px] md:text-xs font-black text-slate-900">{v.rating}</span>
+          {/* Rating Badge */}
+          <div className="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/30 shadow-lg flex items-center gap-1.5 text-white">
+            <Star size={12} className="text-yellow-400 fill-yellow-400 drop-shadow-sm" />
+            <span className="text-xs font-bold">{v.rating}</span>
           </div>
-       </div>
+        </div>
 
-       <div className="p-5 md:p-6 flex-1 flex flex-col items-start">
-          <div className="flex items-center justify-between w-full mb-3">
-             <div className="flex items-center gap-2 text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                <MapPin size={10} className="text-pd-red" /> {v.location}, {v.city}
-             </div>
-             <div className="flex gap-1">
-                {(v.foodTypes || []).map((f: string) => (
-                  <div key={f} className={`w-2 h-2 rounded-full ${f === 'Veg' ? 'bg-green-500' : 'bg-red-500'}`} title={f}></div>
-                ))}
-             </div>
+        {/* Location & Name overlapping the image */}
+        <div className="absolute bottom-4 left-4 right-4 text-white">
+          <div className="flex items-center justify-between w-full mb-1">
+            <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-200 line-clamp-1">
+              <MapPin size={12} className="text-pd-pink shrink-0" /> 
+              <span className="truncate">{v.location}, {v.city}</span>
+            </div>
+            <div className="flex gap-1 shrink-0 bg-white/10 backdrop-blur-sm px-2 py-1 rounded-full border border-white/10">
+              {(v.foodTypes || []).map((f: string) => (
+                <div key={f} className={`w-2 h-2 rounded-full ${f === 'Veg' ? 'bg-green-400' : 'bg-pd-red'}`} title={f}></div>
+              ))}
+            </div>
+          </div>
+          <h3 className="text-xl md:text-2xl font-black tracking-tight leading-tight group-hover:text-amber-100 transition-colors drop-shadow-md line-clamp-2 min-h-[3.5rem] flex items-end">
+            {v.name}
+          </h3>
+        </div>
+      </div>
+
+      {/* Card Body */}
+      <div className="p-5 md:p-6 flex-1 flex flex-col bg-white">
+        {/* Price and Capacity */}
+        <div className="grid grid-cols-2 gap-4 mb-5 pb-5 border-b border-slate-100">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1.5 text-slate-400">
+              <IndianRupee size={12} />
+              <span className="text-[9px] font-bold uppercase tracking-widest">Price / Plate</span>
+            </div>
+            <span className="text-lg font-black text-slate-900 tracking-tight">
+              {v.price && String(v.price).trim() !== "N/A" && String(v.price).trim() !== "0" && String(v.price).trim() !== "" 
+                ? (String(v.price).includes('₹') ? v.price : `₹${v.price}`) 
+                : "Pricing on request"}
+            </span>
           </div>
           
-          <h3 className="text-lg md:text-xl font-bold text-slate-900 mb-4 group-hover:text-pd-red transition-colors leading-tight italic">{v.name}</h3>
+          <div className="flex flex-col gap-1 border-l border-slate-100 pl-4">
+            <div className="flex items-center gap-1.5 text-slate-400">
+              <Users size={12} />
+              <span className="text-[9px] font-bold uppercase tracking-widest">Guest Cap.</span>
+            </div>
+            <span className="text-lg font-black text-slate-900 tracking-tight">
+              {getCapacityLabel(v.capacity)}
+            </span>
+          </div>
+        </div>
+        
+        {/* Amenities */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {(v.amenities || []).slice(0, 3).map((a: string) => (
+            <span key={a} className="px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[9px] font-bold border border-slate-100">
+              {a}
+            </span>
+          ))}
+          {(v.amenities || []).length > 3 && (
+            <span className="px-3 py-1.5 bg-pd-pink/5 text-pd-pink rounded-lg text-[9px] font-bold border border-pd-pink/10">
+              +{(v.amenities || []).length - 3} more
+            </span>
+          )}
+        </div>
 
-          {/* Price and Capacity - Always Visible */}
-          <div className="flex gap-6 mb-5 w-full border-b border-slate-50 pb-4">
-             <div className="flex flex-col">
-                <span className="text-[7px] md:text-[8px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">Price / Plate</span>
-              <span className="text-sm md:text-lg font-black text-slate-900 italic">
-                {v.price && String(v.price).trim() !== "N/A" && String(v.price).trim() !== "0" && String(v.price).trim() !== "" 
-                  ? (String(v.price).includes('₹') ? v.price : `₹${v.price}`) 
-                  : "N/A"}
-              </span>
-             </div>
-             <div className="flex flex-col border-l border-slate-100 pl-6">
-                <span className="text-[7px] md:text-[8px] font-black uppercase text-slate-400 tracking-[0.2em] mb-1">Guest Cap.</span>
-                <span className="text-sm md:text-lg font-bold text-slate-900 italic">
-                  {getCapacityLabel(v.capacity)}
-                </span>
-             </div>
-          </div>
-          
-          <div className="flex flex-wrap gap-1.5 mb-6">
-             {(v.amenities || []).slice(0, 3).map((a: string) => (
-               <span key={a} className="px-2.5 py-1 bg-slate-50 rounded-lg text-[8px] font-bold text-slate-500 border border-slate-100">{a}</span>
-             ))}
-             {(v.amenities || []).length > 3 && <span className="px-1.5 py-1 bg-slate-50 rounded-lg text-[8px] font-bold text-slate-400">+{(v.amenities || []).length - 3}</span>}
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-2 w-full mt-auto">
-             <Link href={`/venues/${v.id}`} className="flex-1 order-2 sm:order-1">
-                <button className="w-full py-3.5 border-2 border-slate-100 rounded-xl text-[10px] font-bold uppercase tracking-widest text-slate-700 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all italic active:scale-95">
-                   View Venue
-                </button>
-             </Link>
-             <button 
-               onClick={() => {
-                 // Trigger the inquiry popup via custom event
-                 window.dispatchEvent(new CustomEvent('open-inquiry-popup', { detail: { venueId: v.id } }));
-               }}
-               className="flex-1 order-1 sm:order-2 pd-btn-primary !py-3.5 !text-[11px] tracking-widest uppercase italic shadow-lg shadow-pd-pink/10 flex items-center justify-center gap-2 active:scale-95"
-             >
-                Get Quote <ArrowRight size={14} />
-             </button>
-          </div>
-       </div>
+        {/* Buttons */}
+        <div className="flex items-center gap-3 w-full mt-auto">
+          <Link href={`/venues/${v.id}`} className="flex-1">
+            <button className="w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all active:scale-95">
+              Details
+            </button>
+          </Link>
+          <button 
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('open-inquiry-popup', { detail: { venueId: v.id } }));
+            }}
+            className="flex-[1.5] py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-white bg-gradient-to-r from-pd-pink to-pd-blue hover:shadow-lg hover:shadow-pd-pink/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+          >
+            Get Quote <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
+      </div>
     </motion.div>
   );
 }
