@@ -41,56 +41,11 @@ const PORT = process.env.PORT || 5005;
 // Trust proxy for Cloudflare
 app.set('trust proxy', 1);
 
-// --- 11. Debugging Middleware ---
-const allowedOrigins = [
-  "https://www.partydial.com",
-  "https://partydial.com",
-  "https://party-dial-client.vercel.app",
-  "https://partner.partydial.com",
-  "https://admin.partydial.com",
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "http://localhost:3002",
-  "http://localhost:3003"
-];
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  const isAllowed = !origin || allowedOrigins.includes(origin) || origin.endsWith('partydial.com');
-  console.log(`[CORS DEBUG] Method: ${req.method} | Path: ${req.path} | Origin: ${origin || 'none'} | Allowed: ${isAllowed}`);
-  next();
-});
-
-// --- 1-10. CORS Configuration ---
-// Must be placed BEFORE any other middleware or routes (especially rate limiters)
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || origin.endsWith('partydial.com')) {
-      return callback(null, true);
-    } else {
-      console.log(`[CORS BLOCKED] Origin not in allowlist: ${origin}`);
-      return callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle OPTIONS preflight requests properly
-
 // Security Headers (CSP is relaxed to avoid breaking Appwrite/Razorpay)
 app.use(helmet({
   crossOriginResourcePolicy: false,
   contentSecurityPolicy: false, // Disable for now to ensure Razorpay/Appwrite isn't broken
 }));
-
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
-app.use(morgan('dev'));
 
 // Prevent Cloudflare from caching API routes
 app.use('/api', (req, res, next) => {
@@ -100,10 +55,41 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
-// Apply rate limiters AFTER CORS so blocked requests still get CORS headers
+// Apply rate limiters
 app.use('/api', apiLimiter);
 app.use('/api/auth', authLimiter);
 app.use('/api/users/login', authLimiter); // if there is a specific login route
+
+// Routes
+app.use(cors({
+  origin: [
+    "https://www.partydial.com",
+    "https://partydial.com",
+    "https://party-dial-client.vercel.app",
+    "https://partner.partydial.com",
+    "https://admin.partydial.com",
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
+    "http://localhost:3003",
+    "http://localhost:5173"
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
+}));
+
+app.options('*', cors());
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(morgan('dev'));
+
+// Debug middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url} - Origin: ${req.headers.origin}`);
+  next();
+});
 
 // Routes
 app.get('/', (req, res) => {
