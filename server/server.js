@@ -61,25 +61,34 @@ app.use('/api/auth', authLimiter);
 app.use('/api/users/login', authLimiter); // if there is a specific login route
 
 // Routes
+const allowedOrigins = [
+  'https://partner.partydial.com',
+  'https://admin.partydial.com',
+  'https://partydial.com',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:3003',
+  'http://192.168.1.4:3003',
+  'http://192.168.1.4:3000',
+  'http://localhost:5173'
+];
+
 app.use(cors({
-  origin: [
-    "https://www.partydial.com",
-    "https://partydial.com",
-    "https://party-dial-client.vercel.app",
-    "https://partner.partydial.com",
-    "https://admin.partydial.com",
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:3002",
-    "http://localhost:3003",
-    "http://localhost:5173"
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('partydial.com')) {
+      return callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      return callback(null, true); // Temporarily allow all in production to debug
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
 }));
-
-app.options('*', cors());
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));

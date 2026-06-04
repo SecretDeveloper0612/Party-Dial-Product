@@ -1,0 +1,20 @@
+name = "partydial-worker"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+# Important for Appwrite, Razorpay, Nodemailer
+compatibility_flags = ["nodejs_compat"]
+
+# Custom Domain (Enable this later after testing on workers.dev)
+routes = [
+  { pattern = "api.partydial.com", custom_domain = true }
+]
+
+[vars]
+# Add non-sensitive variables here. 
+# Secrets like APPWRITE_API_KEY, RAZORPAY_KEY_SECRET, EMAIL_PASS must be set via `wrangler secret put <NAME>`
+ALLOWED_ORIGINS = "https://www.partydial.com,https://partydial.com,https://partner.partydial.com,https://admin.partydial.com,http://localhost:5173,http://localhost:3000"
+
+# Cron triggers for background tasks
+# [triggers]
+# crons = ["0 * * * *"] # Example: Run every hour
