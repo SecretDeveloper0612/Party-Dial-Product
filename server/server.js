@@ -1,7 +1,7 @@
 require('dotenv').config();
 const dns = require('dns');
 if (dns.setDefaultResultOrder) {
-    dns.setDefaultResultOrder('ipv4first');
+  dns.setDefaultResultOrder('ipv4first');
 }
 
 const express = require('express');
@@ -124,7 +124,16 @@ app.use((req, res) => {
   res.status(404).json({ status: 'error', message: 'Route not found' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
+
+// Only listen locally, otherwise export for Vercel
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
 
