@@ -1,6 +1,7 @@
-import { Query, ID, Account } from 'node-appwrite';
+import { Query, ID, Account, Client } from 'node-appwrite';
 import { getAppwriteServices } from '../utils/appwrite';
 import crypto from 'node:crypto'; // Supported in nodejs_compat
+import { sendPasswordResetEmail } from '../utils/emailService';
 
 export const checkPhone = async (c) => {
     try {
@@ -188,7 +189,8 @@ export const updatePushToken = async (c) => {
 
 export const forgotPassword = async (c) => {
     try {
-        const { email } = await c.req.json();
+        const body = await c.req.json().catch(() => ({}));
+        const { email } = body;
         if (!email) return c.json({ status: 'error', message: 'Email required' }, 400);
 
         const { users } = getAppwriteServices(c.env);
@@ -204,17 +206,21 @@ export const forgotPassword = async (c) => {
         const currentPrefs = await users.getPrefs(userId);
         await users.updatePrefs(userId, { ...currentPrefs, resetToken: token, resetExpires: Date.now() + 3600000 });
 
-        // Email logic would be here
+        let baseUrl = c.env.FRONTEND_VENDOR_URL || 'https://partner.partydial.com';
+        const resetLink = `${baseUrl}/reset-password?userId=${userId}&token=${token}`;
+
+        await sendPasswordResetEmail(c.env, email, resetLink);
 
         return c.json({ status: 'success', message: 'Password reset link sent.' }, 200);
     } catch (error) {
-        return c.json({ status: 'error', message: error.message }, 500);
+        return c.json({ status: 'error', message: error.message, stack: error.stack }, 500);
     }
 };
 
 export const resetPassword = async (c) => {
     try {
-        const { userId, token, password } = await c.req.json();
+        const body = await c.req.json().catch(() => ({}));
+        const { userId, token, password } = body;
         if (!userId || !token || !password) return c.json({ status: 'error', message: 'All fields required' }, 400);
 
         const { users } = getAppwriteServices(c.env);

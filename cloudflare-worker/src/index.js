@@ -54,4 +54,15 @@ app.route('/api/access', accessRoutes)
 app.route('/api/quotations', quotationRoutes)
 app.route('/api/config', configRoutes)
 
+import { sendPasswordResetEmail } from './utils/emailService';
+
+app.get('/api/test-email', async (c) => {
+  try {
+    await sendPasswordResetEmail(c.env, 'admin@partydial.com', 'http://test.com');
+    return c.json({ status: 'success' });
+  } catch (err) {
+    return c.json({ status: 'error', message: err.message, stack: err.stack }, 500);
+  }
+});
+
 export default app

@@ -12,8 +12,12 @@ import {
   ChevronRight,
   Facebook
 } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
+  const pathname = usePathname();
+  if (pathname === '/ai-search') return null;
+
   return (
     <footer suppressHydrationWarning className="bg-[#0B1121] pt-24 pb-12 px-6 text-white relative overflow-hidden font-pd">
       {/* Background Ornaments */}

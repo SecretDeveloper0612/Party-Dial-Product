@@ -794,24 +794,9 @@ export default function PopupInquiry() {
     window.addEventListener('open-inquiry-popup', handleOpen);
     window.addEventListener('auth-change', handleAuthChange);
 
-    // 2. Initial trigger (3 seconds after load)
-    const initialTimer = setTimeout(() => {
-      setIsOpen(true);
-    }, 3000);
-
-    // 3. Recurring trigger (every 3 minutes)
-    const recurringTimer = setInterval(() => {
-      setIsOpen(prev => {
-        if (!prev && !isSubmitted) return true;
-        return prev;
-      });
-    }, 180000); // 180,000ms = 3 Minutes
-
     return () => {
       window.removeEventListener('open-inquiry-popup', handleOpen);
       window.removeEventListener('auth-change', handleAuthChange);
-      clearTimeout(initialTimer);
-      clearInterval(recurringTimer);
     };
   }, [isSubmitted]);
 

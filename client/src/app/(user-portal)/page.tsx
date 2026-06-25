@@ -183,11 +183,9 @@ export default function Home() {
     return () => clearTimeout(debounceTimer);
   }, [locationInput]);
 
-  // Close dropdown on scroll
+  // Close dropdown on scroll (Removed scroll listener to fix scroll lag)
   useEffect(() => {
-    const handleScroll = () => setIsEventDropdownOpen(false);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Click outside already handles closing the dropdown
   }, []);
 
   useEffect(() => {
@@ -307,11 +305,11 @@ export default function Home() {
 
           // profileComplete = has real name + has photos + has capacity
           const completeVenues = mapped.filter((v: any) => v.profileComplete === true);
-          
+
           // Prioritize Paid venues, then shuffle the rest
           const paidVenues = weightedShuffle(completeVenues.filter((v: any) => v.isPaid));
           const otherVenues = weightedShuffle(completeVenues.filter((v: any) => !v.isPaid));
-          
+
           const finalVenues = [...paidVenues, ...otherVenues];
           setLiveVenues(finalVenues.slice(0, 15)); // Show up to 15 venues in the new carousel
         }
@@ -379,10 +377,10 @@ export default function Home() {
         {/* Abstract Background Elements */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           {/* Main gradient blobs */}
-          <div className="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-pd-pink/20 blur-[120px] mix-blend-multiply opacity-70" />
-          <div className="absolute top-[20%] -right-[10%] w-[40vw] h-[40vw] rounded-full bg-pd-blue/20 blur-[120px] mix-blend-multiply opacity-70" />
-          <div className="absolute -bottom-[20%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-pd-purple/10 blur-[120px] mix-blend-multiply opacity-70" />
-          
+          <div className="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-[radial-gradient(circle,rgba(236,72,153,0.1)_0%,transparent_70%)] opacity-70" />
+          <div className="absolute top-[20%] -right-[10%] w-[40vw] h-[40vw] rounded-full bg-[radial-gradient(circle,rgba(59,130,246,0.1)_0%,transparent_70%)] opacity-70" />
+          <div className="absolute -bottom-[20%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.05)_0%,transparent_70%)] opacity-70" />
+
           {/* subtle grid pattern overlay */}
           <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-[0.03] bg-repeat" />
         </div>
@@ -391,36 +389,32 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             {/* Hero Text */}
             <div className="w-full lg:w-[55%] text-left">
-              <motion.div 
-                initial={{ opacity: 0, y: 30 }} 
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-              >
-                <div className="inline-block mb-6 px-4 py-2 rounded-full bg-white/60 backdrop-blur-md border border-slate-200/50 shadow-sm">
+              <div>
+                <div className="inline-block mb-6 px-4 py-2 rounded-full bg-white/60  border border-slate-200/50 shadow-sm">
                   <span className="text-xs md:text-sm font-bold bg-gradient-to-r from-pd-pink to-pd-purple bg-clip-text text-transparent uppercase tracking-wider">
                     🎉 India's #1 Venue Booking Platform
                   </span>
                 </div>
 
                 <h1 className="text-4xl md:text-6xl lg:text-[72px] font-extrabold text-slate-900 tracking-tight leading-[1.05] mb-8">
-                  Find the <br className="hidden md:block"/>
+                  Find the <br className="hidden md:block" />
                   <span className="relative inline-block mt-2">
                     <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-pd-purple to-pd-blue pr-4 pb-2">
                       Perfect Venue
                     </span>
                     {/* Highlight swoop below text */}
                     <svg className="absolute w-full h-4 -bottom-2 left-0 -z-10 text-pd-pink/30" viewBox="0 0 100 10" preserveAspectRatio="none">
-                      <path d="M0 5 Q 50 10 100 0" stroke="currentColor" strokeWidth="3" fill="none"/>
+                      <path d="M0 5 Q 50 10 100 0" stroke="currentColor" strokeWidth="3" fill="none" />
                     </svg>
                   </span>
-                  <br className="hidden md:block"/> for Your Event
+                  <br className="hidden md:block" /> for Your Event
                 </h1>
 
                 <p className="text-lg md:text-xl text-slate-600 mb-10 max-w-xl leading-relaxed font-medium">
                   Get free customized quotes from top venues in minutes. Direct connections. Zero brokerage. Beautiful memories.
                 </p>
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 text-sm font-bold text-slate-700 bg-white/40 p-4 rounded-2xl backdrop-blur-sm border border-white/60 shadow-sm inline-flex">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 text-sm font-bold text-slate-700 bg-white/40 p-4 rounded-2xl  border border-white/60 shadow-sm inline-flex">
                   <div className="flex -space-x-3 shrink-0">
                     {[1, 2, 3, 4, 5].map(i => (
                       <div key={i} className="w-10 h-10 rounded-full border-[3px] border-white bg-slate-200 overflow-hidden shadow-sm transition-transform hover:scale-110 hover:z-10">
@@ -435,20 +429,15 @@ export default function Home() {
                     <span className="leading-tight text-slate-800">Trusted by <span className="text-pd-purple font-black">50,000+</span> happy hosts</span>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </div>
 
             {/* Lead Form */}
             <div className="w-full lg:w-[45%] relative">
               {/* Decorative background for the form */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-pd-pink to-pd-blue opacity-30 blur-2xl rounded-[40px] -z-10 animate-pulse" />
-              
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }} 
-                animate={{ opacity: 1, x: 0 }} 
-                transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                className="bg-white/90 backdrop-blur-xl p-8 md:p-10 rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-white relative overflow-visible"
-              >
+              <div className="absolute -inset-4 bg-gradient-to-r from-pd-pink to-pd-blue opacity-30 blur-xl rounded-[40px] -z-10 transform-gpu transition-transform" />
+
+              <div className="bg-white/95 p-8 md:p-10 rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-white relative overflow-visible">
                 {/* Floating Badge */}
                 <div className="absolute -top-5 -right-5 bg-gradient-to-r from-amber-400 to-orange-500 text-white w-20 h-20 rounded-full flex flex-col items-center justify-center font-black shadow-lg transform rotate-12 z-20 border-4 border-white">
                   <span className="text-2xl leading-none">FREE</span>
@@ -459,7 +448,7 @@ export default function Home() {
                   <h3 className="text-2xl md:text-3xl font-black text-slate-900 mb-2">Check Availability</h3>
                   <p className="text-slate-500 text-sm font-medium">Find the best prices for your dates instantly.</p>
                 </div>
-                
+
                 <div className="space-y-5">
                   <div className="space-y-2 relative" ref={eventDropdownRef}>
                     <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Event Type</label>
@@ -476,12 +465,7 @@ export default function Home() {
 
                     <AnimatePresence>
                       {isEventDropdownOpen && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.98 }}
-                          className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-[60] py-2 max-h-64 overflow-y-auto custom-scrollbar"
-                        >
+                        <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-[60] py-2 max-h-64 overflow-y-auto custom-scrollbar">
                           {categories.map((cat, i) => (
                             <button
                               key={i}
@@ -497,7 +481,7 @@ export default function Home() {
                               {formData.eventType === cat.name && <CheckCircle2 size={16} className="ml-auto text-pd-red" />}
                             </button>
                           ))}
-                        </motion.div>
+                        </div>
                       )}
                     </AnimatePresence>
                   </div>
@@ -506,14 +490,14 @@ export default function Home() {
                     <label className="text-[11px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">City / Location</label>
                     <div className={`w-full min-h-14 bg-slate-50/80 border border-slate-200 hover:border-slate-300 rounded-2xl px-4 py-2 flex flex-wrap items-center gap-2 transition-all focus-within:border-pd-purple focus-within:ring-4 focus-within:ring-pd-purple/10 shadow-inner shadow-slate-100/50`}>
                       <MapPin className="text-pd-red shrink-0 ml-1" size={18} />
-                      
+
                       {formData.locations.map((loc, i) => (
-                        <motion.div initial={{scale:0}} animate={{scale:1}} key={i} className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-800 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-sm">
+                        <div key={i} className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-800 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-sm">
                           <span>{loc.display}</span>
                           <button onClick={() => removeLocation(loc.display)} className="text-slate-400 hover:text-pd-red transition-colors bg-slate-50 rounded-full p-0.5">
                             <X size={12} />
                           </button>
-                        </motion.div>
+                        </div>
                       ))}
 
                       <input
@@ -531,15 +515,10 @@ export default function Home() {
 
                     <AnimatePresence>
                       {showSuggestions && (locationInput.length >= 3) && (suggestions.length > 0 || isLoadingLocations) && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-50 max-h-64 overflow-y-auto custom-scrollbar"
-                        >
+                        <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-50 max-h-64 overflow-y-auto custom-scrollbar">
                           {isLoadingLocations ? (
                             <div className="p-6 flex justify-center items-center gap-3 text-sm text-slate-500 font-bold">
-                              <div className="w-4 h-4 border-2 border-pd-purple border-t-transparent rounded-full animate-spin"/> Searching...
+                              <div className="w-4 h-4 border-2 border-pd-purple border-t-transparent rounded-full animate-spin" /> Searching...
                             </div>
                           ) : (
                             suggestions.map((s: any, i) => (
@@ -559,7 +538,7 @@ export default function Home() {
                               )
                             ))
                           )}
-                        </motion.div>
+                        </div>
                       )}
                     </AnimatePresence>
                   </div>
@@ -613,76 +592,80 @@ export default function Home() {
                     <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
                   </div>
                 </button>
-                
+
                 <p className="text-center mt-5 text-[11px] text-slate-400 font-medium flex items-center justify-center gap-1.5">
                   <ShieldCheck size={14} className="text-emerald-500" /> No booking fees. 100% genuine reviews.
                 </p>
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* COMPACT STATS BAR - Optimized for single-screen visibility */}
-      <section className="py-6 border-y border-slate-50 bg-white/80 backdrop-blur-sm relative">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="flex flex-wrap md:grid md:grid-cols-3 divide-x divide-slate-100 md:divide-x">
+      <section className="pb-10 pt-4 px-4 md:px-6 relative z-20">
+        <div className="max-w-6xl mx-auto bg-white rounded-[2rem] md:rounded-full p-4 md:py-4 md:px-6 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] border border-slate-100">
+          <div className="flex flex-col md:flex-row items-center justify-between divide-y md:divide-y-0 md:divide-x divide-slate-100">
 
             {/* Stat Item 1 */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="flex-1 min-w-[33%] md:min-w-0 flex flex-col items-center justify-center text-center gap-1 px-1"
-            >
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-pd-red/5 flex items-center justify-center text-pd-red shrink-0 mb-0.5">
-                <Building2 size={16} className="md:size-[18px]" />
+            <div className="flex-1 w-full md:w-auto flex items-center justify-center md:justify-start gap-4 px-4 py-3 md:py-0">
+              <div className="w-12 h-12 rounded-full bg-pd-red/10 flex items-center justify-center text-pd-red shrink-0">
+                <Building2 size={20} strokeWidth={2.5} />
               </div>
-              <div className="flex flex-col items-center">
-                <h3 className="text-xs md:text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">
+              <div className="flex flex-col text-left">
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 leading-none mb-1">
                   <AnimatedCounter end={500} suffix="+" />
                 </h3>
-                <p className="text-[6px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Venues</p>
+                <p className="text-[10px] md:text-xs font-bold text-slate-500">
+                  Premium Venues
+                </p>
               </div>
-            </motion.div>
+            </div>
 
             {/* Stat Item 2 */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="flex-1 min-w-[33%] md:min-w-0 border-l border-slate-100 md:border-none flex flex-col items-center justify-center text-center gap-1 px-1"
-            >
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-pd-purple/5 flex items-center justify-center text-pd-purple shrink-0 mb-0.5">
-                <Users size={16} className="md:size-[18px]" />
+            <div className="flex-1 w-full md:w-auto flex items-center justify-center md:justify-start gap-4 px-4 py-3 md:py-0">
+              <div className="w-12 h-12 rounded-full bg-pd-purple/10 flex items-center justify-center text-pd-purple shrink-0">
+                <Users size={20} strokeWidth={2.5} />
               </div>
-              <div className="flex flex-col items-center">
-                <h3 className="text-xs md:text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">
+              <div className="flex flex-col text-left">
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 leading-none mb-1">
                   <AnimatedCounter end={10000} suffix="+" />
                 </h3>
-                <p className="text-[6px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Inquiries</p>
+                <p className="text-[10px] md:text-xs font-bold text-slate-500">
+                  Happy Inquiries
+                </p>
               </div>
-            </motion.div>
+            </div>
 
             {/* Stat Item 3 */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="flex-1 min-w-[33%] md:min-w-0 border-l border-slate-100 md:border-none flex flex-col items-center justify-center text-center gap-1 px-1"
-            >
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-pd-blue/5 flex items-center justify-center text-pd-blue shrink-0 mb-0.5">
-                <Globe size={16} className="md:size-[18px]" />
+            <div className="flex-1 w-full md:w-auto flex items-center justify-center md:justify-start gap-4 px-4 py-3 md:py-0">
+              <div className="w-12 h-12 rounded-full bg-pd-blue/10 flex items-center justify-center text-pd-blue shrink-0">
+                <Globe size={20} strokeWidth={2.5} />
               </div>
-              <div className="flex flex-col items-center">
-                <h3 className="text-xs md:text-xl font-black text-slate-900 tracking-tight leading-none mb-0.5">
+              <div className="flex flex-col text-left">
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 leading-none mb-1">
                   <AnimatedCounter end={7} suffix="" />
                 </h3>
-                <p className="text-[6px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Cities</p>
+                <p className="text-[10px] md:text-xs font-bold text-slate-500">
+                  Cities Covered
+                </p>
               </div>
-            </motion.div>
+            </div>
+
+            {/* Stat Item 4 */}
+            <div className="flex-1 w-full md:w-auto flex items-center justify-center md:justify-start gap-4 px-4 py-3 md:py-0">
+              <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
+                <ShieldCheck size={20} strokeWidth={2.5} />
+              </div>
+              <div className="flex flex-col text-left">
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 leading-none mb-1">
+                  <AnimatedCounter end={98} suffix="%" />
+                </h3>
+                <p className="text-[10px] md:text-xs font-bold text-slate-500">
+                  Customer Satisfaction
+                </p>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -691,7 +674,7 @@ export default function Home() {
       {/* POPULAR CATEGORIES */}
       <section className="py-24 bg-white relative overflow-hidden">
         <div className="absolute top-0 w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-        
+
         <div className="max-w-7xl mx-auto px-6 mb-12">
           <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-8 text-center md:text-left">
             <div className="max-w-xl">
@@ -702,14 +685,14 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-4 w-full md:w-auto justify-center md:justify-end">
               <div className="flex items-center gap-2 mr-2">
-                <button 
+                <button
                   onClick={() => categoriesScrollRef.current?.slidePrev()}
                   className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
                   aria-label="Scroll Left"
                 >
                   <ChevronLeft size={20} />
                 </button>
-                <button 
+                <button
                   onClick={() => categoriesScrollRef.current?.slideNext()}
                   className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
                   aria-label="Scroll Right"
@@ -741,28 +724,27 @@ export default function Home() {
             slidesPerView="auto"
             spaceBetween={24}
             grabCursor={true}
-            loop={true}
             className="px-6"
           >
-            {categories.filter(cat => (categoryCounts[cat.name] || 0) > 0).map((cat, i) => (
-              <SwiperSlide key={i} className="!w-[260px] md:!w-[320px]">
-                <Link href={`/venues?type=${cat.name.toLowerCase().replace(/\s+/g, '-')}`} draggable="false" className="group relative block w-full aspect-[4/5] rounded-[28px] overflow-hidden cursor-pointer shadow-md hover:shadow-2xl hover:shadow-pd-pink/20 transition-all duration-500 bg-slate-100 ring-1 ring-black/5">
+            {categories.map((cat, i) => (
+              <SwiperSlide key={i} className="!w-[260px] md:!w-[320px] !h-auto self-stretch flex flex-col">
+                <Link href={`/venues?type=${cat.name.toLowerCase().replace(/\s+/g, '-')}`} draggable="false" className="group block relative w-full h-[325px] md:h-[400px] rounded-[28px] overflow-hidden cursor-pointer shadow-md hover:shadow-2xl hover:shadow-pd-pink/20 transition-all duration-500 bg-slate-100 ring-1 ring-black/5">
                   {/* Background Image with Scale Effect */}
-                  <img 
-                    src={cat.img} 
-                    alt={cat.name} 
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 pointer-events-none" 
-                    loading="lazy" 
+                  <img
+                    src={cat.img}
+                    alt={cat.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 pointer-events-none"
+                    loading="lazy"
                   />
-                  
+
                   {/* Enhanced Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500 pointer-events-none" />
-                  
+
                   {/* Subtle Color Overlay on Hover */}
-                  <div className="absolute inset-0 bg-pd-purple/10 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                  <div className="absolute inset-0 bg-pd-purple/10  opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
                   {/* Top Badge */}
-                  <div className="absolute top-5 right-5 bg-white/10 backdrop-blur-md border border-white/20 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
+                  <div className="absolute top-5 right-5 bg-white/10  border border-white/20 text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
                     {categoryCounts[cat.name] || 0} Venues
                   </div>
 
@@ -770,14 +752,14 @@ export default function Home() {
                   <div className="absolute inset-0 p-6 flex flex-col justify-end pointer-events-none">
                     <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
                       {/* Icon Circle */}
-                      <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-xl mb-4 shadow-sm group-hover:bg-pd-pink transition-colors duration-500">
+                      <div className="w-10 h-10 rounded-full bg-white/20  border border-white/30 flex items-center justify-center text-xl mb-4 shadow-sm group-hover:bg-pd-pink transition-colors duration-500">
                         {cat.icon}
                       </div>
-                      
+
                       <h3 className="text-white font-extrabold text-lg md:text-xl uppercase tracking-wider leading-tight mb-2 drop-shadow-md">
                         {cat.name}
                       </h3>
-                      
+
                       {/* Decorative Line */}
                       <div className="w-8 h-1 bg-pd-pink rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out origin-left scale-x-0 group-hover:scale-x-100" />
                     </div>
@@ -800,31 +782,31 @@ export default function Home() {
               <p className="text-slate-500 font-medium text-base md:text-lg">Personally verified luxury venues for your grand celebrations.</p>
             </div>
             <div className="flex items-center gap-4 w-full md:w-auto justify-center md:justify-end">
-                <div className="flex items-center gap-2 mr-2">
-                    <button 
-                        onClick={() => venueScrollRef.current?.slidePrev()}
-                        className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
-                        aria-label="Scroll Left"
-                    >
-                        <ChevronLeft size={20} />
-                    </button>
-                    <button 
-                        onClick={() => venueScrollRef.current?.slideNext()}
-                        className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
-                        aria-label="Scroll Right"
-                    >
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
-                <Link href="/venues" className="hidden sm:block">
-                  <button className="group w-full sm:w-auto relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-800 transition-all hover:shadow-lg hover:shadow-pd-pink/10 border border-slate-200 hover:border-pd-pink/30">
-                    <span className="relative z-10 flex items-center justify-center gap-2">
-                      View All
-                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-pd-pink/5 to-pd-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  </button>
-                </Link>
+              <div className="flex items-center gap-2 mr-2">
+                <button
+                  onClick={() => venueScrollRef.current?.slidePrev()}
+                  className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
+                  aria-label="Scroll Left"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={() => venueScrollRef.current?.slideNext()}
+                  className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
+                  aria-label="Scroll Right"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+              <Link href="/venues" className="hidden sm:block">
+                <button className="group w-full sm:w-auto relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-800 transition-all hover:shadow-lg hover:shadow-pd-pink/10 border border-slate-200 hover:border-pd-pink/30">
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    View All
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-pd-pink/5 to-pd-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </button>
+              </Link>
             </div>
           </div>
 
@@ -836,7 +818,7 @@ export default function Home() {
             className="pb-10 px-6"
           >
             {displayVenues.map((venue, i) => (
-              <SwiperSlide key={venue.id} className="!w-full sm:!w-[350px] md:!w-[400px] h-auto flex flex-col">
+              <SwiperSlide key={venue.id} className="!w-full sm:!w-[320px] md:!w-[340px] lg:!w-[295px] !h-auto self-stretch flex flex-col">
                 <VenueCard venue={venue} index={i} isPremium={venue.isPaid} />
               </SwiperSlide>
             ))}
@@ -847,8 +829,8 @@ export default function Home() {
       {/* HOW IT WORKS - PREMIUM LIGHT THEME */}
       <section className="py-24 md:py-32 px-6 bg-white relative overflow-hidden">
         {/* Subtle Background Elements */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-pd-pink/5 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-pd-blue/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(236,72,153,0.03)_0%,transparent_70%)] rounded-full transform-gpu pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(59,130,246,0.03)_0%,transparent_70%)] rounded-full transform-gpu pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16 md:mb-24">
@@ -867,7 +849,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative">
             {/* Horizontal Flow Line connecting them on Desktop */}
             <div className="hidden md:block absolute top-[48px] left-[15%] right-[15%] h-[2px] bg-slate-100 rounded-full z-0 overflow-hidden">
-               <div className="w-1/3 h-full bg-gradient-to-r from-transparent via-pd-pink to-pd-blue animate-[marquee_3s_linear_infinite]" />
+              <div className="w-1/3 h-full bg-gradient-to-r from-transparent via-pd-pink to-pd-blue animate-[marquee_3s_linear_infinite]" />
             </div>
 
             {steps.map((step, i) => (
@@ -887,10 +869,10 @@ export default function Home() {
                 )}
 
                 <div className="h-full bg-white rounded-[40px] p-8 md:p-12 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-2xl hover:shadow-pd-pink/10 transition-all duration-500 flex flex-col items-center text-center relative overflow-hidden group-hover:-translate-y-2">
-                  
+
                   {/* Decorative background gradient on hover */}
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-pd-pink/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
+
                   {/* Big Number Watermark */}
                   <div className="absolute -top-4 -right-4 text-[140px] font-black text-slate-50 group-hover:text-pd-pink/[0.03] transition-colors duration-500 pointer-events-none select-none leading-none tracking-tighter">
                     0{i + 1}
@@ -898,15 +880,15 @@ export default function Home() {
 
                   {/* Icon Container */}
                   <div className="relative mb-10 mt-4">
-                     {/* Pulsing ring on hover */}
-                     <div className="absolute inset-0 border-2 border-pd-pink/20 rounded-full scale-100 opacity-0 group-hover:scale-[1.35] group-hover:opacity-100 transition-all duration-700 ease-out" />
-                     <div className="absolute inset-0 bg-pd-pink/10 rounded-full blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                     
-                     <div className="w-24 h-24 bg-white rounded-full shadow-lg border border-slate-100 flex items-center justify-center relative z-10 group-hover:border-pd-pink/30 transition-colors duration-500">
-                        <div className="text-slate-400 group-hover:text-pd-pink transition-colors duration-500">
-                           {React.isValidElement(step.icon) ? React.cloneElement(step.icon as React.ReactElement<any>, { size: 40, strokeWidth: 1.5, className: "group-hover:scale-110 transition-transform duration-500" }) : step.icon}
-                        </div>
-                     </div>
+                    {/* Pulsing ring on hover */}
+                    <div className="absolute inset-0 border-2 border-pd-pink/20 rounded-full scale-100 opacity-0 group-hover:scale-[1.35] group-hover:opacity-100 transition-all duration-700 ease-out" />
+                    <div className="absolute inset-0 bg-pd-pink/10 rounded-full blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                    <div className="w-24 h-24 bg-white rounded-full shadow-lg border border-slate-100 flex items-center justify-center relative z-10 group-hover:border-pd-pink/30 transition-colors duration-500">
+                      <div className="text-slate-400 group-hover:text-pd-pink transition-colors duration-500">
+                        {React.isValidElement(step.icon) ? React.cloneElement(step.icon as React.ReactElement<any>, { size: 40, strokeWidth: 1.5, className: "group-hover:scale-110 transition-transform duration-500" }) : step.icon}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Step Badge */}
@@ -931,9 +913,9 @@ export default function Home() {
       {/* WHY CHOOSE PARTYDIAL - BENTO GRID EDITION */}
       <section className="py-24 md:py-32 px-4 sm:px-6 bg-[#FDFDFF] relative overflow-hidden border-t border-slate-100">
         {/* Soft Background Blurs */}
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-pd-pink/5 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-pd-blue/5 rounded-full blur-[120px] pointer-events-none" />
-        
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(236,72,153,0.03)_0%,transparent_70%)] rounded-full transform-gpu pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(59,130,246,0.03)_0%,transparent_70%)] rounded-full transform-gpu pointer-events-none" />
+
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16 md:mb-20">
             <motion.div
@@ -949,40 +931,40 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
+
             {/* Bento Block 1: AI Search (Spans 2 columns on Desktop) */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
               className="md:col-span-2 bg-slate-900 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden group shadow-[0_20px_50px_rgb(0,0,0,0.06)] hover:shadow-[0_20px_50px_rgba(159,80,225,0.2)] transition-shadow duration-500"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-pd-purple/20 to-transparent opacity-50 mix-blend-overlay"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-pd-purple/20 to-transparent opacity-50 "></div>
               <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-pd-pink/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-              
+
               <div className="relative z-10 flex flex-col h-full justify-between">
                 <div>
-                   <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md mb-8 border border-white/20">
-                     <Sparkles size={28} className="text-pd-pink" />
-                   </div>
-                   <h3 className="text-3xl md:text-4xl font-black text-white mb-4 tracking-tight leading-tight">
-                     AI-Powered Venue Matching
-                   </h3>
-                   <p className="text-slate-300 font-medium text-lg max-w-md leading-relaxed">
-                     Skip the endless scrolling and filters. Just type exactly what you're imagining, and our AI instantly finds the perfect venues tailored for you.
-                   </p>
+                  <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center  mb-8 border border-white/20">
+                    <Sparkles size={28} className="text-pd-pink" />
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-black text-white mb-4 tracking-tight leading-tight">
+                    AI-Powered Venue Matching
+                  </h3>
+                  <p className="text-slate-300 font-medium text-lg max-w-md leading-relaxed">
+                    Skip the endless scrolling and filters. Just type exactly what you're imagining, and our AI instantly finds the perfect venues tailored for you.
+                  </p>
                 </div>
                 <div className="mt-8">
-                   <Link href="/ai-search" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-900 rounded-full font-black text-sm uppercase tracking-wider hover:bg-pd-pink hover:text-white transition-colors duration-300">
-                     Try AI Search <ArrowRight size={16} />
-                   </Link>
+                  <Link href="/ai-search" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-900 rounded-full font-black text-sm uppercase tracking-wider hover:bg-pd-pink hover:text-white transition-colors duration-300">
+                    Try AI Search <ArrowRight size={16} />
+                  </Link>
                 </div>
               </div>
             </motion.div>
 
             {/* Bento Block 2: Zero Brokerage */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -999,7 +981,7 @@ export default function Home() {
             </motion.div>
 
             {/* Bento Block 3: Best Price Guarantee */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -1008,7 +990,7 @@ export default function Home() {
             >
               <div className="absolute top-0 right-0 w-40 h-40 bg-white/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
               <div className="relative z-10">
-                <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-8 backdrop-blur-md">
+                <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-8 ">
                   <IndianRupee size={28} className="text-white" />
                 </div>
                 <h3 className="text-2xl font-black text-white mb-3 tracking-tight">Best Price Guarantee</h3>
@@ -1019,7 +1001,7 @@ export default function Home() {
             </motion.div>
 
             {/* Bento Block 4: Verified Venues (Spans 2 columns on Desktop) */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -1035,19 +1017,19 @@ export default function Home() {
                   Every venue listed on PartyDial goes through a rigorous physical verification process. What you see in our high-quality photos is exactly what you get.
                 </p>
                 <div className="flex gap-2 flex-wrap">
-                   {['Quality Checked', 'Safe & Secure', 'Authentic Photos'].map(tag => (
-                     <span key={tag} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-xl text-xs font-bold uppercase tracking-wider border border-slate-100">{tag}</span>
-                   ))}
+                  {['Quality Checked', 'Safe & Secure', 'Authentic Photos'].map(tag => (
+                    <span key={tag} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-xl text-xs font-bold uppercase tracking-wider border border-slate-100">{tag}</span>
+                  ))}
                 </div>
               </div>
               <div className="hidden md:block w-48 h-48 rounded-full border-[8px] border-slate-50 relative overflow-hidden shrink-0 shadow-[inset_0_10px_20px_rgba(0,0,0,0.1)]">
-                 <Image src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=400" alt="Verified Venue" fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
-                 <div className="absolute inset-0 bg-pd-purple/20 mix-blend-overlay"></div>
-                 <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="bg-white text-pd-purple w-12 h-12 rounded-full flex items-center justify-center shadow-lg">
-                       <CheckCircle2 size={24} />
-                    </div>
-                 </div>
+                <Image src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=400" alt="Verified Venue" fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-pd-purple/20 "></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-white text-pd-purple w-12 h-12 rounded-full flex items-center justify-center shadow-lg">
+                    <CheckCircle2 size={24} />
+                  </div>
+                </div>
               </div>
             </motion.div>
 
@@ -1058,13 +1040,13 @@ export default function Home() {
       {/* TESTIMONIALS - DUAL MARQUEE EDITION */}
       <section className="py-32 bg-slate-50 relative overflow-hidden">
         {/* Soft Background Blurs */}
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-pd-pink/5 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-pd-blue/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(236,72,153,0.03)_0%,transparent_70%)] rounded-full transform-gpu pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(59,130,246,0.03)_0%,transparent_70%)] rounded-full transform-gpu pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-6 mb-24 text-center relative z-10">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            whileInView={{ opacity: 1, y: 0 }} 
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 uppercase tracking-tighter leading-none">
@@ -1078,7 +1060,8 @@ export default function Home() {
         </div>
 
         {/* Style to force linear smooth scrolling for Swiper */}
-        <style dangerouslySetInnerHTML={{ __html: `
+        <style dangerouslySetInnerHTML={{
+          __html: `
           .testimonials-swiper .swiper-wrapper {
             transition-timing-function: linear !important;
           }
@@ -1086,7 +1069,7 @@ export default function Home() {
 
         {/* Marquee Container with Gradient Mask */}
         <div className="relative flex flex-col overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] pb-10 gap-6 md:gap-8">
-          
+
           {/* Row 1 - Scrolling Left */}
           <div className="w-full">
             <Swiper
@@ -1095,7 +1078,7 @@ export default function Home() {
               slidesPerView="auto"
               loop={true}
               speed={6000}
-              allowTouchMove={true}
+              allowTouchMove={false}
               autoplay={{
                 delay: 0,
                 disableOnInteraction: false,
@@ -1112,9 +1095,9 @@ export default function Home() {
                 <SwiperSlide key={i} className="!w-[320px] md:!w-[420px]">
                   <div className="w-full h-full bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative group hover:-translate-y-2 transition-all duration-500 hover:shadow-xl hover:shadow-pd-pink/10 hover:border-pd-pink/20 whitespace-normal flex flex-col cursor-grab active:cursor-grabbing">
                     <div className="absolute top-6 right-8 opacity-20 group-hover:opacity-100 group-hover:text-pd-pink transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 pointer-events-none">
-                       <Quote size={48} fill="currentColor" className="text-slate-300" />
+                      <Quote size={48} fill="currentColor" className="text-slate-300" />
                     </div>
-                    
+
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-md group-hover:border-pd-pink transition-colors duration-500 relative">
                         <img src={`https://i.pravatar.cc/150?u=user${t.avatar}`} alt={t.name} className="w-full h-full object-cover pointer-events-none" />
@@ -1140,8 +1123,8 @@ export default function Home() {
               spaceBetween={32}
               slidesPerView="auto"
               loop={true}
-              speed={6500}
-              allowTouchMove={true}
+              speed={6000}
+              allowTouchMove={false}
               autoplay={{
                 delay: 0,
                 disableOnInteraction: false,
@@ -1159,9 +1142,9 @@ export default function Home() {
                 <SwiperSlide key={i} className="!w-[320px] md:!w-[420px]">
                   <div className="w-full h-full bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative group hover:-translate-y-2 transition-all duration-500 hover:shadow-xl hover:shadow-pd-blue/10 hover:border-pd-blue/20 whitespace-normal flex flex-col cursor-grab active:cursor-grabbing">
                     <div className="absolute top-6 right-8 opacity-20 group-hover:opacity-100 group-hover:text-pd-blue transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 pointer-events-none">
-                       <Quote size={48} fill="currentColor" className="text-slate-300" />
+                      <Quote size={48} fill="currentColor" className="text-slate-300" />
                     </div>
-                    
+
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-md group-hover:border-pd-blue transition-colors duration-500 relative">
                         <img src={`https://i.pravatar.cc/150?u=user${t.avatar}`} alt={t.name} className="w-full h-full object-cover pointer-events-none" />
@@ -1241,16 +1224,16 @@ export default function Home() {
       <section className="py-32 px-6 md:px-8 bg-slate-50 relative">
         <div className="max-w-7xl mx-auto">
           <div className="relative overflow-hidden bg-slate-950 rounded-[2.5rem] md:rounded-[4rem] border border-slate-800 shadow-2xl">
-            
+
             {/* Mesh Gradient Atmospheric Background */}
-            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-pd-pink/30 via-purple-500/20 to-pd-blue/30 rounded-full blur-[120px] opacity-60 translate-x-1/3 -translate-y-1/3 mix-blend-screen pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-pd-red/20 to-pd-pink/20 rounded-full blur-[100px] opacity-40 -translate-x-1/4 translate-y-1/4 mix-blend-screen pointer-events-none" />
-            
+            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(236,72,153,0.1)_0%,transparent_70%)] rounded-full opacity-60 translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(239,68,68,0.05)_0%,transparent_70%)] rounded-full opacity-40 -translate-x-1/4 translate-y-1/4 pointer-events-none" />
+
             {/* Subtle Noise Texture */}
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03]  pointer-events-none" />
 
             <div className="relative z-10 px-8 py-16 md:px-20 md:py-28 flex flex-col lg:flex-row items-center justify-between gap-16">
-              
+
               {/* Text Content */}
               <div className="text-center lg:text-left flex-1 max-w-2xl">
                 <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6 uppercase tracking-tighter">
@@ -1262,7 +1245,7 @@ export default function Home() {
                 <p className="text-slate-400 font-medium text-lg md:text-xl leading-relaxed mb-10 max-w-xl mx-auto lg:mx-0">
                   Join thousands of happy celebrators. Submit your requirements and get free quotes from 5,000+ luxury venues instantly.
                 </p>
-                
+
                 <div className="flex flex-col sm:flex-row items-center gap-6 justify-center lg:justify-start">
                   <button
                     onClick={() => window.dispatchEvent(new CustomEvent('open-inquiry-popup'))}
@@ -1282,12 +1265,12 @@ export default function Home() {
 
               {/* Decorative Visual Element - Floating Glass Cards */}
               <div className="hidden lg:flex relative w-[450px] h-[450px] shrink-0 items-center justify-center perspective-[1200px]">
-                
+
                 {/* Background Card */}
-                <motion.div 
+                <motion.div
                   animate={{ y: [-15, 15, -15], rotateY: [-8, 8, -8], rotateZ: [-12, -12, -12] }}
                   transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute w-64 h-80 bg-white/5 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl translate-x-12 -translate-y-8 flex flex-col justify-between p-8"
+                  className="absolute w-64 h-80 bg-white/5  rounded-[2rem] border border-white/10 shadow-2xl translate-x-12 -translate-y-8 flex flex-col justify-between p-8"
                 >
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pd-pink/20 to-transparent border border-white/10 mb-6 flex items-center justify-center">
                     <div className="w-6 h-6 rounded-full bg-pd-pink/50 animate-pulse" />
@@ -1298,15 +1281,15 @@ export default function Home() {
                     <div className="h-3 w-1/2 bg-white/5 rounded-full" />
                   </div>
                 </motion.div>
-                
+
                 {/* Foreground Card */}
-                <motion.div 
+                <motion.div
                   animate={{ y: [15, -15, 15], rotateY: [8, -8, 8], rotateZ: [5, 5, 5] }}
                   transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute w-72 h-[340px] bg-gradient-to-br from-pd-pink/90 to-pd-blue/90 backdrop-blur-3xl rounded-[2.5rem] border border-white/30 shadow-[0_32px_80px_-16px_rgba(239,68,68,0.4)] z-10 flex flex-col items-center justify-center p-8 text-center"
+                  className="absolute w-72 h-[340px] bg-gradient-to-br from-pd-pink/90 to-pd-blue/90  rounded-[2.5rem] border border-white/30 shadow-[0_32px_80px_-16px_rgba(239,68,68,0.4)] z-10 flex flex-col items-center justify-center p-8 text-center"
                 >
-                  <div className="relative w-28 h-28 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md mb-8 shadow-inner border border-white/30">
-                    <div className="absolute inset-0 rounded-full bg-white/20 animate-ping opacity-20" />
+                  <div className="relative w-28 h-28 rounded-full bg-white/20 flex items-center justify-center  mb-8 shadow-inner border border-white/30">
+                    <div className="absolute inset-0 rounded-full bg-white/20 opacity-10" />
                     <Heart className="text-white fill-white relative z-10" size={48} />
                   </div>
                   <h3 className="text-white font-black text-2xl uppercase tracking-widest mb-2">Venue Booked!</h3>

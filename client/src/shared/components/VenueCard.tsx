@@ -27,14 +27,9 @@ const getCapacityLabel = (capacity: any) => {
 
 export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardProps) {
   return (
-    <motion.div 
-      layout
+    <div 
       key={v.id}
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ delay: i * 0.05 }}
-      className={`group relative w-full h-full bg-white rounded-[24px] md:rounded-[32px] overflow-hidden flex flex-col transition-all duration-500 will-change-transform ${
+      className={`group relative w-full h-full flex-1 bg-white rounded-2xl overflow-hidden flex flex-col transition-all duration-300 ${
         isPremium
           ? 'border border-amber-200/50 shadow-xl shadow-amber-500/5 hover:shadow-2xl hover:shadow-amber-500/10 hover:-translate-y-1'
           : 'border border-slate-100 shadow-lg shadow-slate-200/50 hover:shadow-2xl hover:shadow-slate-200/80 hover:-translate-y-1'
@@ -66,19 +61,19 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
         <div className="absolute top-4 inset-x-4 flex items-start justify-between gap-2">
           <div className="flex flex-wrap gap-2">
             {isPremium && (
-              <div className="bg-gradient-to-r from-amber-400 to-orange-500 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-white shadow-lg border border-white/20 backdrop-blur-sm">
+              <div className="bg-gradient-to-r from-amber-400 to-orange-500 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-white shadow-lg border border-white/20">
                 <Star size={10} fill="white" />
                 <span className="text-[9px] font-bold uppercase tracking-widest">Featured</span>
               </div>
             )}
             {!isPremium && v.verified && (
-              <div className="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg border border-white/30 text-white">
+              <div className="bg-slate-900/60 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg border border-white/10 text-white">
                 <CheckCircle2 size={12} className="text-green-400" />
                 <span className="text-[9px] font-bold uppercase tracking-widest">Verified</span>
               </div>
             )}
             {v.isNew && !isPremium && (
-              <div className="bg-pd-purple/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 text-white shadow-lg border border-white/20">
+              <div className="bg-pd-purple px-3 py-1.5 rounded-full flex items-center gap-1.5 text-white shadow-lg border border-white/20">
                 <Zap size={12} fill="white" />
                 <span className="text-[9px] font-bold uppercase tracking-widest">New</span>
               </div>
@@ -86,7 +81,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
           </div>
           
           {/* Rating Badge */}
-          <div className="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/30 shadow-lg flex items-center gap-1.5 text-white">
+          <div className="bg-slate-900/60 px-3 py-1.5 rounded-full border border-white/10 shadow-lg flex items-center gap-1.5 text-white">
             <Star size={12} className="text-yellow-400 fill-yellow-400 drop-shadow-sm" />
             <span className="text-xs font-bold">{v.rating}</span>
           </div>
@@ -99,7 +94,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
               <MapPin size={12} className="text-pd-pink shrink-0" /> 
               <span className="truncate">{v.location}, {v.city}</span>
             </div>
-            <div className="flex gap-1 shrink-0 bg-white/10 backdrop-blur-sm px-2 py-1 rounded-full border border-white/10">
+            <div className="flex gap-1 shrink-0 bg-slate-900/60 px-2 py-1 rounded-full border border-white/10">
               {(v.foodTypes || []).map((f: string) => (
                 <div key={f} className={`w-2 h-2 rounded-full ${f === 'Veg' ? 'bg-green-400' : 'bg-pd-red'}`} title={f}></div>
               ))}
@@ -169,6 +164,6 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

@@ -15,6 +15,25 @@ routes = [
 # Secrets like APPWRITE_API_KEY, RAZORPAY_KEY_SECRET, EMAIL_PASS must be set via `wrangler secret put <NAME>`
 ALLOWED_ORIGINS = "https://www.partydial.com,https://partydial.com,https://partner.partydial.com,https://admin.partydial.com,http://localhost:5173,http://localhost:3000"
 
+APPWRITE_ENDPOINT = "https://sgp.cloud.appwrite.io/v1"
+APPWRITE_PROJECT_ID = "69ae84bc001ca4edf8c2"
+APPWRITE_DATABASE_ID = "69c2305e000ecd6d04c1"
+APPWRITE_VENUES_COLLECTION_ID = "party-dial"
+APPWRITE_STORAGE_BUCKET_ID = "venues_photos"
+APPWRITE_LEADS_COLLECTION_ID = "69cf7b100035f0d02235"
+APPWRITE_REVIEWS_COLLECTION_ID = "69d0f0eb001cad584e09"
+APPWRITE_PAYMENTS_COLLECTION_ID = "payments"
+RAZORPAY_KEY_ID = "rzp_live_Sc3FmAUs6jAztV"
+EMAIL_FROM = "noreply@partydial.com"
+EMAIL_HOST = "smtp.hostinger.com"
+EMAIL_PORT = "465"
+EMAIL_SECURE = "true"
+EMAIL_USER = "noreply@partydial.com"
+FRONTEND_URL = "https://partner.partydial.com/"
+GOOGLE_SHEET_LEADS_URL = "https://docs.google.com/spreadsheets/d/1XNlvYSqfslCk79dwO-lPdfO1ybq4IBhVjP5G1L4ukLQ/edit?gid=0#gid=0"
+NODE_ENV = "development"
+PORT = "5005"
+
 # Cron triggers for background tasks
 # [triggers]
 # crons = ["0 * * * *"] # Example: Run every hour

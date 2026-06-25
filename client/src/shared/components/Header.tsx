@@ -28,6 +28,7 @@ import {
   Zap
 } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { usePathname } from 'next/navigation';
 
 const tickerTexts = [
   "India's #1 Event-Lead Generation Platform",
@@ -38,6 +39,7 @@ const tickerTexts = [
 
 
 export default function Header() {
+  const pathname = usePathname();
   const [tickerIndex, setTickerIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
@@ -234,35 +236,37 @@ export default function Header() {
   return (
     <>
       {/* 1. TOP BAR */}
-      <div className="pd-gradient text-white py-2 md:py-2.5 px-4 md:px-6 shadow-lg relative z-[60]">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-[9px] md:text-[11px] font-bold uppercase tracking-[0.1em] md:tracking-[0.2em]">
-          <Link href="tel:+918679933302" className="flex items-center gap-1.5 md:gap-2 hover:text-white/80 transition-colors shrink-0">
-            <Phone size={12} className="fill-white/10" />
-            <span className="tabular-nums">+91 86799 33302</span>
-          </Link>
-          <div className="hidden md:flex flex-1 justify-center overflow-hidden h-4 relative mx-10">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={tickerIndex}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                className="text-white absolute w-full text-center font-bold drop-shadow-sm"
-              >
-                {tickerTexts[tickerIndex]}
-              </motion.span>
-            </AnimatePresence>
-          </div>
-          <div className="flex items-center shrink-0">
-            <Link href="https://partner.partydial.com/signup">
-              <button className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg border border-white/30 backdrop-blur-sm transition-all flex items-center gap-1.5 text-[9px] md:text-[10px]">
-                <Building2 size={12} />
-                Register Your Venue
-              </button>
+      {pathname !== '/ai-search' && (
+        <div className="pd-gradient text-white py-2 md:py-2.5 px-4 md:px-6 shadow-lg relative z-[60]">
+          <div className="max-w-7xl mx-auto flex items-center justify-between text-[9px] md:text-[11px] font-bold uppercase tracking-[0.1em] md:tracking-[0.2em]">
+            <Link href="tel:+918679933302" className="flex items-center gap-1.5 md:gap-2 hover:text-white/80 transition-colors shrink-0">
+              <Phone size={12} className="fill-white/10" />
+              <span className="tabular-nums">+91 86799 33302</span>
             </Link>
+            <div className="hidden md:flex flex-1 justify-center overflow-hidden h-4 relative mx-10">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={tickerIndex}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  className="text-white absolute w-full text-center font-bold drop-shadow-sm"
+                >
+                  {tickerTexts[tickerIndex]}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+            <div className="flex items-center shrink-0">
+              <Link href="https://partner.partydial.com/signup">
+                <button className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg border border-white/30 backdrop-blur-sm transition-all flex items-center gap-1.5 text-[9px] md:text-[10px]">
+                  <Building2 size={12} />
+                  Register Your Venue
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 2. MAIN HEADER */}
       <header className="bg-white/95 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">

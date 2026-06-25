@@ -51,7 +51,7 @@ export const approveVenue = async (c) => {
 export const rejectVenue = async (c) => {
     try {
         const id = c.req.param('id');
-        const body = await c.req.json();
+        const body = await c.req.json().catch(() => ({}));
         const { reason } = body;
 
         const { databases, databaseId, collections } = getAppwriteServices(c.env);
@@ -72,7 +72,7 @@ export const rejectVenue = async (c) => {
 export const updateVenue = async (c) => {
     try {
         const id = c.req.param('id');
-        const updateData = await c.req.json();
+        const updateData = await c.req.json().catch(() => ({}));
         const { databases, databaseId, collections } = getAppwriteServices(c.env);
 
         const allowedFields = ['venueName', 'ownerName', 'description', 'address', 'landmark', 'city', 'state', 'pincode', 'amenities', 'eventTypes', 'photos', 'contactNumber', 'contactEmail', 'capacity', 'venueType', 'gstNumber', 'billingDetails', 'onboardingComplete'];
@@ -118,7 +118,7 @@ export const getVenueById = async (c) => {
 
 export const submitLead = async (c) => {
     try {
-        const body = await c.req.json();
+        const body = await c.req.json().catch(() => ({}));
         const { venueId, pincode: rawPincode, name, phone, email, eventType, guests, notes, eventDate } = body;
 
         if (!name || !phone || !eventType || (guests === undefined || guests === null || guests === '')) {
@@ -245,7 +245,7 @@ export const getVenueLeads = async (c) => {
 // Reviews Logic
 export const submitReview = async (c) => {
     try {
-        const body = await c.req.json();
+        const body = await c.req.json().catch(() => ({}));
         const { venueId, userName, userEmail, rating, comment } = body;
         if (!venueId || !userName || !rating || !comment) return c.json({ status: 'error', message: 'Fields missing' }, 400);
 
@@ -275,7 +275,8 @@ export const getVenueReviews = async (c) => {
 export const replyToReview = async (c) => {
     try {
         const reviewId = c.req.param('reviewId');
-        const { reply } = await c.req.json();
+        const body = await c.req.json().catch(() => ({}));
+        const { reply } = body;
         if (!reply) return c.json({ status: 'error', message: 'Reply missing' }, 400);
 
         const { databases, databaseId, collections } = getAppwriteServices(c.env);

@@ -4,7 +4,7 @@ import { isVenueEligible, getBucketLabel } from '../utils/paxMatcher';
 
 export const distributeLeads = async (c) => {
     try {
-        const body = await c.req.json();
+        const body = await c.req.json().catch(() => ({}));
         const { leads, pincode, employeeId } = body;
         if (!leads || !Array.isArray(leads) || leads.length === 0) return c.json({ status: 'error', message: 'No leads provided' }, 400);
 
@@ -70,7 +70,7 @@ export const getLeadsForUser = async (c) => {
 
 export const distributeLeadsToVenues = async (c) => {
     try {
-        const body = await c.req.json();
+        const body = await c.req.json().catch(() => ({}));
         const { leads, pincode: filterPincode } = body;
         if (!leads || !Array.isArray(leads) || leads.length === 0) return c.json({ status: 'error', message: 'No leads provided' }, 400);
 
@@ -110,7 +110,8 @@ export const distributeLeadsToVenues = async (c) => {
 
 export const syncGoogleSheetLeads = async (c) => {
     try {
-        const { sheetUrl, pincodeFilter } = await c.req.json();
+        const body = await c.req.json().catch(() => ({}));
+        const { sheetUrl, pincodeFilter } = body;
         if (!sheetUrl) return c.json({ status: 'error', message: 'Sheet URL required' }, 400);
         
         let fetchUrl = sheetUrl.trim();
@@ -150,10 +151,11 @@ export const processPublicInquiry = async (c) => {
 
 export const savePartnerEnquiry = async (c) => {
     try {
-        const body = await c.req.json();
+        const body = await c.req.json().catch(() => ({}));
         const { databases, databaseId, collections } = getAppwriteServices(c.env);
         const result = await databases.createDocument(databaseId, collections.leads, ID.unique(), {
-            venueId: 'PARTNER_ENQUIRY', name: body.name, phone: body.phone, eventType: 'Partner Onboarding',
+            venueId: 'PARTNER_ENQUIRY', name: body.name || '', phone: body.phone || '', eventType: 'Partner Onboarding',
+            guests: 0,
             status: 'New', createdAt: new Date().toISOString()
         });
         return c.json({ status: 'success', data: result }, 201);

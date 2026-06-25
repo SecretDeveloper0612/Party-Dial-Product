@@ -24,6 +24,22 @@ export const getAllUsers = async (c) => {
 export const getUserById = async (c) => {
   try {
     const id = c.req.param('id');
+
+    if (id === 'master admin' || id === 'master_admin') {
+      return c.json({
+        status: 'success',
+        data: {
+          $id: 'master admin',
+          name: 'Master Administrator',
+          email: c.env.ADMIN_EMAIL || 'admin@partydial.com',
+          prefs: {
+            role: 'Super Admin',
+            moduleAccess: '["Dashboard", "Users", "Venues", "Leads", "Payments", "Settings"]'
+          }
+        }
+      }, 200);
+    }
+
     const { users } = getAppwriteServices(c.env);
     const user = await users.get(id);
     const prefs = await users.getPrefs(id);
@@ -35,7 +51,8 @@ export const getUserById = async (c) => {
 
 export const createUser = async (c) => {
   try {
-    const { name, email, password, role, region, state, city, pincode, reportingTo, moduleAccess, assignedVenues } = await c.req.json();
+    const body = await c.req.json().catch(() => ({}));
+    const { name, email, password, role, region, state, city, pincode, reportingTo, moduleAccess, assignedVenues } = body;
     if (!name || !email || !password) return c.json({ status: 'error', message: 'Name, email, and password are required.' }, 400);
 
     const { users } = getAppwriteServices(c.env);
@@ -56,7 +73,8 @@ export const createUser = async (c) => {
 export const updateUser = async (c) => {
   try {
     const id = c.req.param('id');
-    const { name, role, region, state, city, pincode, reportingTo, moduleAccess, status, assignedVenues } = await c.req.json();
+    const body = await c.req.json().catch(() => ({}));
+    const { name, role, region, state, city, pincode, reportingTo, moduleAccess, status, assignedVenues } = body;
     const { users } = getAppwriteServices(c.env);
 
     if (name) await users.updateName(id, name);
@@ -78,7 +96,8 @@ export const updateUser = async (c) => {
 export const toggleUserStatus = async (c) => {
   try {
     const id = c.req.param('id');
-    const { blocked } = await c.req.json();
+    const body = await c.req.json().catch(() => ({}));
+    const { blocked } = body;
     const { users } = getAppwriteServices(c.env);
 
     await users.updateStatus(id, !blocked);

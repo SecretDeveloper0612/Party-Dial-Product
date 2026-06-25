@@ -443,19 +443,26 @@ function VenuesContent() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* PREMIUM HERO BANNER */}
-      <div className="bg-slate-950 pt-32 pb-20 px-6 relative overflow-hidden mb-12">
-        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-pd-pink/20 rounded-full blur-[120px] mix-blend-screen opacity-50 pointer-events-none" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-pd-blue/20 rounded-full blur-[120px] mix-blend-screen opacity-50 pointer-events-none" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
+      {/* NEW LIGHT HERO BANNER */}
+      <div className="bg-white border-b border-slate-100 pt-28 pb-8 px-6 relative overflow-hidden mb-6">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pd-red via-pd-purple to-pd-blue opacity-20" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-pd-red/5 rounded-full blur-3xl pointer-events-none" />
         
-        <div className="max-w-7xl mx-auto relative z-10 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }}>
-             <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter leading-none">
-               Find Your Perfect <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-purple-400 to-pd-blue">Venue</span>
+        <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="max-w-2xl text-center md:text-left"
+          >
+             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-pd-red/10 text-pd-red text-[10px] font-black uppercase tracking-widest mb-6">
+               <Star size={12} className="fill-pd-red" /> Verified Spaces Only
+             </div>
+             <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-4 tracking-tight leading-none uppercase">
+               Discover <span className="pd-gradient-text">Venues</span>
              </h1>
-             <p className="text-slate-400 font-medium text-lg max-w-2xl mx-auto">
-               Browse through our curated list of premium spaces. Use the filters to find exactly what you need for your next unforgettable event.
+             <p className="text-slate-500 font-medium text-base md:text-lg">
+               Browse our curated list of premium spaces. Find exactly what you need for your next unforgettable event.
              </p>
           </motion.div>
         </div>
@@ -466,7 +473,7 @@ function VenuesContent() {
           
           {/* DESKTOP SIDEBAR */}
           <aside className="hidden lg:block w-[320px] shrink-0">
-             <div className="sticky top-6 space-y-8 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-y-auto max-h-[calc(100vh-40px)] no-scrollbar">
+             <div className="sticky top-6 space-y-8 bg-white p-8 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-y-auto max-h-[calc(100vh-40px)] no-scrollbar">
                 <div className="flex items-center justify-between mb-4 pb-6 border-b border-slate-50">
                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">Filters</h3>
                    <button onClick={clearFilters} className="text-[10px] font-black text-pd-pink uppercase tracking-widest hover:text-white transition-colors bg-pd-pink/10 hover:bg-pd-pink px-4 py-2 rounded-full">Clear All</button>
@@ -742,7 +749,7 @@ function VenuesContent() {
 
           {/* MAIN LISTINGS */}
           <main className="flex-1 min-w-0">
-             <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-10 gap-6 bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+             <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-10 gap-6 bg-white p-6 md:p-8 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
                 <div>
                   <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mb-2">Discover Venues</h2>
                   <p className="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest bg-slate-50 inline-block px-3 py-1.5 rounded-lg border border-slate-100">
