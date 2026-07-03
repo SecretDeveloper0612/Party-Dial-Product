@@ -142,6 +142,7 @@ export default function Footer() {
                 <div className="relative">
                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                    <input 
+                      suppressHydrationWarning
                       className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-14 text-sm font-bold focus:border-pd-pink focus:bg-white/10 transition-all outline-none" 
                       placeholder="Email Address" 
                    />
