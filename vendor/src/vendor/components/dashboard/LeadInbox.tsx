@@ -118,7 +118,7 @@ const LeadInbox = ({
               >
                  {/* Lead Info */}
                  <div className="col-span-4 flex gap-4 items-center w-full md:w-auto md:pl-2">
-                    <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-gradient-to-tr from-pd-pink/10 to-pd-purple/10 text-pd-pink flex items-center justify-center font-extrabold text-sm lg:text-base shrink-0 border border-pd-pink/20">
+                    <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-linear-to-tr from-pd-pink/10 to-pd-purple/10 text-pd-pink flex items-center justify-center font-extrabold text-sm lg:text-base shrink-0 border border-pd-pink/20">
                        {lead.name ? lead.name.charAt(0).toUpperCase() : 'U'}
                     </div>
                     <div className="min-w-0 flex-1">

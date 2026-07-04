@@ -112,7 +112,7 @@ const HelpCenter = () => {
             
             {/* SEARCH BAR */}
             <div className="max-w-2xl mx-auto relative group px-2">
-               <div className="absolute inset-0 bg-gradient-to-r from-pd-red via-pd-purple to-pd-blue rounded-[2rem] blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+               <div className="absolute inset-0 bg-linear-to-r from-pd-red via-pd-purple to-pd-blue rounded-[2rem] blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
                <div className="relative flex items-center bg-white rounded-[1.5rem] md:rounded-[2rem] p-2 shadow-2xl border border-white/10">
                   <div className="pl-6 text-slate-400"><Search size={22} strokeWidth={2.5}/></div>
                   <input 
@@ -218,7 +218,7 @@ const HelpCenter = () => {
               {/* LIVE CHAT */}
               <motion.div 
                 {...fadeUp}
-                className="flex-1 p-10 md:p-16 rounded-[3rem] bg-gradient-to-br from-pd-purple/5 to-white border border-pd-purple/10 flex flex-col justify-between group hover:shadow-2xl transition-all"
+                className="flex-1 p-10 md:p-16 rounded-[3rem] bg-linear-to-br from-pd-purple/5 to-white border border-pd-purple/10 flex flex-col justify-between group hover:shadow-2xl transition-all"
               >
                  <div>
                     <div className="w-20 h-20 rounded-3xl bg-pd-purple flex items-center justify-center text-white mb-10 shadow-xl group-hover:scale-110 transition-transform duration-500"><MessageCircle size={32} strokeWidth={2.5}/></div>

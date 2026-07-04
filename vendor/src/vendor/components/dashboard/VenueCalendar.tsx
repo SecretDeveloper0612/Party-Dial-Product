@@ -222,7 +222,7 @@ const VenueCalendar = ({
                           ))}
                        </div>
                        <div className="flex-1 bg-slate-900 rounded-[60px] p-16 flex flex-col items-center justify-center text-center relative overflow-hidden shadow-2xl">
-                          <div className="absolute inset-0 bg-gradient-to-tr from-pd-pink/20 via-transparent to-blue-500/10 pointer-events-none" />
+                          <div className="absolute inset-0 bg-linear-to-tr from-pd-pink/20 via-transparent to-blue-500/10 pointer-events-none" />
                           <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-pd-pink/10 rounded-full blur-[100px]" />
                           
                           <div className="w-20 h-20 rounded-3xl bg-white/10 flex items-center justify-center mb-10 relative z-10 border border-white/10">
@@ -272,7 +272,7 @@ const VenueCalendar = ({
                          </div>
                       </motion.div>
                    )) : (
-                      <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-[32px] opacity-40">
+                      <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-4xl opacity-40">
                          <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4">
                             <Clock size={20} />
                           </div>
@@ -318,7 +318,7 @@ const VenueCalendar = ({
        </div>
       <AnimatePresence>
         {setIsBookingModalOpen && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-150 flex items-center justify-center p-4">
              {/* High Performance Backdrop */}
              <motion.div 
                initial={{ opacity: 0 }}

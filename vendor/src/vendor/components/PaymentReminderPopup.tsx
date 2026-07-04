@@ -26,7 +26,7 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+        <div className="fixed inset-0 z-100 flex items-center justify-center px-6">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -62,7 +62,7 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
             <div className="p-6 sm:p-10 relative z-10">
               <header className="mb-8 sm:mb-10">
                 <div className="flex items-center gap-3 sm:gap-4 mb-6">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-amber-50 rounded-[18px] sm:rounded-[24px] flex items-center justify-center text-amber-600 border border-amber-100 shadow-sm relative">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-amber-50 rounded-[18px] sm:rounded-3xl flex items-center justify-center text-amber-600 border border-amber-100 shadow-sm relative">
                     <AlertCircle size={24} className="sm:hidden" />
                     <AlertCircle size={32} className="hidden sm:block" />
                     <motion.div 
@@ -85,7 +85,7 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
               </header>
 
               <div className="space-y-6 mb-8 sm:mb-10">
-                <div className="p-6 sm:p-8 bg-gradient-to-br from-slate-900 to-slate-800 rounded-[25px] sm:rounded-[35px] text-white shadow-xl relative overflow-hidden group">
+                <div className="p-6 sm:p-8 bg-linear-to-br from-slate-900 to-slate-800 rounded-[25px] sm:rounded-[35px] text-white shadow-xl relative overflow-hidden group">
                   {/* Micro-animation sparkles */}
                   <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
                     <Sparkles className="absolute top-4 right-6 text-white" size={24} />

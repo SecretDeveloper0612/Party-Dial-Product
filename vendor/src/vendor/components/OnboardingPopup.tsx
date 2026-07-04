@@ -23,7 +23,7 @@ const OnboardingPopup = ({ isOpen, onClose }: OnboardingPopupProps) => {
     <AnimatePresence>
       {isOpen && (
         <div 
-          className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10 isolation-isolate"
+          className="fixed inset-0 z-200 flex items-center justify-center p-4 md:p-10 isolation-isolate"
           style={{ isolation: 'isolate' }}
         >
           {/* Backdrop - NO BLUR for maximum performance */}
@@ -45,7 +45,7 @@ const OnboardingPopup = ({ isOpen, onClose }: OnboardingPopupProps) => {
                 duration: 0.25, 
                 ease: [0.23, 1, 0.32, 1] // Power4.easeOut equivalent
              }}
-             className="relative w-full max-w-[560px] bg-white rounded-[32px] md:rounded-[40px] shadow-2xl overflow-hidden pointer-events-auto z-10"
+             className="relative w-full max-w-[560px] bg-white rounded-4xl md:rounded-[40px] shadow-2xl overflow-hidden pointer-events-auto z-10"
              style={{ 
                 willChange: 'transform, opacity', 
                 transform: 'translate3d(0,0,0)', 
@@ -54,7 +54,7 @@ const OnboardingPopup = ({ isOpen, onClose }: OnboardingPopupProps) => {
              }}
           >
              {/* Simple Gradient Bar */}
-             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-pd-pink via-purple-500 to-pd-pink" />
+             <div className="absolute top-0 inset-x-0 h-1 bg-linear-to-r from-pd-pink via-purple-500 to-pd-pink" />
              
              <button 
                 onClick={onClose}
@@ -106,7 +106,7 @@ const OnboardingPopup = ({ isOpen, onClose }: OnboardingPopupProps) => {
                         <motion.div 
                           whileHover={{ x: 5, backgroundColor: 'rgba(241, 245, 249, 0.8)' }}
                           whileTap={{ scale: 0.98 }}
-                          className="flex items-center gap-4 p-4 bg-slate-50/50 rounded-[24px] border border-slate-100/60 hover:border-pd-pink/30 hover:shadow-lg hover:shadow-pd-pink/5 transition-all text-left"
+                          className="flex items-center gap-4 p-4 bg-slate-50/50 rounded-3xl border border-slate-100/60 hover:border-pd-pink/30 hover:shadow-lg hover:shadow-pd-pink/5 transition-all text-left"
                         >
                            <div className={`w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-500`}>
                               {item.icon}

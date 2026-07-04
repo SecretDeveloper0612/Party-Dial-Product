@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 'use client';
 
 import Image from 'next/image';
@@ -391,15 +392,15 @@ export default function Home() {
             <div className="w-full lg:w-[55%] text-left">
               <div>
                 <div className="inline-block mb-6 px-4 py-2 rounded-full bg-white/60  border border-slate-200/50 shadow-sm">
-                  <span className="text-xs md:text-sm font-bold bg-gradient-to-r from-pd-pink to-pd-purple bg-clip-text text-transparent uppercase tracking-wider">
-                    🎉 India's #1 Venue Booking Platform
+                  <span className="text-xs md:text-sm font-bold bg-linear-to-r from-pd-pink to-pd-purple bg-clip-text text-transparent uppercase tracking-wider">
+                    🎉 India&apos;s #1 Venue Booking Platform
                   </span>
                 </div>
 
                 <h1 className="text-4xl md:text-6xl lg:text-[72px] font-extrabold text-slate-900 tracking-tight leading-[1.05] mb-8">
                   Find the <br className="hidden md:block" />
                   <span className="relative inline-block mt-2">
-                    <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-pd-purple to-pd-blue pr-4 pb-2">
+                    <span className="relative z-10 text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-pd-purple to-pd-blue pr-4 pb-2">
                       Perfect Venue
                     </span>
                     {/* Highlight swoop below text */}
@@ -435,11 +436,11 @@ export default function Home() {
             {/* Lead Form */}
             <div className="w-full lg:w-[45%] relative">
               {/* Decorative background for the form */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-pd-pink to-pd-blue opacity-30 blur-xl rounded-[40px] -z-10 transform-gpu transition-transform" />
+              <div className="absolute -inset-4 bg-linear-to-r from-pd-pink to-pd-blue opacity-30 blur-xl rounded-[40px] -z-10 transform-gpu transition-transform" />
 
-              <div className="bg-white/95 p-8 md:p-10 rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-white relative overflow-visible">
+              <div className="bg-white/95 p-8 md:p-10 rounded-4xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-white relative overflow-visible">
                 {/* Floating Badge */}
-                <div className="absolute -top-5 -right-5 bg-gradient-to-r from-amber-400 to-orange-500 text-white w-20 h-20 rounded-full flex flex-col items-center justify-center font-black shadow-lg transform rotate-12 z-20 border-4 border-white">
+                <div className="absolute -top-5 -right-5 bg-linear-to-r from-amber-400 to-orange-500 text-white w-20 h-20 rounded-full flex flex-col items-center justify-center font-black shadow-lg transform rotate-12 z-20 border-4 border-white">
                   <span className="text-2xl leading-none">FREE</span>
                   <span className="text-[10px] tracking-wider uppercase">Quotes</span>
                 </div>
@@ -465,7 +466,7 @@ export default function Home() {
 
                     <AnimatePresence>
                       {isEventDropdownOpen && (
-                        <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-[60] py-2 max-h-64 overflow-y-auto custom-scrollbar">
+                        <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-40 py-2 max-h-64 overflow-y-auto custom-scrollbar">
                           {categories.map((cat, i) => (
                             <button
                               key={i}
@@ -515,7 +516,7 @@ export default function Home() {
 
                     <AnimatePresence>
                       {showSuggestions && (locationInput.length >= 3) && (suggestions.length > 0 || isLoadingLocations) && (
-                        <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-50 max-h-64 overflow-y-auto custom-scrollbar">
+                        <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-40 max-h-64 overflow-y-auto custom-scrollbar">
                           {isLoadingLocations ? (
                             <div className="p-6 flex justify-center items-center gap-3 text-sm text-slate-500 font-bold">
                               <div className="w-4 h-4 border-2 border-pd-purple border-t-transparent rounded-full animate-spin" /> Searching...
@@ -585,7 +586,7 @@ export default function Home() {
                   onClick={handleSearch}
                   className="group relative w-full h-16 mt-8 rounded-2xl overflow-hidden shadow-xl shadow-pd-pink/30 hover:shadow-pd-pink/40 transition-all duration-300 active:scale-[0.98]"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-pd-pink via-pd-purple to-pd-blue transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-linear-to-r from-pd-pink via-pd-purple to-pd-blue transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="relative flex items-center justify-center gap-3 text-white font-black uppercase tracking-[0.15em] text-sm h-full">
                     <span>Show Me Venues</span>
@@ -673,7 +674,7 @@ export default function Home() {
 
       {/* POPULAR CATEGORIES */}
       <section className="py-24 bg-white relative overflow-hidden">
-        <div className="absolute top-0 w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+        <div className="absolute top-0 w-full h-px bg-linear-to-r from-transparent via-slate-200 to-transparent" />
 
         <div className="max-w-7xl mx-auto px-6 mb-12">
           <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-8 text-center md:text-left">
@@ -706,7 +707,7 @@ export default function Home() {
                     All Categories
                     <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-pd-pink/5 to-pd-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-linear-to-r from-pd-pink/5 to-pd-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </button>
               </Link>
             </div>
@@ -716,8 +717,8 @@ export default function Home() {
         {/* Draggable Carousel Container */}
         <div className="relative w-full pb-10">
           {/* Gradient Edges for smooth fading */}
-          <div className="absolute inset-y-0 left-0 w-8 md:w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-8 md:w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 left-0 w-8 md:w-24 bg-linear-to-r from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-8 md:w-24 bg-linear-to-l from-white to-transparent z-10 pointer-events-none" />
 
           <Swiper
             onSwiper={(swiper) => (categoriesScrollRef.current = swiper)}
@@ -738,7 +739,7 @@ export default function Home() {
                   />
 
                   {/* Enhanced Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500 pointer-events-none" />
+                  <div className="absolute inset-0 bg-linear-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500 pointer-events-none" />
 
                   {/* Subtle Color Overlay on Hover */}
                   <div className="absolute inset-0 bg-pd-purple/10  opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -804,7 +805,7 @@ export default function Home() {
                     View All
                     <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-pd-pink/5 to-pd-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-linear-to-r from-pd-pink/5 to-pd-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </button>
               </Link>
             </div>
@@ -849,7 +850,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative">
             {/* Horizontal Flow Line connecting them on Desktop */}
             <div className="hidden md:block absolute top-[48px] left-[15%] right-[15%] h-[2px] bg-slate-100 rounded-full z-0 overflow-hidden">
-              <div className="w-1/3 h-full bg-gradient-to-r from-transparent via-pd-pink to-pd-blue animate-[marquee_3s_linear_infinite]" />
+              <div className="w-1/3 h-full bg-linear-to-r from-transparent via-pd-pink to-pd-blue animate-[marquee_3s_linear_infinite]" />
             </div>
 
             {steps.map((step, i) => (
@@ -871,7 +872,7 @@ export default function Home() {
                 <div className="h-full bg-white rounded-[40px] p-8 md:p-12 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-2xl hover:shadow-pd-pink/10 transition-all duration-500 flex flex-col items-center text-center relative overflow-hidden group-hover:-translate-y-2">
 
                   {/* Decorative background gradient on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-pd-pink/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-linear-to-b from-transparent to-pd-pink/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                   {/* Big Number Watermark */}
                   <div className="absolute -top-4 -right-4 text-[140px] font-black text-slate-50 group-hover:text-pd-pink/[0.03] transition-colors duration-500 pointer-events-none select-none leading-none tracking-tighter">
@@ -924,7 +925,7 @@ export default function Home() {
               viewport={{ once: true }}
             >
               <h2 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight leading-none">
-                Why Choose <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-purple-500 to-pd-blue drop-shadow-sm px-1">PartyDial?</span>
+                Why Choose <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-500 to-pd-blue drop-shadow-sm px-1">PartyDial?</span>
               </h2>
               <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[10px] md:text-sm">The smartest way to book your next celebration</p>
             </motion.div>
@@ -940,7 +941,7 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="md:col-span-2 bg-slate-900 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden group shadow-[0_20px_50px_rgb(0,0,0,0.06)] hover:shadow-[0_20px_50px_rgba(159,80,225,0.2)] transition-shadow duration-500"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-pd-purple/20 to-transparent opacity-50 "></div>
+              <div className="absolute inset-0 bg-linear-to-br from-pd-purple/20 to-transparent opacity-50 "></div>
               <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-pd-pink/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
 
               <div className="relative z-10 flex flex-col h-full justify-between">
@@ -952,7 +953,7 @@ export default function Home() {
                     AI-Powered Venue Matching
                   </h3>
                   <p className="text-slate-300 font-medium text-lg max-w-md leading-relaxed">
-                    Skip the endless scrolling and filters. Just type exactly what you're imagining, and our AI instantly finds the perfect venues tailored for you.
+                    Skip the endless scrolling and filters. Just type exactly what you&apos;re imagining, and our AI instantly finds the perfect venues tailored for you.
                   </p>
                 </div>
                 <div className="mt-8">
@@ -1051,7 +1052,7 @@ export default function Home() {
           >
             <h2 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 uppercase tracking-tighter leading-none">
               Happy <br className="md:hidden" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-purple-500 to-pd-blue drop-shadow-sm px-2">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-500 to-pd-blue drop-shadow-sm px-2">
                 Celebrators
               </span>
             </h2>
@@ -1108,7 +1109,7 @@ export default function Home() {
                       </div>
                     </div>
                     <p className="text-slate-500 font-medium leading-relaxed flex-1 text-sm md:text-base select-none">
-                      "{t.text}"
+                      &quot;{t.text}&quot;
                     </p>
                   </div>
                 </SwiperSlide>
@@ -1155,7 +1156,7 @@ export default function Home() {
                       </div>
                     </div>
                     <p className="text-slate-500 font-medium leading-relaxed flex-1 text-sm md:text-base select-none">
-                      "{t.text}"
+                      &quot;{t.text}&quot;
                     </p>
                   </div>
                 </SwiperSlide>
@@ -1238,7 +1239,7 @@ export default function Home() {
               <div className="text-center lg:text-left flex-1 max-w-2xl">
                 <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6 uppercase tracking-tighter">
                   Ready for the <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-purple-400 to-pd-blue drop-shadow-sm">
+                  <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-400 to-pd-blue drop-shadow-sm">
                     Grand Event?
                   </span>
                 </h2>
@@ -1251,7 +1252,7 @@ export default function Home() {
                     onClick={() => window.dispatchEvent(new CustomEvent('open-inquiry-popup'))}
                     className="group relative inline-flex items-center justify-center px-10 py-5 font-black text-sm uppercase tracking-widest text-white bg-slate-900 overflow-hidden rounded-2xl border border-white/10 hover:border-pd-pink/50 transition-all duration-300 shadow-2xl hover:shadow-pd-pink/20 active:scale-95"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-pd-red via-pd-pink to-pd-blue opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-linear-to-r from-pd-red via-pd-pink to-pd-blue opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <span className="relative z-10 flex items-center gap-3">
                       Submit Requirement
                       <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
@@ -1272,7 +1273,7 @@ export default function Home() {
                   transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
                   className="absolute w-64 h-80 bg-white/5  rounded-[2rem] border border-white/10 shadow-2xl translate-x-12 -translate-y-8 flex flex-col justify-between p-8"
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pd-pink/20 to-transparent border border-white/10 mb-6 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-pd-pink/20 to-transparent border border-white/10 mb-6 flex items-center justify-center">
                     <div className="w-6 h-6 rounded-full bg-pd-pink/50 animate-pulse" />
                   </div>
                   <div className="space-y-4">
@@ -1286,7 +1287,7 @@ export default function Home() {
                 <motion.div
                   animate={{ y: [15, -15, 15], rotateY: [8, -8, 8], rotateZ: [5, 5, 5] }}
                   transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute w-72 h-[340px] bg-gradient-to-br from-pd-pink/90 to-pd-blue/90  rounded-[2.5rem] border border-white/30 shadow-[0_32px_80px_-16px_rgba(239,68,68,0.4)] z-10 flex flex-col items-center justify-center p-8 text-center"
+                  className="absolute w-72 h-[340px] bg-linear-to-br from-pd-pink/90 to-pd-blue/90  rounded-[2.5rem] border border-white/30 shadow-[0_32px_80px_-16px_rgba(239,68,68,0.4)] z-10 flex flex-col items-center justify-center p-8 text-center"
                 >
                   <div className="relative w-28 h-28 rounded-full bg-white/20 flex items-center justify-center  mb-8 shadow-inner border border-white/30">
                     <div className="absolute inset-0 rounded-full bg-white/20 opacity-10" />

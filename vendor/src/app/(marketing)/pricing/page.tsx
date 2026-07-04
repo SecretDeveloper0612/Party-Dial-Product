@@ -28,8 +28,8 @@ import {
 
 // --- STYLES ---
 
-const gradientStyle = "bg-gradient-to-r from-red-500 via-pink-500 via-purple-500 to-blue-500";
-const textGradientStyle = "bg-gradient-to-r from-red-500 via-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent";
+const gradientStyle = "bg-linear-to-r from-red-500 via-pink-500 via-purple-500 to-blue-500";
+const textGradientStyle = "bg-linear-to-r from-red-500 via-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent";
 
 // --- DATA ---
 
@@ -224,7 +224,7 @@ const GridBackground = () => (
         backgroundSize: '40px 40px'
       }}
     ></div>
-    <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent"></div>
+    <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-white to-transparent"></div>
   </div>
 );
 
@@ -341,7 +341,7 @@ const InquiryPopup = React.memo(({ plan, billingDuration, isOpen, onClose }: { p
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -355,7 +355,7 @@ const InquiryPopup = React.memo(({ plan, billingDuration, isOpen, onClose }: { p
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
-        className="relative w-full max-w-[500px] bg-white rounded-2xl shadow-2xl z-10 border border-slate-100 flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-125 bg-white rounded-2xl shadow-2xl z-10 border border-slate-100 flex flex-col max-h-[90vh]"
       >
         <button 
            onClick={onClose} 
@@ -551,7 +551,7 @@ const PricingCard = React.memo(({ plan, onSelect, billingDuration }: { plan: typ
       whileHover={{ y: -10 }}
       className={`relative h-full ${plan.popular ? 'scale-105 z-10' : ''}`}
     >
-      <div className={`h-full flex flex-col p-8 rounded-[32px] bg-white relative ${plan.popular ? 'shadow-2xl shadow-pink-500/20' : 'border border-slate-100 shadow-sm hover:shadow-xl'}`}>
+      <div className={`h-full flex flex-col p-8 rounded-4xl bg-white relative ${plan.popular ? 'shadow-2xl shadow-pink-500/20' : 'border border-slate-100 shadow-sm hover:shadow-xl'}`}>
         {plan.popular && (
           <div className={`absolute -inset-[2px] rounded-[34px] -z-10 ${gradientStyle}`}></div>
         )}
@@ -587,10 +587,10 @@ const PricingCard = React.memo(({ plan, onSelect, billingDuration }: { plan: typ
             <Zap size={14} className="text-pink-500 fill-pink-500" />
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Lead Capacity</span>
           </div>
-          <p className="text-xl font-black bg-gradient-to-r from-red-500 to-purple-600 bg-clip-text text-transparent">{plan.leads}</p>
+          <p className="text-xl font-black bg-linear-to-r from-red-500 to-purple-600 bg-clip-text text-transparent">{plan.leads}</p>
         </div>
 
-        <div className="flex-grow space-y-4 mb-10">
+        <div className="grow space-y-4 mb-10">
           {plan.features.map((feature, i) => (
             <div key={i} className="flex items-start gap-3">
               <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${plan.popular ? 'bg-pink-50 text-pink-500' : 'bg-slate-50 text-slate-400'}`}>
@@ -628,7 +628,7 @@ const FaqItem = React.memo(({ item }: { item: typeof faqs[0] }) => {
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className={`border border-slate-100 rounded-[32px] overflow-hidden bg-white transition-all duration-300 ${isOpen ? 'shadow-2xl shadow-slate-200/50 ring-1 ring-slate-100' : 'hover:shadow-lg'}`}
+      className={`border border-slate-100 rounded-4xl overflow-hidden bg-white transition-all duration-300 ${isOpen ? 'shadow-2xl shadow-slate-200/50 ring-1 ring-slate-100' : 'hover:shadow-lg'}`}
     >
       <button 
         onClick={() => setIsOpen(!isOpen)}
@@ -895,7 +895,7 @@ export default function PricingPage() {
                    transition={{ delay: idx * 0.1 }}
                    className="p-10 bg-white rounded-[40px] border border-slate-100 shadow-xl hover:shadow-2xl transition-all group"
                 >
-                   <div className="w-16 h-16 rounded-[24px] bg-slate-50 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-inner">
+                   <div className="w-16 h-16 rounded-3xl bg-slate-50 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-inner">
                       {goal.icon}
                    </div>
                    <h3 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">{goal.title}</h3>
@@ -1001,8 +1001,8 @@ export default function PricingPage() {
 
                     {/* Doubts Card */}
                     <div className="max-w-md relative group">
-                       <div className="absolute -inset-1 bg-gradient-to-r from-slate-900 to-slate-800 rounded-[36px] blur opacity-10 group-hover:opacity-20 transition duration-500"></div>
-                       <div className="relative bg-slate-950 rounded-[24px] p-8 overflow-hidden shadow-2xl">
+                       <div className="absolute -inset-1 bg-linear-to-r from-slate-900 to-slate-800 rounded-[36px] blur opacity-10 group-hover:opacity-20 transition duration-500"></div>
+                       <div className="relative bg-slate-950 rounded-3xl p-8 overflow-hidden shadow-2xl">
                           <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 blur-[60px] rounded-full -translate-y-12 translate-x-12"></div>
                           
                           <h4 className="text-white text-[9px] font-black uppercase tracking-[0.3em] mb-4 flex items-center gap-2 opacity-80">

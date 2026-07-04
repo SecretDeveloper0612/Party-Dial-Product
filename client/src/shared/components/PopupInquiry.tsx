@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 'use client';
 
 import React, { useState, useEffect, memo, useCallback, useRef } from 'react';
@@ -633,7 +634,7 @@ const InquiryForm = memo(({
                 }}
                 onFocus={() => setShowSuggestions(true)}
                 placeholder={selectedLocations.length === 0 ? "Enter Pincode or City" : "Add more..."}
-                className="flex-1 bg-transparent border-none text-sm font-semibold text-slate-900 focus:outline-none placeholder:text-slate-300 placeholder:font-semibold min-w-[120px] py-2"
+                className="flex-1 bg-transparent border-none text-sm font-semibold text-slate-900 focus:outline-none placeholder:text-slate-300 placeholder:font-semibold min-w-30 py-2"
               />
             </div>
 
@@ -644,7 +645,7 @@ const InquiryForm = memo(({
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 5 }}
-                  className="absolute bottom-full left-0 w-full mb-2 bg-white border border-slate-200 rounded-xl shadow-xl z-[100] max-h-48 overflow-y-auto"
+                  className="absolute bottom-full left-0 w-full mb-2 bg-white border border-slate-200 rounded-xl shadow-xl z-[120] max-h-48 overflow-y-auto"
                 >
                   {isLoadingLocations ? (
                     <div className="p-3 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest animate-pulse">
@@ -962,7 +963,7 @@ export default function PopupInquiry() {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-0 sm:p-4">
           <PopupBackdrop onClick={closePopup} />
 
           <motion.div

@@ -458,7 +458,7 @@ const QuotationManager = ({
             {/* Executive Status Bar */}
             <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-4 lg:px-10 py-4 lg:py-5 flex items-center justify-between sticky top-0 z-40 no-print">
                <div className="flex items-center gap-3 lg:gap-5">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-rose-400 flex items-center justify-center text-white shadow-lg shadow-pink-500/20">
+                  <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-pink-500 to-rose-400 flex items-center justify-center text-white shadow-lg shadow-pink-500/20">
                      <FileText size={18} className="opacity-90" />
                   </div>
                   <div>
@@ -1034,7 +1034,7 @@ const QuotationManager = ({
                                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Venue Preview</h4>
                                  <div className="grid grid-cols-3 gap-3">
                                     {gallery.map((photo: any, i) => (
-                                       <div key={photo.id || i} className="aspect-[4/3] rounded-xl bg-slate-100 overflow-hidden relative border border-slate-200">
+                                       <div key={photo.id || i} className="aspect-4/3 rounded-xl bg-slate-100 overflow-hidden relative border border-slate-200">
                                           <Image
                                              priority
                                              src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${photo.id}/view?project=69ae84bc001ca4edf8c2`}

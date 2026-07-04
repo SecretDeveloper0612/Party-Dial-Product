@@ -338,7 +338,7 @@ export default function SubscriptionPage() {
                     <Zap size={16} className="text-pd-pink fill-pd-pink" />
                     <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">Benefits Included</span>
                   </div>
-                  <p className="text-2xl font-black italic bg-gradient-to-r from-red-500 to-purple-600 bg-clip-text text-transparent">
+                  <p className="text-2xl font-black italic bg-linear-to-r from-red-500 to-purple-600 bg-clip-text text-transparent">
                      Unlimited Direct Leads
                   </p>
                 </div>
@@ -387,7 +387,7 @@ export default function SubscriptionPage() {
 
         <AnimatePresence>
           {showConfirmModal && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+            <div className="fixed inset-0 z-100 flex items-center justify-center px-6">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -451,7 +451,7 @@ export default function SubscriptionPage() {
                       handleActivate();
                     }}
                     disabled={isSaving}
-                    className="w-full h-16 bg-slate-900 text-white rounded-[24px] text-xs font-black uppercase tracking-[0.2em] italic hover:bg-pd-pink transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 group"
+                    className="w-full h-16 bg-slate-900 text-white rounded-3xl text-xs font-black uppercase tracking-[0.2em] italic hover:bg-pd-pink transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 group"
                   >
                     {isSaving ? (
                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />

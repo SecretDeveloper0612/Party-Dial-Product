@@ -1,11 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --color-pd-red: #E11D48;
-  --color-pd-pink: #F43F5E;
-  --color-pd-purple: #7C3AED;
-  --color-pd-blue: #2563EB;
+  --color-pd-red: #e11d48;
+  --color-pd-pink: #f43f5e;
+  --color-pd-purple: #7c3aed;
+  --color-pd-blue: #2563eb;
 
   /* Color Compatibility Overrides: Force Hex for all commonly used palettes */
   --color-slate-950: #020617;
@@ -27,15 +27,51 @@
 
   --color-yellow-500: #eab308;
   --color-yellow-400: #facc15;
-  
+
   --color-rose-600: #e11d48;
   --color-rose-500: #f43f5e;
   --color-rose-400: #fb7185;
 
   --font-pd: 'Poppins', ui-sans-serif, system-ui, sans-serif;
   --radius-pd: 8px;
-  --shadow-pd-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-pd-strong: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-pd-soft:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-pd-strong:
+    0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+}
+
+@utility pd-gradient {
+  background: linear-gradient(
+    135deg,
+    #ff4b5c 0%,
+    #e34ba9 33%,
+    #8b4dcc 66%,
+    #2f6fd6 100%
+  );
+}
+
+@utility pd-gradient-text {
+  background: linear-gradient(
+    135deg,
+    #ff4b5c 0%,
+    #e34ba9 33%,
+    #8b4dcc 66%,
+    #2f6fd6 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@utility glass {
+  @apply bg-white/80 backdrop-blur-xl border border-white/20;
+}
+
+@utility scrollbar-hide {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 :root {
@@ -46,31 +82,6 @@
 @layer base {
   body {
     @apply bg-white text-slate-900 font-pd antialiased;
-  }
-}
-
-@layer utilities {
-  .pd-gradient {
-    background: linear-gradient(135deg, #FF4B5C 0%, #E34BA9 33%, #8B4DCC 66%, #2F6FD6 100%);
-  }
-
-  .pd-gradient-text {
-    background: linear-gradient(135deg, #FF4B5C 0%, #E34BA9 33%, #8B4DCC 66%, #2F6FD6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .glass {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20;
-  }
-
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
   }
 }
 

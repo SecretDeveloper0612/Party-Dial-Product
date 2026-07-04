@@ -1015,7 +1015,7 @@ export default function VendorDashboard() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] lg:hidden"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-60 lg:hidden"
           />
         )}
       </AnimatePresence>
@@ -1029,7 +1029,7 @@ export default function VendorDashboard() {
           x: isMobile && !sidebarOpen ? -280 : 0
         }}
         transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-        className={`bg-white border-r border-slate-200/60 flex flex-col fixed md:sticky top-0 h-[100dvh] z-[70] md:z-50 overflow-hidden no-print shadow-[4px_0_24px_rgba(0,0,0,0.02)]`}
+        className={`bg-white border-r border-slate-200/60 flex flex-col fixed md:sticky top-0 h-[100dvh] z-70 md:z-50 overflow-hidden no-print shadow-[4px_0_24px_rgba(0,0,0,0.02)]`}
       >
          <div className={`py-8 pb-4 flex-1 w-full scrollbar-hide overflow-y-auto overflow-x-hidden ${sidebarOpen ? 'px-8' : 'px-4'}`}>
             <div className={`flex items-center ${sidebarOpen ? 'justify-between mb-16 px-2' : 'justify-center mb-16'}`}>
@@ -1211,7 +1211,7 @@ export default function VendorDashboard() {
                   <div className="text-xl lg:text-2xl font-extrabold tracking-tight leading-none flex items-center gap-2.5">
                      <div className="flex items-center gap-1.5">
                         <span className="hidden sm:inline text-slate-800">Partner</span>
-                        <span className="bg-gradient-to-r from-pd-pink to-purple-500 bg-clip-text text-transparent">Console</span>
+                        <span className="bg-linear-to-r from-pd-pink to-purple-500 bg-clip-text text-transparent">Console</span>
                      </div>
                      <div className="w-1 h-4 bg-slate-200 rounded-full mx-0.5"></div>
                      <span className="capitalize text-slate-500 font-bold">{activeTab}</span>
@@ -1245,8 +1245,8 @@ export default function VendorDashboard() {
                              transition={{ duration: 1.5, ease: "circOut", delay: 0.5 }}
                              className={`h-full rounded-full shadow-sm ${
                                 expiryInfo.daysLeft < 7 
-                                  ? 'bg-gradient-to-r from-red-500 to-rose-500' 
-                                  : 'bg-gradient-to-r from-emerald-400 via-teal-400 to-pd-pink'
+                                  ? 'bg-linear-to-r from-red-500 to-rose-500' 
+                                  : 'bg-linear-to-r from-emerald-400 via-teal-400 to-pd-pink'
                              }`}
                           />
                        </div>
@@ -1260,7 +1260,7 @@ export default function VendorDashboard() {
                                key={i} 
                                animate={{ opacity: [0.2, 1, 0.2] }}
                                transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
-                               className="w-10 h-1 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full"
+                               className="w-10 h-1 bg-linear-to-r from-blue-400 to-indigo-400 rounded-full"
                              />
                            ))}
                         </div>
@@ -1289,7 +1289,7 @@ export default function VendorDashboard() {
                     >
                       <Bell size={18} className="group-hover:scale-110 transition-transform duration-300" />
                       {unreadLeadsCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-[18px] h-[18px] bg-gradient-to-tr from-pd-pink to-rose-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow-md">
+                        <span className="absolute -top-1 -right-1 w-[18px] h-[18px] bg-linear-to-tr from-pd-pink to-rose-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow-md">
                           {unreadLeadsCount}
                         </span>
                       )}
@@ -1313,7 +1313,7 @@ export default function VendorDashboard() {
                         e.stopPropagation();
                         setShowVerificationModal(true);
                      }}
-                     className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-black tracking-widest uppercase shadow-md hover:shadow-lg hover:scale-105 transition-all"
+                     className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-xl bg-linear-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-black tracking-widest uppercase shadow-md hover:shadow-lg hover:scale-105 transition-all"
                   >
                      Verify Profile
                   </button>
@@ -1332,7 +1332,7 @@ export default function VendorDashboard() {
                       </div>
                   </div>
                   <div className="relative">
-                     <div className="w-[46px] h-[46px] lg:w-[50px] lg:h-[50px] rounded-2xl bg-gradient-to-tr from-pd-pink via-purple-500 to-emerald-400 p-[2px] shadow-lg shadow-slate-200/50 group-hover:shadow-pd-pink/20 group-hover:scale-105 transition-all duration-300">
+                     <div className="w-[46px] h-[46px] lg:w-[50px] lg:h-[50px] rounded-2xl bg-linear-to-tr from-pd-pink via-purple-500 to-emerald-400 p-[2px] shadow-lg shadow-slate-200/50 group-hover:shadow-pd-pink/20 group-hover:scale-105 transition-all duration-300">
                         <div className="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center border-2 border-white">
                            {(() => {
                               try {
@@ -1567,7 +1567,7 @@ export default function VendorDashboard() {
             initial={{ opacity: 0, scale: 0.9, y: 20, x: '-50%' }}
             animate={{ opacity: 1, scale: 1, y: 0, x: '-50%' }}
             exit={{ opacity: 0, scale: 0.9, y: 10, x: '-50%' }}
-            className={`fixed bottom-10 left-1/2 -translate-x-1/2 z-[10001] px-6 py-4 rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-4 border border-white/10 backdrop-blur-md ${
+            className={`fixed bottom-10 left-1/2 -translate-x-1/2 z-10001 px-6 py-4 rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-4 border border-white/10 backdrop-blur-md ${
               toast.type === 'success' 
                 ? 'bg-slate-900 text-white' 
                 : 'bg-red-950 text-white'

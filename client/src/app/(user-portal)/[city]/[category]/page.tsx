@@ -188,7 +188,7 @@ export default async function SEORoute({ params }: Props) {
 
             {/* Price-based Recommendations for SEO */}
             <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
-               <div className="p-8 bg-white rounded-[32px] border border-slate-100 shadow-pd-soft">
+               <div className="p-8 bg-white rounded-4xl border border-slate-100 shadow-pd-soft">
                   <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
                     <Star className="text-pd-red" size={16} /> Luxury {category.name}
                   </h3>
@@ -196,7 +196,7 @@ export default async function SEORoute({ params }: Props) {
                     Looking for premium {category.name.toLowerCase()} in {cityName}? Discover high-end venues with world-class amenities, premium catering, and grand decor. Perfect for luxury weddings and grand corporate galas in {cityName}.
                   </p>
                </div>
-               <div className="p-8 bg-white rounded-[32px] border border-slate-100 shadow-pd-soft">
+               <div className="p-8 bg-white rounded-4xl border border-slate-100 shadow-pd-soft">
                   <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
                     <IndianRupee className="text-pd-purple" size={16} /> Budget Friendly Options
                   </h3>

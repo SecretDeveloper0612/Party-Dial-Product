@@ -56,7 +56,7 @@ const AnalyticsCenter = () => {
                             {/* Inner progress part */}
                             <div className="absolute bottom-0 inset-x-0 bg-pd-pink rounded-t-2xl h-1/2 opacity-40 group-hover/bar:h-full group-hover/bar:opacity-100 transition-all duration-500" />
                             {/* Gloss effect */}
-                            <div className="absolute top-0 inset-x-0 h-full bg-gradient-to-b from-white/40 to-transparent" />
+                            <div className="absolute top-0 inset-x-0 h-full bg-linear-to-b from-white/40 to-transparent" />
                          </motion.div>
                          
                          <div className="h-1.5 w-full mt-2 rounded-full bg-slate-50 group-hover/bar:bg-pd-pink/20 transition-colors" />

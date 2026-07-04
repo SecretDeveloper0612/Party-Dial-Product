@@ -18,7 +18,7 @@ const QuickSupport = () => {
           </div>
           
           {/* Abstract Decoration */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-pd-pink/20 to-purple-600/20 blur-3xl -mr-20 -mt-20 rounded-full pointer-events-none" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-br from-pd-pink/20 to-purple-600/20 blur-3xl -mr-20 -mt-20 rounded-full pointer-events-none" />
           <div className="absolute bottom-0 right-32 w-64 h-64 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
        </div>
        

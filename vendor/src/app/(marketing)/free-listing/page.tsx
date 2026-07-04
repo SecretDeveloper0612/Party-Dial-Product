@@ -328,7 +328,7 @@ export default function FreeListingLanding() {
                   whileInView={{ opacity: 1, y: 0 }} 
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="bg-white p-10 rounded-[32px] border border-slate-100 hover:border-pd-red/30 transition-all group shadow-sm"
+                  className="bg-white p-10 rounded-4xl border border-slate-100 hover:border-pd-red/30 transition-all group shadow-sm"
                 >
                    <div className="w-14 h-14 rounded-2xl bg-pd-red/5 flex items-center justify-center text-pd-red mb-8 group-hover:scale-110 transition-transform">
                       {React.cloneElement(benefit.icon as React.ReactElement<any>, { size: 28 })}
@@ -399,7 +399,7 @@ export default function FreeListingLanding() {
            
            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {testimonials.map((t, i) => (
-                 <div key={i} className="bg-white/5 backdrop-blur-md p-10 rounded-[32px] border border-white/10 hover:bg-white/10 transition-all duration-500 group">
+                 <div key={i} className="bg-white/5 backdrop-blur-md p-10 rounded-4xl border border-white/10 hover:bg-white/10 transition-all duration-500 group">
                     <div className="flex items-center gap-2 mb-6">
                        {[...Array(t.rating)].map((_, j) => <Star key={j} size={14} className="fill-pd-pink text-pd-pink" />)}
                     </div>
@@ -484,7 +484,7 @@ export default function FreeListingLanding() {
             {faqs.map((faq, index) => (
               <div 
                 key={index} 
-                className={`border rounded-[32px] transition-all overflow-hidden ${openFaq === index ? 'bg-slate-50 border-pd-red/20' : 'bg-white border-slate-100'}`}
+                className={`border rounded-4xl transition-all overflow-hidden ${openFaq === index ? 'bg-slate-50 border-pd-red/20' : 'bg-white border-slate-100'}`}
               >
                 <button 
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}

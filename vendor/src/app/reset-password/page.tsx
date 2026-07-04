@@ -77,7 +77,7 @@ function ResetPasswordForm() {
   if (isSuccess) {
     return (
       <div className="text-center space-y-6">
-        <div className="bg-emerald-50 border border-emerald-100 p-8 rounded-[32px] flex flex-col items-center gap-4 text-emerald-600">
+        <div className="bg-emerald-50 border border-emerald-100 p-8 rounded-4xl flex flex-col items-center gap-4 text-emerald-600">
           <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-2">
             <CheckCircle2 size={32} className="text-emerald-600" />
           </div>
@@ -88,7 +88,7 @@ function ResetPasswordForm() {
         </div>
         
         <Link href="/login" className="block">
-          <button className="w-full h-14 pd-btn-primary !rounded-[16px] flex items-center justify-center gap-3 text-sm italic tracking-normal lowercase shadow-lg shadow-pd-pink/10">
+          <button className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm italic tracking-normal lowercase shadow-lg shadow-pd-pink/10">
             Go to Login
             <ArrowRight size={18} />
           </button>
@@ -100,7 +100,7 @@ function ResetPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="bg-red-50 border border-red-100 p-3 rounded-[12px] flex items-center gap-2 text-red-600 text-[11px] font-bold">
+        <div className="bg-red-50 border border-red-100 p-3 rounded-xl flex items-center gap-2 text-red-600 text-[11px] font-bold">
           <ShieldCheck size={16} className="text-red-500" /> {error}
         </div>
       )}
@@ -116,7 +116,7 @@ function ResetPasswordForm() {
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full h-12 bg-slate-50 border border-slate-100 rounded-[16px] pl-11 pr-11 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
+            className="w-full h-12 bg-slate-50 border border-slate-100 rounded-2xl pl-11 pr-11 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
             placeholder="••••••••"
           />
           <button
@@ -140,7 +140,7 @@ function ResetPasswordForm() {
             type={showPassword ? 'text' : 'password'}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full h-12 bg-slate-50 border border-slate-100 rounded-[16px] pl-11 pr-11 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
+            className="w-full h-12 bg-slate-50 border border-slate-100 rounded-2xl pl-11 pr-11 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
             placeholder="••••••••"
           />
         </div>
@@ -149,7 +149,7 @@ function ResetPasswordForm() {
       <button
         type="submit"
         disabled={isSubmitting || !userId || !secret}
-        className="w-full h-14 pd-btn-primary !rounded-[16px] flex items-center justify-center gap-3 text-sm italic tracking-normal lowercase group shadow-lg shadow-pd-pink/10 disabled:opacity-50"
+        className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm italic tracking-normal lowercase group shadow-lg shadow-pd-pink/10 disabled:opacity-50"
       >
         {isSubmitting ? 'Updating Password...' : 'Reset Password'}
         {!isSubmitting && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
@@ -174,7 +174,7 @@ export default function ResetPasswordPage() {
       >
         <div className="bg-white rounded-[40px] p-8 lg:p-12 shadow-pd-strong border border-slate-100 mb-8 relative overflow-hidden">
           <div className="mb-10 text-center">
-            <div className="w-20 h-20 bg-slate-900 rounded-[24px] flex items-center justify-center text-white mx-auto mb-6 shadow-xl relative overflow-hidden">
+            <div className="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl relative overflow-hidden">
               <Image
                 src="/partner-icon.jpg"
                 alt="Venue Partner"

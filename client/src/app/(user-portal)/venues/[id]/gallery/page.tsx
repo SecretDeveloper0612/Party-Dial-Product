@@ -102,10 +102,10 @@ export default function VenueGalleryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 pt-[104px] md:pt-[120px]">
       
       {/* 1. COMPACT HEADER */}
-      <nav className="bg-white border-b border-slate-100 sticky top-0 z-40 px-6 py-4">
+      <nav className="bg-white border-b border-slate-100 sticky top-[104px] md:top-[120px] z-40 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-6">
              <Link href={`/venues/${params.id}`} className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-400 hover:text-pd-red">
@@ -177,7 +177,7 @@ export default function VenueGalleryPage() {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}
                   onClick={() => setSelectedImage(img)}
-                  className="group relative bg-white rounded-2xl md:rounded-[32px] overflow-hidden shadow-pd-soft border border-slate-100 cursor-pointer hover:shadow-pd-strong transition-all duration-500 aspect-square"
+                  className="group relative bg-white rounded-2xl md:rounded-4xl overflow-hidden shadow-pd-soft border border-slate-100 cursor-pointer hover:shadow-pd-strong transition-all duration-500 aspect-square"
                 >
                   <img 
                     src={img.url} 

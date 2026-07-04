@@ -267,7 +267,7 @@ export default function CompleteProfilePage() {
                   <textarea 
                     rows={5}
                     placeholder="Tell customers what makes your venue special. Mention the ambiance, suitability for different events, and unique features..."
-                    className="w-full bg-slate-50 border border-slate-100 rounded-[24px] p-6 text-sm font-medium text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none resize-none leading-relaxed"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-3xl p-6 text-sm font-medium text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none resize-none leading-relaxed"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
@@ -287,7 +287,7 @@ export default function CompleteProfilePage() {
                       <button
                         key={amenity.id}
                         onClick={() => toggleAmenity(amenity.id)}
-                        className={`flex flex-col items-center justify-center gap-3 p-5 rounded-[24px] border transition-all ${
+                        className={`flex flex-col items-center justify-center gap-3 p-5 rounded-3xl border transition-all ${
                           selectedAmenities.includes(amenity.id) 
                           ? 'bg-slate-900 border-slate-900 text-white shadow-lg scale-105' 
                           : 'bg-slate-50 border-slate-100 text-slate-500 hover:border-pd-pink'
@@ -368,11 +368,11 @@ export default function CompleteProfilePage() {
                   <div className="grid grid-cols-2 gap-4">
                      <div className="space-y-1.5">
                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-1">Opening Time</label>
-                       <input type="time" className="w-full h-12 bg-slate-50 border border-slate-100 rounded-[16px] px-4 text-xs font-bold" defaultValue="09:00" />
+                       <input type="time" className="w-full h-12 bg-slate-50 border border-slate-100 rounded-2xl px-4 text-xs font-bold" defaultValue="09:00" />
                      </div>
                      <div className="space-y-1.5">
                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-1">Closing Time</label>
-                       <input type="time" className="w-full h-12 bg-slate-50 border border-slate-100 rounded-[16px] px-4 text-xs font-bold" defaultValue="23:00" />
+                       <input type="time" className="w-full h-12 bg-slate-50 border border-slate-100 rounded-2xl px-4 text-xs font-bold" defaultValue="23:00" />
                      </div>
                   </div>
                </section>

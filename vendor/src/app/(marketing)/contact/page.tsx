@@ -74,8 +74,8 @@ export default function ContactPage() {
             </div>
 
             {/* Abstract background shapes */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-pd-blue/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 opacity-20 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-pd-pink/20 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 opacity-20 pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-125 h-[500px] bg-pd-blue/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 opacity-20 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-125 h-[500px] bg-pd-pink/20 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 opacity-20 pointer-events-none"></div>
          </section>
 
          {/* 2. CONTACT CHANNELS & FORM */}
@@ -115,7 +115,7 @@ export default function ContactPage() {
                   ].map((channel, i) => (
                      <div
                         key={i}
-                        className="p-8 md:p-10 bg-white rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:border-slate-200 transition-all duration-500 ease-out group"
+                        className="p-8 md:p-10 bg-white rounded-4xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:border-slate-200 transition-all duration-500 ease-out group"
                      >
                         <div className={`w-14 h-14 rounded-2xl ${channel.bg} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500 ease-out`}>
                            {channel.icon}
@@ -172,7 +172,7 @@ export default function ContactPage() {
                   <div className="flex-1 w-full max-w-xl">
                      <div className="bg-white rounded-[40px] p-8 md:p-12 relative overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-slate-200 group">
                         {/* Subtle Background Glow inside form */}
-                        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-gradient-to-bl from-pd-pink/5 via-pd-blue/5 to-transparent rounded-full blur-[80px] pointer-events-none transition-transform duration-1000 group-hover:scale-110"></div>
+                        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-linear-to-bl from-pd-pink/5 via-pd-blue/5 to-transparent rounded-full blur-[80px] pointer-events-none transition-transform duration-1000 group-hover:scale-110"></div>
 
                         {submitted ? (
                            <motion.div
@@ -180,7 +180,7 @@ export default function ContactPage() {
                               animate={{ opacity: 1, scale: 1 }}
                               className="text-center py-20 relative z-10"
                            >
-                              <div className="w-20 h-20 bg-emerald-50 rounded-[24px] border border-emerald-100 flex items-center justify-center mx-auto mb-8 shadow-sm">
+                              <div className="w-20 h-20 bg-emerald-50 rounded-3xl border border-emerald-100 flex items-center justify-center mx-auto mb-8 shadow-sm">
                                  <CheckCircle2 size={40} className="text-emerald-500" />
                               </div>
                               <h3 className="text-2xl font-black text-[#0F172A] tracking-tight uppercase mb-4">Message Sent!</h3>
@@ -215,7 +215,7 @@ export default function ContactPage() {
 
                               <button
                                  disabled={isSubmitting}
-                                 className="w-full h-16 bg-slate-900 text-white rounded-[24px] text-[10px] font-black uppercase tracking-[0.3em] italic shadow-2xl hover:bg-slate-800 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-all duration-300 flex items-center justify-center gap-4 group/btn disabled:opacity-50 disabled:hover:translate-y-0"
+                                 className="w-full h-16 bg-slate-900 text-white rounded-3xl text-[10px] font-black uppercase tracking-[0.3em] italic shadow-2xl hover:bg-slate-800 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-all duration-300 flex items-center justify-center gap-4 group/btn disabled:opacity-50 disabled:hover:translate-y-0"
                               >
                                  {isSubmitting ? "Processing..." : (
                                     <>

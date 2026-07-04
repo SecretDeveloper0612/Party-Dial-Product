@@ -36,7 +36,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
       }`}
     >
       {/* Image Container */}
-      <div className="relative aspect-[4/3] md:h-64 w-full overflow-hidden bg-slate-100">
+      <div className="relative h-56 md:h-64 w-full overflow-hidden bg-slate-100">
         {v.img ? (
           <img 
             src={v.img} 
@@ -47,35 +47,35 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-20 group-hover:opacity-30 transition-opacity">
             <img src="/logo.jpg" alt="PartyDial" className="w-24 grayscale" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">No Photos Uploaded</span>
+            <span className="text-xs font-semibold text-slate-900">No Photos Uploaded</span>
           </div>
         )}
         
         {/* Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-linear-to-t from-slate-900/80 via-slate-900/20 to-transparent opacity-80" />
         {isPremium && (
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent mix-blend-overlay" />
+          <div className="absolute inset-0 bg-linear-to-br from-amber-500/20 to-transparent mix-blend-overlay" />
         )}
         
         {/* Top Badges */}
         <div className="absolute top-4 inset-x-4 flex items-start justify-between gap-2">
           <div className="flex flex-wrap gap-2">
             {isPremium && (
-              <div className="bg-gradient-to-r from-amber-400 to-orange-500 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-white shadow-lg border border-white/20">
+              <div className="bg-linear-to-r from-amber-400 to-orange-500 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-white shadow-lg border border-white/20">
                 <Star size={10} fill="white" />
-                <span className="text-[9px] font-bold uppercase tracking-widest">Featured</span>
+                <span className="text-xs font-bold">Featured</span>
               </div>
             )}
             {!isPremium && v.verified && (
               <div className="bg-slate-900/60 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg border border-white/10 text-white">
                 <CheckCircle2 size={12} className="text-green-400" />
-                <span className="text-[9px] font-bold uppercase tracking-widest">Verified</span>
+                <span className="text-xs font-bold">Verified</span>
               </div>
             )}
             {v.isNew && !isPremium && (
               <div className="bg-pd-purple px-3 py-1.5 rounded-full flex items-center gap-1.5 text-white shadow-lg border border-white/20">
                 <Zap size={12} fill="white" />
-                <span className="text-[9px] font-bold uppercase tracking-widest">New</span>
+                <span className="text-xs font-bold">New</span>
               </div>
             )}
           </div>
@@ -90,7 +90,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
         {/* Location & Name overlapping the image */}
         <div className="absolute bottom-4 left-4 right-4 text-white">
           <div className="flex items-center justify-between w-full mb-1">
-            <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-200 line-clamp-1">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 line-clamp-1">
               <MapPin size={12} className="text-pd-pink shrink-0" /> 
               <span className="truncate">{v.location}, {v.city}</span>
             </div>
@@ -100,7 +100,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
               ))}
             </div>
           </div>
-          <h3 className="text-xl md:text-2xl font-black tracking-tight leading-tight group-hover:text-amber-100 transition-colors drop-shadow-md line-clamp-2 min-h-[3.5rem] flex items-end">
+          <h3 className="text-xl md:text-2xl font-bold tracking-tight leading-tight group-hover:text-amber-100 transition-colors drop-shadow-md line-clamp-2 min-h-[3.5rem] flex items-end">
             {v.name}
           </h3>
         </div>
@@ -113,9 +113,9 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1.5 text-slate-400">
               <IndianRupee size={12} />
-              <span className="text-[9px] font-bold uppercase tracking-widest">Price / Plate</span>
+              <span className="text-xs font-bold">Price / Plate</span>
             </div>
-            <span className="text-lg font-black text-slate-900 tracking-tight">
+            <span className="text-lg font-bold text-slate-900 tracking-tight">
               {v.price && String(v.price).trim() !== "N/A" && String(v.price).trim() !== "0" && String(v.price).trim() !== "" 
                 ? (String(v.price).includes('₹') ? v.price : `₹${v.price}`) 
                 : "Pricing on request"}
@@ -125,9 +125,9 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
           <div className="flex flex-col gap-1 border-l border-slate-100 pl-4">
             <div className="flex items-center gap-1.5 text-slate-400">
               <Users size={12} />
-              <span className="text-[9px] font-bold uppercase tracking-widest">Guest Cap.</span>
+              <span className="text-xs font-bold">Guest Cap.</span>
             </div>
-            <span className="text-lg font-black text-slate-900 tracking-tight">
+            <span className="text-lg font-bold text-slate-900 tracking-tight">
               {getCapacityLabel(v.capacity)}
             </span>
           </div>
@@ -136,12 +136,12 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
         {/* Amenities */}
         <div className="flex flex-wrap gap-2 mb-6">
           {(v.amenities || []).slice(0, 3).map((a: string) => (
-            <span key={a} className="px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[9px] font-bold border border-slate-100">
+            <span key={a} className="px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold border border-slate-100">
               {a}
             </span>
           ))}
           {(v.amenities || []).length > 3 && (
-            <span className="px-3 py-1.5 bg-pd-pink/5 text-pd-pink rounded-lg text-[9px] font-bold border border-pd-pink/10">
+            <span className="px-3 py-1.5 bg-pd-pink/5 text-pd-pink rounded-lg text-xs font-bold border border-pd-pink/10">
               +{(v.amenities || []).length - 3} more
             </span>
           )}
@@ -150,7 +150,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
         {/* Buttons */}
         <div className="flex items-center gap-3 w-full mt-auto">
           <Link href={`/venues/${v.id}`} className="flex-1">
-            <button className="w-full py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all active:scale-95">
+            <button className="w-full py-4 rounded-xl text-xs font-semibold text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all active:scale-95">
               Details
             </button>
           </Link>
@@ -158,7 +158,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
             onClick={() => {
               window.dispatchEvent(new CustomEvent('open-inquiry-popup', { detail: { venueId: v.id } }));
             }}
-            className="flex-[1.5] py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-white bg-gradient-to-r from-pd-pink to-pd-blue hover:shadow-lg hover:shadow-pd-pink/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+            className="flex-[1.5] py-4 rounded-xl text-xs font-semibold text-white bg-linear-to-r from-pd-pink to-pd-blue hover:shadow-lg hover:shadow-pd-pink/20 transition-all active:scale-95 flex items-center justify-center gap-2"
           >
             Get Quote <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </button>

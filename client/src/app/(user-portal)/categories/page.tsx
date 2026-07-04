@@ -188,7 +188,7 @@ export default function CategoriesPage() {
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter leading-none">
-              Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-purple-400 to-pd-blue">Categories</span>
+              Explore <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-400 to-pd-blue">Categories</span>
             </h1>
             <p className="text-slate-400 font-medium text-lg md:text-xl max-w-2xl mx-auto mb-12">
               From intimate family functions to grand corporate summits, discover the perfect specialized venue for your next extraordinary event.
@@ -196,7 +196,7 @@ export default function CategoriesPage() {
 
             {/* Glowing Search Bar */}
             <div className="relative max-w-2xl mx-auto group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-pd-pink via-purple-500 to-pd-blue rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500 pointer-events-none"></div>
+              <div className="absolute -inset-1 bg-linear-to-r from-pd-pink via-purple-500 to-pd-blue rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500 pointer-events-none"></div>
               <div className="relative flex items-center bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl">
                 <Search className="text-slate-400 ml-4 mr-2" size={24} />
                 <input 
@@ -206,7 +206,7 @@ export default function CategoriesPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-transparent text-white placeholder-slate-500 outline-none text-base md:text-lg py-4 px-2"
                 />
-                <div className="bg-gradient-to-r from-pd-pink to-pd-blue p-[2px] rounded-xl ml-2 shrink-0">
+                <div className="bg-linear-to-r from-pd-pink to-pd-blue p-[2px] rounded-xl ml-2 shrink-0">
                   <button className="bg-slate-900 text-white px-6 py-3 rounded-[10px] font-bold tracking-wider uppercase text-xs hover:bg-transparent transition-colors">
                     Search
                   </button>
@@ -255,16 +255,16 @@ export default function CategoriesPage() {
                     className="group block h-full bg-white rounded-[2rem] p-3 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:border-pd-pink/20 transition-all duration-500 hover:-translate-y-2 relative"
                   >
                     {/* Glowing gradient hover background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-pd-pink/5 via-transparent to-pd-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem] pointer-events-none" />
+                    <div className="absolute inset-0 bg-linear-to-br from-pd-pink/5 via-transparent to-pd-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem] pointer-events-none" />
                     
-                    <div className="aspect-[4/3] relative rounded-[1.5rem] overflow-hidden mb-5">
+                    <div className="aspect-4/3 relative rounded-[1.5rem] overflow-hidden mb-5">
                       <img 
                         src={cat.img} 
                         alt={cat.title} 
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" 
                         loading="lazy" 
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity pointer-events-none" />
+                      <div className="absolute inset-0 bg-linear-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity pointer-events-none" />
                       
                       {/* Top floating pill */}
                       <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm pointer-events-none">

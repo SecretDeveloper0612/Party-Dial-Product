@@ -116,7 +116,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
       {/* Premium Header */}
       <div className="relative bg-white p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden group">
          {/* Subtle glowing accent */}
-         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-amber-400/10 via-pd-pink/5 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+         <div className="absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-amber-400/10 via-pd-pink/5 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
          
          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
@@ -155,7 +155,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                initial={{ opacity: 0, y: 15 }}
                animate={{ opacity: 1, y: 0 }}
                transition={{ delay: i * 0.05 }}
-               className="bg-white p-6 rounded-[24px] border border-slate-200/50 shadow-sm flex flex-col h-full hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:border-slate-300 transition-all duration-300 relative group"
+               className="bg-white p-6 rounded-3xl border border-slate-200/50 shadow-sm flex flex-col h-full hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:border-slate-300 transition-all duration-300 relative group"
              >
                 <div className="flex items-start justify-between gap-4 mb-5">
                    <div className="flex items-center gap-3">
@@ -221,7 +221,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
       {/* Reply Modal */}
       <AnimatePresence>
         {replyTarget && (
-          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-1000 flex items-center justify-center p-4">
              <motion.div 
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}

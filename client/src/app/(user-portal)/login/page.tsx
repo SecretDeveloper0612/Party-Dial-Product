@@ -63,7 +63,7 @@ export default function LoginPage() {
           className="object-cover opacity-60"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-pd-purple/40 to-pd-pink/40 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-pd-purple/40 to-pd-pink/40 mix-blend-multiply"></div>
         
         <div className="relative z-10 w-full p-16 flex flex-col justify-between text-white">
           <Link href="/" className="flex items-center gap-2 group text-white/80 hover:text-white transition-colors">
@@ -184,7 +184,7 @@ export default function LoginPage() {
             <button 
               type="submit" 
               disabled={isLoading}
-              className="w-full h-16 bg-gradient-to-r from-pd-purple to-pd-pink text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-pd-purple/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+              className="w-full h-16 bg-linear-to-r from-pd-purple to-pd-pink text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-pd-purple/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
             >
                {isLoading ? (
                  <motion.div 

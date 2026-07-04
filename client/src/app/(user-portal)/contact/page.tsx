@@ -62,9 +62,9 @@ export default function ContactUs() {
   return (
     <main className="bg-white min-h-screen font-sans selection:bg-pd-red/10 selection:text-pd-red">
       {/* 1. HERO SECTION */}
-      <section className="relative pt-24 pb-16 md:pt-40 md:pb-28 bg-gradient-to-b from-slate-50 to-white overflow-hidden">
+      <section className="relative pt-24 pb-16 md:pt-40 md:pb-28 bg-linear-to-b from-slate-50 to-white overflow-hidden">
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-pd-red/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-125 h-[500px] bg-pd-red/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-pd-purple/5 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
         
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
@@ -353,7 +353,7 @@ export default function ContactUs() {
           {...fadeUp}
           className="max-w-7xl mx-auto bg-slate-900 rounded-[3rem] p-10 md:p-20 text-center relative overflow-hidden"
         >
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-pd-red/20 via-transparent to-pd-purple/20 pointer-events-none"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-linear-to-br from-pd-red/20 via-transparent to-pd-purple/20 pointer-events-none"></div>
           <div className="relative z-10">
             <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-pd-red mx-auto mb-8 border border-white/10 backdrop-blur-sm">
                 <Building2 size={32} />

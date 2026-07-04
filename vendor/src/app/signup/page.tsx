@@ -258,7 +258,7 @@ export default function VenueSignupPage() {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/90 via-slate-900/60 to-slate-900/20"></div>
+          <div className="absolute inset-0 bg-linear-to-tr from-slate-900/90 via-slate-900/60 to-slate-900/20"></div>
         </div>
 
         {/* Content Over Image */}
@@ -343,7 +343,7 @@ export default function VenueSignupPage() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {errors.submit && (
-                <div className="bg-red-50 border border-red-100 p-3 rounded-[12px] flex items-center gap-2 text-red-600 text-[11px] font-bold">
+                <div className="bg-red-50 border border-red-100 p-3 rounded-xl flex items-center gap-2 text-red-600 text-[11px] font-bold">
                   <ShieldCheck size={16} className="text-red-500" /> {errors.submit}
                 </div>
               )}
@@ -361,7 +361,7 @@ export default function VenueSignupPage() {
                       name="businessName"
                       value={formData.businessName}
                       onChange={handleChange}
-                      className={`w-full h-12 bg-slate-50 border ${errors.businessName ? 'border-red-500' : 'border-slate-100'} rounded-[16px] pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
+                      className={`w-full h-12 bg-slate-50 border ${errors.businessName ? 'border-red-500' : 'border-slate-100'} rounded-2xl pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
                       placeholder="e.g. Grand Imperial Banquet"
                     />
                   </div>
@@ -380,7 +380,7 @@ export default function VenueSignupPage() {
                       name="ownerName"
                       value={formData.ownerName}
                       onChange={handleChange}
-                      className={`w-full h-12 bg-slate-50 border ${errors.ownerName ? 'border-red-500' : 'border-slate-100'} rounded-[16px] pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
+                      className={`w-full h-12 bg-slate-50 border ${errors.ownerName ? 'border-red-500' : 'border-slate-100'} rounded-2xl pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
                       placeholder="John Doe"
                     />
                   </div>
@@ -399,7 +399,7 @@ export default function VenueSignupPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className={`w-full h-12 bg-slate-50 border ${errors.email ? 'border-red-500' : 'border-slate-100'} rounded-[16px] pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
+                      className={`w-full h-12 bg-slate-50 border ${errors.email ? 'border-red-500' : 'border-slate-100'} rounded-2xl pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
                       placeholder="john@example.com"
                     />
                   </div>
@@ -418,7 +418,7 @@ export default function VenueSignupPage() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className={`w-full h-12 bg-slate-50 border ${errors.phone ? 'border-red-500' : 'border-slate-100'} rounded-[16px] pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
+                      className={`w-full h-12 bg-slate-50 border ${errors.phone ? 'border-red-500' : 'border-slate-100'} rounded-2xl pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
                       placeholder="+91 9876543210"
                     />
                   </div>
@@ -438,7 +438,7 @@ export default function VenueSignupPage() {
                       value={formData.pincode}
                       onChange={handleChange}
                       maxLength={6}
-                      className={`w-full h-12 bg-slate-50 border ${errors.pincode ? 'border-red-500' : 'border-slate-100'} rounded-[16px] pl-11 pr-11 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
+                      className={`w-full h-12 bg-slate-50 border ${errors.pincode ? 'border-red-500' : 'border-slate-100'} rounded-2xl pl-11 pr-11 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
                       placeholder="6-digit Pincode"
                     />
                     {isPincodeLoading && (
@@ -465,7 +465,7 @@ export default function VenueSignupPage() {
                       name="city"
                       value={formData.city}
                       onChange={handleChange}
-                      className={`w-full h-12 bg-slate-50 border ${errors.city ? 'border-red-500' : 'border-slate-100'} rounded-[16px] pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
+                      className={`w-full h-12 bg-slate-50 border ${errors.city ? 'border-red-500' : 'border-slate-100'} rounded-2xl pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
                       placeholder="Enter City"
                     />
                   </div>
@@ -483,7 +483,7 @@ export default function VenueSignupPage() {
                       name="state"
                       value={formData.state}
                       onChange={handleChange}
-                      className={`w-full h-12 bg-slate-50 border ${errors.state ? 'border-red-500' : 'border-slate-100'} rounded-[16px] pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none appearance-none cursor-pointer`}
+                      className={`w-full h-12 bg-slate-50 border ${errors.state ? 'border-red-500' : 'border-slate-100'} rounded-2xl pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none appearance-none cursor-pointer`}
                     >
                       <option value="">{formData.state || "Select State"}</option>
                       {formData.state && <option value={formData.state}>{formData.state}</option>}
@@ -504,7 +504,7 @@ export default function VenueSignupPage() {
                       name="venueType"
                       value={formData.venueType}
                       onChange={handleChange}
-                      className={`w-full h-12 bg-slate-50 border ${errors.venueType ? 'border-red-500' : 'border-slate-100'} rounded-[16px] pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none appearance-none cursor-pointer`}
+                      className={`w-full h-12 bg-slate-50 border ${errors.venueType ? 'border-red-500' : 'border-slate-100'} rounded-2xl pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none appearance-none cursor-pointer`}
                     >
                       <option value="">Select Type</option>
                       {venueTypes.map(t => <option key={t} value={t}>{t}</option>)}
@@ -524,7 +524,7 @@ export default function VenueSignupPage() {
                       name="capacity"
                       value={formData.capacity}
                       onChange={handleChange}
-                      className="w-full h-12 bg-slate-50 border border-slate-100 rounded-[16px] pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none appearance-none cursor-pointer"
+                      className="w-full h-12 bg-slate-50 border border-slate-100 rounded-2xl pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none appearance-none cursor-pointer"
                     >
                       <option value="">Select Capacity</option>
                       {capacityRanges.map(r => <option key={r} value={r}>{r} guests</option>)}
@@ -551,7 +551,7 @@ export default function VenueSignupPage() {
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      className={`w-full h-12 bg-slate-50 border ${errors.password ? 'border-red-500' : 'border-slate-100'} rounded-[16px] pl-11 pr-11 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
+                      className={`w-full h-12 bg-slate-50 border ${errors.password ? 'border-red-500' : 'border-slate-100'} rounded-2xl pl-11 pr-11 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
                       placeholder="••••••••"
                     />
                     <button
@@ -577,7 +577,7 @@ export default function VenueSignupPage() {
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className={`w-full h-12 bg-slate-50 border ${errors.confirmPassword ? 'border-red-500' : 'border-slate-100'} rounded-[16px] pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
+                      className={`w-full h-12 bg-slate-50 border ${errors.confirmPassword ? 'border-red-500' : 'border-slate-100'} rounded-2xl pl-11 pr-4 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none`}
                       placeholder="••••••••"
                     />
                   </div>
@@ -606,7 +606,7 @@ export default function VenueSignupPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-14 pd-btn-primary !rounded-[16px] flex items-center justify-center gap-3 text-sm italic tracking-normal lowercase disabled:opacity-70 disabled:cursor-not-allowed group"
+                className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm italic tracking-normal lowercase disabled:opacity-70 disabled:cursor-not-allowed group"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">

@@ -163,7 +163,7 @@ export default function AboutUs() {
     <main className="bg-white min-h-screen text-slate-700 font-sans leading-relaxed selection:bg-pd-red/10 selection:text-pd-red">
       
       {/* 1. HERO */}
-      <section className="pt-20 pb-10 px-6 lg:pt-36 lg:pb-24 bg-gradient-to-b from-slate-50 to-white overflow-hidden">
+      <section className="pt-20 pb-10 px-6 lg:pt-36 lg:pb-24 bg-linear-to-b from-slate-50 to-white overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-10 lg:gap-20">
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
@@ -195,7 +195,7 @@ export default function AboutUs() {
             className="w-full lg:w-1/2 relative h-[250px] md:h-[500px] rounded-2xl md:rounded-[2.5rem] overflow-hidden shadow-2xl"
           >
             <Image src="/about/hero-bg.png" alt="Happy Event" fill className="object-cover" priority />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 via-transparent to-transparent"></div>
+            <div className="absolute inset-0 bg-linear-to-t from-slate-900/30 via-transparent to-transparent"></div>
             <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 p-4 md:p-6 bg-white/95 backdrop-blur-md rounded-xl md:rounded-2xl shadow-xl flex items-center gap-3 md:gap-4 border border-white/20">
                <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-pd-red flex items-center justify-center text-white shadow-lg"><CheckCircle2 size={16} className="md:w-6 md:h-6" /></div>
                <div>
@@ -240,7 +240,7 @@ export default function AboutUs() {
       {/* 4. HOW IT WORKS */}
       <section className="py-20 md:py-28 px-6 bg-slate-50 border-y border-slate-100 relative overflow-hidden">
         {/* Background Decorative Element */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-pd-red/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-[500px] bg-pd-red/5 rounded-full blur-[100px] pointer-events-none" />
         
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16 md:mb-20">
@@ -281,7 +281,7 @@ export default function AboutUs() {
 
                   {/* Mobile Connection Line */}
                   {i < steps.length - 1 && (
-                    <div className="md:hidden mt-10 mb-2 w-px h-10 bg-gradient-to-b from-pd-red/50 to-transparent relative">
+                    <div className="md:hidden mt-10 mb-2 w-px h-10 bg-linear-to-b from-pd-red/50 to-transparent relative">
                       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-pd-red/20" />
                     </div>
                   )}

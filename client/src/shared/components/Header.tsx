@@ -1,13 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 'use client';
 import { account, ID } from '@/lib/appwrite';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
   MapPin, 
-  ChevronDown, 
   User, 
   UserPlus,
   LogOut,
@@ -19,13 +18,9 @@ import {
   Eye,
   EyeOff,
   ArrowRight,
-  Chrome,
-  CheckCircle2,
-  ChevronLeft,
   Phone,
-  ShieldCheck,
   Building2,
-  Zap
+  Sparkles
 } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
@@ -37,10 +32,32 @@ const tickerTexts = [
   "Smart Matching for your Grand Celebrations."
 ];
 
+const Ticker = () => {
+  const [tickerIndex, setTickerIndex] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTickerIndex((prev) => (prev + 1) % tickerTexts.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+  
+  return (
+    <AnimatePresence mode="wait">
+      <motion.span
+        key={tickerIndex}
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -15 }}
+        className="text-white absolute w-full text-center font-bold drop-shadow-sm"
+      >
+        {tickerTexts[tickerIndex]}
+      </motion.span>
+    </AnimatePresence>
+  );
+};
 
 export default function Header() {
   const pathname = usePathname();
-  const [tickerIndex, setTickerIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Auth Modal State
@@ -59,7 +76,9 @@ export default function Header() {
   });
 
   // Auth State
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [signinData, setSigninData] = useState({ email: '', password: '' });
 
@@ -87,6 +106,7 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -109,6 +129,7 @@ export default function Header() {
       }
     } else {
       // Logic for iOS or desktop where beforeinstallprompt isn't triggered
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
       if (isIOS) {
         alert('To install PartyDial on iPhone:\n\n1. Tap the Share button (square with arrow) at the bottom\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" at the top right');
@@ -143,6 +164,7 @@ export default function Header() {
   
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [locationInput, setLocationInput] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -188,16 +210,20 @@ export default function Header() {
 
         if (data[0].Status === 'Success') {
           const offices = data[0].PostOffice || [];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const filteredOffices = offices.filter((office: any) => 
             office.State && office.State.toLowerCase() === 'uttarakhand'
           );
           
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const formattedSuggestions = filteredOffices.map((office: any) => ({
             display: `${office.Name}-${office.Pincode}`,
             name: office.Name,
             pincode: office.Pincode
           }));
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const uniqueSuggestions = Array.from(new Set(formattedSuggestions.map((s: any) => s.display)))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .map(display => formattedSuggestions.find((s: any) => s.display === display));
           
           setSuggestions(uniqueSuggestions);
@@ -226,41 +252,26 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTickerIndex((prev) => (prev + 1) % tickerTexts.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
+
 
   return (
     <>
       {/* 1. TOP BAR */}
       {pathname !== '/ai-search' && (
-        <div className="pd-gradient text-white py-2 md:py-2.5 px-4 md:px-6 shadow-lg relative z-[60]">
-          <div className="max-w-7xl mx-auto flex items-center justify-between text-[9px] md:text-[11px] font-bold uppercase tracking-[0.1em] md:tracking-[0.2em]">
-            <Link href="tel:+918679933302" className="flex items-center gap-1.5 md:gap-2 hover:text-white/80 transition-colors shrink-0">
-              <Phone size={12} className="fill-white/10" />
+        <div className="bg-gradient-to-r from-pd-pink to-pd-purple text-white py-2 px-4 md:px-6 relative z-[60]">
+          <div className="max-w-7xl mx-auto flex items-center justify-between text-[10px] md:text-xs font-semibold tracking-wider">
+            <Link href="tel:+918679933302" className="flex items-center gap-2 hover:text-white/80 transition-colors shrink-0 group">
+              <div className="p-1 rounded-full bg-white/10 group-hover:bg-white/20 transition-colors"><Phone size={12} className="text-white" /></div>
               <span className="tabular-nums">+91 86799 33302</span>
             </Link>
-            <div className="hidden md:flex flex-1 justify-center overflow-hidden h-4 relative mx-10">
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={tickerIndex}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  className="text-white absolute w-full text-center font-bold drop-shadow-sm"
-                >
-                  {tickerTexts[tickerIndex]}
-                </motion.span>
-              </AnimatePresence>
+            <div className="hidden md:flex flex-1 justify-center overflow-hidden h-5 relative mx-10">
+              <Ticker />
             </div>
             <div className="flex items-center shrink-0">
               <Link href="https://partner.partydial.com/signup">
-                <button className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg border border-white/30 backdrop-blur-sm transition-all flex items-center gap-1.5 text-[9px] md:text-[10px]">
-                  <Building2 size={12} />
-                  Register Your Venue
+                <button className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5 text-[10px] md:text-xs font-semibold">
+                  <Building2 size={14} className="text-white" />
+                  <span>Register Your Venue</span>
                 </button>
               </Link>
             </div>
@@ -269,89 +280,26 @@ export default function Header() {
       )}
 
       {/* 2. MAIN HEADER */}
-      <header className="bg-white/95 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
-        <nav className="max-w-7xl mx-auto px-4 md:px-6 h-16 sm:h-24 flex items-center justify-between gap-4 md:gap-10">
+      <header className="sticky top-2 md:top-4 z-50 w-full h-0 px-4 md:px-8 transition-all duration-300">
+        <nav className="mx-auto max-w-5xl h-14 sm:h-[68px] flex items-center justify-between px-4 sm:px-6 md:px-8 bg-white/95 backdrop-blur-xl rounded-full shadow-lg border border-slate-100">
           <Link href="/" className="flex items-center gap-2 md:gap-4 shrink-0">
              <div className="relative w-28 sm:w-36 h-10 sm:h-12 cursor-pointer hover:scale-105 transition-transform flex items-center">
                 <img src="/logo-nav.png" alt="PartyDial" width={140} height={48} className="object-contain" />
              </div>
           </Link>
 
-          <div className="flex-1 max-w-3xl hidden md:flex items-center bg-slate-50 border border-slate-200 rounded-[12px] p-1 gap-1 focus-within:border-pd-purple focus-within:bg-white focus-within:shadow-xl focus-within:shadow-pd-pink/5 transition-all">
-            <div className="flex-1 flex items-center gap-3 px-3 relative" ref={locationRef}>
-              <MapPin size={20} className="text-slate-400 shrink-0" />
-              <div className="flex-1 flex flex-wrap gap-2 items-center py-2">
-                {selectedLocations.map((loc, i) => (
-                  <div key={i} className="flex items-center gap-1.5 bg-pd-red/10 text-pd-red px-3 py-1.5 rounded-xl border border-pd-red/20 animate-in fade-in zoom-in duration-200">
-                    <span className="text-[10px] font-bold uppercase tracking-wider">{loc}</span>
-                    <button 
-                      onClick={() => setSelectedLocations(selectedLocations.filter((_, idx) => idx !== i))}
-                      className="hover:text-slate-900 transition-colors"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                ))}
-                <input 
-                  type="text" 
-                  placeholder={selectedLocations.length === 0 ? "City-Pincode (e.g. Haldwani-263139)" : "Add more..."}
-                  value={locationInput}
-                  onChange={(e) => {
-                    setLocationInput(e.target.value);
-                    setShowSuggestions(true);
-                  }}
-                  onFocus={() => setShowSuggestions(true)}
-                  className="flex-1 min-w-[120px] bg-transparent border-none outline-none py-2 text-sm font-semibold text-slate-800 placeholder:text-slate-400" 
-                />
-              </div>
-              <AnimatePresence>
-                {showSuggestions && locationInput.length >= 3 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-pd-strong z-[110] max-h-60 overflow-y-auto no-scrollbar"
-                  >
-                    {isLoadingLocations ? (
-                      <div className="p-4 text-center text-[10px] text-slate-400 font-bold uppercase animate-pulse">Searching...</div>
-                    ) : suggestions.length > 0 ? (
-                      suggestions.map((s, i) => (
-                        <button
-                          key={i}
-                          onClick={() => {
-                            if (!selectedLocations.includes(s.display)) {
-                              setSelectedLocations([...selectedLocations, s.display]);
-                            }
-                            setLocationInput("");
-                            setShowSuggestions(false);
-                          }}
-                          className="w-full text-left px-4 py-3 hover:bg-slate-50 text-xs font-bold text-slate-600 transition-colors border-b border-slate-50 last:border-0"
-                        >
-                          {s.display}
-                        </button>
-                      ))
-                    ) : (
-                      <div className="p-4 text-center text-[10px] text-slate-400 font-bold uppercase">No locations found</div>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            <Link href={`/venues?location=${selectedLocations.join(',')}`}>
-              <button className="pd-btn-primary !py-4.5 !px-6"><Search size={22} /></button>
-            </Link>
-          </div>
-
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
-             <Link href="/ai-search" className="hidden lg:flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-pd-purple transition-all px-4 py-2 hover:bg-slate-50 rounded-xl">
-               <Zap size={18} className="text-pd-purple" /> <span>AI Search</span>
+             <Link href="/" className="hidden lg:flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-pd-pink transition-all px-4 py-2">
+               <Sparkles size={18} className="text-pd-pink" /> <span>AI Search</span>
              </Link>
+             
              <button 
                 onClick={handleDownloadApp}
-                className="hidden lg:flex items-center gap-3 pd-btn-primary !px-7 !py-3.5 !text-xs tracking-wider uppercase active:scale-95 shadow-pd-soft"
+                className="hidden lg:flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-pd-pink transition-all px-4 py-2"
              >
                <Download size={18} /> <span>Download App</span>
              </button>
+
               {user ? (
                 <div className="hidden md:flex items-center gap-4">
                   <div className="flex flex-col items-end">
@@ -364,7 +312,7 @@ export default function Header() {
                       setUser(null);
                       window.dispatchEvent(new Event('auth-change'));
                     }}
-                    className="p-2.5 bg-slate-50 text-slate-400 hover:text-pd-red hover:bg-pd-red/5 rounded-xl transition-all"
+                    className="p-2.5 bg-white text-slate-400 hover:text-pd-red hover:bg-pd-red/5 rounded-full shadow-sm transition-all"
                     title="Logout"
                   >
                     <LogOut size={18} />
@@ -373,168 +321,139 @@ export default function Header() {
               ) : (
                 <button 
                   onClick={() => setAuthModal({ isOpen: true, type: 'signup' })}
-                  className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-pd-red transition-all px-4 py-2 hover:bg-slate-50 rounded-xl"
+                  className="hidden md:flex items-center gap-2 text-sm font-bold bg-pd-pink text-white hover:bg-pd-red transition-all px-6 py-2.5 rounded-full shadow-md"
                 >
-                    <User size={18} /> <span>Signup</span>
+                    <User size={18} /> <span>Sign in</span>
                 </button>
               )}
-             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2.5 text-slate-900 hover:bg-slate-50 rounded-xl border border-slate-100 shadow-sm active:scale-95 transition-all">
+
+             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-3 bg-white text-slate-900 hover:bg-slate-50 rounded-full shadow-sm active:scale-95 transition-all">
                 {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
              </button>
           </div>
         </nav>
+      </header>
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
+      {/* Mobile Menu Sidebar & Backdrop */}
+      <AnimatePresence>
           {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white border-t border-slate-100 overflow-hidden shadow-2xl"
-            >
-              <div className="p-5 space-y-5">
-                {/* Mobile Search & Category */}
-                <div className="space-y-3">
-                  <div className="relative" ref={locationRef}>
-                    <div className="flex flex-col gap-2 p-2 bg-slate-50 border border-slate-200 rounded-2xl">
-                        {selectedLocations.length > 0 && (
-                          <div className="flex flex-wrap gap-2 p-1">
-                            {selectedLocations.map((loc, i) => (
-                              <div key={i} className="flex items-center gap-1.5 bg-pd-red text-white pr-2 pl-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider animate-in fade-in zoom-in duration-200">
-                                {loc}
-                                <button onClick={() => setSelectedLocations(selectedLocations.filter((_, idx) => idx !== i))}>
-                                  <X size={12} />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        <div className="flex items-center gap-2 px-2">
-                           <MapPin size={18} className="text-slate-400 shrink-0" />
-                           <input 
-                              type="text" 
-                              placeholder={selectedLocations.length === 0 ? "City-Pincode" : "Add more..."} 
-                              value={locationInput}
-                              onChange={(e) => {
-                                setLocationInput(e.target.value);
-                                setShowSuggestions(true);
-                              }}
-                              onFocus={() => setShowSuggestions(true)}
-                              className="bg-transparent border-none outline-none w-full py-4 text-sm font-bold text-slate-800 placeholder:text-slate-300" 
-                           />
-                           <Link href={`/venues?location=${selectedLocations.join(',')}`} onClick={() => setIsMobileMenuOpen(false)} className="shrink-0">
-                              <button className="pd-btn-primary !p-3 rounded-xl">
-                                <Search size={18} />
-                              </button>
-                           </Link>
-                        </div>
-                    </div>
-                    <AnimatePresence>
-                      {showSuggestions && locationInput.length >= 3 && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          className="absolute top-full left-0 w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl z-[120] max-h-40 overflow-y-auto"
-                        >
-                          {suggestions.map((s, i) => (
-                            <button
-                              key={i}
-                              onClick={() => {
-                                if (!selectedLocations.includes(s.display)) {
-                                  setSelectedLocations([...selectedLocations, s.display]);
-                                }
-                                setLocationInput("");
-                                setShowSuggestions(false);
-                              }}
-                              className="w-full text-left px-5 py-4 text-sm font-bold text-slate-600 border-b border-slate-50 last:border-0"
-                            >
-                              {s.display}
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:bg-pd-red/5 hover:text-pd-red transition-all">Home</Link>
-                  <Link href="/categories" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:bg-pd-red/5 hover:text-pd-red transition-all">Categories</Link>
-                  <Link href="/ai-search" onClick={() => setIsMobileMenuOpen(false)} className="col-span-2 flex items-center justify-center gap-2 p-4 bg-pd-purple/5 border border-pd-purple/20 rounded-xl text-sm font-bold text-pd-purple hover:bg-pd-purple/10 transition-all"><Zap size={18} /> AI Search</Link>
-                </div>                  {user ? (
-                    <div className="col-span-2 p-4 bg-slate-50 rounded-xl flex items-center justify-between">
-                       <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-pd-red/10 text-pd-red flex items-center justify-center">
-                             <User size={20} />
-                          </div>
-                          <div>
-                             <p className="text-[10px] font-black uppercase tracking-widest text-pd-red">Profile</p>
-                             <p className="text-xs font-bold text-slate-900">{user.name}</p>
-                          </div>
-                       </div>
-                       <button 
-                        onClick={async () => {
-                          await account.deleteSession('current');
-                          setUser(null);
-                          setIsMobileMenuOpen(false);
-                          window.dispatchEvent(new Event('auth-change'));
-                        }}
-                        className="p-2 text-slate-400 hover:text-pd-red"
-                       >
-                         <LogOut size={20} />
-                       </button>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-4 w-full">
-                      <button 
-                        onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
-                        className="w-full flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-widest text-slate-600 active:bg-slate-50"
-                      >
-                        <User size={16} /> <span>Signup</span>
-                      </button>
-                      <button 
-                        onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
-                        className="w-full flex items-center justify-center gap-2 p-4 bg-slate-900 border border-slate-900 rounded-xl text-xs font-bold uppercase tracking-widest text-white active:scale-95 transition-all"
-                      >
-                        <UserPlus size={16} /> <span>Join Now</span>
-                      </button>
-                    </div>
-                  )}
-                
-                <div className="pt-4 border-t border-slate-100 italic">
-                  <button 
-                    onClick={handleDownloadApp}
-                    className="w-full pd-btn-primary py-4 flex items-center justify-center gap-3"
-                  >
-                    <Download size={20} />
-                    <span>Download App</span>
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100]"
+              />
+              
+              {/* Sidebar */}
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: "tween", ease: "easeInOut", duration: 0.3 }}
+                className="fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl z-[110] flex flex-col overflow-y-auto"
+              >
+                <div className="flex items-center justify-between p-5 border-b border-slate-100 shrink-0">
+                  <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
+                    <span className="font-black text-2xl italic text-pd-red">PartyDial</span>
+                  </Link>
+                  <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all">
+                    <X size={24} />
                   </button>
                 </div>
-              </div>
-            </motion.div>
+
+                <div className="p-5 space-y-6 flex-1">
+                  {/* Mobile Navigation Links */}
+                  <div className="flex flex-col gap-2">
+                    <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:text-pd-red transition-all">
+                       Home
+                    </Link>
+                    <Link href="/venues" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:text-pd-red transition-all">
+                       Venues
+                    </Link>
+                    <Link href="/categories" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:text-pd-red transition-all">
+                       Categories
+                    </Link>
+                    <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 p-4 bg-pd-pink/10 text-pd-pink rounded-xl font-bold">
+                       <Sparkles size={18} /> AI Search
+                    </Link>
+                  </div>
+                  
+                  {user ? (
+                      <div className="col-span-2 p-4 bg-slate-50 rounded-xl flex items-center justify-between">
+                         <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-pd-red/10 text-pd-red flex items-center justify-center">
+                               <User size={20} />
+                            </div>
+                            <div>
+                               <p className="text-[10px] font-black uppercase tracking-widest text-pd-red">Profile</p>
+                               <p className="text-xs font-bold text-slate-900">{user.name}</p>
+                            </div>
+                         </div>
+                         <button 
+                          onClick={async () => {
+                            await account.deleteSession('current');
+                            setUser(null);
+                            setIsMobileMenuOpen(false);
+                            window.dispatchEvent(new Event('auth-change'));
+                          }}
+                          className="p-2 text-slate-400 hover:text-pd-red"
+                         >
+                           <LogOut size={20} />
+                         </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-4 w-full">
+                        <button 
+                          onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
+                          className="w-full flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-xl text-xs font-bold uppercase tracking-widest text-slate-600 active:bg-slate-50"
+                        >
+                          <User size={16} /> <span>Signup</span>
+                        </button>
+                        <button 
+                          onClick={() => { setIsMobileMenuOpen(false); setAuthModal({ isOpen: true, type: 'signup' }); }}
+                          className="w-full flex items-center justify-center gap-2 p-4 bg-slate-900 border border-slate-900 rounded-xl text-xs font-bold uppercase tracking-widest text-white active:scale-95 transition-all"
+                        >
+                          <UserPlus size={16} /> <span>Join Now</span>
+                        </button>
+                      </div>
+                    )}
+                  
+                  <div className="pt-4 border-t border-slate-100 italic mt-auto">
+                    <button 
+                      onClick={handleDownloadApp}
+                      className="w-full pd-btn-primary py-4 flex items-center justify-center gap-3"
+                    >
+                      <Download size={20} />
+                      <span>Download App</span>
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
-      </header>
 
       {/* 3. AUTH MODAL SYSTEM */}
       <AnimatePresence>
         {authModal.isOpen && (
-          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-6 overflow-y-auto no-scrollbar">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 overflow-y-auto no-scrollbar">
             <motion.div 
               onClick={() => setAuthModal({ ...authModal, isOpen: false })}
               className="fixed inset-0 bg-slate-950/40 backdrop-blur-[4px] cursor-pointer"
               style={{ willChange: 'opacity, backdrop-filter', transform: 'translateZ(0)' }}
             ></motion.div>
             
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
               transition={{ type: "tween", duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
               style={{ willChange: "transform, opacity", transform: 'translateZ(0)' }}
-              className="relative w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-pd-strong overflow-hidden flex flex-col md:flex-row min-h-[500px] md:min-h-[600px] z-[1001] transform-gpu"
+              className="relative w-full max-w-5xl bg-white rounded-4xl md:rounded-[40px] shadow-pd-strong overflow-hidden flex flex-col md:flex-row min-h-[500px] md:min-h-[600px] z-[110] transform-gpu"
+              onClick={e => e.stopPropagation()}
             >
               {/* Left Visual Side */}
               <div className="hidden lg:block w-[45%] relative bg-slate-900 border-r border-slate-100 p-12 text-white">
@@ -546,7 +465,7 @@ export default function Header() {
                    className="absolute inset-0 w-full h-full object-cover opacity-50"
                    loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-pd-purple/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-pd-purple/20 to-transparent"></div>
                 <div className="relative z-10 h-full flex flex-col justify-between">
                    <div className="text-pd-red font-black text-2xl italic">PartyDial</div>
                    <div>
@@ -643,6 +562,7 @@ export default function Header() {
 
                               window.dispatchEvent(new Event('auth-change'));
                               setAuthModal({ ...authModal, isOpen: false });
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             } catch (error: any) {
                               setAuthError(error.message || 'Invalid OTP. Please try again.');
                             } finally {
@@ -670,6 +590,7 @@ export default function Header() {
                                 const token = await account.createPhoneToken(ID.unique(), phone);
                                 setAuthUserId(token.userId);
                                 setResendTimer(45);
+                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
                               } catch(e: any) {
                                 setAuthError(e.message || 'Failed to resend OTP.');
                               } finally {
@@ -737,6 +658,7 @@ export default function Header() {
                            window.dispatchEvent(new Event('auth-change'));
                            setAuthModal({...authModal, isOpen: false});
                         }
+                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       } catch (error: any) {
                         setAuthError(error.message || 'Authentication failed. Please check your details.');
                       } finally {

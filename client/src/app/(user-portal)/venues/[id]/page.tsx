@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 'use client';
 
 import Image from 'next/image';
@@ -406,7 +407,7 @@ export default function VenueDetailPage() {
   }, [reviews]);
 
   const sortedReviews = useMemo(() => {
-    let rs = [...reviews];
+    const rs = [...reviews];
     if (reviewSort === "Highest Rating") rs.sort((a, b) => b.rating - a.rating);
     else if (reviewSort === "Lowest Rating") rs.sort((a, b) => a.rating - b.rating);
     else rs.sort((a, b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime());
@@ -507,7 +508,7 @@ export default function VenueDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 font-['Poppins']">
       
       {/* 1. IMAGE GALLERY HERO */}
       <section className="relative h-[45vh] md:h-[65vh] bg-slate-900 overflow-hidden">
@@ -540,7 +541,7 @@ export default function VenueDetailPage() {
           )}
         </AnimatePresence>
 
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/40"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-transparent to-black/40"></div>
         
         {venue.images.length > 1 && (
           <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-between px-4 md:px-6 pointer-events-none z-20">
@@ -571,7 +572,7 @@ export default function VenueDetailPage() {
 
         {venue.images.length > 0 && (
           <Link href={`/venues/${id}/gallery`} className="absolute bottom-28 md:bottom-12 right-6 md:right-12 z-30">
-            <button className="px-5 py-3 md:px-8 md:py-4 bg-black/50 backdrop-blur-xl rounded-2xl border border-white/20 text-white flex items-center gap-2 md:gap-3 hover:bg-pd-red transition-all group active:scale-95 shadow-2xl">
+            <button className="px-5 py-3 md:px-8 md:py-4 bg-black/50 backdrop-blur-xl rounded-xl border border-white/20 text-white flex items-center gap-2 md:gap-3 hover:bg-pd-red transition-all group active:scale-95 shadow-2xl">
                <ImageIcon size={16} className="md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
                <div className="text-left">
                   <span className="block text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">View Venue</span>
@@ -585,7 +586,7 @@ export default function VenueDetailPage() {
       {/* 2. VENUE TITLE & HIGHLIGHTS */}
       <section className="px-4 md:px-6 -mt-24 md:-mt-32 relative z-20">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white p-8 md:p-14 rounded-[3rem] shadow-[0_30px_80px_rgba(0,0,0,0.08)] flex flex-col lg:flex-row gap-10 lg:gap-14 items-start lg:items-center border border-white/50 backdrop-blur-3xl relative overflow-hidden">
+          <div className="bg-white p-8 md:p-14 rounded-2xl shadow-[0_30px_80px_rgba(0,0,0,0.08)] flex flex-col lg:flex-row gap-10 lg:gap-14 items-start lg:items-center border border-white/50 backdrop-blur-3xl relative overflow-hidden">
             {/* Subtle premium background glow inside the card */}
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-pd-pink/10 rounded-full blur-3xl pointer-events-none" />
             
@@ -595,7 +596,7 @@ export default function VenueDetailPage() {
                      <CheckCircle2 size={12} className="md:w-3 md:h-3" /> Verified Venue
                   </div>
                   {venue.popular && (
-                    <div className="bg-gradient-to-r from-pd-pink/10 to-transparent text-pd-pink px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-pd-pink/20 uppercase text-[9px] md:text-[10px] font-black tracking-widest">
+                    <div className="bg-linear-to-r from-pd-pink/10 to-transparent text-pd-pink px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-pd-pink/20 uppercase text-[9px] md:text-[10px] font-black tracking-widest">
                        <Star size={12} className="fill-pd-pink md:w-3 md:h-3" /> Popular Venue
                     </div>
                   )}
@@ -687,33 +688,39 @@ export default function VenueDetailPage() {
             {/* Amenities Grid */}
             <div>
               <h2 className="text-2xl font-black text-slate-900 mb-8 border-l-4 border-pd-purple pl-5 uppercase tracking-widest italic">Key Amenities</h2>
-               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
                  {venue.amenities.map((amenity: any, i: number) => (
-                   <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-100 flex flex-col items-center text-center gap-4 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-1 transition-all group">
-                      <div className="w-14 h-14 bg-pd-purple/5 text-pd-purple rounded-2xl flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-pd-purple group-hover:to-pd-pink group-hover:text-white transition-all shadow-sm">
+                   <div key={i} className="relative bg-white p-6 rounded-2xl border border-slate-100 flex flex-col items-center text-center gap-4 hover:border-pd-purple/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden">
+                      {/* Subtle background glow on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-pd-purple/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      
+                      <div className="relative w-14 h-14 bg-slate-50 text-slate-600 rounded-xl flex items-center justify-center group-hover:bg-gradient-to-br group-hover:from-pd-purple group-hover:to-pd-pink group-hover:text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm border border-slate-100 group-hover:border-transparent">
                         {amenity.icon}
                       </div>
-                      <span className="text-[10px] md:text-xs font-black text-slate-700 uppercase tracking-widest">{amenity.name}</span>
+                      <span className="relative text-[10px] md:text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors uppercase tracking-widest">{amenity.name}</span>
                    </div>
                  ))}
               </div>
             </div>
 
             {/* Hall / Capacity Details */}
-            <div className="bg-slate-900 rounded-[32px] p-10 text-white">
-               <h2 className="text-xl font-black mb-8 italic">Available Spaces</h2>
-               <div className="space-y-6">
+            <div className="bg-slate-900 rounded-2xl md:rounded-3xl p-6 md:p-10 text-white">
+               <h2 className="text-xl md:text-2xl font-black mb-6 md:mb-8 italic">Available Spaces</h2>
+               <div className="space-y-4 md:space-y-6">
                  {venue.halls.map((hall: any, i: number) => (
-                   <div key={i} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all">
-                      <div>
-                        <h4 className="text-lg font-black mb-1">{hall.name}</h4>
-                        <p className="text-white/60 text-[9px] font-bold uppercase tracking-widest">{hall.area}</p>
+                   <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-6 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all">
+                      <div className="mb-4 sm:mb-0">
+                        <h4 className="text-base md:text-lg font-black mb-1 leading-tight">{hall.name}</h4>
+                        <p className="text-white/60 text-[9px] md:text-[10px] font-bold uppercase tracking-widest">{hall.area}</p>
                       </div>
-                      <div className="flex items-center gap-4 mt-4 md:mt-0">
-                         <div className="flex items-center gap-2 text-pd-pink font-black text-sm">
-                           <Users size={16} /> {hall.capacity}
+                      <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t sm:border-t-0 border-white/10 pt-4 sm:pt-0 mt-2 sm:mt-0">
+                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-pd-pink font-black text-sm md:text-base">
+                           <div className="flex items-center gap-1.5">
+                             <Users size={16} /> <span>{hall.capacity}</span>
+                           </div>
+                           <span className="text-[10px] sm:hidden text-white/50 uppercase tracking-widest font-bold">Guests</span>
                          </div>
-                         <button className="px-5 py-2.5 bg-pd-red text-white text-[10px] font-black uppercase tracking-widest rounded-lg">View Rates</button>
+                         <button className="px-5 py-2.5 bg-pd-red text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-pd-pink transition-colors active:scale-95 shrink-0">View Rates</button>
                       </div>
                    </div>
                  ))}
@@ -765,7 +772,7 @@ export default function VenueDetailPage() {
                       <Link 
                         key={i} 
                         href={`/venues/${id}/gallery`}
-                        className="relative block aspect-[4/3] rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-pd-strong transition-all duration-700 cursor-pointer group"
+                        className="relative block aspect-4/3 rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-pd-strong transition-all duration-700 cursor-pointer group"
                       >
                          <Image 
                            src={img} 
@@ -785,10 +792,10 @@ export default function VenueDetailPage() {
              {/* Small Location Map Placeholder */}
             <div>
               <h2 className="text-xl font-black text-slate-900 mb-8 border-l-4 border-slate-900 pl-4">Location & Map</h2>
-               <div className="w-full h-80 bg-slate-200 rounded-[32px] overflow-hidden relative shadow-xl">
+               <div className="w-full h-80 bg-slate-200 rounded-4xl overflow-hidden relative shadow-xl">
                  <iframe 
                    src={`https://maps.google.com/maps?q=${encodeURIComponent(venue.name + ' ' + (venue.landmark || venue.location || venue.city))}&output=embed`}
-                   className="w-full h-full border-0 rounded-[32px] shadow-sm hover:shadow-md transition-shadow"
+                   className="w-full h-full border-0 rounded-4xl shadow-sm hover:shadow-md transition-shadow"
                    allowFullScreen
                    loading="lazy"
                    referrerPolicy="no-referrer-when-downgrade"
@@ -836,7 +843,7 @@ export default function VenueDetailPage() {
                     <div className="flex items-center justify-center md:pl-4">
                        <button 
                          onClick={() => setIsReviewModalOpen(true)}
-                         className="px-8 py-4 bg-gradient-to-r from-[#FF3B6B] to-[#9F50E1] text-white text-[10px] font-black uppercase tracking-[0.2em] italic rounded-[20px] shadow-xl shadow-pd-pink/30 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                         className="px-8 py-4 bg-linear-to-r from-[#FF3B6B] to-[#9F50E1] text-white text-[10px] font-black uppercase tracking-[0.2em] italic rounded-[20px] shadow-xl shadow-pd-pink/30 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                        >
                          Write a Review
                        </button>
@@ -874,7 +881,7 @@ export default function VenueDetailPage() {
                           {[currentReviewIndex, (currentReviewIndex + 1) % sortedReviews.length].map((idx, i) => (
                             <div 
                               key={`${idx}-${i}`} 
-                              className={`bg-white p-7 md:p-8 rounded-[32px] border border-slate-100 shadow-pd-soft/50 relative flex flex-col h-full ${i === 1 ? 'hidden md:flex' : 'flex'}`}
+                              className={`bg-white p-7 md:p-8 rounded-4xl border border-slate-100 shadow-pd-soft/50 relative flex flex-col h-full ${i === 1 ? 'hidden md:flex' : 'flex'}`}
                             >
                                <div className="flex gap-1 mb-4">
                                   {[...Array(5)].map((_, j) => (
@@ -900,7 +907,7 @@ export default function VenueDetailPage() {
                                  <motion.div 
                                    initial={{ opacity: 0, scale: 0.95 }}
                                    animate={{ opacity: 1, scale: 1 }}
-                                   className="mt-6 p-5 bg-slate-900 rounded-3xl relative overflow-hidden group/reply shadow-lg"
+                                   className="mt-6 p-5 bg-slate-900 rounded-2xl relative overflow-hidden group/reply shadow-lg"
                                  >
                                    <div className="absolute top-0 right-0 w-20 h-20 bg-pd-red/10 rounded-full blur-2xl -mr-8 -mt-8" />
                                    <div className="flex items-center gap-2 mb-2 relative z-10">
@@ -950,9 +957,9 @@ export default function VenueDetailPage() {
 
           {/* RIGHT SIDEBAR (Sticky Form) */}
           <aside className="w-full lg:w-[420px] shrink-0">
-            <div className="sticky top-28 bg-white p-8 md:p-10 rounded-[3rem] border border-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.06)] relative overflow-hidden">
+            <div className="sticky top-28 bg-white p-8 md:p-10 rounded-2xl border border-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.06)] relative overflow-hidden">
                {/* Premium Top Line Glow effect for form */}
-               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pd-pink via-purple-400 to-pd-blue"></div>
+               <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-pd-pink via-purple-400 to-pd-blue"></div>
                
                <div className="text-center mb-10 pb-8 border-b border-slate-50">
                   <div className="text-pd-pink font-black text-[10px] uppercase tracking-[0.3em] mb-4 flex justify-center items-center gap-2 bg-pd-pink/5 inline-flex px-4 py-1.5 rounded-full mx-auto">
@@ -1124,7 +1131,7 @@ export default function VenueDetailPage() {
                  <button 
                     type="submit"
                     disabled={isSubmittingLead}
-                    className="w-full bg-gradient-to-r from-pd-pink to-purple-500 hover:to-pd-pink text-white py-4 text-sm tracking-[0.2em] font-black uppercase italic rounded-2xl shadow-[0_10px_30px_rgba(255,59,107,0.3)] hover:shadow-[0_15px_40px_rgba(255,59,107,0.4)] flex items-center justify-center gap-3 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50"
+                    className="w-full bg-linear-to-r from-pd-pink to-purple-500 hover:to-pd-pink text-white py-4 text-sm tracking-[0.2em] font-black uppercase italic rounded-2xl shadow-[0_10px_30px_rgba(255,59,107,0.3)] hover:shadow-[0_15px_40px_rgba(255,59,107,0.4)] flex items-center justify-center gap-3 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50"
                  >
                     {isSubmittingLead ? 'Sending...' : 'Get Best Rates'} <Send size={18} />
                  </button>
@@ -1184,7 +1191,7 @@ export default function VenueDetailPage() {
       {/* 5. REVIEW MODAL */}
       <AnimatePresence>
         {isReviewModalOpen && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-200 flex items-center justify-center p-6">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1281,7 +1288,7 @@ export default function VenueDetailPage() {
                        <button 
                           type="submit"
                           disabled={isSubmittingReview}
-                          className="flex-1 pd-btn-primary py-5 rounded-[24px] uppercase text-[11px] font-black italic shadow-xl shadow-pd-pink/20 flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50"
+                          className="flex-1 pd-btn-primary py-5 rounded-2xl uppercase text-[11px] font-black italic shadow-xl shadow-pd-pink/20 flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50"
                        >
                           {isSubmittingReview ? 'Syncing...' : 'Post Review'} <Send size={16} className="rotate-45" />
                        </button>
@@ -1300,7 +1307,7 @@ export default function VenueDetailPage() {
           animate={{ opacity: 1, y: 0, x: '-50%', scale: 1 }}
           exit={{ opacity: 0, y: 20, x: '-50%', scale: 0.9 }}
           style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
-          className={`fixed bottom-12 left-1/2 -translate-x-1/2 z-[300] px-8 py-5 rounded-[28px] shadow-2xl flex items-center gap-4 border border-white/5 backdrop-blur-xl ${
+          className={`fixed bottom-12 left-1/2 -translate-x-1/2 z-300 px-8 py-5 rounded-[28px] shadow-2xl flex items-center gap-4 border border-white/5 backdrop-blur-xl ${
             toast.type === 'success' ? 'bg-slate-900/90 text-white' : 'bg-red-950/90 text-white'
           }`}
         >

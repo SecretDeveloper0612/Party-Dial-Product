@@ -45,14 +45,14 @@ export default function ProcessPage() {
         </div>
 
         {/* Abstract background shapes */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-pd-blue/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 opacity-20"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-pd-pink/20 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 opacity-20"></div>
+        <div className="absolute top-0 right-0 w-125 h-[500px] bg-pd-blue/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 opacity-20"></div>
+        <div className="absolute bottom-0 left-0 w-125 h-[500px] bg-pd-pink/20 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 opacity-20"></div>
       </section>
 
       {/* 2. THE THREE PILLAR CYCLE - PROFESSIONAL TIMELINE */}
       <section className="py-24 md:py-32 px-6 bg-slate-50 relative overflow-hidden">
         {/* Subtle background glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-pd-pink/5 to-transparent blur-[100px] pointer-events-none"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-linear-to-b from-pd-pink/5 to-transparent blur-[100px] pointer-events-none"></div>
         
         <div className="max-w-[1200px] mx-auto relative z-10">
           
@@ -114,7 +114,7 @@ export default function ProcessPage() {
                    </div>
 
                    {/* Content Card */}
-                   <div className="bg-white border border-slate-100 p-8 md:p-10 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:border-slate-200 hover:-translate-y-2 flex-1 flex flex-col">
+                   <div className="bg-white border border-slate-100 p-8 md:p-10 rounded-4xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:border-slate-200 hover:-translate-y-2 flex-1 flex flex-col">
                       <div className="mb-6 text-center lg:text-left">
                          <span className="text-[10px] font-black text-pd-pink uppercase tracking-widest">{pillar.subtitle}</span>
                       </div>
@@ -124,7 +124,7 @@ export default function ProcessPage() {
                       <div className="space-y-3 border-t border-slate-100 pt-8 mt-auto">
                         {pillar.platforms.map((p, idx) => (
                           <div key={idx} className="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 border border-slate-100/50 hover:bg-white hover:border-slate-200 hover:shadow-sm transition-all duration-300">
-                             <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.c} text-white flex items-center justify-center shadow-sm shrink-0`}>
+                             <div className={`w-10 h-10 rounded-xl bg-linear-to-br ${p.c} text-white flex items-center justify-center shadow-sm shrink-0`}>
                                {p.icon}
                              </div>
                              <span className="text-[11px] font-black text-slate-700 uppercase tracking-wide">{p.n}</span>
@@ -176,17 +176,17 @@ export default function ProcessPage() {
 
           {/* Right Column - Image */}
           <div className="mt-16 lg:mt-0 relative group">
-            <div className="aspect-[4/3] bg-white rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.08)] border border-slate-200 overflow-hidden relative transition-transform duration-700 ease-out hover:scale-[1.02]">
+            <div className="aspect-4/3 bg-white rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.08)] border border-slate-200 overflow-hidden relative transition-transform duration-700 ease-out hover:scale-[1.02]">
               <img
                 src="/images/dashboard-process.png"
                 alt="PartyDial Digital HQ"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute inset-0 bg-linear-to-t from-slate-900/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             </div>
             
             {/* Floating Mobile Badge - Static but highly interactive to avoid lag */}
-            <div className="absolute -bottom-8 -right-4 lg:-bottom-10 lg:-right-10 w-64 bg-slate-900 text-white p-6 rounded-[24px] shadow-2xl border border-slate-700 z-10 hover:-translate-y-3 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all duration-500 ease-out cursor-default">
+            <div className="absolute -bottom-8 -right-4 lg:-bottom-10 lg:-right-10 w-64 bg-slate-900 text-white p-6 rounded-3xl shadow-2xl border border-slate-700 z-10 hover:-translate-y-3 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all duration-500 ease-out cursor-default">
               <div className="flex items-center gap-3 mb-2">
                 <PhoneCall size={16} className="text-emerald-400" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-100">Live Direct Line</span>
@@ -201,7 +201,7 @@ export default function ProcessPage() {
       {/* 4. COMPARISON SECTION - REDESIGNED FOR MOBILE & IMPACT */}
       <section className="py-24 md:py-40 px-6 bg-[#0B1121] relative overflow-hidden">
         {/* Background Effects */}
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-pd-pink/30 to-transparent"></div>
+        <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-pd-pink/30 to-transparent"></div>
         <div className="absolute -top-[200px] -right-[200px] w-[600px] h-[600px] bg-pd-blue/10 rounded-full blur-[150px] opacity-20"></div>
         <div className="absolute -bottom-[200px] -left-[200px] w-[600px] h-[600px] bg-pd-pink/10 rounded-full blur-[150px] opacity-20"></div>
 
@@ -279,7 +279,7 @@ export default function ProcessPage() {
                 className="group relative"
               >
                 {/* Card Body */}
-                <div className="h-full bg-white/5 border border-white/10 rounded-[32px] p-8 md:p-10 transition-all duration-500 hover:bg-white/10 hover:border-pd-pink/30 hover:translate-y-[-8px]">
+                <div className="h-full bg-white/5 border border-white/10 rounded-4xl p-8 md:p-10 transition-all duration-500 hover:bg-white/10 hover:border-pd-pink/30 hover:translate-y-[-8px]">
                   {/* Icon & Label */}
                   <div className="flex items-center gap-4 mb-10">
                     <div className="w-12 h-12 rounded-2xl bg-pd-pink/10 text-pd-pink flex items-center justify-center shadow-lg shadow-pd-pink/5">
@@ -316,7 +316,7 @@ export default function ProcessPage() {
                 </div>
 
                 {/* Subtle Glow */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-pd-pink to-pd-blue rounded-[34px] opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500"></div>
+                <div className="absolute -inset-1 bg-linear-to-r from-pd-pink to-pd-blue rounded-[34px] opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500"></div>
               </motion.div>
             ))}
           </div>

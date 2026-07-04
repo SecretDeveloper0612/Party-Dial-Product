@@ -41,8 +41,8 @@ export default function AboutPage() {
         </div>
 
         {/* Abstract background shapes */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-pd-blue/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 opacity-20"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-pd-pink/20 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 opacity-20"></div>
+        <div className="absolute top-0 right-0 w-125 h-[500px] bg-pd-blue/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 opacity-20"></div>
+        <div className="absolute bottom-0 left-0 w-125 h-[500px] bg-pd-pink/20 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 opacity-20"></div>
       </section>
 
       {/* CORE VALUES */}
@@ -79,7 +79,7 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="p-10 rounded-[32px] bg-slate-50 border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
+                className="p-10 rounded-4xl bg-slate-50 border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
               >
                 <div className="mb-6">{value.icon}</div>
                 <h3 className="text-xl font-black text-[#0F172A] uppercase italic mb-4">{value.title}</h3>
@@ -163,7 +163,7 @@ export default function AboutPage() {
           </div>
 
           <div className="mt-16 lg:mt-0 relative">
-            <div className="aspect-[4/3] bg-slate-900 rounded-[40px] shadow-2xl p-12 flex flex-col justify-center overflow-hidden group">
+            <div className="aspect-4/3 bg-slate-900 rounded-[40px] shadow-2xl p-12 flex flex-col justify-center overflow-hidden group">
               {/* Visual Representation of Corporate Strength */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-pd-pink/10 transition-colors"></div>
               <div className="relative z-10">

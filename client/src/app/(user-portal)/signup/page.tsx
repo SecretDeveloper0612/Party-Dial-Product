@@ -135,7 +135,7 @@ export default function SignupPage() {
           className="object-cover opacity-60 scale-110"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-pd-purple/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-pd-purple/20 to-transparent"></div>
         
         <div className="relative z-10 w-full p-16 flex flex-col justify-between text-white">
           <Link href="/" className="flex items-center gap-2 group text-white/80 hover:text-white transition-colors">

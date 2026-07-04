@@ -164,7 +164,7 @@ const DashboardOverview = ({
         {/* Premium Welcome Header */}
         <div className="relative overflow-hidden bg-white border border-slate-200/60 rounded-3xl p-8 lg:p-10 shadow-sm">
            {/* Abstract Background Element */}
-           <div className="absolute -top-24 -right-24 w-96 h-96 bg-gradient-to-br from-pd-pink/10 to-pd-purple/5 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+           <div className="absolute -top-24 -right-24 w-96 h-96 bg-linear-to-br from-pd-pink/10 to-pd-purple/5 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
            
            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
@@ -172,7 +172,7 @@ const DashboardOverview = ({
                     initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
                     className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-2"
                  >
-                    {getGreeting()}, <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">{venueProfile?.venueName || userName || "Partner"}</span>
+                    {getGreeting()}, <span className="bg-clip-text text-transparent bg-linear-to-r from-slate-900 to-slate-600">{venueProfile?.venueName || userName || "Partner"}</span>
                  </motion.h1>
                  <motion.p 
                     initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
@@ -221,7 +221,7 @@ const DashboardOverview = ({
                className="group bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
              >
                 {/* Subtle Hover Glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white to-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-linear-to-br from-white to-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
@@ -272,7 +272,7 @@ const DashboardOverview = ({
                         className="group p-4 bg-white border border-slate-200/50 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between hover:shadow-md hover:border-slate-300 transition-all cursor-pointer gap-4 sm:gap-0"
                       >
                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-slate-100 to-slate-50 flex items-center justify-center text-slate-400 group-hover:text-pd-pink border border-slate-200/50 shrink-0 shadow-sm transition-colors">
+                            <div className="w-10 h-10 rounded-full bg-linear-to-tr from-slate-100 to-slate-50 flex items-center justify-center text-slate-400 group-hover:text-pd-pink border border-slate-200/50 shrink-0 shadow-sm transition-colors">
                                <Users size={16} />
                             </div>
                             <div>

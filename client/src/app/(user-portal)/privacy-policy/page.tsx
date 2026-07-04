@@ -32,7 +32,7 @@ const PrivacyPolicy = () => {
   return (
     <main className="bg-white min-h-screen text-slate-700 font-sans leading-relaxed selection:bg-pd-blue/10 selection:text-pd-blue">
       {/* 1. HERO HEADER */}
-      <section className="pt-24 pb-12 px-6 bg-gradient-to-b from-slate-50 to-white overflow-hidden relative border-b border-slate-100">
+      <section className="pt-24 pb-12 px-6 bg-linear-to-b from-slate-50 to-white overflow-hidden relative border-b border-slate-100">
         <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-pd-blue/5 rounded-full blur-[100px] -translate-y-1/2 -translate-x-1/2 pointer-events-none opacity-50"></div>
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <motion.div {...fadeUp} className="mb-6">
@@ -211,7 +211,7 @@ const PrivacyPolicy = () => {
 
       {/* UPDATES & CONTACT */}
       <section className="py-20 bg-slate-950 text-white rounded-[4rem] mx-4 mb-16 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-pd-blue/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none opacity-50"></div>
+        <div className="absolute top-0 right-0 w-125 h-[500px] bg-pd-blue/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none opacity-50"></div>
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
             <div className="w-16 h-16 rounded-full bg-pd-blue/10 flex items-center justify-center text-pd-blue mx-auto mb-8 border border-white/5 shadow-2xl">
               <Bell size={28} />

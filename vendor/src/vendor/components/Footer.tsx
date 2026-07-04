@@ -21,7 +21,7 @@ export default function Footer() {
     <footer suppressHydrationWarning className="bg-[#0B1121] pt-24 pb-12 px-6 text-white relative overflow-hidden">
       {/* Background Ornaments */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] pointer-events-none"></div>
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+      <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-white/10 to-transparent"></div>
       <div className="absolute -bottom-[100px] -left-[100px] w-[400px] h-[400px] bg-pd-blue/20 rounded-full blur-[120px] pointer-events-none opacity-20"></div>
 
       <div className="max-w-7xl mx-auto relative z-10">
@@ -78,7 +78,7 @@ export default function Footer() {
                   href={social.href || '#'} 
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`w-11 h-11 rounded-[16px] bg-white/5 border border-white/5 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg ${social.color} group`}
+                  className={`w-11 h-11 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg ${social.color} group`}
                   title={social.label}
                 >
                   <social.Icon size={18} className="group-hover:scale-110 transition-transform" />

@@ -59,7 +59,7 @@ const LeadExplorer = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-[100] bg-slate-900/40 flex items-center justify-center p-4 md:p-10"
+          className="fixed inset-0 z-100 bg-slate-900/40 flex items-center justify-center p-4 md:p-10"
           style={{ willChange: 'opacity' }}
         >
           <motion.div 

@@ -172,7 +172,7 @@ const CursorZoomImage = ({ src, alt, height, priority = false }: { src: string, 
          onMouseMove={handleMouseMove}
          onMouseEnter={() => setIsHovered(true)}
          onMouseLeave={() => setIsHovered(false)}
-         className={`relative ${height} rounded-[32px] overflow-hidden shadow-2xl group cursor-none`}
+         className={`relative ${height} rounded-4xl overflow-hidden shadow-2xl group cursor-none`}
       >
          <motion.div
             animate={{
@@ -235,10 +235,10 @@ const FeatureHub = () => {
       return () => clearInterval(interval);
    }, []);
 
-   if (!mounted) return <div className="h-[400px] lg:h-[500px] bg-slate-900 rounded-[32px] animate-pulse" />;
+   if (!mounted) return <div className="h-[400px] lg:h-[500px] bg-slate-900 rounded-4xl animate-pulse" />;
 
    return (
-      <div className="relative flex flex-col p-4 md:p-6 lg:p-8 bg-[#0B0F19] rounded-[32px] lg:rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-white/10 min-h-[600px] lg:min-h-[500px] max-w-[1200px] mx-auto overflow-hidden group/hub">
+      <div className="relative flex flex-col p-4 md:p-6 lg:p-8 bg-[#0B0F19] rounded-4xl lg:rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-white/10 min-h-[600px] lg:min-h-[500px] max-w-[1200px] mx-auto overflow-hidden group/hub">
 
          {/* Background Decorative Glows */}
          <div
@@ -329,9 +329,9 @@ const FeatureHub = () => {
                      className="absolute inset-0 w-full h-full"
                   >
                      {/* UI Frame with Dark Mode Outer, White Mode Inner */}
-                     <div className="w-full h-full rounded-[24px] md:rounded-[32px] bg-white/5 border border-white/10 p-1.5 md:p-3 lg:p-4 shadow-2xl flex flex-col">
+                     <div className="w-full h-full rounded-3xl md:rounded-4xl bg-white/5 border border-white/10 p-1.5 md:p-3 lg:p-4 shadow-2xl flex flex-col">
                         <motion.div
-                           className="relative w-full h-full rounded-[18px] md:rounded-[24px] overflow-hidden bg-white shadow-inner flex flex-col"
+                           className="relative w-full h-full rounded-[18px] md:rounded-3xl overflow-hidden bg-white shadow-inner flex flex-col"
                         >
                            {/* INFOGRAPHIC DYNAMIC CONTENT ENGINE (Unchanged pristine white UI) */}
                            <div className="h-full w-full flex flex-col p-4 md:p-6 bg-slate-50/30">
@@ -344,14 +344,14 @@ const FeatureHub = () => {
                                           { label: 'Direct Bookings', val: '128', up: '+15%', color: '#3B82F6' },
                                           { label: 'Team Members', val: '12', up: 'Full Access', color: '#F59E0B' }
                                        ].map((s, i) => (
-                                          <div key={i} className="bg-white p-3 md:p-4 rounded-[12px] md:rounded-[16px] border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
+                                          <div key={i} className="bg-white p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
                                              <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-relaxed mb-0.5 md:mb-1 truncate">{s.label}</p>
                                              <p className="text-base md:text-xl font-black text-slate-900 tracking-tight">{s.val}</p>
                                              <p className="text-[7px] md:text-[8px] font-bold mt-0.5 md:mt-1 tracking-widest" style={{ color: s.color }}>{s.up}</p>
                                           </div>
                                        ))}
                                     </div>
-                                    <div className="flex-1 bg-white rounded-[16px] md:rounded-[20px] p-3 md:p-4 border border-slate-100 flex items-center justify-center overflow-hidden shadow-sm">
+                                    <div className="flex-1 bg-white rounded-2xl md:rounded-[20px] p-3 md:p-4 border border-slate-100 flex items-center justify-center overflow-hidden shadow-sm">
                                        <svg className="w-full h-24 md:h-32 overflow-visible" viewBox="0 0 100 40">
                                           <motion.path d="M0,35 L20,10 L40,25 L60,5 L80,20 L100,2" fill="none" stroke={features[selected].accent} strokeWidth="3" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2 }} />
                                           <motion.path d="M0,35 L20,30 L40,32 L60,25 L80,28 L100,10" fill="none" stroke="#CBD5E1" strokeWidth="1.5" strokeDasharray="2 2" />
@@ -372,7 +372,7 @@ const FeatureHub = () => {
                                              initial={{ scale: 0.9, opacity: 0 }}
                                              animate={{ scale: 1, opacity: 1 }}
                                              transition={{ delay: i * 0.15 }}
-                                             className="bg-white p-3 md:p-4 rounded-[16px] md:rounded-[20px] shadow-lg shadow-slate-200/50 border border-slate-100 flex items-center gap-3 md:gap-4 w-full"
+                                             className="bg-white p-3 md:p-4 rounded-2xl md:rounded-[20px] shadow-lg shadow-slate-200/50 border border-slate-100 flex items-center gap-3 md:gap-4 w-full"
                                           >
                                              <div className="w-8 h-8 md:w-10 md:h-10 rounded-[10px] md:rounded-[14px] bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
                                                 <MessageSquare size={16} className="md:w-5 md:h-5" />
@@ -389,7 +389,7 @@ const FeatureHub = () => {
 
                               {features[selected].type === 'verification' && (
                                  <div className="h-full flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-8 items-center justify-center">
-                                    <div className="bg-white shadow-sm p-4 md:p-6 rounded-[20px] md:rounded-[24px] border border-slate-100 flex flex-col items-center justify-center w-full h-[120px] md:h-full">
+                                    <div className="bg-white shadow-sm p-4 md:p-6 rounded-[20px] md:rounded-3xl border border-slate-100 flex flex-col items-center justify-center w-full h-[120px] md:h-full">
                                        <div className="relative w-24 h-24 md:w-40 md:h-40 flex items-center justify-center">
                                           <svg className="w-full h-full -rotate-90 drop-shadow-md md:drop-shadow-xl" viewBox="0 0 144 144">
                                              <circle cx="72" cy="72" r="60" fill="none" stroke="#F1F5F9" strokeWidth="8" className="md:stroke-[12px]" />
@@ -408,7 +408,7 @@ const FeatureHub = () => {
                                              initial={{ opacity: 0, x: 20 }}
                                              animate={{ opacity: 1, x: 0 }}
                                              transition={{ delay: i * 0.1 }}
-                                             className="flex items-center gap-2 md:gap-3 p-2.5 md:p-4 bg-white rounded-[12px] md:rounded-[16px] shadow-sm border border-slate-100"
+                                             className="flex items-center gap-2 md:gap-3 p-2.5 md:p-4 bg-white rounded-xl md:rounded-2xl shadow-sm border border-slate-100"
                                           >
                                              <div className="w-5 h-5 md:w-6 md:h-6 rounded-[6px] md:rounded-[8px] bg-emerald-500 text-white flex items-center justify-center shrink-0"><Check size={10} className="md:w-3 md:h-3" /></div>
                                              <span className="text-[9px] md:text-[11px] font-bold text-slate-700">{c}</span>
@@ -431,10 +431,10 @@ const FeatureHub = () => {
                                              initial={{ opacity: 0, x: -20 }}
                                              animate={{ opacity: 1, x: 0 }}
                                              transition={{ delay: i * 0.2 }}
-                                             className="bg-white p-3 md:p-4 rounded-[16px] md:rounded-[20px] shadow-sm border border-slate-100 flex items-center justify-between"
+                                             className="bg-white p-3 md:p-4 rounded-2xl md:rounded-[20px] shadow-sm border border-slate-100 flex items-center justify-between"
                                           >
                                              <div className="flex items-center gap-3 md:gap-4">
-                                                <div className="w-8 h-8 md:w-10 md:h-10 rounded-[10px] md:rounded-[12px] bg-slate-50 flex items-center justify-center text-slate-400">
+                                                <div className="w-8 h-8 md:w-10 md:h-10 rounded-[10px] md:rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
                                                    <Users size={16} className="md:w-5 md:h-5" />
                                                 </div>
                                                 <div>
@@ -455,16 +455,16 @@ const FeatureHub = () => {
                               {features[selected].type === 'support' && (
                                  <div className="h-full flex flex-col justify-end p-0 sm:p-2 lg:p-4 pb-2 sm:pb-4">
                                     <div className="space-y-2 sm:space-y-4 max-w-[240px] md:max-w-[260px] sm:max-w-sm ml-auto">
-                                       <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-3 sm:p-4 rounded-[16px] sm:rounded-[20px] rounded-br-sm border border-slate-100 shadow-sm">
+                                       <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-[20px] rounded-br-sm border border-slate-100 shadow-sm">
                                           <p className="text-[9px] md:text-[10px] sm:text-xs font-bold text-slate-600 leading-relaxed">I have a question about my monthly lead limit on the Elite plan.</p>
                                        </motion.div>
-                                       <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1 }} className="bg-pd-pink text-white p-3 sm:p-4 rounded-[16px] sm:rounded-[20px] rounded-bl-sm flex gap-2 sm:gap-3 shadow-xl shadow-pd-pink/20">
+                                       <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1 }} className="bg-pd-pink text-white p-3 sm:p-4 rounded-2xl sm:rounded-[20px] rounded-bl-sm flex gap-2 sm:gap-3 shadow-xl shadow-pd-pink/20">
                                           <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5"><Check size={8} className="sm:hidden" /><Check size={12} className="hidden sm:block" /></div>
                                           <p className="text-[9px] md:text-[10px] sm:text-xs font-bold leading-relaxed">Hi! The Elite plan actually has zero limits on leads. You get 100% of the volume!</p>
                                        </motion.div>
                                     </div>
-                                    <div className="mt-4 sm:mt-8 flex items-center gap-3 sm:gap-4 p-2.5 md:p-3 sm:p-4 bg-white rounded-[16px] sm:rounded-[20px] border border-slate-100 shadow-sm w-max max-w-full">
-                                       <div className="w-7 h-7 md:w-8 md:h-8 sm:w-10 sm:h-10 rounded-[8px] md:rounded-[10px] sm:rounded-[12px] bg-emerald-500/10 text-emerald-500 flex items-center justify-center animate-pulse shrink-0"><Clock size={14} className="sm:hidden" /><Clock size={20} className="hidden sm:block" /></div>
+                                    <div className="mt-4 sm:mt-8 flex items-center gap-3 sm:gap-4 p-2.5 md:p-3 sm:p-4 bg-white rounded-2xl sm:rounded-[20px] border border-slate-100 shadow-sm w-max max-w-full">
+                                       <div className="w-7 h-7 md:w-8 md:h-8 sm:w-10 sm:h-10 rounded-[8px] md:rounded-[10px] sm:rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center animate-pulse shrink-0"><Clock size={14} className="sm:hidden" /><Clock size={20} className="hidden sm:block" /></div>
                                        <div>
                                           <p className="text-[11px] md:text-xs sm:text-sm font-black text-slate-800 leading-none sm:leading-normal">2 min avg.</p>
                                           <p className="text-[7px] md:text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 md:mt-0.5">Response time</p>
@@ -537,7 +537,7 @@ export default function PartnerLandingPage() {
                   <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-6">
                      Scale Your Venue's <br />
                      <span className="relative inline-block mt-2">
-                        <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-purple-500 to-pd-blue">
+                        <span className="relative z-10 text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-500 to-pd-blue">
                            Party Bookings
                         </span>
                         <span className="absolute -bottom-2 left-0 w-full h-3 bg-pd-pink/10 -z-0 rounded-full blur-sm"></span>
@@ -589,9 +589,9 @@ export default function PartnerLandingPage() {
                >
                   {/* Central Image Card */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[460px] z-20">
-                     <div className="w-full h-full rounded-[32px] overflow-hidden shadow-2xl border-4 border-white bg-slate-100" style={{ animation: 'float-y 6s ease-in-out infinite' }}>
+                     <div className="w-full h-full rounded-4xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100" style={{ animation: 'float-y 6s ease-in-out infinite' }}>
                         <Image src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=800" alt="Venue" fill className="object-cover" priority />
-                        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
+                        <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-black/80 to-transparent flex items-end p-6">
                            <div className="flex items-center gap-3 w-full backdrop-blur-md bg-white/20 p-3 rounded-2xl border border-white/30">
                               <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white"><CheckCircle2 size={20} /></div>
                               <div className="flex-1">
@@ -605,7 +605,7 @@ export default function PartnerLandingPage() {
 
                   {/* Floating Card 1 */}
                   <div
-                     className="absolute top-12 left-0 w-[240px] h-[300px] rounded-[24px] overflow-hidden shadow-xl border-4 border-white z-10 bg-slate-100 opacity-90"
+                     className="absolute top-12 left-0 w-[240px] h-[300px] rounded-3xl overflow-hidden shadow-xl border-4 border-white z-10 bg-slate-100 opacity-90"
                      style={{ animation: 'float-r1 8s ease-in-out infinite 1s' }}
                   >
                      <Image src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800" alt="Party" fill className="object-cover" />
@@ -613,7 +613,7 @@ export default function PartnerLandingPage() {
 
                   {/* Floating Card 2 */}
                   <div
-                     className="absolute bottom-12 right-0 w-[260px] h-[280px] rounded-[24px] overflow-hidden shadow-xl border-4 border-white z-10 bg-slate-100"
+                     className="absolute bottom-12 right-0 w-[260px] h-[280px] rounded-3xl overflow-hidden shadow-xl border-4 border-white z-10 bg-slate-100"
                      style={{ animation: 'float-r2 7s ease-in-out infinite 2s' }}
                   >
                      <Image src="https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&q=80&w=800" alt="Banquet" fill className="object-cover" />
@@ -714,7 +714,7 @@ export default function PartnerLandingPage() {
                            ></div>
 
                            <div
-                              className="w-20 h-20 rounded-[32px] flex items-center justify-center mb-6 transition-transform duration-500 group-hover:rotate-[10deg] shadow-lg border-2 border-slate-50 group-hover:bg-white"
+                              className="w-20 h-20 rounded-4xl flex items-center justify-center mb-6 transition-transform duration-500 group-hover:rotate-[10deg] shadow-lg border-2 border-slate-50 group-hover:bg-white"
                               style={{ color: evt.accent, backgroundColor: `${evt.accent}08` }}
                            >
                               {evt.icon}
@@ -754,7 +754,7 @@ export default function PartnerLandingPage() {
                         <Sparkles size={14} className="animate-pulse" /> Partner Benefits
                      </div>
                      <h3 className="text-4xl md:text-6xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1]">
-                        Unfair <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-blue to-pd-pink italic">Advantage</span>
+                        Unfair <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-blue to-pd-pink italic">Advantage</span>
                      </h3>
                   </div>
                   <div className="flex-1 md:pb-4">
@@ -794,10 +794,10 @@ export default function PartnerLandingPage() {
                      <motion.div
                         key={i}
                         whileHover={{ y: -10 }}
-                        className={`group relative p-8 lg:p-10 rounded-[32px] bg-slate-50 border border-slate-100 overflow-hidden transition-all duration-500 ${benefit.glow} hover:bg-white`}
+                        className={`group relative p-8 lg:p-10 rounded-4xl bg-slate-50 border border-slate-100 overflow-hidden transition-all duration-500 ${benefit.glow} hover:bg-white`}
                      >
                         {/* Hover Gradient Background */}
-                        <div className={`absolute inset-0 bg-gradient-to-br ${benefit.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10`}></div>
+                        <div className={`absolute inset-0 bg-linear-to-br ${benefit.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10`}></div>
                         
                         <div className="relative z-10">
                            <div className={`w-16 h-16 rounded-2xl bg-white border border-slate-100 flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-500 ${benefit.iconColor}`}>
@@ -861,14 +861,14 @@ export default function PartnerLandingPage() {
                         Acquisition Engine v4.0
                      </div>
                      <h3 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase leading-[1.1] mb-6">
-                        we run <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink to-pd-blue">the ads</span> <br />
+                        we run <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue">the ads</span> <br />
                         you close <br />
                         the revenue
                      </h3>
 
                      <div className="space-y-4">
                         {/* Feature Card 1 */}
-                        <motion.div whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.06)", boxShadow: "0 10px 30px rgba(59,130,246,0.15)" }} className="relative p-5 rounded-[24px] bg-white/[0.02] border border-white/[0.05] transition-colors group">
+                        <motion.div whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.06)", boxShadow: "0 10px 30px rgba(59,130,246,0.15)" }} className="relative p-5 rounded-3xl bg-white/[0.02] border border-white/[0.05] transition-colors group">
                            <div className="absolute top-5 left-5 w-8 h-8 rounded-[10px] bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                               <Target size={16} />
                            </div>
@@ -881,7 +881,7 @@ export default function PartnerLandingPage() {
                         </motion.div>
 
                         {/* Feature Card 2 */}
-                        <motion.div whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.06)", boxShadow: "0 10px 30px rgba(16,185,129,0.15)" }} className="relative p-5 rounded-[24px] bg-white/[0.02] border border-white/[0.05] transition-colors group">
+                        <motion.div whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.06)", boxShadow: "0 10px 30px rgba(16,185,129,0.15)" }} className="relative p-5 rounded-3xl bg-white/[0.02] border border-white/[0.05] transition-colors group">
                            <div className="absolute top-5 left-5 w-8 h-8 rounded-[10px] bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                               <ShieldCheck size={16} />
                            </div>
@@ -894,7 +894,7 @@ export default function PartnerLandingPage() {
                         </motion.div>
 
                         {/* Highlight Card */}
-                        <div className="p-5 mt-2 rounded-[24px] bg-gradient-to-br from-white/10 to-white/5 border border-white/10 relative overflow-hidden group">
+                        <div className="p-5 mt-2 rounded-3xl bg-linear-to-br from-white/10 to-white/5 border border-white/10 relative overflow-hidden group">
                            <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink/20 blur-[50px] group-hover:bg-pd-pink/30 transition-colors"></div>
                            <div className="flex items-center gap-3 mb-2 relative z-10">
                               <div className="w-6 h-6 rounded-full bg-pd-pink text-white flex items-center justify-center shadow-lg shadow-pd-pink/20">
@@ -961,17 +961,17 @@ export default function PartnerLandingPage() {
                         {/* Central Hub */}
                         <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-24 h-24 md:w-32 md:h-32 z-30">
                            <div
-                              className="w-full h-full rounded-[24px] bg-gradient-to-br from-pd-pink via-purple-500 to-pd-blue p-[1px] shadow-[0_0_50px_rgba(139,92,246,0.3)]"
+                              className="w-full h-full rounded-3xl bg-linear-to-br from-pd-pink via-purple-500 to-pd-blue p-[1px] shadow-[0_0_50px_rgba(139,92,246,0.3)]"
                               style={{ animation: 'map-float 5s ease-in-out infinite' }}
                            >
                               <div className="w-full h-full bg-[#030712] rounded-[23px] flex flex-col items-center justify-center relative overflow-hidden">
-                                 <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent"></div>
+                                 <div className="absolute inset-0 bg-linear-to-b from-white/10 to-transparent"></div>
                                  <Image src="/apple-icon.jpg" alt="PartyDial Logo" width={60} height={60} className="mb-2 relative z-10 rounded-[10px]" />
                                  <span className="text-[8px] font-black text-white tracking-widest uppercase relative z-10">PARTYDIAL</span>
 
                                  {/* Scanning effect */}
                                  <div
-                                    className="absolute bottom-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent w-[200%]"
+                                    className="absolute bottom-0 h-1 bg-linear-to-r from-transparent via-emerald-400 to-transparent w-[200%]"
                                     style={{ animation: 'scan-line 2s linear infinite' }}
                                  />
                               </div>
@@ -1025,8 +1025,8 @@ export default function PartnerLandingPage() {
          {/* 9. SUCCESS STORIES */}
          <section id="stories" className="py-24 bg-slate-50 border-t border-slate-100 overflow-hidden relative">
             {/* Background Decoration */}
-            <div className="absolute top-0 right-0 w-1/4 h-full bg-gradient-to-l from-slate-50 to-transparent pointer-events-none z-10 hidden md:block" />
-            <div className="absolute top-0 left-0 w-1/4 h-full bg-gradient-to-r from-slate-50 to-transparent pointer-events-none z-10 hidden md:block" />
+            <div className="absolute top-0 right-0 w-1/4 h-full bg-linear-to-l from-slate-50 to-transparent pointer-events-none z-10 hidden md:block" />
+            <div className="absolute top-0 left-0 w-1/4 h-full bg-linear-to-r from-slate-50 to-transparent pointer-events-none z-10 hidden md:block" />
 
             <motion.div 
                initial={{ opacity: 0, y: 30 }} 
@@ -1064,7 +1064,7 @@ export default function PartnerLandingPage() {
                   {/* Duplicate array to ensure enough slides exist for seamless linear looping */}
                   {[...successStories, ...successStories, ...successStories, ...successStories].map((t, i) => (
                      <SwiperSlide key={i} className="!w-[320px] md:!w-[420px] h-auto">
-                        <div className="relative p-8 md:p-10 bg-white rounded-[32px] shadow-[0_10px_40px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col group transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)] overflow-hidden cursor-grab active:cursor-grabbing">
+                        <div className="relative p-8 md:p-10 bg-white rounded-4xl shadow-[0_10px_40px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col group transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)] overflow-hidden cursor-grab active:cursor-grabbing">
                            <div className="flex text-amber-400 mb-6 gap-1 relative z-10">
                               {[...Array(5)].map((_, j) => (
                                  <Star key={j} size={16} fill="currentColor" />
@@ -1296,7 +1296,7 @@ export default function PartnerLandingPage() {
                      </div>
                      
                      <h3 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-6">
-                        CURIOUS ABOUT <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F43F5E] via-[#D946EF] to-[#3B82F6]">GROWTH?</span>
+                        CURIOUS ABOUT <span className="text-transparent bg-clip-text bg-linear-to-r from-[#F43F5E] via-[#D946EF] to-[#3B82F6]">GROWTH?</span>
                      </h3>
                      
                      <p className="text-slate-500 text-sm md:text-base font-medium max-w-[400px] leading-relaxed mb-8 lg:mb-12">
@@ -1304,7 +1304,7 @@ export default function PartnerLandingPage() {
                      </p>
 
                      <div className="hidden lg:block">
-                        <div className="p-8 bg-[#16161F] rounded-[24px] text-white w-full max-w-[340px] shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
+                        <div className="p-8 bg-[#16161F] rounded-3xl text-white w-full max-w-[340px] shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-white">Still have doubts?</h4>
                            <p className="text-slate-400 text-xs font-medium leading-[1.8] mb-8 pr-6">Our partner success team is available 24/7 to help you dominate your city.</p>
                            <Link href="/contact">
@@ -1353,7 +1353,7 @@ export default function PartnerLandingPage() {
                                     className="overflow-hidden bg-white"
                                  >
                                     <div className="px-6 pb-7 pl-[4.5rem]">
-                                       <p className="text-[13px] md:text-sm text-slate-500 font-medium leading-[1.8] max-w-[500px]">
+                                       <p className="text-[13px] md:text-sm text-slate-500 font-medium leading-[1.8] max-w-125">
                                           {f.a}
                                        </p>
                                     </div>
@@ -1394,18 +1394,18 @@ export default function PartnerLandingPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                  className="bg-[#0F172A] border border-slate-800/50 rounded-[32px] md:rounded-[40px] p-10 md:p-20 relative overflow-hidden shadow-[0_40px_100px_-20px_rgba(15,23,42,0.4)] flex flex-col lg:flex-row items-center gap-16"
+                  className="bg-[#0F172A] border border-slate-800/50 rounded-4xl md:rounded-[40px] p-10 md:p-20 relative overflow-hidden shadow-[0_40px_100px_-20px_rgba(15,23,42,0.4)] flex flex-col lg:flex-row items-center gap-16"
                >
                   {/* Dynamic Dark Mode Background Gradients */}
                   <motion.div 
                      animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }} 
                      transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} 
-                     className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-blue/30 to-transparent"
+                     className="absolute top-0 right-0 w-125 h-[500px] rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-blue/30 to-transparent"
                   ></motion.div>
                   <motion.div 
                      animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.7, 0.3] }} 
                      transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }} 
-                     className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full translate-y-1/3 -translate-x-1/3 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/30 to-transparent"
+                     className="absolute bottom-0 left-0 w-125 h-[500px] rounded-full translate-y-1/3 -translate-x-1/3 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/30 to-transparent"
                   ></motion.div>
 
                   {/* Dot Grid Overlay */}
@@ -1418,7 +1418,7 @@ export default function PartnerLandingPage() {
                      </div>
                      <h3 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-[1.1] mb-8">
                         Ready to join <br />
-                        the <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink to-pd-blue not-italic">Leaders?</span>
+                        the <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue not-italic">Leaders?</span>
                      </h3>
                      <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed max-w-xl mb-12">
                         India's most powerful venue growth engine. Stop waiting for leads and start <span className="text-white font-bold italic border-b border-pd-pink">commanding them.</span>
@@ -1446,7 +1446,7 @@ export default function PartnerLandingPage() {
 
                         <div className="relative z-10 flex flex-col h-full justify-between">
                            <div>
-                              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pd-pink to-rose-500 flex items-center justify-center text-white shadow-xl shadow-pd-pink/30 mb-6 group-hover/card:scale-110 transition-transform duration-500">
+                              <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-pd-pink to-rose-500 flex items-center justify-center text-white shadow-xl shadow-pd-pink/30 mb-6 group-hover/card:scale-110 transition-transform duration-500">
                                  <TrendingUp size={28} />
                               </div>
                               <div className="text-[10px] font-black text-pd-pink uppercase tracking-widest leading-none mb-2">Verified Growth</div>
@@ -1456,7 +1456,7 @@ export default function PartnerLandingPage() {
                            <div className="space-y-4">
                               <div className="h-[3px] w-full bg-slate-100 overflow-hidden rounded-full">
                                  {/* Pure CSS Progress Bar Fill */}
-                                 <div className="h-full bg-gradient-to-r from-pd-blue to-pd-pink rounded-full w-[85%] relative overflow-hidden transition-all duration-1000 group-hover/card:w-[100%]">
+                                 <div className="h-full bg-linear-to-r from-pd-blue to-pd-pink rounded-full w-[85%] relative overflow-hidden transition-all duration-1000 group-hover/card:w-[100%]">
                                     <div className="absolute top-0 left-0 w-full h-full bg-white/30 animate-[pulse_2s_ease-in-out_infinite]"></div>
                                  </div>
                               </div>
@@ -1475,7 +1475,7 @@ export default function PartnerLandingPage() {
                            </div>
                         </div>
 
-                        <div className="absolute bottom-0 left-0 w-full h-[60%] bg-gradient-to-t from-slate-50 to-transparent pointer-events-none"></div>
+                        <div className="absolute bottom-0 left-0 w-full h-[60%] bg-linear-to-t from-slate-50 to-transparent pointer-events-none"></div>
                      </div>
 
                      {/* Secondary Floating Elements (Pure CSS) */}
@@ -1507,7 +1507,7 @@ export default function PartnerLandingPage() {
                whileInView={{ opacity: 1, y: 0 }}
                viewport={{ once: true }}
                transition={{ duration: 0.8 }}
-               className="max-w-[1200px] w-full bg-white/95 rounded-[24px] md:rounded-[40px] p-4 sm:p-8 md:p-16 border border-white shadow-[0_40px_100px_rgba(0,0,0,0.05)] relative z-10"
+               className="max-w-[1200px] w-full bg-white/95 rounded-3xl md:rounded-[40px] p-4 sm:p-8 md:p-16 border border-white shadow-[0_40px_100px_rgba(0,0,0,0.05)] relative z-10"
             >
                <div className="flex flex-col lg:flex-row gap-10 lg:gap-24 items-center">
                   {/* Left Column: Benefits & Copy */}
@@ -1517,7 +1517,7 @@ export default function PartnerLandingPage() {
                      </div>
                      <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-4 md:mb-6">
                         Start your <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink to-pd-blue not-italic">Legacy.</span>
+                        <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue not-italic">Legacy.</span>
                      </h2>
                      <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed max-w-sm mb-8 md:mb-12">
                         Join India's most exclusive venue network. Apply now and our partner success team will review your application within 24 hours.
@@ -1543,10 +1543,10 @@ export default function PartnerLandingPage() {
                   </div>
 
                   {/* Right Column: The Form */}
-                  <div className="flex-1 w-full max-w-[500px]">
-                     <div className="bg-white rounded-[24px] md:rounded-[32px] p-6 sm:p-8 md:p-10 shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group/form">
+                  <div className="flex-1 w-full max-w-125">
+                     <div className="bg-white rounded-3xl md:rounded-4xl p-6 sm:p-8 md:p-10 shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group/form">
                         {/* Static Border Glow on Form (Reveals on focus) */}
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pd-blue via-pd-pink to-emerald-400 opacity-20 group-focus-within/form:opacity-100 transition-opacity duration-500"></div>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-pd-blue via-pd-pink to-emerald-400 opacity-20 group-focus-within/form:opacity-100 transition-opacity duration-500"></div>
 
                         <form className="space-y-5 md:space-y-6" onSubmit={(e) => { e.preventDefault(); alert("Application Sent!"); }}>
 
@@ -1580,7 +1580,7 @@ export default function PartnerLandingPage() {
                               type="submit"
                               className="w-full h-14 md:h-16 mt-2 md:mt-4 relative group/btn rounded-[14px] md:rounded-2xl overflow-hidden"
                            >
-                              <div className="absolute inset-0 bg-gradient-to-r from-pd-pink to-pd-red group-hover/btn:opacity-90 transition-opacity"></div>
+                              <div className="absolute inset-0 bg-linear-to-r from-pd-pink to-pd-red group-hover/btn:opacity-90 transition-opacity"></div>
                               <div className="relative w-full h-full flex items-center justify-center text-white text-xs md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.3em] italic gap-2 md:gap-3 group-hover/btn:scale-[1.02] transition-transform duration-300">
                                  Submit Application <ArrowRight size={14} className="md:w-4 md:h-4" />
                               </div>
