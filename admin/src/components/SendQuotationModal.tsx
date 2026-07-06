@@ -314,6 +314,9 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(pData))));
       link += `&partnerDetails=${encoded}`;
     }
+    
+    link += `&directPay=true`;
+    
     return link;
   }, [partnerPortalUrl, currentEntityId, selectedPlan, selectedAddons, discountType, discountValue, gstNumber, manualMode, inlineEditing, manualData]);
 

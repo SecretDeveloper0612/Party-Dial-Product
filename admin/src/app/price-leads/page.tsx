@@ -196,18 +196,18 @@ export default function PriceLeadsPage() {
                           <div className="flex flex-col">
                              <div className="flex items-center gap-2 mb-1">
                                 <Zap size={12} className="text-pink-500" />
-                                <span className="text-[10px] font-black uppercase text-slate-600">{lead.notes.split(' | ')[0].replace('Plan: ', '')}</span>
+                                <span className="text-[10px] font-black uppercase text-slate-600">{(lead.notes || '').split(' | ')[0]?.replace('Plan: ', '') || 'No Plan Info'}</span>
                              </div>
-                             <span className="text-xs font-medium text-slate-500 truncate max-w-[200px]">{lead.notes.split(' | ')[1].replace('Venue: ', '')}</span>
+                             <span className="text-xs font-medium text-slate-500 truncate max-w-[200px]">{(lead.notes || '').split(' | ')[1]?.replace('Venue: ', '') || 'No Venue Info'}</span>
                           </div>
                        </td>
                        <td className="p-6">
                           <div className="flex flex-col">
                              <span className="text-sm font-bold text-slate-700">
-                               {lead.city || lead.notes.split(' | ')[2]?.replace('City: ', '') || 'N/A'}
+                               {lead.city || (lead.notes || '').split(' | ')[2]?.replace('City: ', '') || 'No City'}
                              </span>
                              <span className="text-[10px] text-slate-400 font-bold uppercase">
-                               {lead.pincode || lead.notes.split(' | ')[3]?.replace('Pin: ', '') || 'Pincode N/A'}
+                               {lead.pincode || (lead.notes || '').split(' | ')[3]?.replace('Pin: ', '') || 'No Pincode'}
                              </span>
                           </div>
                        </td>

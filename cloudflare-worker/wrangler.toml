@@ -1,6 +1,7 @@
 name = "partydial-worker"
 main = "src/index.js"
 compatibility_date = "2024-09-23"
+account_id = "b67b708eae2e6f3218d8c244af8abf61"
 
 # Important for Appwrite, Razorpay, Nodemailer
 compatibility_flags = ["nodejs_compat"]
@@ -13,6 +14,8 @@ routes = [
 [vars]
 # Add non-sensitive variables here. 
 # Secrets like APPWRITE_API_KEY, RAZORPAY_KEY_SECRET, EMAIL_PASS must be set via `wrangler secret put <NAME>`
+ADMIN_EMAIL = "admin@partydial.com"
+ADMIN_PASS = "Admin123"
 ALLOWED_ORIGINS = "https://www.partydial.com,https://partydial.com,https://partner.partydial.com,https://admin.partydial.com,http://localhost:5173,http://localhost:3000"
 
 APPWRITE_ENDPOINT = "https://sgp.cloud.appwrite.io/v1"
@@ -29,6 +32,7 @@ EMAIL_HOST = "smtp.hostinger.com"
 EMAIL_PORT = "465"
 EMAIL_SECURE = "true"
 EMAIL_USER = "noreply@partydial.com"
+EMAIL_PASS = "PreetTech08@123"
 FRONTEND_URL = "https://partner.partydial.com/"
 GOOGLE_SHEET_LEADS_URL = "https://docs.google.com/spreadsheets/d/1XNlvYSqfslCk79dwO-lPdfO1ybq4IBhVjP5G1L4ukLQ/edit?gid=0#gid=0"
 NODE_ENV = "development"

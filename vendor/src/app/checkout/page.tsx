@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -133,6 +136,10 @@ function CheckoutContent() {
             state: decoded.state || prev.state,
             pincode: decoded.pincode || prev.pincode,
           }));
+          
+          if (searchParams.get('directPay') === 'true') {
+             setStep(2);
+          }
         } catch (e) {
           console.error("Failed to decode partner details", e);
         }
@@ -184,6 +191,10 @@ function CheckoutContent() {
           pincode: overrides.pincode || v.pincode || "",
           gstNumber: v.gstNumber || ""
         });
+        
+        if (searchParams.get('directPay') === 'true') {
+           setStep(2);
+        }
       }
     } catch (err) {
       console.error("Failed to fetch venue details for pre-fill:", err);

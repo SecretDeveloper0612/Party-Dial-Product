@@ -1,4 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import Link from 'next/link';
@@ -67,7 +69,6 @@ export interface ParsedIntent {
 }
 
 export interface ScoredVenue {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   venue: any;
   score: number;
   matchedSignals: string[];
@@ -164,7 +165,6 @@ function extractIntent(query: string): ParsedIntent {
 // ─────────────────────────────────────────────────────────────────
 
 function filterAndRank(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   venues: any[],
   intent: ParsedIntent,
   options: { relaxCapacity?: boolean; relaxBudget?: boolean } = {}
@@ -254,7 +254,6 @@ function filterAndRank(
 // ─────────────────────────────────────────────────────────────────
 // VENUE DATA MAPPER
 // ─────────────────────────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapVenueDoc(doc: any) {
   const photos = parsePhotos(doc.photos);
   const hasPaidPlan = doc.subscriptionPlan &&
@@ -389,7 +388,6 @@ export default function AISearchPage() {
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [liveVenues, setLiveVenues] = useState<any[]>([]);
   const [intent, setIntent] = useState<ParsedIntent | null>(null);
   const [scoredResults, setScoredResults] = useState<ScoredVenue[]>([]);
@@ -397,23 +395,19 @@ export default function AISearchPage() {
 
   const [isListening, setIsListening] = useState(false);
   const [hasRecognition, setHasRecognition] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
   
   // We need a ref to the latest runSearch to call it from the speech recognition callback
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const runSearchRef = useRef<any>(null);
 
   // ── Speech Recognition ────────────────────────
   useEffect(() => {
     if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       recognitionRef.current = new SR();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
       setTimeout(() => setHasRecognition(true), 0);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       recognitionRef.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setQuery(transcript);

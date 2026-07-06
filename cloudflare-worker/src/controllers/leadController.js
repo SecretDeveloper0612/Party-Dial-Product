@@ -153,10 +153,19 @@ export const savePartnerEnquiry = async (c) => {
     try {
         const body = await c.req.json().catch(() => ({}));
         const { databases, databaseId, collections } = getAppwriteServices(c.env);
+        
+        const { name, phone, email, plan, venueName, city, pincode, guestCapacity } = body;
+        
         const result = await databases.createDocument(databaseId, collections.leads, ID.unique(), {
-            venueId: 'PARTNER_ENQUIRY', name: body.name || '', phone: body.phone || '', eventType: 'Partner Onboarding',
-            guests: 0,
-            status: 'New', createdAt: new Date().toISOString()
+            venueId: 'PARTNER_ENQUIRY', 
+            name: name || '', 
+            phone: phone || '', 
+            email: email || '',
+            eventType: 'Partner Onboarding',
+            guests: parseInt(guestCapacity) || 0,
+            notes: `Plan: ${plan || 'N/A'} | Venue: ${venueName || 'N/A'} | City: ${city || 'N/A'} | Pin: ${pincode || 'N/A'} | Source: Price Page Lead`,
+            status: 'New', 
+            createdAt: new Date().toISOString()
         });
         return c.json({ status: 'success', data: result }, 201);
     } catch (error) {
