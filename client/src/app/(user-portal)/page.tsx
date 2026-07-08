@@ -273,6 +273,7 @@ function mapVenueDoc(doc: any) {
     rating: parseFloat(doc.rating) || 0,
     reviews: doc.totalReviews || 0,
     img: photos.length > 0 ? getAppwriteImageUrl(photos[0]) : '',
+    images: photos.map((p: any) => getAppwriteImageUrl(p)),
     verified: doc.isVerified || false,
     popular: doc.status === 'active',
     isPaid: !!hasPaidPlan,
@@ -283,9 +284,16 @@ function mapVenueDoc(doc: any) {
       ? typeof doc.eventTypes === 'string' ? JSON.parse(doc.eventTypes) : doc.eventTypes
       : [],
     subscriptionPlan: doc.subscriptionPlan || 'free',
-    foodTypes: doc.foodTypes
-      ? typeof doc.foodTypes === 'string' ? JSON.parse(doc.foodTypes) : doc.foodTypes
-      : [],
+    foodTypes: (() => {
+      let parsed = doc.foodTypes ? (typeof doc.foodTypes === 'string' ? JSON.parse(doc.foodTypes) : doc.foodTypes) : [];
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        parsed = [];
+        if (doc.perPlateVeg) parsed.push('Veg');
+        if (doc.perPlateNonVeg) parsed.push('Non-Veg');
+        if (parsed.length === 0) parsed.push('Veg');
+      }
+      return parsed;
+    })(),
   };
 }
 

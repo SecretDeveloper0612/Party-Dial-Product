@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '127.0.0.1' }
     ],
   },
-  allowedDevOrigins: ['192.168.29.26', '192.168.1.6', 'localhost', '127.0.0.1'],
+  allowedDevOrigins: ['192.168.1.11', '192.168.1.6', 'localhost', '127.0.0.1'],
   async rewrites() {
     return [
       {

@@ -280,7 +280,7 @@ export default function Header() {
       )}
 
       {/* 2. MAIN HEADER */}
-      <header className="sticky top-2 md:top-4 z-50 w-full h-0 px-4 md:px-8 transition-all duration-300">
+      <header className="sticky top-2 md:top-4 mt-2 md:mt-4 z-50 w-full h-0 px-4 md:px-8 transition-all duration-300">
         <nav className="mx-auto max-w-5xl h-14 sm:h-[68px] flex items-center justify-between px-4 sm:px-6 md:px-8 bg-white/95 backdrop-blur-xl rounded-full shadow-lg border border-slate-100">
           <Link href="/" className="flex items-center gap-2 md:gap-4 shrink-0">
              <div className="relative w-28 sm:w-36 h-10 sm:h-12 cursor-pointer hover:scale-105 transition-transform flex items-center">

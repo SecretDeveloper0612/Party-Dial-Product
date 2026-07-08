@@ -225,6 +225,7 @@ function VenuesContent() {
                   rating: venueRating,
                   reviews: doc.totalReviews || 0,
                   img: photos.length > 0 ? getAppwriteImageUrl(photos[0]) : "",
+                  images: photos.map((p: any) => getAppwriteImageUrl(p)),
                   verified: doc.isVerified || false,
                   popular: doc.status === 'active',
                   isNew: doc.$createdAt
@@ -233,7 +234,16 @@ function VenuesContent() {
                   bestValue: true,
                   amenities: (doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : ["AC Hall", "Parking"]),
                   categories: (doc.eventTypes ? (typeof doc.eventTypes === 'string' ? JSON.parse(doc.eventTypes) : doc.eventTypes) : ["Wedding"]),
-                  foodTypes: ["Veg", "Non-Veg"],
+                  foodTypes: (() => {
+                    let parsed = doc.foodTypes ? (typeof doc.foodTypes === 'string' ? JSON.parse(doc.foodTypes) : doc.foodTypes) : [];
+                    if (!Array.isArray(parsed) || parsed.length === 0) {
+                      parsed = [];
+                      if (doc.perPlateVeg) parsed.push('Veg');
+                      if (doc.perPlateNonVeg) parsed.push('Non-Veg');
+                      if (parsed.length === 0) parsed.push('Veg');
+                    }
+                    return parsed;
+                  })(),
                   // Smart ranking fields
                   isPaid: !!isSubscriptionActive,
                   profileComplete,

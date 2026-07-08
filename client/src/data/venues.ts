@@ -9,6 +9,7 @@ export interface Venue {
   rating: number;
   reviews: number;
   img: string;
+  images?: string[];
   verified: boolean;
   popular: boolean;
   isNew: boolean;
