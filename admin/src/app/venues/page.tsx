@@ -80,7 +80,14 @@ const amenitiesList = [
 
 // Map raw Appwrite doc → LiveVenue
 function mapDoc(doc: any): LiveVenue {
-  const sub = doc.subscriptionPlan || "";
+  let sub = doc.subscriptionPlan || "None";
+  if (sub === 'trial_30') {
+    const createdAt = doc.$createdAt ? new Date(doc.$createdAt).getTime() : Date.now();
+    if ((Date.now() - createdAt) > (30 * 24 * 60 * 60 * 1000)) {
+      sub = 'None';
+    }
+  }
+
   return {
     id: doc.$id,
     name: doc.venueName || doc.businessName || "Unnamed Venue",
@@ -89,8 +96,8 @@ function mapDoc(doc: any): LiveVenue {
     pincode: doc.pincode || "",
     contactNumber: doc.contactNumber || "—",
     ownerEmail: doc.contactEmail || doc.ownerEmail || "—",
-    subscriptionPlan: sub || "None",
-    hasActivePlan: !!(sub && sub !== "None"),
+    subscriptionPlan: sub,
+    hasActivePlan: !!(sub && sub !== "None" && sub !== "free"),
     isVerified: doc.isVerified === true,
     status: doc.status || "active",
     totalLeads: doc.totalLeads || 0,

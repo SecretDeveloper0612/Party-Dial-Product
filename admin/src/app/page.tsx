@@ -116,7 +116,16 @@ export default function Dashboard() {
         const res = await fetch(`${serverUrl}/venues`, { cache: "no-store" });
         const result = await res.json();
         if (result.status === "success") {
-          setVenues(result.data || []);
+          const mapped = (result.data || []).map((v: any) => {
+            if (v.subscriptionPlan === 'trial_30') {
+              const createdAt = v.$createdAt ? new Date(v.$createdAt).getTime() : Date.now();
+              if ((Date.now() - createdAt) > (30 * 24 * 60 * 60 * 1000)) {
+                return { ...v, subscriptionPlan: 'None' };
+              }
+            }
+            return v;
+          });
+          setVenues(mapped);
         }
       } else {
         await fetchLeads(user.$id);

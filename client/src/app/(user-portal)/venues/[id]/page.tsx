@@ -267,7 +267,16 @@ export default function VenueDetailPage() {
             reviews: [],
             similarVenues: [],
             packages: p_data.packages || [],
-            isPaid: !!doc.subscriptionPlan && doc.subscriptionPlan !== 'free' && (!doc.subscriptionExpiry || new Date(doc.subscriptionExpiry).getTime() > Date.now())
+            isPaid: (() => {
+              const plan = doc.subscriptionPlan;
+              if (!plan || plan === 'free' || plan === 'None') return false;
+              if (plan === 'trial_30') {
+                if (doc.subscriptionExpiry) return new Date(doc.subscriptionExpiry).getTime() > Date.now();
+                const createdAt = doc.$createdAt ? new Date(doc.$createdAt).getTime() : Date.now();
+                return (Date.now() - createdAt) <= (30 * 24 * 60 * 60 * 1000);
+              }
+              return (!doc.subscriptionExpiry || new Date(doc.subscriptionExpiry).getTime() > Date.now());
+            })(),
           };
 
           // Fetch Similar Venues based on Pincode/City
