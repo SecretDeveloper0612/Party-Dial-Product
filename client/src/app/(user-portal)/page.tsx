@@ -523,11 +523,12 @@ export default function AISearchPage() {
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     runSearch(query);
+    setQuery('');
   };
 
   const handleFollowUp = (suggestedQuery: string) => {
-    setQuery(suggestedQuery);
     runSearch(suggestedQuery);
+    setQuery('');
   };
 
   // ── Summary Text ──────────────────────────────

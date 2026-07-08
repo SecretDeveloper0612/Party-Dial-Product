@@ -1,18 +1,16 @@
 'use client';
-import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { MapPin, Star, CheckCircle2, Zap, ArrowRight, IndianRupee, Users } from 'lucide-react';
 import { Venue } from '@/data/venues';
 
 interface VenueCardProps {
-  venue: any;
+  venue: Venue;
   index: number;
   isPremium?: boolean;
 }
 
-const getCapacityLabel = (capacity: any) => {
-  const cap = parseInt(capacity);
+const getCapacityLabel = (capacity: string | number) => {
+  const cap = typeof capacity === 'string' ? parseInt(capacity) : capacity;
   if (isNaN(cap)) return "0";
   if (cap >= 5001) return "5000+";
   if (cap >= 2001) return "2000-5000";
@@ -25,7 +23,7 @@ const getCapacityLabel = (capacity: any) => {
   return "0-50";
 };
 
-export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardProps) {
+export default function VenueCard({ venue: v, isPremium }: VenueCardProps) {
   return (
     <div 
       key={v.id}
