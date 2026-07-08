@@ -290,7 +290,7 @@ export default function Header() {
 
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
              <Link href="/" className="hidden lg:flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-pd-pink transition-all px-4 py-2">
-               <Sparkles size={18} className="text-pd-pink" /> <span>AI Search</span>
+               <span>AI Search</span>
              </Link>
              
              <button 
@@ -377,7 +377,7 @@ export default function Header() {
                        Categories
                     </Link>
                     <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 p-4 bg-pd-pink/10 text-pd-pink rounded-xl font-bold">
-                       <Sparkles size={18} /> AI Search
+                       AI Search
                     </Link>
                   </div>
                   

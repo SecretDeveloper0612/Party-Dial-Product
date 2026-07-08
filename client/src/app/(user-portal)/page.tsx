@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 'use client';
 
 import Link from 'next/link';
@@ -392,6 +392,8 @@ export default function AISearchPage() {
   const [intent, setIntent] = useState<ParsedIntent | null>(null);
   const [scoredResults, setScoredResults] = useState<ScoredVenue[]>([]);
   const [fallbackMode, setFallbackMode] = useState<'none' | 'relaxCapacity' | 'relaxBudget' | 'noMatch'>('none');
+  const [isMobile, setIsMobile] = useState(false);
+  const [displayedExamples, setDisplayedExamples] = useState<any[]>([]);
 
   const [isListening, setIsListening] = useState(false);
   const [hasRecognition, setHasRecognition] = useState(false);
@@ -399,6 +401,28 @@ export default function AISearchPage() {
   
   // We need a ref to the latest runSearch to call it from the speech recognition callback
   const runSearchRef = useRef<any>(null);
+
+  useEffect(() => {
+    const allExamples = [
+      { text: 'Birthday party for 50 pax', icon: <Cake size={13} className="text-pd-purple" /> },
+      { text: 'Corporate event in Noida', icon: <Briefcase size={13} className="text-pd-pink" /> },
+      { text: 'Wedding venue for 300 guests with parking', icon: <Heart size={13} className="text-rose-500" /> },
+      { text: 'Rooftop venue under ₹2 Lakhs', icon: <Building2 size={13} className="text-blue-500" /> },
+      { text: 'Engagement party in Delhi', icon: <PartyPopper size={13} className="text-amber-500" /> },
+      { text: 'Banquet hall for 150 guests', icon: <Users size={13} className="text-emerald-500" /> },
+      { text: 'Resort in Goa with swimming pool', icon: <Sparkles size={13} className="text-cyan-500" /> },
+      { text: 'Farmhouse under ₹50k', icon: <IndianRupee size={13} className="text-emerald-600" /> },
+    ];
+    // Delay state update slightly to avoid 'setState synchronously within an effect' warning
+    setTimeout(() => {
+      setDisplayedExamples([...allExamples].sort(() => 0.5 - Math.random()).slice(0, 8));
+    }, 0);
+
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // ── Speech Recognition ────────────────────────
   useEffect(() => {
@@ -610,7 +634,6 @@ export default function AISearchPage() {
                   className="w-full max-w-4xl mx-auto flex flex-col items-center text-center z-20"
                 >
                 <div className="inline-flex items-center gap-2 px-5 py-2 bg-white shadow-sm border border-slate-100 rounded-full text-pd-purple mb-8">
-                  <Sparkles size={16} className="text-pd-purple" />
                   <span className="text-[11px] font-bold text-pd-purple">AI-Powered Venue Search — Type naturally</span>
                 </div>
 
@@ -664,7 +687,6 @@ export default function AISearchPage() {
                   <form onSubmit={handleSearch} className="relative flex items-end w-full bg-white shadow-[0_8px_40px_rgb(0,0,0,0.08)] rounded-[32px] transition-all duration-500 p-2 md:p-3 outline-none border-none ring-0">
                     {/* Left Icon */}
                     <div className="pl-4 md:pl-5 pr-2 pb-[10px] md:pb-[12px] flex items-center justify-center pointer-events-none">
-                      <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-pd-purple animate-pulse" />
                     </div>
 
                     {/* Input */}
@@ -686,8 +708,8 @@ export default function AISearchPage() {
                           }
                         }
                       }}
-                      placeholder="Describe your perfect event and we'll find the best venues"
-                      className="flex-1 bg-transparent border-none outline-none ring-0 text-base md:text-lg font-medium text-slate-800 placeholder:text-slate-400 py-2 md:py-[10px] min-w-0 resize-none overflow-y-auto max-h-[120px]"
+                      placeholder={isMobile ? "Describe your perfect event..." : "Describe your perfect event and we'll find the best venues"}
+                      className="flex-1 bg-transparent border-none outline-none ring-0 text-sm md:text-lg font-medium text-slate-800 placeholder:text-slate-400 py-2 md:py-[10px] min-w-0 resize-none overflow-y-auto max-h-[120px] scrollbar-hide"
                     />
 
                     {/* Right Actions */}
@@ -720,22 +742,19 @@ export default function AISearchPage() {
                 {/* Example queries */}
                 <div className="w-full max-w-3xl mx-auto text-center relative z-30 mt-2 animate-in fade-in duration-500">
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5">Try These Examples</h4>
-                  <div className="flex flex-nowrap md:justify-center overflow-x-auto gap-3 pb-6 w-full snap-x" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                    {[
-                      { text: 'Birthday party for 50 pax', icon: <Cake size={13} className="text-pd-purple" /> },
-                      { text: 'Corporate event in Noida', icon: <Briefcase size={13} className="text-pd-pink" /> },
-                      { text: 'Wedding venue for 300 guests with parking', icon: <Heart size={13} className="text-rose-500" /> },
-                      { text: 'Rooftop venue under ₹2 Lakhs', icon: <Building2 size={13} className="text-blue-500" /> },
-                    ].map(({ text, icon }, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setQuery(text)}
-                        className="snap-start px-4 py-2 bg-white border border-slate-100 shadow-sm rounded-full flex items-center gap-2 hover:border-pd-purple/30 transition-all shrink-0 whitespace-nowrap"
-                      >
-                        {icon}
-                        <span className="text-xs font-medium text-slate-700">{text}</span>
-                      </button>
-                    ))}
+                  <div className="w-full overflow-x-auto scrollbar-hide pb-6" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    <div className="flex flex-nowrap justify-center w-max min-w-full gap-3 px-4 md:px-2 snap-x">
+                      {displayedExamples.length > 0 ? displayedExamples.slice(0, isMobile ? 2 : 3).map(({ text, icon }, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setQuery(text)}
+                          className="snap-start px-4 py-2 bg-white border border-slate-100 shadow-sm rounded-full flex items-center gap-2 hover:border-pd-purple/30 transition-all shrink-0 whitespace-nowrap"
+                        >
+                          {icon}
+                          <span className="text-xs font-medium text-slate-700">{text}</span>
+                        </button>
+                      )) : null}
+                    </div>
                   </div>
                 </div>
 
@@ -757,7 +776,7 @@ export default function AISearchPage() {
                       {isSearching ? (
                         <div className="w-5 h-5 md:w-6 md:h-6 border-2 border-pd-purple border-t-transparent rounded-full animate-spin" />
                       ) : (
-                        <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-pd-purple animate-pulse" />
+                        <></>
                       )}
                     </div>
 
@@ -779,8 +798,8 @@ export default function AISearchPage() {
                           }
                         }
                       }}
-                      placeholder="Describe your perfect event and we'll find the best venues"
-                      className="flex-1 bg-transparent border-none outline-none ring-0 text-base md:text-lg font-medium text-slate-800 placeholder:text-slate-400 py-2 md:py-[10px] min-w-0 resize-none overflow-y-auto max-h-[120px]"
+                      placeholder={isMobile ? "Describe your perfect event..." : "Describe your perfect event and we'll find the best venues"}
+                      className="flex-1 bg-transparent border-none outline-none ring-0 text-sm md:text-lg font-medium text-slate-800 placeholder:text-slate-400 py-2 md:py-[10px] min-w-0 resize-none overflow-y-auto max-h-[120px] scrollbar-hide"
                     />
 
                     <div className="flex-shrink-0 flex items-center gap-1 md:gap-2 pr-1 md:pr-2">

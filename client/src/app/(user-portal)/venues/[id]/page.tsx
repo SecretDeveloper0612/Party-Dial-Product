@@ -267,7 +267,7 @@ export default function VenueDetailPage() {
             reviews: [],
             similarVenues: [],
             packages: p_data.packages || [],
-            isPaid: !!doc.subscriptionPlan && doc.subscriptionPlan !== 'free'
+            isPaid: !!doc.subscriptionPlan && doc.subscriptionPlan !== 'free' && (!doc.subscriptionExpiry || new Date(doc.subscriptionExpiry).getTime() > Date.now())
           };
 
           // Fetch Similar Venues based on Pincode/City
