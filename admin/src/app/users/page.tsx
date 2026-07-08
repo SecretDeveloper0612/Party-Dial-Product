@@ -328,7 +328,7 @@ export default function UserRoleManagement() {
     return users
       .filter(u => {
         const role = u.prefs?.role;
-        const isEmployee = role && (ROLES_LIST.includes(role as any) || role === "Super Admin");
+        const isEmployee = (role && (ROLES_LIST.includes(role as any) || role === "Super Admin")) || !!u.prefs?.reportingTo;
         if (!isEmployee) return false;
 
         const rTo = u.prefs?.reportingTo || "";
@@ -340,8 +340,8 @@ export default function UserRoleManagement() {
   // ── Filter ────────────────────────────────────────────────────────────────────
   const filtered = users.filter(u => {
     const role = u.prefs?.role;
-    // Only show users who are either Super Admins or belong to the system roles list (Employees)
-    const isEmployee = role && (ROLES_LIST.includes(role as any) || role === "Super Admin");
+    // Show users who are either explicitly Employees/Admins, or have a reporting manager (Hierarchy access)
+    const isEmployee = (role && (ROLES_LIST.includes(role as any) || role === "Super Admin")) || !!u.prefs?.reportingTo;
     
     if (!isEmployee) return false;
 

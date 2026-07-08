@@ -628,13 +628,13 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                               />
                               <button 
                                 onClick={() => { navigator.clipboard.writeText(checkoutLink); alert("Link copied to clipboard!"); }}
-                                className="px-4 py-3 bg-violet-100 text-violet-600 rounded-xl text-[10px] font-black uppercase hover:bg-violet-200 transition-all font-black"
+                                className="px-4 py-3 bg-violet-100 text-violet-600 rounded-xl text-[10px] font-black uppercase hover:bg-violet-200 transition-all"
                               >
                                 Copy
                               </button>
                               <button 
                                 onClick={() => window.open(checkoutLink, '_blank')}
-                                className="px-4 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase hover:bg-slate-800 transition-all font-black"
+                                className="px-4 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase hover:bg-slate-800 transition-all"
                               >
                                 Open
                               </button>

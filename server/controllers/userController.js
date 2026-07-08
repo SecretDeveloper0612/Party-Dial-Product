@@ -1,10 +1,13 @@
 const { users } = require('../config/appwrite');
-const { ID } = require('node-appwrite');
+const { ID, Query } = require('node-appwrite');
 
 // GET all system users (Appwrite accounts) with their preferences
 exports.getAllUsers = async (req, res) => {
   try {
-    const result = await users.list();
+    const result = await users.list([
+      Query.limit(100),
+      Query.orderDesc('$createdAt')
+    ]);
     
     // Fetch preferences for each user to get their roles and permissions
     const usersWithPrefs = await Promise.all(result.users.map(async (user) => {

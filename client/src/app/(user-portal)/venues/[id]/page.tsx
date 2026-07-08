@@ -401,6 +401,7 @@ export default function VenueDetailPage() {
 
   useEffect(() => {
     fetchReviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const ratingStats = useMemo(() => {
@@ -899,7 +900,7 @@ export default function VenueDetailPage() {
                                </div>
                                
                                <p className="text-sm md:text-base font-bold text-slate-700 leading-relaxed mb-6 italic">
-                                 "{sortedReviews[idx].comment}"
+                                 &quot;{sortedReviews[idx].comment}&quot;
                                </p>
   
                                <div className="flex items-center gap-3 mt-auto">
@@ -921,7 +922,7 @@ export default function VenueDetailPage() {
                                    <div className="absolute top-0 right-0 w-20 h-20 bg-pd-red/10 rounded-full blur-2xl -mr-8 -mt-8" />
                                    <div className="flex items-center gap-2 mb-2 relative z-10">
                                      <CheckCircle2 size={12} className="text-pd-red" />
-                                     <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white">Owner's Reply</span>
+                                     <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white">Owner&apos;s Reply</span>
                                    </div>
                                    <p className="text-[10px] md:text-xs text-slate-300 font-medium italic leading-relaxed relative z-10">
                                      &ldquo;{sortedReviews[idx].vendorReply}&rdquo;

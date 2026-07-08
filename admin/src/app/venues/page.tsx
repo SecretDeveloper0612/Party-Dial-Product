@@ -286,11 +286,14 @@ function VenueManagementContent() {
       const assignedVenues = JSON.parse(currentUser?.prefs?.assignedVenues || "[]");
       const hasDirectAccess = assignedVenues.includes(v.id);
       
+      // If the user has explicitly assigned venues, restrict them strictly to those venues
+      if (assignedVenues.length > 0) return hasDirectAccess;
+
       const userCity = currentUser?.prefs?.city;
       const userState = currentUser?.prefs?.state;
       const hasTerritorialAccess = (userCity && v.city === userCity) || (userState && v.state === userState);
 
-      return hasDirectAccess || hasTerritorialAccess;
+      return hasTerritorialAccess;
     }
   );
 
