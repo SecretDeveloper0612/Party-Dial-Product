@@ -607,7 +607,7 @@ export default function AISearchPage() {
           opacity: 1,
           minHeight: hasSearched ? 'auto' : 'auto',
           paddingTop: hasSearched ? '2rem' : '1rem',
-          paddingBottom: '4rem',
+          paddingBottom: '1rem',
         }}
         className="w-full px-4 md:px-12 lg:px-24 relative z-10 flex flex-col justify-start"
       >
@@ -713,7 +713,7 @@ export default function AISearchPage() {
                 </div>
 
                 {/* SEARCH BAR */}
-                <div className="w-full max-w-5xl mx-auto mb-12 relative group">
+                <div className="w-full max-w-5xl mx-auto relative group">
                   {/* Subtle ambient glow behind the search bar */}
                   <div className="absolute -inset-1 bg-linear-to-r from-pd-pink via-pd-purple to-pd-blue rounded-[32px] blur-xl opacity-20 group-hover:opacity-40 transition duration-700 pointer-events-none"></div>
                   
