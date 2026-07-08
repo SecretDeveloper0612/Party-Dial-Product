@@ -1,4 +1,4 @@
-type EventCallback = (payload: any) => void;
+type EventCallback = (payload: unknown) => void;
 
 export class RealtimeClient {
   private ws: WebSocket | null = null;
@@ -10,9 +10,9 @@ export class RealtimeClient {
   private listeners: Map<string, Set<EventCallback>> = new Map();
   private rooms: Set<string> = new Set();
   public status: "connecting" | "connected" | "reconnecting" | "offline" = "offline";
-  private onStatusChange?: (status: string) => void;
+  private onStatusChange?: (status: "connecting" | "connected" | "reconnecting" | "offline") => void;
 
-  constructor(url: string, token: string, onStatusChange?: (status: string) => void) {
+  constructor(url: string, token: string, onStatusChange?: (status: "connecting" | "connected" | "reconnecting" | "offline") => void) {
     this.url = url;
     this.token = token;
     this.onStatusChange = onStatusChange;
@@ -87,7 +87,7 @@ export class RealtimeClient {
     }
   }
 
-  public emit(event: string, room: string, payload: any) {
+  public emit(event: string, room: string, payload: unknown) {
     this.send({ type: "emit", event, room, payload });
   }
 
@@ -107,7 +107,7 @@ export class RealtimeClient {
     }
   }
 
-  private triggerEvent(event: string, payload: any) {
+  private triggerEvent(event: string, payload: unknown) {
     const eventListeners = this.listeners.get(event);
     if (eventListeners) {
       eventListeners.forEach(callback => callback(payload));
