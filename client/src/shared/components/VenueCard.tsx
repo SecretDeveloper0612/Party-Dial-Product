@@ -92,7 +92,7 @@ export default function VenueCard({ venue: v, index: i, isPremium }: VenueCardPr
           <div className="flex items-center justify-between w-full mb-1">
             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 line-clamp-1">
               <MapPin size={12} className="text-pd-pink shrink-0" /> 
-              <span className="truncate">{v.location}, {v.city}</span>
+              <span className="truncate">{v.city}</span>
             </div>
             <div className="flex gap-1 shrink-0 bg-slate-900/60 px-2 py-1 rounded-full border border-white/10">
               {(v.foodTypes || []).map((f: string) => (
