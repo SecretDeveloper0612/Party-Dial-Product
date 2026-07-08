@@ -118,7 +118,7 @@ export default function VenueLoginPage() {
               className="h-9 w-auto object-contain group-hover:scale-105 transition-transform"
             />
             <div className="h-4 w-[1px] bg-slate-200 mx-1"></div>
-            <span className="text-[10px] font-black text-pd-red italic tracking-widest uppercase">PARTNER</span>
+            <span className="text-[10px] font-black text-pd-red  tracking-widest uppercase">PARTNER</span>
           </div>
         </Link>
       </div>
@@ -139,7 +139,7 @@ export default function VenueLoginPage() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <h2 className="text-3xl font-[900] text-slate-900 uppercase italic mb-2 tracking-tight">Venue Login</h2>
+            <h2 className="text-3xl font-[900] text-slate-900 uppercase  mb-2 tracking-tight">Venue Login</h2>
             <p className="text-sm text-slate-500 font-medium font-pd">Manage your venue and tracking leads.</p>
           </div>
 
@@ -197,7 +197,7 @@ export default function VenueLoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm italic tracking-normal lowercase group shadow-lg shadow-pd-pink/10"
+              className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm  tracking-normal lowercase group shadow-lg shadow-pd-pink/10"
             >
               {isSubmitting ? 'Signing in...' : 'secure login'}
               {!isSubmitting && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}

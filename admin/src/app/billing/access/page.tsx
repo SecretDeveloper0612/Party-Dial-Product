@@ -309,7 +309,7 @@ export default function ManualAccessPage() {
                         />
                         <Calendar size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" />
                       </div>
-                      <p className="text-[10px] text-slate-400 font-bold ml-1 italic">
+                      <p className="text-[10px] text-slate-400 font-bold ml-1 ">
                         Access will expire on: {new Date(new Date(formData.startDate).getTime() + parseInt(formData.days || '0') * 24 * 60 * 60 * 1000).toLocaleDateString()}
                       </p>
                    </div>
@@ -400,7 +400,7 @@ export default function ManualAccessPage() {
                 <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">
                   {notification.title}
                 </h3>
-                <p className="text-sm font-medium text-slate-500 leading-relaxed italic">
+                <p className="text-sm font-medium text-slate-500 leading-relaxed ">
                   {notification.message}
                 </p>
 

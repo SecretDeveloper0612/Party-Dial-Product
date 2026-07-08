@@ -44,13 +44,13 @@ export default function ContactPage() {
                   {/* PARTYDIAL LOGO PILL */}
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm shadow-lg">
                      <div className="w-7 h-7 rounded-[10px] bg-pd-pink flex items-center justify-center">
-                        <span className="text-white font-black italic text-sm leading-none pt-0.5 pr-0.5">P</span>
+                        <span className="text-white font-black  text-sm leading-none pt-0.5 pr-0.5">P</span>
                      </div>
-                     <span className="text-white font-black italic tracking-tight text-sm pr-1">PARTYDIAL</span>
+                     <span className="text-white font-black  tracking-tight text-sm pr-1">PARTYDIAL</span>
                   </div>
                   {/* PARTNER PILL */}
                   <div className="flex items-center h-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm shadow-lg">
-                     <span className="text-white font-black uppercase italic tracking-[0.2em] text-[11px] leading-none">PARTNER</span>
+                     <span className="text-white font-black uppercase  tracking-[0.2em] text-[11px] leading-none">PARTNER</span>
                   </div>
                </motion.div>
                <motion.h1
@@ -60,7 +60,7 @@ export default function ContactPage() {
                   className="text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight uppercase leading-[1.1] mb-8"
                >
                   Let's build your <br />
-                  <span className="pd-gradient-text italic">Legacy together.</span>
+                  <span className="pd-gradient-text ">Legacy together.</span>
                </motion.h1>
                <motion.p
                   initial={{ opacity: 0 }}
@@ -146,7 +146,7 @@ export default function ContactPage() {
                         </div>
                         <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-6">
                            Send a <br />
-                           <span className="pd-gradient-text italic">Priority Message.</span>
+                           <span className="pd-gradient-text ">Priority Message.</span>
                         </h2>
                         <p className="text-lg text-slate-500 font-medium leading-relaxed max-w-xl">
                            Our specialized advisors will analyze your inquiry and reach back with
@@ -215,7 +215,7 @@ export default function ContactPage() {
 
                               <button
                                  disabled={isSubmitting}
-                                 className="w-full h-16 bg-slate-900 text-white rounded-3xl text-[10px] font-black uppercase tracking-[0.3em] italic shadow-2xl hover:bg-slate-800 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-all duration-300 flex items-center justify-center gap-4 group/btn disabled:opacity-50 disabled:hover:translate-y-0"
+                                 className="w-full h-16 bg-slate-900 text-white rounded-3xl text-[10px] font-black uppercase tracking-[0.3em]  shadow-2xl hover:bg-slate-800 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] transition-all duration-300 flex items-center justify-center gap-4 group/btn disabled:opacity-50 disabled:hover:translate-y-0"
                               >
                                  {isSubmitting ? "Processing..." : (
                                     <>

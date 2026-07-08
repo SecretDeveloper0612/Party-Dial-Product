@@ -77,16 +77,16 @@ const OnboardingPopup = ({ isOpen, onClose }: OnboardingPopupProps) => {
                    initial={{ opacity: 0, y: 20 }}
                    animate={{ opacity: 1, y: 0 }}
                    transition={{ delay: 0.1, duration: 0.6 }}
-                   className="text-2xl md:text-4xl font-black text-slate-900 uppercase italic tracking-tighter mb-4 leading-tight"
+                   className="text-2xl md:text-4xl font-black text-slate-900 uppercase  tracking-tighter mb-4 leading-tight"
                 >
                    Welcome to <br />
-                   <span className="pd-gradient-text italic">Your Legacy!</span>
+                   <span className="pd-gradient-text ">Your Legacy!</span>
                 </motion.h2>
                 <motion.p 
                    initial={{ opacity: 0, y: 10 }}
                    animate={{ opacity: 1, y: 0 }}
                    transition={{ delay: 0.2, duration: 0.6 }}
-                   className="text-[13px] md:text-sm font-medium text-slate-500 leading-relaxed mb-8 italic max-w-sm mx-auto"
+                   className="text-[13px] md:text-sm font-medium text-slate-500 leading-relaxed mb-8  max-w-sm mx-auto"
                 >
                    Your venue storefront is <span className="text-slate-900 font-black">90% ready</span>. Just a few finishing touches to start reaching over <span className="pd-gradient-text font-black">2,500+ local seekers</span> monthly.
                 </motion.p>
@@ -113,7 +113,7 @@ const OnboardingPopup = ({ isOpen, onClose }: OnboardingPopupProps) => {
                            </div>
                            <div className="flex-1">
                               <h4 className="text-[11px] md:text-[12px] font-black uppercase tracking-widest text-slate-900 leading-none mb-1.5 group-hover:text-pd-pink transition-colors">{item.label}</h4>
-                              <p className="text-[10px] md:text-[11px] font-bold text-slate-400 italic leading-none">{item.sub}</p>
+                              <p className="text-[10px] md:text-[11px] font-bold text-slate-400  leading-none">{item.sub}</p>
                            </div>
                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:bg-pd-pink group-hover:text-white transition-all transform group-hover:rotate-45">
                               <ChevronRight size={14} />
@@ -125,7 +125,7 @@ const OnboardingPopup = ({ isOpen, onClose }: OnboardingPopupProps) => {
 
                 <div className="flex flex-col gap-3">
                    <Link href="/dashboard/onboarding/profile" onClick={onClose} className="w-full">
-                      <button className="pd-btn-primary w-full py-5 rounded-[22px] text-[11px] font-black uppercase tracking-[0.2em] italic shadow-2xl shadow-pd-pink/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
+                      <button className="pd-btn-primary w-full py-5 rounded-[22px] text-[11px] font-black uppercase tracking-[0.2em]  shadow-2xl shadow-pd-pink/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
                          <Sparkle size={16} fill="white" />
                          Ignite My Storefront
                       </button>
@@ -133,7 +133,7 @@ const OnboardingPopup = ({ isOpen, onClose }: OnboardingPopupProps) => {
 
                    <button 
                       onClick={onClose}
-                      className="py-3 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-slate-900 transition-all italic"
+                      className="py-3 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-slate-900 transition-all "
                    >
                       Skip for later
                    </button>

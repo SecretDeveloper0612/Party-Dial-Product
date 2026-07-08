@@ -357,7 +357,7 @@ export default function Header() {
               >
                 <div className="flex items-center justify-between p-5 border-b border-slate-100 shrink-0">
                   <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                    <span className="font-black text-2xl italic text-pd-red">PartyDial</span>
+                    <span className="font-black text-2xl  text-pd-red">PartyDial</span>
                   </Link>
                   <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all">
                     <X size={24} />
@@ -421,7 +421,7 @@ export default function Header() {
                       </div>
                     )}
                   
-                  <div className="pt-4 border-t border-slate-100 italic mt-auto">
+                  <div className="pt-4 border-t border-slate-100  mt-auto">
                     <button 
                       onClick={handleDownloadApp}
                       className="w-full pd-btn-primary py-4 flex items-center justify-center gap-3"
@@ -467,12 +467,12 @@ export default function Header() {
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-pd-purple/20 to-transparent"></div>
                 <div className="relative z-10 h-full flex flex-col justify-between">
-                   <div className="text-pd-red font-black text-2xl italic">PartyDial</div>
+                   <div className="text-pd-red font-black text-2xl ">PartyDial</div>
                    <div>
                      <h2 className="text-4xl font-bold mb-6 leading-tight">
                         {authModal.type === 'signin' 
-                          ? <>Welcome Back – <br/><span className="text-pd-pink italic">Find Your perfect</span> Venue.</>
-                          : <>Create Account <br/><span className="text-pd-pink italic">Plan Your perfect</span> Event.</>}
+                          ? <>Welcome Back – <br/><span className="text-pd-pink ">Find Your perfect</span> Venue.</>
+                          : <>Create Account <br/><span className="text-pd-pink ">Plan Your perfect</span> Event.</>}
                      </h2>
                      <p className="text-white/60 font-semibold">Join thousands of planners making magic happen every day.</p>
                    </div>
@@ -494,7 +494,7 @@ export default function Header() {
                        <h3 className="text-3xl font-bold text-slate-900 mb-2">
                          {authModal.type === 'signup' ? "Join PartyDial" : authModal.type === 'signin' ? "Sign In" : "Verify Phone"}
                        </h3>
-                       <p className="text-slate-400 font-semibold italic">
+                       <p className="text-slate-400 font-semibold ">
                          {authModal.type === 'signup' ? "Start your journey to a perfect event." : authModal.type === 'signin' ? "Welcome back to your events dashboard." : `Enter the 6-digit code sent to ${signupData.phone || '+91 98765 00000'}`}
                        </p>
                     </div>
@@ -731,7 +731,7 @@ export default function Header() {
                           <div className="flex justify-between items-center px-2 text-[10px] font-bold uppercase tracking-widest">
                              <label className="text-slate-400">Password</label>
                              {authModal.type === 'signup' && signupData.password && <span className={`${pwStrength.color} text-white px-2 py-0.5 rounded`}>{pwStrength.label}</span>}
-                             {authModal.type === 'signin' && <button type="button" className="text-pd-purple italic hover:text-pd-red">Forgot?</button>}
+                             {authModal.type === 'signin' && <button type="button" className="text-pd-purple  hover:text-pd-red">Forgot?</button>}
                           </div>
                           <div className="relative group">
                              <Lock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-red transition-all" />

@@ -958,7 +958,7 @@ function VenueManagementContent() {
                         </span>
                       ))
                     ) : (
-                      <span className="text-xs italic text-slate-300">None specified</span>
+                      <span className="text-xs  text-slate-300">None specified</span>
                     )}
                   </div>
                 </div>
@@ -975,7 +975,7 @@ function VenueManagementContent() {
                         </span>
                       ))
                     ) : (
-                      <span className="text-xs italic text-slate-300">None specified</span>
+                      <span className="text-xs  text-slate-300">None specified</span>
                     )}
                   </div>
                 </div>

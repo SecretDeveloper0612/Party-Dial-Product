@@ -234,7 +234,7 @@ export default function CompleteProfilePage() {
             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-slate-200 group-hover:border-slate-900 transition-all">
               <ChevronLeft size={18} />
             </div>
-            <span className="text-sm font-bold italic">Back to Dashboard</span>
+            <span className="text-sm font-bold ">Back to Dashboard</span>
           </Link>
           <div className="flex items-center gap-4">
              <div className="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
@@ -251,7 +251,7 @@ export default function CompleteProfilePage() {
         >
           <div className="p-8 lg:p-12">
             <header className="mb-10 text-center lg:text-left">
-               <h1 className="text-3xl font-black text-slate-900 uppercase italic mb-3 tracking-tight">Complete Profile</h1>
+               <h1 className="text-3xl font-black text-slate-900 uppercase  mb-3 tracking-tight">Complete Profile</h1>
                <p className="text-slate-500 font-medium">Add the finer details that make your venue stand out.</p>
             </header>
 
@@ -262,7 +262,7 @@ export default function CompleteProfilePage() {
                     <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
                        <Building2 size={18} />
                     </div>
-                    <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 italic">Venue Description</h2>
+                    <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 ">Venue Description</h2>
                   </div>
                   <textarea 
                     rows={5}
@@ -271,7 +271,7 @@ export default function CompleteProfilePage() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
-                  <p className="text-[10px] text-slate-400 font-bold italic text-right italic">Recommended: Minimum 200 characters</p>
+                  <p className="text-[10px] text-slate-400 font-bold  text-right ">Recommended: Minimum 200 characters</p>
                </section>
 
                {/* Amenities */}
@@ -280,7 +280,7 @@ export default function CompleteProfilePage() {
                     <div className="w-8 h-8 rounded-xl bg-pink-50 text-pink-500 flex items-center justify-center">
                        <Sparkles size={18} />
                     </div>
-                    <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 italic">Amenities & Services</h2>
+                    <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 ">Amenities & Services</h2>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {amenitiesList.map(amenity => (
@@ -306,7 +306,7 @@ export default function CompleteProfilePage() {
                      <div className="w-8 h-8 rounded-xl bg-pd-red/5 text-pd-red flex items-center justify-center">
                         <Sparkles size={18} />
                      </div>
-                     <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 italic">Parties We Organize</h2>
+                     <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 ">Parties We Organize</h2>
                    </div>
                    <div className="flex flex-wrap gap-2.5">
                      {eventTypesList.map(type => (
@@ -323,14 +323,14 @@ export default function CompleteProfilePage() {
                        </button>
                      ))}
                    </div>
-                   <p className="text-[10px] text-slate-400 font-bold italic">Select all events you can host at your venue.</p>
+                   <p className="text-[10px] text-slate-400 font-bold ">Select all events you can host at your venue.</p>
                 </section>
                <section className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
                        <MapPin size={18} />
                     </div>
-                    <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 italic">Key Landmark</h2>
+                    <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 ">Key Landmark</h2>
                   </div>
                   <input 
                     type="text"
@@ -363,7 +363,7 @@ export default function CompleteProfilePage() {
                     <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
                        <Clock size={18} />
                     </div>
-                    <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 italic">Operating Hours</h2>
+                    <h2 className="text-sm font-black uppercase tracking-widest text-slate-900 ">Operating Hours</h2>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                      <div className="space-y-1.5">
@@ -380,7 +380,7 @@ export default function CompleteProfilePage() {
           </div>
 
           <div className="bg-slate-50 p-6 lg:p-8 flex items-center justify-between border-t border-slate-100">
-             <p className="text-xs text-slate-400 font-medium italic">Your progress is automatically saved as you type.</p>
+             <p className="text-xs text-slate-400 font-medium ">Your progress is automatically saved as you type.</p>
              <button 
                 onClick={handleSave}
                 disabled={isSaving}
@@ -390,7 +390,7 @@ export default function CompleteProfilePage() {
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
                   <>
-                    <span className="italic">Save & Continue</span>
+                    <span className="">Save & Continue</span>
                     <ArrowRight size={18} />
                   </>
                 )}
@@ -404,7 +404,7 @@ export default function CompleteProfilePage() {
              <Sparkles size={20} />
            </div>
            <div>
-              <p className="text-xs font-bold text-amber-900 italic mb-1 uppercase tracking-widest">Pro Tip:</p>
+              <p className="text-xs font-bold text-amber-900  mb-1 uppercase tracking-widest">Pro Tip:</p>
               <p className="text-xs text-amber-800/80 font-medium leading-relaxed">Adding a detailed description with keywords like &ldquo;wedding&rdquo;, &ldquo;birthday&rdquo;, or &ldquo;corporate event&rdquo; helps your venue show up higher in customer search results.</p>
            </div>
         </div>

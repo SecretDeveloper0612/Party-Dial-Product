@@ -446,7 +446,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                     <div className="max-h-[300px] overflow-y-auto custom-scrollbar space-y-2 pr-2">
                         {filteredAccounts.length === 0 ? (
                            <div className="py-12 text-center">
-                              <p className="text-xs font-black uppercase tracking-widest text-slate-300 italic">No venues match your search</p>
+                              <p className="text-xs font-black uppercase tracking-widest text-slate-300 ">No venues match your search</p>
                            </div>
                         ) : (
                           filteredAccounts.map(acc => (
@@ -611,7 +611,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                       <div className="w-24 h-24 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-lg"><CheckCircle2 size={48} /></div>
                       <div>
                         <h3 className="text-2xl font-bold text-slate-950">Plan Ready</h3>
-                        <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2 italic">Dossier Generated Successfully</p>
+                        <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2 ">Dossier Generated Successfully</p>
                       </div>
                       <div className="flex flex-col items-center gap-4 w-full max-w-md">
                         <button onClick={downloadPDF} disabled={loading} className="w-full px-10 py-5 bg-slate-900 text-white rounded-2xl text-xs font-bold uppercase tracking-widest shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-3 disabled:opacity-50">
@@ -810,7 +810,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
 
                           <div className="pt-4 border-t border-slate-50">
                              <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase text-slate-900 ml-1 flex items-center gap-2 italic">
+                                <label className="text-[10px] font-black uppercase text-slate-900 ml-1 flex items-center gap-2 ">
                                    <Plus size={12} strokeWidth={3} /> GST Number 
                                 </label>
                                 <input 
@@ -958,7 +958,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                                    {discountAmount > 0 && <div className="flex justify-between text-[10px] font-bold text-pink-500 uppercase tracking-widest"><span>Special Discount</span> <span>-₹{discountAmount.toLocaleString()}</span></div>}
                                    <div className="pt-6 border-t border-white/10 flex flex-col items-center gap-4">
                                         <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{grandTotal === 1 ? "Net Yearly Investment (Flat Fee)" : "Net Yearly Amount (GST Inc)"}</p>
-                                        <div className="text-5xl font-bold tracking-tighter italic">₹{grandTotal.toLocaleString()}</div>
+                                        <div className="text-5xl font-bold tracking-tighter ">₹{grandTotal.toLocaleString()}</div>
                                    </div>
                                </div>
                             </div>

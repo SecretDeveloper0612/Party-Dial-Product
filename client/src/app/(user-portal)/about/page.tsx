@@ -93,7 +93,7 @@ const InfiniteMarquee = ({ items }: { items: string[] }) => {
                   <div className="text-slate-200 group-hover/item:text-pd-red transition-all duration-500 transform group-hover/item:scale-125 group-hover/item:-rotate-12">
                      {cityIcons[city] || <Building2 size={28} />}
                   </div>
-                  <span className="text-xl md:text-3xl font-black text-slate-300 group-hover/item:text-slate-900 transition-all duration-300 cursor-default uppercase italic tracking-widest leading-none">
+                  <span className="text-xl md:text-3xl font-black text-slate-300 group-hover/item:text-slate-900 transition-all duration-300 cursor-default uppercase  tracking-widest leading-none">
                     {city}
                   </span>
                   <div className="mx-6 w-1.5 h-1.5 rounded-full bg-pd-red/10 group-hover/item:bg-pd-red transition-all"></div>
@@ -116,7 +116,7 @@ const InfiniteMarquee = ({ items }: { items: string[] }) => {
                   <div className="text-slate-200 group-hover/item:text-pd-red transition-all duration-500 transform group-hover/item:scale-125 group-hover/item:-rotate-12">
                      {cityIcons[city] || <Building2 size={28} />}
                   </div>
-                  <span className="text-xl md:text-3xl font-black text-slate-300 group-hover/item:text-slate-900 transition-all duration-300 cursor-default uppercase italic tracking-widest leading-none">
+                  <span className="text-xl md:text-3xl font-black text-slate-300 group-hover/item:text-slate-900 transition-all duration-300 cursor-default uppercase  tracking-widest leading-none">
                     {city}
                   </span>
                   <div className="mx-6 w-1.5 h-1.5 rounded-full bg-pd-red/10 group-hover/item:bg-pd-red transition-all"></div>
@@ -232,7 +232,7 @@ export default function AboutUs() {
       <section className="py-8 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 mb-4 text-center flex flex-col md:flex-row items-center justify-center gap-3">
            <Globe2 size={14} className="text-pd-red" />
-           <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 italic">Finding celebration spaces in your <span className="text-slate-900 italic opacity-80 border-b border-pd-red/20">favorite cities</span></p>
+           <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 ">Finding celebration spaces in your <span className="text-slate-900  opacity-80 border-b border-pd-red/20">favorite cities</span></p>
         </div>
         <InfiniteMarquee items={cities} />
       </section>
@@ -244,7 +244,7 @@ export default function AboutUs() {
         
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16 md:mb-20">
-            <h2 className="text-2xl md:text-4xl font-black text-slate-900 mb-3 uppercase tracking-tight">How It <span className="text-pd-red italic opacity-80">Works</span></h2>
+            <h2 className="text-2xl md:text-4xl font-black text-slate-900 mb-3 uppercase tracking-tight">How It <span className="text-pd-red  opacity-80">Works</span></h2>
             <p className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-[0.3em]">Your journey to the perfect event in 3 simple steps</p>
           </div>
           
@@ -275,7 +275,7 @@ export default function AboutUs() {
                   </div>
 
                   <h3 className="text-lg md:text-xl font-black text-slate-900 mb-3 group-hover:text-pd-red transition-colors duration-300 tracking-tight">{step.title}</h3>
-                  <p className="text-xs md:text-sm text-slate-500 font-medium max-w-[280px] md:max-w-xs mx-auto leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity duration-300 italic">
+                  <p className="text-xs md:text-sm text-slate-500 font-medium max-w-[280px] md:max-w-xs mx-auto leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity duration-300 ">
                     {step.desc}
                   </p>
 
@@ -307,8 +307,8 @@ export default function AboutUs() {
             </div>
             <div className="w-full lg:w-1/2 text-center lg:text-left">
                <motion.div {...fadeUp}>
-                  <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 mb-4 md:mb-6 leading-tight">Expert Transparency <br /><span className="text-pd-purple italic">In Every Event.</span></h2>
-                  <p className="text-xs md:text-base text-slate-500 font-medium leading-relaxed mb-4 md:mb-6 italic border-l-2 md:border-l-4 border-pd-purple pl-4 lg:pl-6 leading-relaxed text-justify lg:text-left">
+                  <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 mb-4 md:mb-6 leading-tight">Expert Transparency <br /><span className="text-pd-purple ">In Every Event.</span></h2>
+                  <p className="text-xs md:text-base text-slate-500 font-medium leading-relaxed mb-4 md:mb-6  border-l-2 md:border-l-4 border-pd-purple pl-4 lg:pl-6 leading-relaxed text-justify lg:text-left">
                     Every grand celebration starts with a great space. We realized that finding that space was filled with hidden commissions and decided to change that forever.
                   </p>
                   <p className="text-xs md:text-base text-slate-600 font-medium mb-6 md:mb-8 text-justify lg:text-left transition-all">
@@ -335,7 +335,7 @@ export default function AboutUs() {
            
            <div className="text-center mb-8 md:mb-10">
               <span className="inline-block bg-white/5 text-pd-red text-[8px] font-black px-3 py-1 rounded-full mb-3 uppercase tracking-widest border border-white/5">The North Star</span>
-              <h2 className="text-xl md:text-4xl font-black tracking-tight leading-none italic uppercase">Democratizing Event <span className="text-pd-red">Discovery.</span></h2>
+              <h2 className="text-xl md:text-4xl font-black tracking-tight leading-none  uppercase">Democratizing Event <span className="text-pd-red">Discovery.</span></h2>
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5">
@@ -343,7 +343,7 @@ export default function AboutUs() {
                  <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:scale-125 transition-transform duration-1000 text-pd-red"><Target size={150} /></div>
                  <div>
                     <div className="w-8 h-8 rounded-lg bg-pd-red/10 flex items-center justify-center text-pd-red mb-4 border border-pd-red/20"><Target size={16} /></div>
-                    <h3 className="text-base md:text-xl font-black mb-2 italic uppercase tracking-tighter">Our Mission</h3>
+                    <h3 className="text-base md:text-xl font-black mb-2  uppercase tracking-tighter">Our Mission</h3>
                     <p className="text-[10px] md:text-sm text-white/50 font-medium leading-relaxed pr-2">
                        Eliminate the broker-bottleneck in India via a high-tech platform for planners and hosts.
                     </p>
@@ -358,7 +358,7 @@ export default function AboutUs() {
                  <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:scale-125 transition-transform duration-1000 text-emerald-400"><Eye size={150} /></div>
                  <div>
                     <div className="w-8 h-8 rounded-lg bg-emerald-400/10 flex items-center justify-center text-emerald-400 mb-4 border border-emerald-400/20"><Eye size={16} /></div>
-                    <h3 className="text-base md:text-xl font-black mb-2 italic uppercase tracking-tighter text-emerald-400">Our Vision</h3>
+                    <h3 className="text-base md:text-xl font-black mb-2  uppercase tracking-tighter text-emerald-400">Our Vision</h3>
                     <p className="text-[10px] md:text-sm text-white/50 font-medium leading-relaxed pr-2">
                        The search standard for celebrations in India—where every event finds its home through trust.
                     </p>
@@ -376,7 +376,7 @@ export default function AboutUs() {
                     <Quote size={24} />
                  </div>
                  <div>
-                    <p className="text-sm md:text-xl font-bold tracking-tight mb-2 text-white/90 italic leading-snug">"We curate trust for your most precious moments."</p>
+                    <p className="text-sm md:text-xl font-bold tracking-tight mb-2 text-white/90  leading-snug">"We curate trust for your most precious moments."</p>
                     <span className="text-[8px] font-black uppercase tracking-widest text-pd-red">The Founders Board</span>
                  </div>
               </div>
@@ -387,8 +387,8 @@ export default function AboutUs() {
       {/* 7. SUCCESS STORIES (INFINITE CAROUSEL) */}
       <section className="py-12 md:py-20 px-6 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto mb-10 text-center">
-            <h2 className="text-xl md:text-4xl font-extrabold text-slate-900 mb-3 uppercase tracking-tight italic">Built for <span className="text-pd-red">Success.</span></h2>
-            <p className="text-[10px] md:text-sm text-slate-500 font-semibold max-w-xl mx-auto italic">Hear from those who&apos;ve transformed their celebration journey.</p>
+            <h2 className="text-xl md:text-4xl font-extrabold text-slate-900 mb-3 uppercase tracking-tight ">Built for <span className="text-pd-red">Success.</span></h2>
+            <p className="text-[10px] md:text-sm text-slate-500 font-semibold max-w-xl mx-auto ">Hear from those who&apos;ve transformed their celebration journey.</p>
         </div>
         
         <div className="relative flex overflow-hidden py-10 group select-none">
@@ -404,7 +404,7 @@ export default function AboutUs() {
                    <div key={i} className="w-[280px] md:w-[400px] whitespace-normal bg-slate-50 border border-slate-100 p-6 md:p-8 rounded-2xl md:rounded-3xl hover:shadow-2xl hover:border-pd-red/20 transition-all group/card flex flex-col justify-between min-h-[180px] md:min-h-[240px]">
                       <div>
                          <Quote size={24} className="text-pd-red/20 mb-4 group-hover/card:text-pd-red transition-colors" />
-                         <p className="text-[11px] md:text-sm text-slate-600 font-medium leading-relaxed italic mb-6 line-clamp-4">"{s.quote}"</p>
+                         <p className="text-[11px] md:text-sm text-slate-600 font-medium leading-relaxed  mb-6 line-clamp-4">"{s.quote}"</p>
                       </div>
                       <div className="border-t border-slate-100 pt-6 flex items-center justify-between">
                          <div className="flex items-center gap-3">
@@ -432,7 +432,7 @@ export default function AboutUs() {
                    <div key={i} className="w-[280px] md:w-[400px] whitespace-normal bg-slate-50 border border-slate-100 p-6 md:p-8 rounded-2xl md:rounded-3xl hover:shadow-2xl hover:border-pd-red/20 transition-all group/card flex flex-col justify-between min-h-[180px] md:min-h-[240px]">
                       <div>
                          <Quote size={24} className="text-pd-red/20 mb-4 group-hover/card:text-pd-red transition-colors" />
-                         <p className="text-[11px] md:text-sm text-slate-600 font-medium leading-relaxed italic mb-6 line-clamp-4">"{s.quote}"</p>
+                         <p className="text-[11px] md:text-sm text-slate-600 font-medium leading-relaxed  mb-6 line-clamp-4">"{s.quote}"</p>
                       </div>
                       <div className="border-t border-slate-100 pt-6 flex items-center justify-between">
                          <div className="flex items-center gap-3">
@@ -475,7 +475,7 @@ export default function AboutUs() {
         <div className="max-w-4xl mx-auto text-center">
            <Building2 size={40} className="text-pd-red mx-auto mb-6" />
            <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 mb-6">Corporate <span className="text-pd-red">Foundation</span></h2>
-           <p className="text-sm md:text-lg text-slate-600 font-medium leading-relaxed mb-10 italic">
+           <p className="text-sm md:text-lg text-slate-600 font-medium leading-relaxed mb-10 ">
              PartyDial is a flagship discovery engine owned and operated by <strong>Preet Tech OPC Private Limited</strong>. 
              We are committed to building a transparent digital ecosystem for India's event industry. 
              All billing, compliance, and platform operations are managed exclusively by Preet Tech OPC Private Limited, ensuring a secure and reliable experience for all our users and partners.
@@ -492,7 +492,7 @@ export default function AboutUs() {
       <section className="py-10 md:py-16 px-6 bg-white">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-6">
-            <h2 className="text-lg md:text-2xl font-extrabold text-slate-900 italic opacity-80 underline decoration-pd-red/10">Common Questions</h2>
+            <h2 className="text-lg md:text-2xl font-extrabold text-slate-900  opacity-80 underline decoration-pd-red/10">Common Questions</h2>
           </div>
           <div className="space-y-2">
              {[
@@ -505,7 +505,7 @@ export default function AboutUs() {
                      {item.q}
                      <ChevronRight size={14} className="group-open:rotate-90 transition-transform text-slate-300" />
                   </summary>
-                  <p className="pt-2 text-[9px] md:text-xs text-slate-500 font-medium italic">{item.a}</p>
+                  <p className="pt-2 text-[9px] md:text-xs text-slate-500 font-medium ">{item.a}</p>
                </details>
              ))}
           </div>
@@ -525,8 +525,8 @@ export default function AboutUs() {
              <div className="flex-1 p-6 md:p-10 relative overflow-hidden flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-50">
                 <div className="relative z-10 text-center md:text-left">
                    <div className="w-8 h-8 rounded-xl bg-pd-red/10 flex items-center justify-center text-pd-red mb-4 mx-auto md:mx-0"><Users size={16} /></div>
-                   <h2 className="text-xl md:text-3xl font-extrabold text-slate-900 mb-2 leading-tight uppercase italic underline decoration-pd-red/10">Plan with <br /><span className="text-pd-red">Confidence.</span></h2>
-                   <p className="text-[9px] md:text-xs text-slate-500 font-medium mb-6 max-w-sm mx-auto md:mx-0 italic">Verified venues with zero brokerage fees.</p>
+                   <h2 className="text-xl md:text-3xl font-extrabold text-slate-900 mb-2 leading-tight uppercase  underline decoration-pd-red/10">Plan with <br /><span className="text-pd-red">Confidence.</span></h2>
+                   <p className="text-[9px] md:text-xs text-slate-500 font-medium mb-6 max-w-sm mx-auto md:mx-0 ">Verified venues with zero brokerage fees.</p>
                    <Link href="/categories" className="w-full sm:w-auto inline-block">
                     <button className="w-full sm:w-auto bg-slate-900 text-white px-6 py-2.5 rounded-lg font-bold text-[9px] md:text-xs flex items-center justify-center gap-2 whitespace-nowrap active:scale-95 transition-all">Discover Venues <ArrowRight size={12}/></button>
                    </Link>
@@ -537,8 +537,8 @@ export default function AboutUs() {
              <div className="flex-1 p-6 md:p-10 relative overflow-hidden flex flex-col justify-center bg-slate-900 text-white">
                 <div className="relative z-10 text-center md:text-left">
                    <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-pd-red mb-4 mx-auto md:mx-0"><Building2 size={16} /></div>
-                   <h2 className="text-xl md:text-3xl font-extrabold mb-2 leading-tight uppercase italic underline decoration-white/10">Grow Your <br /><span className="text-pd-red">Business.</span></h2>
-                   <p className="text-[9px] md:text-xs text-white/50 font-medium mb-6 max-w-sm mx-auto md:mx-0 italic">List your venue for free today.</p>
+                   <h2 className="text-xl md:text-3xl font-extrabold mb-2 leading-tight uppercase  underline decoration-white/10">Grow Your <br /><span className="text-pd-red">Business.</span></h2>
+                   <p className="text-[9px] md:text-xs text-white/50 font-medium mb-6 max-w-sm mx-auto md:mx-0 ">List your venue for free today.</p>
                    <Link href="/register-venue" className="w-full sm:w-auto inline-block">
                     <button className="w-full sm:w-auto bg-pd-red text-white px-6 py-2.5 rounded-lg font-bold text-[9px] md:text-xs flex items-center justify-center gap-2 whitespace-nowrap active:scale-95 transition-all">List Your Venue <ArrowRight size={12}/></button>
                    </Link>

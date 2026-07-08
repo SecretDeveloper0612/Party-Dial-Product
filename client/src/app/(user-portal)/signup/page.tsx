@@ -140,13 +140,13 @@ export default function SignupPage() {
         <div className="relative z-10 w-full p-16 flex flex-col justify-between text-white">
           <Link href="/" className="flex items-center gap-2 group text-white/80 hover:text-white transition-colors">
             <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xs font-black uppercase tracking-widest italic">Partydial</span>
+            <span className="text-xs font-black uppercase tracking-widest ">Partydial</span>
           </Link>
 
           <div>
-             <h1 className="text-5xl font-black mb-6 leading-tight italic">
+             <h1 className="text-5xl font-black mb-6 leading-tight ">
                Create Your Account <br/>
-               <span className="text-pd-red not-italic">& Find The Perfect</span><br/>
+               <span className="text-pd-red not-">& Find The Perfect</span><br/>
                Venue Today.
              </h1>
              <p className="text-white/60 font-semibold text-lg max-w-sm">Join 50,000+ planners who use PartyDial for seamless event discovery.</p>
@@ -263,7 +263,7 @@ export default function SignupPage() {
                         </button>
                       )}
                     </div>
-                    {phoneError && <p className="text-[9px] font-bold text-red-500 mt-1 ml-2 italic">{phoneError}</p>}
+                    {phoneError && <p className="text-[9px] font-bold text-red-500 mt-1 ml-2 ">{phoneError}</p>}
                   </div>
 
                   {showOtpField && (

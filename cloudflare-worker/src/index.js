@@ -65,4 +65,14 @@ app.get('/api/test-email', async (c) => {
   }
 });
 
-export default app
+// Realtime Route - Forward to Durable Object
+app.all('/api/realtime', async (c) => {
+  const id = c.env.REALTIME_DO.idFromName("global");
+  const obj = c.env.REALTIME_DO.get(id);
+  return obj.fetch(c.req.raw);
+});
+
+export default app;
+
+// Export Durable Object class so Cloudflare can bind it
+export { RealtimeDO } from './durable-object.js';

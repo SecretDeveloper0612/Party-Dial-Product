@@ -77,7 +77,7 @@ const LeadExplorer = ({
                   <Zap size={24} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black italic uppercase tracking-tight text-slate-900 leading-none mb-1">Lead <span className="text-pd-pink">Explorer</span></h2>
+                  <h2 className="text-2xl font-black  uppercase tracking-tight text-slate-900 leading-none mb-1">Lead <span className="text-pd-pink">Explorer</span></h2>
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">High-Performance Lead Management Architecture</p>
                 </div>
               </div>
@@ -89,7 +89,7 @@ const LeadExplorer = ({
                     placeholder="Search by name, event..." 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="bg-transparent border-none outline-none text-[11px] font-bold text-slate-900 w-48 italic"
+                    className="bg-transparent border-none outline-none text-[11px] font-bold text-slate-900 w-48 "
                   />
                 </div>
                 <button 
@@ -111,7 +111,7 @@ const LeadExplorer = ({
                       <button 
                         key={status}
                         onClick={() => setLeadFilter(status)}
-                        className={`w-full flex items-center justify-between px-5 py-3 rounded-xl text-[11px] font-black uppercase italic transition-all ${leadFilter === status ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
+                        className={`w-full flex items-center justify-between px-5 py-3 rounded-xl text-[11px] font-black uppercase  transition-all ${leadFilter === status ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
                       >
                         {status}
                         <span className="text-[9px] opacity-40">({recentLeads.filter(l => status === 'All' || l.status === status).length})</span>
@@ -134,7 +134,7 @@ const LeadExplorer = ({
                           }}
                           className="w-4 h-4 rounded border-slate-200 text-pd-pink focus:ring-pd-pink" 
                         />
-                        <span className="text-[11px] font-black uppercase italic text-slate-500 group-hover:text-slate-900">{evt}</span>
+                        <span className="text-[11px] font-black uppercase  text-slate-500 group-hover:text-slate-900">{evt}</span>
                       </label>
                     ))}
                   </div>
@@ -190,13 +190,13 @@ const LeadExplorer = ({
                         </div>
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-base font-black italic text-slate-900 uppercase tracking-tight leading-none">{lead.name}</h4>
+                            <h4 className="text-base font-black  text-slate-900 uppercase tracking-tight leading-none">{lead.name}</h4>
                             {lead.unread && <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>}
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-[9px] font-black uppercase text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">{lead.location}</span>
-                            <span className="text-[9px] font-black uppercase text-pd-pink italic">{lead.event}</span>
-                            <span className="text-[9px] font-bold text-slate-300 italic">{lead.date} • {lead.time}</span>
+                            <span className="text-[9px] font-black uppercase text-pd-pink ">{lead.event}</span>
+                            <span className="text-[9px] font-bold text-slate-300 ">{lead.date} • {lead.time}</span>
                           </div>
                         </div>
                       </div>
@@ -204,7 +204,7 @@ const LeadExplorer = ({
                       <div className="flex items-center gap-10">
                         <div className="flex flex-col items-center">
                           <span className="text-[8px] font-black uppercase text-slate-300">Guests</span>
-                          <span className="text-sm font-black italic text-slate-900 leading-none">{lead.guests}</span>
+                          <span className="text-sm font-black  text-slate-900 leading-none">{lead.guests}</span>
                         </div>
                         <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${
                           lead.status === 'Booked' ? 'bg-emerald-50 text-emerald-600' : 
@@ -224,7 +224,7 @@ const LeadExplorer = ({
                   {filteredLeads.length === 0 && (
                     <div className="py-32 flex flex-col items-center justify-center text-center opacity-40">
                       <Search size={48} className="text-slate-200 mb-6" />
-                      <p className="text-[11px] font-black uppercase italic tracking-widest">No matching inquiries found</p>
+                      <p className="text-[11px] font-black uppercase  tracking-widest">No matching inquiries found</p>
                     </div>
                   )}
                 </div>

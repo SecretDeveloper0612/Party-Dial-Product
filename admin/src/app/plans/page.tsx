@@ -208,7 +208,7 @@ export default function PlanManagementPage() {
         {loading ? null : plans.length === 0 ? (
             <div className="col-span-full py-20 text-center bg-white rounded-[40px] border border-dashed border-slate-200">
                <Layers className="mx-auto text-slate-200 mb-4" size={64} />
-               <h2 className="text-xl font-black text-slate-800 uppercase italic mb-2">No Plans Configured</h2>
+               <h2 className="text-xl font-black text-slate-800 uppercase  mb-2">No Plans Configured</h2>
                <p className="text-sm text-slate-400 font-medium mb-8 uppercase tracking-widest">Start by creating your first subscription package</p>
                <button onClick={() => handleOpenModal()} className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-orange-500 transition-all">Enable Strategy</button>
             </div>
@@ -254,11 +254,11 @@ export default function PlanManagementPage() {
                 </div>
 
                 <div className="mb-8">
-                  <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter m-0 group-hover:text-orange-500 transition-colors">
+                  <h3 className="text-2xl font-black text-slate-900 uppercase  tracking-tighter m-0 group-hover:text-orange-500 transition-colors">
                     {plan.name}
                   </h3>
                   <div className="flex items-baseline gap-1 mt-4">
-                    <span className="text-3xl font-black text-slate-900 italic tracking-tighter">₹{plan.price}</span>
+                    <span className="text-3xl font-black text-slate-900  tracking-tighter">₹{plan.price}</span>
                     <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">/ {plan.duration} Days</span>
                   </div>
                 </div>
@@ -355,7 +355,7 @@ export default function PlanManagementPage() {
                        <Zap size={24} />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter m-0">
+                      <h2 className="text-2xl font-black text-slate-900 uppercase  tracking-tighter m-0">
                         {editingPlan ? "Edit Strategy" : "Define New Strategy"}
                       </h2>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Configure plan parameters & visibility</p>
@@ -372,7 +372,7 @@ export default function PlanManagementPage() {
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Plan Name</label>
                       <input 
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-black italic shadow-inner outline-none focus:bg-white focus:border-orange-500 transition-all"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-black  shadow-inner outline-none focus:bg-white focus:border-orange-500 transition-all"
                         placeholder="e.g. ₹11 Special Offer"
                         value={formData.name}
                         onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -384,7 +384,7 @@ export default function PlanManagementPage() {
                           <IndianRupee size={16} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" />
                           <input 
                              type="number"
-                             className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-black italic shadow-inner outline-none focus:bg-white focus:border-orange-500 transition-all"
+                             className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-black  shadow-inner outline-none focus:bg-white focus:border-orange-500 transition-all"
                              value={formData.price}
                              onChange={(e) => setFormData({...formData, price: parseInt(e.target.value) || 0})}
                           />
@@ -400,7 +400,7 @@ export default function PlanManagementPage() {
                          <Clock size={16} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" />
                          <input 
                            type="number"
-                           className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-black italic shadow-inner outline-none focus:bg-white focus:border-orange-500 transition-all"
+                           className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-black  shadow-inner outline-none focus:bg-white focus:border-orange-500 transition-all"
                            value={formData.duration}
                            onChange={(e) => setFormData({...formData, duration: parseInt(e.target.value) || 0})}
                          />
@@ -412,7 +412,7 @@ export default function PlanManagementPage() {
                           <Target size={16} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" />
                           <input 
                              type="number"
-                             className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-black italic shadow-inner outline-none focus:bg-white focus:border-orange-500 transition-all"
+                             className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-black  shadow-inner outline-none focus:bg-white focus:border-orange-500 transition-all"
                              value={formData.leadLimit}
                              onChange={(e) => setFormData({...formData, leadLimit: parseInt(e.target.value) || 0})}
                           />

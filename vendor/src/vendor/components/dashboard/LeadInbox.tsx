@@ -152,7 +152,7 @@ const LeadInbox = ({
                            {new Date(lead.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                          </span>
                        ) : (
-                         <span className="text-[10px] text-slate-400 italic">Date unconfirmed</span>
+                         <span className="text-[10px] text-slate-400 ">Date unconfirmed</span>
                        )}
                     </div>
                  </div>

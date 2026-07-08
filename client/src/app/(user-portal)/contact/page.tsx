@@ -75,7 +75,7 @@ export default function ContactUs() {
           >
             <span className="inline-block bg-pd-red/10 text-pd-red text-[10px] md:text-xs font-bold px-4 py-1.5 rounded-full mb-6 uppercase tracking-wider">Get In Touch</span>
             <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight">
-              Contact <span className="text-pd-red italic opacity-90">Us</span>
+              Contact <span className="text-pd-red  opacity-90">Us</span>
             </h1>
             <p className="text-lg md:text-xl text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed">
               We&apos;re here to help you find the perfect venue or assist you with any questions. Our team is ready to make your event a reality.
@@ -228,8 +228,8 @@ export default function ContactUs() {
             {/* Right Column: Contact Info */}
             <div className="flex flex-col justify-center space-y-12">
               <motion.div {...fadeUp} transition={{ delay: 0.1 }}>
-                <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight uppercase italic">Our <span className="text-pd-red">HQ</span></h2>
-                <p className="text-slate-500 font-medium mb-10 max-w-md italic">
+                <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight uppercase ">Our <span className="text-pd-red">HQ</span></h2>
+                <p className="text-slate-500 font-medium mb-10 max-w-md ">
                   Have a specific question or want to visit us? Here is where we dial up the celebration magic.
                 </p>
                 
@@ -285,7 +285,7 @@ export default function ContactUs() {
                 className="p-8 bg-slate-900 rounded-[2rem] text-white overflow-hidden relative"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-pd-red/20 blur-3xl pointer-events-none"></div>
-                <h4 className="text-lg font-black italic uppercase tracking-tighter mb-6">Quick Contact</h4>
+                <h4 className="text-lg font-black  uppercase tracking-tighter mb-6">Quick Contact</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <a href="tel:+918679933302" className="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-4 rounded-xl transition-all group">
                     <Phone size={18} className="text-emerald-400" />
@@ -321,7 +321,7 @@ export default function ContactUs() {
                     <MapPin size={20} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-1 italic">Preet Tech OPC Private Limited</h4>
+                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-1 ">Preet Tech OPC Private Limited</h4>
                     <p className="text-xs text-slate-600 font-bold leading-relaxed">
                       near Krishna Hospital, Subhash Nagar,<br />
                       Haldwani, Uttarakhand 263139
@@ -359,7 +359,7 @@ export default function ContactUs() {
                 <Building2 size={32} />
             </div>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-6 tracking-tight">Are You a <span className="text-pd-red">Venue Owner?</span></h2>
-            <p className="text-white/60 font-medium mb-12 max-w-xl mx-auto text-sm md:text-lg italic">
+            <p className="text-white/60 font-medium mb-12 max-w-xl mx-auto text-sm md:text-lg ">
               Join India&apos;s leading platform and start receiving high-quality leads directly. List your banquet hall, hotel, or resort today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

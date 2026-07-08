@@ -53,10 +53,10 @@ const VenueCalendar = ({
                    <div className="w-1.5 h-1.5 rounded-full bg-pd-pink animate-pulse"></div>
                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-pd-pink">Live Venue Status</span>
                 </div>
-                <h1 className="text-4xl font-black text-slate-900 uppercase italic tracking-tighter leading-none mb-1">
+                <h1 className="text-4xl font-black text-slate-900 uppercase  tracking-tighter leading-none mb-1">
                    {currentMonth} <span className="text-pd-pink">Schedule</span>
                 </h1>
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest italic">Spring Ballroom • Grand Imperial Resort</p>
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ">Spring Ballroom • Grand Imperial Resort</p>
              </div>
              
              <div className="flex items-center gap-3 bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm transition-all duration-300">
@@ -77,7 +77,7 @@ const VenueCalendar = ({
                  <button onClick={() => setCurrentMonth(currentMonth === 'March' ? 'February' : 'March')} className="w-10 h-10 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-all shadow-sm">
                     <ChevronLeft size={18} />
                  </button>
-                 <span className="text-sm font-black italic uppercase tracking-widest text-slate-900">{currentMonth} 2026</span>
+                 <span className="text-sm font-black  uppercase tracking-widest text-slate-900">{currentMonth} 2026</span>
                  <button onClick={() => setCurrentMonth(currentMonth === 'March' ? 'April' : 'March')} className="w-10 h-10 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-all shadow-sm">
                     <ChevronRight size={18} />
                  </button>
@@ -112,7 +112,7 @@ const VenueCalendar = ({
                                 className={`bg-white min-h-[120px] p-5 flex flex-col transition-all cursor-pointer relative group ${isSelected ? 'ring-2 ring-pd-pink ring-inset rounded-2xl z-20 shadow-2xl scale-105' : ''} ${isToday ? 'bg-slate-50 border-pd-pink/10' : ''}`}
                              >
                                 <div className="flex justify-between items-start mb-4">
-                                   <span className={`text-xs font-black italic ${isSelected || isToday ? 'text-pd-pink' : isBooked ? 'text-slate-900' : isMaintenance ? 'text-amber-500' : 'text-slate-300'}`}>
+                                   <span className={`text-xs font-black  ${isSelected || isToday ? 'text-pd-pink' : isBooked ? 'text-slate-900' : isMaintenance ? 'text-amber-500' : 'text-slate-300'}`}>
                                       {String(dayNum).padStart(2, '0')}
                                    </span>
                                    {isBooked && <div className="w-1.5 h-1.5 rounded-full bg-pd-pink"></div>}
@@ -122,7 +122,7 @@ const VenueCalendar = ({
                                    {isBooked && dayEvents.filter(e => e.status !== 'Maintenance').slice(0, 1).map((e, idx) => (
                                       <div key={idx} className="px-2.5 py-1.5 bg-pd-pink/10 rounded flex flex-col gap-0.5 border-l-2 border-pd-pink">
                                          <span className="text-[7px] font-black uppercase text-pd-pink leading-none truncate">{e.type}</span>
-                                         <span className="text-[6px] font-bold text-pd-pink opacity-70 italic leading-none truncate">{e.host}</span>
+                                         <span className="text-[6px] font-bold text-pd-pink opacity-70  leading-none truncate">{e.host}</span>
                                       </div>
                                    ))}
                                 </div>
@@ -152,23 +152,23 @@ const VenueCalendar = ({
                                 <div className="flex items-center gap-10">
                                    <div className="flex flex-col items-center min-w-[60px]">
                                       <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${isToday ? 'text-pd-pink' : 'text-slate-300'}`}>MAR</span>
-                                      <span className="text-5xl font-black italic leading-none tracking-tighter">{day}</span>
+                                      <span className="text-5xl font-black  leading-none tracking-tighter">{day}</span>
                                    </div>
                                    <div className={`w-2 h-2 rounded-full ${isToday ? 'bg-pd-pink animate-pulse' : 'bg-slate-100'}`} />
                                    <div className="space-y-1">
                                       {events.length > 0 ? (
                                         events.map((e, idx) => (
                                            <div key={idx} className="flex flex-col">
-                                              <h4 className={`text-xl font-black uppercase italic tracking-tight leading-none mb-1 ${isToday ? 'text-white' : 'text-slate-900'}`}>{e.type}</h4>
+                                              <h4 className={`text-xl font-black uppercase  tracking-tight leading-none mb-1 ${isToday ? 'text-white' : 'text-slate-900'}`}>{e.type}</h4>
                                               <div className="flex items-center gap-3">
-                                                 <span className={`text-[11px] font-black italic tracking-widest ${isToday ? 'text-pd-pink' : 'text-slate-400'}`}>{e.time}</span>
-                                                 <span className={`text-[11px] font-medium italic opacity-40 ${isToday ? 'text-white' : 'text-slate-900'}`}>Host: {e.host}</span>
+                                                 <span className={`text-[11px] font-black  tracking-widest ${isToday ? 'text-pd-pink' : 'text-slate-400'}`}>{e.time}</span>
+                                                 <span className={`text-[11px] font-medium  opacity-40 ${isToday ? 'text-white' : 'text-slate-900'}`}>Host: {e.host}</span>
                                               </div>
                                            </div>
                                         ))
                                       ) : (
                                         <div className="flex flex-col">
-                                           <span className="text-xl font-black italic uppercase text-slate-200 tracking-tighter">Available Blueprint Slot</span>
+                                           <span className="text-xl font-black  uppercase text-slate-200 tracking-tighter">Available Blueprint Slot</span>
                                            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest leading-none">Open for inquiries</span>
                                         </div>
                                       )}
@@ -208,7 +208,7 @@ const VenueCalendar = ({
                                 </div>
                                 <h4 className="text-xs font-black uppercase text-slate-400 mb-6">{item.area}</h4>
                                 <div className="flex items-center gap-6">
-                                   <span className="text-5xl font-black italic text-slate-900 leading-none tracking-tighter">{item.cap}<span className="text-xl text-pd-pink">%</span></span>
+                                   <span className="text-5xl font-black  text-slate-900 leading-none tracking-tighter">{item.cap}<span className="text-xl text-pd-pink">%</span></span>
                                    <div className="flex-1 h-3 bg-white rounded-full overflow-hidden border border-slate-100 shadow-inner">
                                       <motion.div 
                                         initial={{ width: 0 }}
@@ -228,8 +228,8 @@ const VenueCalendar = ({
                           <div className="w-20 h-20 rounded-3xl bg-white/10 flex items-center justify-center mb-10 relative z-10 border border-white/10">
                              <Zap size={32} className="text-pd-pink" />
                           </div>
-                          <h3 className="text-4xl font-black italic uppercase text-white mb-4 relative z-10 tracking-tighter leading-none">Inventory Intelligence <span className="text-pd-pink">Blueprint</span></h3>
-                          <p className="text-[13px] font-medium text-white/40 italic mb-12 relative z-10 max-w-md mx-auto leading-relaxed">Optimize your venue utilization with advanced predictive modeling and real-time inventory tracking architecture.</p>
+                          <h3 className="text-4xl font-black  uppercase text-white mb-4 relative z-10 tracking-tighter leading-none">Inventory Intelligence <span className="text-pd-pink">Blueprint</span></h3>
+                          <p className="text-[13px] font-medium text-white/40  mb-12 relative z-10 max-w-md mx-auto leading-relaxed">Optimize your venue utilization with advanced predictive modeling and real-time inventory tracking architecture.</p>
                           
                           <div className="flex gap-4 relative z-10">
                              <button className="px-12 py-5 bg-pd-pink text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-pd-pink/40 hover:scale-105 transition-all">OPTIMIZE YIELD</button>
@@ -249,9 +249,9 @@ const VenueCalendar = ({
              <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
              
              <div className="relative z-10">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-pd-pink mb-8 italic">Agenda Detail</h4>
-                <h2 className="text-6xl font-black italic tracking-tighter leading-none mb-2">{selectedDay} <span className="text-pd-pink">{currentMonth.slice(0, 3).toUpperCase()}</span></h2>
-                <p className="text-sm font-medium text-slate-400 italic mb-10">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-pd-pink mb-8 ">Agenda Detail</h4>
+                <h2 className="text-6xl font-black  tracking-tighter leading-none mb-2">{selectedDay} <span className="text-pd-pink">{currentMonth.slice(0, 3).toUpperCase()}</span></h2>
+                <p className="text-sm font-medium text-slate-400  mb-10">
                    {selectedDayEvents.length > 0 ? `${selectedDayEvents.length} Scheduled Events` : 'No events for this date'}
                 </p>
                 
@@ -267,8 +267,8 @@ const VenueCalendar = ({
                          <div className={`w-1.5 h-12 rounded-full ${evt.status === 'Confirmed' ? 'bg-pd-pink' : evt.status === 'Maintenance' ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
                          <div>
                             <p className="text-[8px] font-black uppercase tracking-widest text-slate-500 leading-none mb-1.5">{evt.time}</p>
-                            <h5 className="text-sm font-black italic uppercase text-white leading-none mb-1 group-hover:text-pd-pink transition-colors">{evt.type}</h5>
-                            <p className="text-[10px] text-slate-400 font-bold italic lowercase opacity-60">host: {evt.host} {evt.pax > 0 && `• ${evt.pax} Pax`}</p>
+                            <h5 className="text-sm font-black  uppercase text-white leading-none mb-1 group-hover:text-pd-pink transition-colors">{evt.type}</h5>
+                            <p className="text-[10px] text-slate-400 font-bold  lowercase opacity-60">host: {evt.host} {evt.pax > 0 && `• ${evt.pax} Pax`}</p>
                          </div>
                       </motion.div>
                    )) : (
@@ -283,7 +283,7 @@ const VenueCalendar = ({
                 
                 <button 
                   onClick={() => { setIsBookingModalOpen(true); setNewBookingDay(selectedDay); }}
-                  className="w-full py-5 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] italic mt-12 hover:bg-pd-pink hover:text-white transition-all shadow-xl"
+                  className="w-full py-5 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em]  mt-12 hover:bg-pd-pink hover:text-white transition-all shadow-xl"
                 >
                    Schedule Intelligence
                 </button>
@@ -302,7 +302,7 @@ const VenueCalendar = ({
                    <div key={i}>
                       <div className="flex justify-between items-end mb-3">
                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">{stat.label}</span>
-                         <span className="text-xl font-black italic text-slate-900 tracking-tight">{stat.val}</span>
+                         <span className="text-xl font-black  text-slate-900 tracking-tight">{stat.val}</span>
                       </div>
                       <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
                          <motion.div 
@@ -342,8 +342,8 @@ const VenueCalendar = ({
                     <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink/10 rounded-full blur-3xl -mr-10 -mt-10" />
                     <div className="relative z-10">
                        <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-pd-pink mb-4">Venue Management</h4>
-                       <h3 className="text-3xl font-black italic tracking-tighter uppercase leading-none mb-1">Schedule <span className="text-pd-pink">Availability</span></h3>
-                       <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest opacity-60 italic">
+                       <h3 className="text-3xl font-black  tracking-tighter uppercase leading-none mb-1">Schedule <span className="text-pd-pink">Availability</span></h3>
+                       <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest opacity-60 ">
                           Target Date: {selectedDay} {currentMonth} 2026
                        </p>
                     </div>

@@ -250,7 +250,7 @@ export default function CouponManagementPage() {
                           {coupon.code}
                           <span className="px-2 py-0.5 bg-slate-100 text-[8px] font-black rounded uppercase text-slate-500">System</span>
                         </h4>
-                        <p className="text-[10px] text-slate-400 font-bold mt-0.5 italic">Added on {new Date(coupon.$createdAt).toLocaleDateString()}</p>
+                        <p className="text-[10px] text-slate-400 font-bold mt-0.5 ">Added on {new Date(coupon.$createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
                   </td>

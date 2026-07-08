@@ -50,9 +50,9 @@ const NotificationDropdown = ({
             className="absolute right-[-40px] sm:right-0 mt-3 w-[280px] sm:w-80 bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 z-50 overflow-hidden"
           >
             <div className="p-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-900 italic">Recent Notifications</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-900 ">Recent Notifications</span>
               {notifications.some(n => n.unread && new Date(n.rawDate).getTime() > lastClearedTime) && (
-                <span className="px-2 py-0.5 bg-pd-pink text-white text-[7px] font-black rounded-full uppercase italic animate-pulse">New Inquiries</span>
+                <span className="px-2 py-0.5 bg-pd-pink text-white text-[7px] font-black rounded-full uppercase  animate-pulse">New Inquiries</span>
               )}
             </div>
 
@@ -75,11 +75,11 @@ const NotificationDropdown = ({
                          </div>
                          <div className="flex-1 min-w-0">
                            <div className="flex items-center justify-between gap-2 mb-1">
-                             <p className="text-[11px] font-black text-slate-900 truncate uppercase italic">{notif.name}</p>
+                             <p className="text-[11px] font-black text-slate-900 truncate uppercase ">{notif.name}</p>
                              {isNew && <span className="w-1.5 h-1.5 bg-pd-pink rounded-full shadow-lg shadow-pd-pink/40"></span>}
                            </div>
                            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-tight opacity-80">{notif.event} • {notif.guests} PAX</p>
-                           <p className="text-[8px] font-black text-slate-400/50 uppercase tracking-widest mt-1.5 italic group-hover:text-pd-pink transition-colors">{notif.time}</p>
+                           <p className="text-[8px] font-black text-slate-400/50 uppercase tracking-widest mt-1.5  group-hover:text-pd-pink transition-colors">{notif.time}</p>
                          </div>
                        </div>
                      </motion.div>
@@ -90,14 +90,14 @@ const NotificationDropdown = ({
                    <div className="w-14 h-14 rounded-3xl bg-slate-50 flex items-center justify-center mx-auto mb-4 text-slate-200">
                      <Bell size={24} />
                    </div>
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">All caught up</p>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ">All caught up</p>
                  </div>
                )}
              </div>
 
             <button 
               onClick={() => { onViewAll(); onClose(); }}
-              className="w-full py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-white hover:bg-slate-900 transition-all bg-white border-t border-slate-50 italic"
+              className="w-full py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-white hover:bg-slate-900 transition-all bg-white border-t border-slate-50 "
             >
               Access Complete Pipeline
             </button>

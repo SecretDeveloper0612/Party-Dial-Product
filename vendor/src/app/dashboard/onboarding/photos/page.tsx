@@ -196,7 +196,7 @@ export default function UploadPhotosPage() {
             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-slate-200 group-hover:border-slate-900 transition-all">
               <ChevronLeft size={18} />
             </div>
-            <span className="text-sm font-bold italic">Back to Dashboard</span>
+            <span className="text-sm font-bold ">Back to Dashboard</span>
           </Link>
           <div className="flex items-center gap-4">
              <div className="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
@@ -216,7 +216,7 @@ export default function UploadPhotosPage() {
                <div className="w-16 h-16 bg-pink-50 rounded-3xl flex items-center justify-center text-pink-500 mx-auto mb-6">
                   <ImageIcon size={32} />
                </div>
-               <h1 className="text-3xl font-black text-slate-900 uppercase italic mb-3 tracking-tight">Upload Photos</h1>
+               <h1 className="text-3xl font-black text-slate-900 uppercase  mb-3 tracking-tight">Upload Photos</h1>
                <p className="text-slate-500 font-medium max-w-lg mx-auto leading-relaxed">High-quality photos are the #1 reason customers choose a venue. Showcase your space beautifully.</p>
             </header>
 
@@ -254,13 +254,13 @@ export default function UploadPhotosPage() {
                   <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-400 mx-auto mb-6 shadow-sm group-hover:scale-110 group-hover:text-pd-pink transition-all">
                     <Upload size={24} />
                   </div>
-                  <h3 className="text-lg font-black text-slate-900 italic mb-2 tracking-tight uppercase">Upload to {activeCategory === "ALL PHOTOS" ? "Gallery" : activeCategory}</h3>
+                  <h3 className="text-lg font-black text-slate-900  mb-2 tracking-tight uppercase">Upload to {activeCategory === "ALL PHOTOS" ? "Gallery" : activeCategory}</h3>
                   <p className="text-sm text-slate-400 font-medium">PNG, JPG or JPEG (Max 5MB each)</p>
                </div>
                {isUploading && (
                   <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center">
                      <div className="w-10 h-10 border-4 border-pd-pink/20 border-t-pd-pink rounded-full animate-spin mb-4"></div>
-                     <p className="text-xs font-black text-pd-pink uppercase tracking-widest italic animate-pulse">Uploading...</p>
+                     <p className="text-xs font-black text-pd-pink uppercase tracking-widest  animate-pulse">Uploading...</p>
                   </div>
                )}
             </div>
@@ -304,7 +304,7 @@ export default function UploadPhotosPage() {
             {filteredPhotos.length === 0 && (
               <div className="text-center py-20 bg-slate-50/50 rounded-[40px] border border-slate-50">
                 <ImageIcon size={48} className="text-slate-200 mx-auto mb-4" />
-                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest italic">No photos in {activeCategory}</h3>
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest ">No photos in {activeCategory}</h3>
                 <p className="text-xs text-slate-400 mt-2">Upload photos to this category to showcase your venue.</p>
                 <button 
                    onClick={() => fileInputRef.current?.click()}
@@ -319,11 +319,11 @@ export default function UploadPhotosPage() {
           <div className="bg-slate-50 p-6 lg:p-8 flex items-center justify-between border-t border-slate-100">
              <div className="flex items-center gap-3">
                 <div className="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <p className="text-xs text-slate-400 font-medium italic">We recommend at least 5 photos for a complete profile.</p>
+                <p className="text-xs text-slate-400 font-medium ">We recommend at least 5 photos for a complete profile.</p>
              </div>
              <Link href="/dashboard/onboarding/pricing">
                <button 
-                  className="pd-btn-primary flex items-center gap-2 min-w-[200px] justify-center italic tracking-normal"
+                  className="pd-btn-primary flex items-center gap-2 min-w-[200px] justify-center  tracking-normal"
                >
                   Verify & Next Step
                   <ArrowRight size={18} />
@@ -338,22 +338,22 @@ export default function UploadPhotosPage() {
               <div className="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center">
                  <Sparkles size={20} />
               </div>
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 italic">Daylight Shots</h3>
-              <p className="text-xs text-slate-500 font-medium leading-relaxed italic">Take photos during the day for natural, bright lighting that feels welcoming.</p>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 ">Daylight Shots</h3>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed ">Take photos during the day for natural, bright lighting that feels welcoming.</p>
            </div>
            <div className="flex flex-col gap-4">
               <div className="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center">
                  <Building2 size={20} />
               </div>
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 italic">Exterior & Interior</h3>
-              <p className="text-xs text-slate-500 font-medium leading-relaxed italic">Include shots of the entrance, main hall, and special amenities like the bar area.</p>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 ">Exterior & Interior</h3>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed ">Include shots of the entrance, main hall, and special amenities like the bar area.</p>
            </div>
            <div className="flex flex-col gap-4">
               <div className="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center">
                  <ImageIcon size={20} />
               </div>
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 italic">No Blur</h3>
-              <p className="text-xs text-slate-500 font-medium leading-relaxed italic">Avoid blurry or dark images. Clear photos build trust with potential customers.</p>
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 ">No Blur</h3>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed ">Avoid blurry or dark images. Clear photos build trust with potential customers.</p>
            </div>
         </div>
       </div>

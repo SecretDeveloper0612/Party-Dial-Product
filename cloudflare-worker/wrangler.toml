@@ -41,3 +41,12 @@ PORT = "5005"
 # Cron triggers for background tasks
 # [triggers]
 # crons = ["0 * * * *"] # Example: Run every hour
+
+[durable_objects]
+bindings = [
+  { name = "REALTIME_DO", class_name = "RealtimeDO" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RealtimeDO"]

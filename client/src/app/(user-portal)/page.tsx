@@ -421,6 +421,26 @@ export default function AISearchPage() {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
+
+    // Restore AI Search State
+    setTimeout(() => {
+      try {
+        const savedState = sessionStorage.getItem('partyDialAiSearchState');
+        if (savedState) {
+          const parsed = JSON.parse(savedState);
+          if (parsed.hasSearched) {
+            setHasSearched(parsed.hasSearched);
+            setIntent(parsed.intent);
+            setScoredResults(parsed.scoredResults);
+            setFallbackMode(parsed.fallbackMode);
+            setQuery(parsed.query || '');
+          }
+        }
+      } catch (e) {
+        console.warn("Could not restore AI search state", e);
+      }
+    }, 0);
+
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -512,6 +532,18 @@ export default function AISearchPage() {
       setFallbackMode(mode);
       setHasSearched(true);
       setIsSearching(false);
+
+      try {
+        sessionStorage.setItem('partyDialAiSearchState', JSON.stringify({
+          hasSearched: true,
+          intent: parsed,
+          scoredResults: results,
+          fallbackMode: mode,
+          query: searchQuery
+        }));
+      } catch (e) {
+        console.warn("Could not save AI search state", e);
+      }
     }, 1000);
   }, [liveVenues]);
 
@@ -740,24 +772,6 @@ export default function AISearchPage() {
                   </form>
                 </div>
 
-                {/* Example queries */}
-                <div className="w-full max-w-3xl mx-auto text-center relative z-30 mt-2 animate-in fade-in duration-500">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5">Try These Examples</h4>
-                  <div className="w-full overflow-x-auto scrollbar-hide pb-6" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                    <div className="flex flex-nowrap justify-center w-max min-w-full gap-3 px-4 md:px-2 snap-x">
-                      {displayedExamples.length > 0 ? displayedExamples.slice(0, isMobile ? 2 : 3).map(({ text, icon }, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setQuery(text)}
-                          className="snap-start px-4 py-2 bg-white border border-slate-100 shadow-sm rounded-full flex items-center gap-2 hover:border-pd-purple/30 transition-all shrink-0 whitespace-nowrap"
-                        >
-                          {icon}
-                          <span className="text-xs font-medium text-slate-700">{text}</span>
-                        </button>
-                      )) : null}
-                    </div>
-                  </div>
-                </div>
 
               </motion.div>
               )
@@ -835,7 +849,7 @@ export default function AISearchPage() {
                     <div className="inline-flex justify-center items-center w-24 h-24 bg-red-50 rounded-full text-pd-red mb-8">
                       <X size={40} />
                     </div>
-                    <h2 className="text-3xl font-black text-slate-900 mb-3 italic">I can only help with venues</h2>
+                    <h2 className="text-3xl font-black text-slate-900 mb-3 ">I can only help with venues</h2>
                     <p className="text-slate-500 font-medium mb-10 max-w-lg mx-auto px-6">
                       I&apos;m an AI assistant specifically designed to help you discover and book premium venues. Please describe what kind of event or venue you&apos;re looking for!
                     </p>
@@ -879,7 +893,13 @@ export default function AISearchPage() {
                         </div>
 
                         <button
-                          onClick={() => { setHasSearched(false); setIntent(null); setScoredResults([]); }}
+                          onClick={() => { 
+                            setHasSearched(false); 
+                            setIntent(null); 
+                            setScoredResults([]); 
+                            setQuery('');
+                            sessionStorage.removeItem('partyDialAiSearchState'); 
+                          }}
                           className="p-2.5 bg-slate-900 text-white rounded-xl hover:bg-pd-red transition-colors shrink-0"
                           title="Clear Search"
                         >

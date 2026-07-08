@@ -141,7 +141,7 @@ export default function CRMDetailDrawer({ isOpen, onClose, entity, type }: CRMDe
                                          <span className="text-[10px] font-black uppercase text-slate-400">{team.find(u => u.id === act.personnelId)?.name || 'System'}</span>
                                       </div>
                                    </div>
-                                   <p className="text-sm font-bold text-slate-700 leading-relaxed italic">"{act.content}"</p>
+                                   <p className="text-sm font-bold text-slate-700 leading-relaxed ">"{act.content}"</p>
                                    {act.outcome && (
                                      <div className="mt-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 w-fit">
                                         <CheckCircle2 size={12} />

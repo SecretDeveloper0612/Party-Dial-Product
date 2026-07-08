@@ -254,7 +254,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                          <User size={16} className="text-slate-400" />
                          <span className="text-sm font-bold text-slate-900">{replyTarget.userName}</span>
                       </div>
-                      <p className="text-sm text-slate-600 italic">"{replyTarget.comment}"</p>
+                      <p className="text-sm text-slate-600 ">"{replyTarget.comment}"</p>
                    </div>
 
                    <div className="space-y-3">

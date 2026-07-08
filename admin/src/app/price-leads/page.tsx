@@ -181,7 +181,7 @@ export default function PriceLeadsPage() {
                     >
                        <td className="p-6">
                           <div className="flex items-center gap-4">
-                             <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center font-black text-sm uppercase italic">
+                             <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center font-black text-sm uppercase ">
                                {lead.name.charAt(0)}
                              </div>
                              <div>

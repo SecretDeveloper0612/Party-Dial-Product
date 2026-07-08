@@ -655,7 +655,7 @@ export default function PartnerLandingPage() {
                      <Target size={12} className="fill-pd-pink/10" /> Market Segments
                   </div>
                   <h3 className="text-3xl md:text-5xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-6">
-                     Most Popular <span className="pd-gradient-text italic">Searches</span>
+                     Most Popular <span className="pd-gradient-text ">Searches</span>
                   </h3>
                   <p className="text-slate-500 text-sm md:text-base max-w-xl mx-auto font-medium leading-relaxed">
                      Connect with thousands of customers actively searching for these high-demand event types in your city every month.
@@ -754,7 +754,7 @@ export default function PartnerLandingPage() {
                         <Sparkles size={14} className="animate-pulse" /> Partner Benefits
                      </div>
                      <h3 className="text-4xl md:text-6xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1]">
-                        Unfair <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-blue to-pd-pink italic">Advantage</span>
+                        Unfair <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-blue to-pd-pink ">Advantage</span>
                      </h3>
                   </div>
                   <div className="flex-1 md:pb-4">
@@ -826,7 +826,7 @@ export default function PartnerLandingPage() {
                      <ShieldCheck size={12} className="fill-pd-pink/10" /> Venue Operating System
                   </div>
                   <h3 className="text-3xl md:text-5xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] py-2 mb-4">
-                     Elite Partner <span className="pd-gradient-text italic">Success Hub</span>
+                     Elite Partner <span className="pd-gradient-text ">Success Hub</span>
                   </h3>
                </div>
 
@@ -1070,7 +1070,7 @@ export default function PartnerLandingPage() {
                                  <Star key={j} size={16} fill="currentColor" />
                               ))}
                            </div>
-                           <p className="text-sm md:text-base text-slate-700 font-medium italic leading-relaxed mb-8 flex-1 relative z-10">
+                           <p className="text-sm md:text-base text-slate-700 font-medium  leading-relaxed mb-8 flex-1 relative z-10">
                               &quot;{t.text}&quot;
                            </p>
                            <div className="flex gap-4 items-center pt-6 border-t border-slate-50 relative z-10">
@@ -1111,7 +1111,7 @@ export default function PartnerLandingPage() {
                      </div>
                      <h3 className="text-3xl md:text-5xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-8">
                         dominating <br />
-                        <span className="pd-gradient-text not-italic">the hills</span> <br />
+                        <span className="pd-gradient-text not-">the hills</span> <br />
                         scaling india
                      </h3>
                      <p className="text-slate-500 text-sm md:text-base font-medium max-w-sm leading-relaxed mb-12">
@@ -1120,7 +1120,7 @@ export default function PartnerLandingPage() {
 
                      <div className="space-y-8">
                         <div className="flex flex-col gap-4">
-                           <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest italic flex items-center gap-2">
+                           <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest  flex items-center gap-2">
                               <CheckCircle2 size={12} /> Live Hubs (Uttarakhand)
                            </div>
                            <div suppressHydrationWarning className="flex flex-wrap gap-2">
@@ -1137,7 +1137,7 @@ export default function PartnerLandingPage() {
                            </div>
                         </div>
                         <div className="flex flex-col gap-4">
-                           <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic flex items-center gap-2">
+                           <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest  flex items-center gap-2">
                               <Zap size={12} className="opacity-40" /> Upcoming Expansion (Phase 02)
                            </div>
                            <div suppressHydrationWarning className="flex flex-wrap gap-2">
@@ -1148,7 +1148,7 @@ export default function PartnerLandingPage() {
                               ].map((state, i) => (
                                  <div key={i} className="group relative px-3 py-1.5 bg-slate-50 text-slate-400 rounded-lg border border-slate-100 text-[9px] font-black uppercase tracking-widest transition-all hover:bg-slate-900 hover:text-white hover:border-slate-900">
                                     {state.s}
-                                    <span className="inline-block ml-1 opacity-40 group-hover:opacity-100 italic">({state.c})</span>
+                                    <span className="inline-block ml-1 opacity-40 group-hover:opacity-100 ">({state.c})</span>
                                  </div>
                               ))}
                            </div>
@@ -1418,13 +1418,13 @@ export default function PartnerLandingPage() {
                      </div>
                      <h3 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-[1.1] mb-8">
                         Ready to join <br />
-                        the <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue not-italic">Leaders?</span>
+                        the <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue not-">Leaders?</span>
                      </h3>
                      <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed max-w-xl mb-12">
-                        India's most powerful venue growth engine. Stop waiting for leads and start <span className="text-white font-bold italic border-b border-pd-pink">commanding them.</span>
+                        India's most powerful venue growth engine. Stop waiting for leads and start <span className="text-white font-bold  border-b border-pd-pink">commanding them.</span>
                      </p>
                      <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-                        <Link href="/signup" className="px-14 py-5 bg-white text-slate-900 rounded-[20px] text-xs font-black uppercase tracking-[0.3em] italic hover:bg-pd-pink hover:text-white transition-all duration-500 shadow-2xl shadow-white/5 hover:shadow-pd-pink/30 hover:-translate-y-1 w-full sm:w-auto text-center">
+                        <Link href="/signup" className="px-14 py-5 bg-white text-slate-900 rounded-[20px] text-xs font-black uppercase tracking-[0.3em]  hover:bg-pd-pink hover:text-white transition-all duration-500 shadow-2xl shadow-white/5 hover:shadow-pd-pink/30 hover:-translate-y-1 w-full sm:w-auto text-center">
                            List Your Venue
                         </Link>
                         <div className="flex flex-col gap-1">
@@ -1450,7 +1450,7 @@ export default function PartnerLandingPage() {
                                  <TrendingUp size={28} />
                               </div>
                               <div className="text-[10px] font-black text-pd-pink uppercase tracking-widest leading-none mb-2">Verified Growth</div>
-                              <div className="text-4xl font-black italic text-slate-900"><AnimatedCounter end={140} suffix="%" /> <span className="text-sm font-bold opacity-30 not-italic uppercase tracking-widest">YoY</span></div>
+                              <div className="text-4xl font-black  text-slate-900"><AnimatedCounter end={140} suffix="%" /> <span className="text-sm font-bold opacity-30 not- uppercase tracking-widest">YoY</span></div>
                            </div>
 
                            <div className="space-y-4">
@@ -1463,7 +1463,7 @@ export default function PartnerLandingPage() {
                               <div className="flex justify-between items-end">
                                  <div>
                                     <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Status</div>
-                                    <div className="text-sm font-black text-emerald-500 uppercase tracking-tight italic flex items-center gap-1.5">
+                                    <div className="text-sm font-black text-emerald-500 uppercase tracking-tight  flex items-center gap-1.5">
                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></div>
                                        Elite Tier
                                     </div>
@@ -1517,7 +1517,7 @@ export default function PartnerLandingPage() {
                      </div>
                      <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-4 md:mb-6">
                         Start your <br />
-                        <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue not-italic">Legacy.</span>
+                        <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue not-">Legacy.</span>
                      </h2>
                      <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed max-w-sm mb-8 md:mb-12">
                         Join India's most exclusive venue network. Apply now and our partner success team will review your application within 24 hours.
@@ -1581,7 +1581,7 @@ export default function PartnerLandingPage() {
                               className="w-full h-14 md:h-16 mt-2 md:mt-4 relative group/btn rounded-[14px] md:rounded-2xl overflow-hidden"
                            >
                               <div className="absolute inset-0 bg-linear-to-r from-pd-pink to-pd-red group-hover/btn:opacity-90 transition-opacity"></div>
-                              <div className="relative w-full h-full flex items-center justify-center text-white text-xs md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.3em] italic gap-2 md:gap-3 group-hover/btn:scale-[1.02] transition-transform duration-300">
+                              <div className="relative w-full h-full flex items-center justify-center text-white text-xs md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.3em]  gap-2 md:gap-3 group-hover/btn:scale-[1.02] transition-transform duration-300">
                                  Submit Application <ArrowRight size={14} className="md:w-4 md:h-4" />
                               </div>
                            </button>

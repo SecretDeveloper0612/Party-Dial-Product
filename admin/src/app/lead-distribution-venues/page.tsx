@@ -381,7 +381,7 @@ export default function LeadDistributionVenuesPage() {
                            </div>
                            <ChevronRight size={12} className="text-slate-300" />
                            <span className={cn(
-                               "text-[10px] font-black uppercase tracking-widest italic font-mono",
+                               "text-[10px] font-black uppercase tracking-widest  font-mono",
                                log.venueId === 'BROADCAST' ? "text-rose-500" : "text-emerald-500"
                            )}>
                              {log.venueId === 'BROADCAST' ? 'NO MATCH FOUND' : 'SUCCESS / DISTRIBUTED'}

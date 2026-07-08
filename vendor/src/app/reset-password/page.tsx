@@ -88,7 +88,7 @@ function ResetPasswordForm() {
         </div>
         
         <Link href="/login" className="block">
-          <button className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm italic tracking-normal lowercase shadow-lg shadow-pd-pink/10">
+          <button className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm  tracking-normal lowercase shadow-lg shadow-pd-pink/10">
             Go to Login
             <ArrowRight size={18} />
           </button>
@@ -149,7 +149,7 @@ function ResetPasswordForm() {
       <button
         type="submit"
         disabled={isSubmitting || !userId || !secret}
-        className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm italic tracking-normal lowercase group shadow-lg shadow-pd-pink/10 disabled:opacity-50"
+        className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm  tracking-normal lowercase group shadow-lg shadow-pd-pink/10 disabled:opacity-50"
       >
         {isSubmitting ? 'Updating Password...' : 'Reset Password'}
         {!isSubmitting && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
@@ -186,11 +186,11 @@ export default function ResetPasswordPage() {
                 <ShieldCheck size={32} />
               </div>
             </div>
-            <h2 className="text-3xl font-[900] text-slate-900 uppercase italic mb-2 tracking-tight">Set New Password</h2>
+            <h2 className="text-3xl font-[900] text-slate-900 uppercase  mb-2 tracking-tight">Set New Password</h2>
             <p className="text-sm text-slate-500 font-medium font-pd">Secure your account with a strong password.</p>
           </div>
 
-          <Suspense fallback={<div className="text-center py-10 font-bold text-slate-400 animate-pulse lowercase italic">Loading reset form...</div>}>
+          <Suspense fallback={<div className="text-center py-10 font-bold text-slate-400 animate-pulse lowercase ">Loading reset form...</div>}>
             <ResetPasswordForm />
           </Suspense>
 

@@ -21,8 +21,8 @@ const SystemHistory = ({ pastActivities }: SystemHistoryProps) => {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-             <h1 className="text-4xl font-black text-slate-900 uppercase italic tracking-tighter mb-2 leading-none">Activity <span className="text-blue-600">History</span></h1>
-             <p className="text-sm font-medium text-slate-500 italic">Complete chronological log of your venue interactions and events.</p>
+             <h1 className="text-4xl font-black text-slate-900 uppercase  tracking-tighter mb-2 leading-none">Activity <span className="text-blue-600">History</span></h1>
+             <p className="text-sm font-medium text-slate-500 ">Complete chronological log of your venue interactions and events.</p>
           </div>
           <div className="flex bg-white p-1.5 rounded-2xl border border-slate-100 shadow-pd-soft self-start">
              {['All', 'Leads', 'Bookings', 'System'].map(t => (
@@ -54,10 +54,10 @@ const SystemHistory = ({ pastActivities }: SystemHistoryProps) => {
                       <div className="flex-1 pb-10 border-b border-slate-50 last:border-0">
                          <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-pd-pink transition-colors">{activity.type}</span>
-                            <span className="text-[10px] font-bold text-slate-300 italic">{activity.time}</span>
+                            <span className="text-[10px] font-bold text-slate-300 ">{activity.time}</span>
                          </div>
-                         <h3 className="text-lg font-black italic tracking-tight text-slate-900 mb-1 leading-none">{activity.title}</h3>
-                         <p className="text-[11px] font-medium text-slate-400 italic">Activity ID: #{activity.id*1234} • Successfully recorded in system</p>
+                         <h3 className="text-lg font-black  tracking-tight text-slate-900 mb-1 leading-none">{activity.title}</h3>
+                         <p className="text-[11px] font-medium text-slate-400 ">Activity ID: #{activity.id*1234} • Successfully recorded in system</p>
                       </div>
                       <ChevronRight className="mt-4 text-slate-200 group-hover:text-slate-900 transition-colors cursor-pointer" size={20} />
                    </motion.div>
@@ -66,7 +66,7 @@ const SystemHistory = ({ pastActivities }: SystemHistoryProps) => {
           </div>
           
           <div className="bg-slate-50/50 p-8 text-center border-t border-slate-100">
-             <button className="text-[10px] font-black uppercase tracking-[0.3em] text-pd-pink hover:text-slate-900 transition-all italic">Archive History Log</button>
+             <button className="text-[10px] font-black uppercase tracking-[0.3em] text-pd-pink hover:text-slate-900 transition-all ">Archive History Log</button>
           </div>
        </div>
     </motion.div>

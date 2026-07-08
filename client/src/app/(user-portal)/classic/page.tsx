@@ -1209,7 +1209,7 @@ export default function Home() {
                       transition={{ duration: 0.3, ease: "easeInOut" }}
                     >
                       <div className="px-8 pb-7 border-t border-slate-50 pt-6">
-                        <p className="text-slate-500 font-medium leading-relaxed italic border-l-4 border-pd-red/20 pl-6">{faq.a}</p>
+                        <p className="text-slate-500 font-medium leading-relaxed  border-l-4 border-pd-red/20 pl-6">{faq.a}</p>
                       </div>
                     </motion.div>
                   )}

@@ -577,7 +577,7 @@ export default function VenueLeadsCheckPage() {
                                            </span>
                                          ))}
                                       </div>
-                                      <p className="text-[10px] text-slate-400 mt-2 italic">
+                                      <p className="text-[10px] text-slate-400 mt-2 ">
                                          {lead.notes.split('|').slice(1).join('|').trim() || 'No additional notes'}
                                       </p>
                                    </div>

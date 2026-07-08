@@ -32,7 +32,7 @@ export default function ProcessPage() {
             className="text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight uppercase leading-[1.1] mb-6"
           >
             How we drive <br />
-            <span className="pd-gradient-text italic">Hyper-Growth.</span>
+            <span className="pd-gradient-text ">Hyper-Growth.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
@@ -148,7 +148,7 @@ export default function ProcessPage() {
           {/* Left Column - Content */}
           <div>
             <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-6">
-              Your <span className="pd-gradient-text italic">Digital HQ.</span>
+              Your <span className="pd-gradient-text ">Digital HQ.</span>
             </h2>
             <p className="text-lg text-slate-500 font-medium leading-relaxed mb-12 max-w-xl">
               Unlike generic listing sites, each PartyDial partner gets a dedicated professional microsite.
@@ -217,7 +217,7 @@ export default function ProcessPage() {
             </motion.div>
             <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight uppercase leading-[1.1] mb-8">
               Superior <br className="md:hidden" />
-              <span className="pd-gradient-text italic">Acquisition.</span>
+              <span className="pd-gradient-text ">Acquisition.</span>
             </h2>
             <p className="text-slate-400 font-medium max-w-2xl mx-auto text-base md:text-lg">
               We don't just list venues. We engineer a high-velocity acquisition pipeline that standard platforms can't match.
@@ -327,14 +327,14 @@ export default function ProcessPage() {
       <section className="py-24 md:py-32 px-6 text-center">
         <div className="max-w-[1440px] mx-auto lg:px-12">
           <h3 className="text-3xl md:text-5xl lg:text-6xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-12">
-            Ready to <span className="pd-gradient-text italic">Scale?</span>
+            Ready to <span className="pd-gradient-text ">Scale?</span>
           </h3>
           <div className="flex flex-wrap gap-8 justify-center items-center">
             <Link href="/signup">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-12 py-5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] italic shadow-2xl"
+                className="px-12 py-5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em]  shadow-2xl"
               >
                 Sign Up Now
               </motion.button>

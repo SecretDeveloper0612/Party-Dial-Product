@@ -572,7 +572,7 @@ export default function LeadDistributionPage() {
                              {log.employeeName || log.venueId || 'Internal Staff'}
                            </div>
                            <ChevronRight size={12} className="text-slate-300" />
-                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">BDE Assigned</span>
+                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ">BDE Assigned</span>
                         </div>
                         <p className="text-[9px] text-slate-400 mt-1 uppercase font-bold tracking-tighter flex items-center gap-1">
                           <MapPin size={10} /> AREA: {log.pincode}

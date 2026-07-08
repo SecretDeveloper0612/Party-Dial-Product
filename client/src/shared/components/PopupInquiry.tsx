@@ -83,7 +83,7 @@ const PopupHeader = memo(({ onClose, step, onBack }: { onClose: () => void, step
       </div>
 
       <div className="flex-1 overflow-hidden">
-        <h3 className="text-white font-black text-lg lg:text-xl leading-none uppercase italic tracking-tight truncate">
+        <h3 className="text-white font-black text-lg lg:text-xl leading-none uppercase  tracking-tight truncate">
           {step === 'signup' ? 'Create Account' : step === 'login' ? 'Welcome Back' : step === 'otp' ? 'Verify Mobile' : 'Get Free Quotes'}
         </h3>
         <div className="flex items-center gap-2 mt-1.5">
@@ -473,7 +473,7 @@ const InquiryForm = memo(({
         <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 ring-8 ring-emerald-50">
           <CheckCircle2 size={40} />
         </div>
-        <h4 className="text-2xl font-bold text-slate-900 mb-2 uppercase italic tracking-tighter">Perfect!</h4>
+        <h4 className="text-2xl font-bold text-slate-900 mb-2 uppercase  tracking-tighter">Perfect!</h4>
         <p className="text-slate-500 text-xs font-medium">Sit back and relax. Our venue hosts are calculating your best quotes right now.</p>
       </motion.div>
     );
@@ -482,7 +482,7 @@ const InquiryForm = memo(({
   return (
     <>
       <div className="mb-8">
-        <p className="text-slate-400 text-xs font-bold leading-relaxed italic border-l-4 border-pd-red/30 pl-4">
+        <p className="text-slate-400 text-xs font-bold leading-relaxed  border-l-4 border-pd-red/30 pl-4">
           Tell us your event details and get the best direct pricing from top-rated venues near you.
         </p>
       </div>

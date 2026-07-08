@@ -608,7 +608,7 @@ function CheckoutContent() {
                           <div className="flex items-start gap-3">
                              <MapPin size={14} className="text-slate-300 mt-0.5" />
                              <div className="space-y-1">
-                                <p className="text-[10px] font-bold text-slate-600 leading-relaxed italic">{billingData.address || "No address provided"}</p>
+                                <p className="text-[10px] font-bold text-slate-600 leading-relaxed ">{billingData.address || "No address provided"}</p>
                                 <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">{billingData.city}, {billingData.state} - {billingData.pincode}</p>
                              </div>
                           </div>
@@ -666,7 +666,7 @@ function CheckoutContent() {
                     {/* Breakdown */}
                     <div className="space-y-3 pt-6 border-t border-slate-50">
                        <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-                          <span>Subtotal <span className="text-[8px] lowercase italic ml-1">(Include GST)</span></span>
+                          <span>Subtotal <span className="text-[8px] lowercase  ml-1">(Include GST)</span></span>
                           <span>₹{(totals.base + (totals.totalAddonPrice || 0)).toFixed(2)}</span>
                        </div>
                        {totals.manualDiscount > 0 && (

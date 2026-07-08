@@ -68,7 +68,7 @@ export default function LoginPage() {
         <div className="relative z-10 w-full p-16 flex flex-col justify-between text-white">
           <Link href="/" className="flex items-center gap-2 group text-white/80 hover:text-white transition-colors">
             <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xs font-black uppercase tracking-widest italic">Partydial</span>
+            <span className="text-xs font-black uppercase tracking-widest ">Partydial</span>
           </Link>
 
           <div>
@@ -79,7 +79,7 @@ export default function LoginPage() {
                className="text-6xl font-black mb-8 leading-[1.1]"
              >
                Welcome Back – <br/>
-               <span className="text-pd-pink italic">Find the Perfect</span><br/>
+               <span className="text-pd-pink ">Find the Perfect</span><br/>
                Venue for Your Event.
              </motion.h1>
              
@@ -102,7 +102,7 @@ export default function LoginPage() {
       {/* RIGHT SIDE: LOGIN FORM */}
       <div className="flex-1 flex flex-col justify-center px-6 md:px-12 lg:px-24 py-12 relative">
         <div className="lg:hidden absolute top-8 left-8">
-           <Link href="/" className="text-pd-red font-black text-xl italic italic">PartyDial</Link>
+           <Link href="/" className="text-pd-red font-black text-xl  ">PartyDial</Link>
         </div>
 
         <motion.div 
@@ -127,7 +127,7 @@ export default function LoginPage() {
           <div className="relative mb-8">
              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
              <div className="relative flex justify-center text-xs uppercase font-black text-slate-300 tracking-[0.2em]">
-                <span className="bg-white px-4 italic">Or use email instead</span>
+                <span className="bg-white px-4 ">Or use email instead</span>
              </div>
           </div>
 

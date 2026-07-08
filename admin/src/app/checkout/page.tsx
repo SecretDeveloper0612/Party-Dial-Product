@@ -596,7 +596,7 @@ function CheckoutContent() {
                          <div className="flex items-start gap-3">
                             <MapPin size={14} className="text-slate-300 mt-0.5" />
                             <div className="space-y-1">
-                               <p className="text-[10px] font-bold text-slate-600 leading-relaxed italic">{billingData.address}</p>
+                               <p className="text-[10px] font-bold text-slate-600 leading-relaxed ">{billingData.address}</p>
                                <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">{billingData.city}, {billingData.state} - {billingData.pincode}</p>
                             </div>
                          </div>
@@ -636,7 +636,7 @@ function CheckoutContent() {
                     {/* Breakdown */}
                     <div className="space-y-4 pt-6 border-t-2 border-dashed border-slate-100">
                        <div className="flex items-center justify-between text-xs font-black text-slate-400 uppercase tracking-widest">
-                          <span>Subtotal <span className="text-[8px] lowercase italic ml-1">(Include GST)</span></span>
+                          <span>Subtotal <span className="text-[8px] lowercase  ml-1">(Include GST)</span></span>
                           <span className="text-slate-600">₹{totals.base.toLocaleString()}</span>
                        </div>
                        {totals.discount > 0 && (
@@ -648,7 +648,7 @@ function CheckoutContent() {
 
                        <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                           <span className="text-base font-black text-slate-800 uppercase tracking-tight">Total Investment</span>
-                          <span className="text-3xl font-black text-[#b66dff] italic">₹{totals.total.toFixed(2)}</span>
+                          <span className="text-3xl font-black text-[#b66dff] ">₹{totals.total.toFixed(2)}</span>
                        </div>
                     </div>
 

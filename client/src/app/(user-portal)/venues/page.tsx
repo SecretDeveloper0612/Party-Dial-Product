@@ -628,7 +628,7 @@ function VenuesContent() {
                 </div>
 
                 {/* Capacity Slider */}
-                <div className="space-y-4 italic">
+                <div className="space-y-4 ">
                    <div className="flex justify-between items-center">
                       <label className="text-xs font-semibold text-slate-400 ">Min. Capacity</label>
                       <span className="text-xs font-medium text-pd-purple">{selectedCapacity}+ Guests</span>
@@ -927,7 +927,7 @@ function VenuesContent() {
            className="bg-slate-900 text-white px-6 py-4 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-3 active:scale-95 transition-all border border-white/10"
          >
             <Filter size={20} />
-            <span className="text-xs font-medium italic">Filters</span>
+            <span className="text-xs font-medium ">Filters</span>
             {/* Show filter count if active */}
             {(selectedCities.length > 0 || selectedEvent || selectedCapacity > 0) && (
               <span className="bg-pd-red w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
@@ -954,7 +954,7 @@ function VenuesContent() {
             >
                <div className="p-6 md:p-10 flex flex-col h-full overflow-hidden">
                   <div className="flex items-center justify-between mb-6 shrink-0">
-                     <h3 className="text-xl font-medium text-slate-900 italic tracking-tight">Refine Results</h3>
+                     <h3 className="text-xl font-medium text-slate-900  tracking-tight">Refine Results</h3>
                      <button onClick={() => setShowMobileFilters(false)} className="p-2.5 bg-slate-100 rounded-full transition-transform active:scale-90"><X size={18} /></button>
                   </div>
                   
@@ -1097,7 +1097,7 @@ function VenuesContent() {
 
                      <div className="space-y-4">
                         <label className="text-xs font-semibold text-slate-400">Guest Capacity</label>
-                        <div className="italic">
+                        <div className="">
                            <div className="flex justify-between items-center mb-4">
                               <span className="text-xs font-semibold text-pd-purple">{selectedCapacity}+ Guests</span>
                               <span className="text-xs font-medium text-slate-300">Max: 10,000</span>
@@ -1176,7 +1176,7 @@ function VenuesContent() {
 
                   <div className="pt-8 border-t border-slate-100 grid grid-cols-2 gap-4 shrink-0">
                      <button onClick={clearFilters} className="py-5 bg-slate-50 rounded-3xl text-xs font-semibold text-slate-400">Reset</button>
-                     <button onClick={() => setShowMobileFilters(false)} className="pd-btn-primary py-5 text-xs font-semibold italic">Show Results</button>
+                     <button onClick={() => setShowMobileFilters(false)} className="pd-btn-primary py-5 text-xs font-semibold ">Show Results</button>
                   </div>
                </div>
             </motion.div>

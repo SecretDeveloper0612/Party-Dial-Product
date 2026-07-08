@@ -225,7 +225,7 @@ export default function FreeListingLanding() {
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
                 <span className="inline-block px-4 py-1.5 rounded-full bg-pd-red/10 text-pd-red text-[10px] font-black uppercase tracking-[0.2em] mb-6">Venue Partner Program</span>
                 <h1 className="text-4xl md:text-6xl font-black text-slate-900 leading-tight mb-6">
-                  List Your <span className="text-pd-red italic">Banquet Hall</span> & Venue for Free
+                  List Your <span className="text-pd-red ">Banquet Hall</span> & Venue for Free
                 </h1>
                 <p className="text-lg text-slate-500 mb-10 leading-relaxed font-medium max-w-lg mx-auto lg:mx-0">
                   Grow your business by reaching thousands of customers searching for wedding venues and party halls on PartyDial every single day.
@@ -233,7 +233,7 @@ export default function FreeListingLanding() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                   <button 
                     onClick={scrollToForm}
-                    className="bg-slate-900 text-white h-16 px-10 rounded-2xl text-[11px] uppercase tracking-[0.2em] italic font-black shadow-2xl flex items-center justify-center gap-4 hover:bg-pd-pink transition-all"
+                    className="bg-slate-900 text-white h-16 px-10 rounded-2xl text-[11px] uppercase tracking-[0.2em]  font-black shadow-2xl flex items-center justify-center gap-4 hover:bg-pd-pink transition-all"
                   >
                     Start Free Listing <ArrowRight size={20} />
                   </button>
@@ -270,10 +270,10 @@ export default function FreeListingLanding() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-8 uppercase italic leading-tight">
+              <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-8 uppercase  leading-tight">
                 Why List Your <span className="text-pd-red">Venue Business</span> on PartyDial?
               </h2>
-              <div className="space-y-6 text-slate-600 font-medium italic leading-relaxed">
+              <div className="space-y-6 text-slate-600 font-medium  leading-relaxed">
                 <p>
                   In today's digital age, presence is everything. Thousands of people in your city are searching for <b>"wedding venues near me"</b> or <b>"best banquet halls"</b> right now. If your venue isn't online, you're losing significant business to competitors.
                 </p>
@@ -288,19 +288,19 @@ export default function FreeListingLanding() {
             <div className="bg-slate-50 p-8 md:p-12 rounded-[40px] border border-slate-100">
                <div className="grid grid-cols-2 gap-8">
                   <div>
-                    <div className="text-4xl font-black text-pd-red mb-2 italic">100%</div>
+                    <div className="text-4xl font-black text-pd-red mb-2 ">100%</div>
                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Free Registration</div>
                   </div>
                   <div>
-                    <div className="text-4xl font-black text-pd-blue mb-2 italic">50k+</div>
+                    <div className="text-4xl font-black text-pd-blue mb-2 ">50k+</div>
                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Monthly Visitors</div>
                   </div>
                   <div>
-                    <div className="text-4xl font-black text-pd-pink mb-2 italic">1k+</div>
+                    <div className="text-4xl font-black text-pd-pink mb-2 ">1k+</div>
                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Active Partners</div>
                   </div>
                   <div>
-                    <div className="text-4xl font-black text-emerald-500 mb-2 italic">24/7</div>
+                    <div className="text-4xl font-black text-emerald-500 mb-2 ">24/7</div>
                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Support Access</div>
                   </div>
                </div>
@@ -313,10 +313,10 @@ export default function FreeListingLanding() {
       <section className="py-24 px-6 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 italic uppercase tracking-tighter">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6  uppercase tracking-tighter">
               The Power of <span className="text-pd-red">Free Listing</span>
             </h2>
-            <p className="text-slate-500 font-medium italic mb-8 max-w-2xl mx-auto">Discover how listing your banquet hall or party space for free can transform your lead generation process.</p>
+            <p className="text-slate-500 font-medium  mb-8 max-w-2xl mx-auto">Discover how listing your banquet hall or party space for free can transform your lead generation process.</p>
             <div className="w-20 h-1.5 bg-pd-red mx-auto rounded-full"></div>
           </div>
 
@@ -334,7 +334,7 @@ export default function FreeListingLanding() {
                       {React.cloneElement(benefit.icon as React.ReactElement<any>, { size: 28 })}
                    </div>
                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 mb-4">{benefit.title}</h3>
-                   <p className="text-xs text-slate-500 leading-relaxed font-medium italic">{benefit.desc}</p>
+                   <p className="text-xs text-slate-500 leading-relaxed font-medium ">{benefit.desc}</p>
                 </motion.div>
              ))}
           </div>
@@ -346,10 +346,10 @@ export default function FreeListingLanding() {
          <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row items-center gap-16">
                <div className="md:w-1/2">
-                  <h2 className="text-4xl font-black text-slate-900 mb-8 uppercase italic leading-none">
+                  <h2 className="text-4xl font-black text-slate-900 mb-8 uppercase  leading-none">
                      Everything You Need <br /> To <span className="text-pd-pink">Grow Online</span>
                   </h2>
-                  <p className="text-slate-500 font-medium italic mb-12 leading-relaxed">
+                  <p className="text-slate-500 font-medium  mb-12 leading-relaxed">
                      Our venue registration platform is built to provide maximum value from day one. List your property, add your details, and let our SEO-friendly profiles do the work for you.
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -393,7 +393,7 @@ export default function FreeListingLanding() {
         </div>
         <div className="max-w-7xl mx-auto relative z-10">
            <div className="text-center mb-20 px-4">
-              <h2 className="text-3xl md:text-5xl font-black mb-6 uppercase italic tracking-tighter">Real Success Stories from <span className="text-pd-pink">Our Partners</span></h2>
+              <h2 className="text-3xl md:text-5xl font-black mb-6 uppercase  tracking-tighter">Real Success Stories from <span className="text-pd-pink">Our Partners</span></h2>
               <p className="text-slate-400 uppercase tracking-widest font-bold text-xs">Join thousands of venues already benefiting from PartyDial</p>
            </div>
            
@@ -403,13 +403,13 @@ export default function FreeListingLanding() {
                     <div className="flex items-center gap-2 mb-6">
                        {[...Array(t.rating)].map((_, j) => <Star key={j} size={14} className="fill-pd-pink text-pd-pink" />)}
                     </div>
-                    <p className="text-lg font-medium italic text-slate-300 leading-relaxed mb-10 group-hover:text-white">"{t.text}"</p>
+                    <p className="text-lg font-medium  text-slate-300 leading-relaxed mb-10 group-hover:text-white">"{t.text}"</p>
                     <div className="flex items-center gap-4">
-                       <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center font-black italic text-pd-pink uppercase">
+                       <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center font-black  text-pd-pink uppercase">
                           {t.name.charAt(0)}
                        </div>
                        <div>
-                          <h4 className="font-black italic text-sm">{t.name}</h4>
+                          <h4 className="font-black  text-sm">{t.name}</h4>
                           <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{t.venue}</p>
                        </div>
                     </div>
@@ -424,10 +424,10 @@ export default function FreeListingLanding() {
          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
             <div className="lg:w-1/2">
                <span className="text-pd-red text-[10px] font-black uppercase tracking-[0.3em] mb-4 block">Our Story</span>
-               <h2 className="text-3xl md:text-5xl font-black text-slate-900 uppercase italic tracking-tighter leading-none mb-8">
+               <h2 className="text-3xl md:text-5xl font-black text-slate-900 uppercase  tracking-tighter leading-none mb-8">
                   Redefining <span className="text-pd-red">Event Planning</span> Together
                </h2>
-               <p className="text-slate-500 font-medium italic leading-relaxed mb-8">
+               <p className="text-slate-500 font-medium  leading-relaxed mb-8">
                   PartyDial was founded with a single mission: to bridge the gap between stunning venues and the hosts looking for them. We believe every celebration deserves the perfect backdrop, and every venue owner deserves a platform to shine.
                </p>
                <div className="space-y-4">
@@ -437,7 +437,7 @@ export default function FreeListingLanding() {
                      "Direct connection with high-intent hosts",
                      "Transparent, data-driven lead management"
                   ].map((item, i) => (
-                     <div key={i} className="flex items-center gap-3 text-sm font-bold text-slate-700 italic">
+                     <div key={i} className="flex items-center gap-3 text-sm font-bold text-slate-700 ">
                         <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
                            <CheckCircle2 size={12} />
                         </div>
@@ -460,7 +460,7 @@ export default function FreeListingLanding() {
                         <TrendingUp size={24} />
                      </div>
                      <div>
-                        <div className="text-xl font-black text-slate-900 italic leading-none">25k+</div>
+                        <div className="text-xl font-black text-slate-900  leading-none">25k+</div>
                         <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mt-1">Leads Generated</div>
                      </div>
                   </div>
@@ -474,10 +474,10 @@ export default function FreeListingLanding() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <span className="text-pd-red text-[10px] font-black uppercase tracking-[0.3em] mb-4 block">Information Center</span>
-            <h2 className="text-3xl md:text-4xl font-black text-slate-900 uppercase italic tracking-tighter leading-none mb-4">
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 uppercase  tracking-tighter leading-none mb-4">
               Frequently Asked <span className="text-pd-red">Questions</span>
             </h2>
-            <p className="text-slate-500 font-medium italic">Everything you need to know about listing your venue for free on our platform.</p>
+            <p className="text-slate-500 font-medium ">Everything you need to know about listing your venue for free on our platform.</p>
           </div>
 
           <div className="space-y-4">
@@ -490,7 +490,7 @@ export default function FreeListingLanding() {
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
                   className="w-full px-8 py-6 flex items-center justify-between text-left gap-4"
                 >
-                  <span className="text-sm md:text-base font-black italic text-slate-900">{faq.q}</span>
+                  <span className="text-sm md:text-base font-black  text-slate-900">{faq.q}</span>
                   <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all ${openFaq === index ? 'bg-pd-red text-white rotate-45' : 'bg-slate-100 text-slate-400'}`}>
                     <Plus size={18} />
                   </div>
@@ -503,7 +503,7 @@ export default function FreeListingLanding() {
                       exit={{ height: 0, opacity: 0 }}
                       className="px-8 pb-6"
                     >
-                      <p className="text-sm text-slate-500 font-medium italic leading-relaxed border-t border-slate-200 pt-4">
+                      <p className="text-sm text-slate-500 font-medium  leading-relaxed border-t border-slate-200 pt-4">
                         {faq.a}
                       </p>
                     </motion.div>
@@ -519,11 +519,11 @@ export default function FreeListingLanding() {
                    <HelpCircle size={32} />
                 </div>
                 <div>
-                   <h4 className="text-sm font-black italic text-slate-900">Still have questions?</h4>
-                   <p className="text-[11px] text-slate-500 font-medium italic">Our venue experts are here to help you get started.</p>
+                   <h4 className="text-sm font-black  text-slate-900">Still have questions?</h4>
+                   <p className="text-[11px] text-slate-500 font-medium ">Our venue experts are here to help you get started.</p>
                 </div>
              </div>
-             <Link href="/contact" className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest italic hover:bg-pd-blue transition-colors">
+             <Link href="/contact" className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest  hover:bg-pd-blue transition-colors">
                 Contact Support
              </Link>
           </div>
@@ -537,8 +537,8 @@ export default function FreeListingLanding() {
                <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink/10 blur-3xl -translate-y-1/2 translate-x-1/2 rounded-full"></div>
                
                <div className="text-center mb-12">
-                  <h2 className="text-3xl font-black text-slate-900 mb-4 uppercase italic">Create <span className="text-pd-red">Free Listing</span></h2>
-                  <p className="text-xs text-slate-400 font-black uppercase tracking-widest italic leading-relaxed">Join India's premiere venue booking network today.</p>
+                  <h2 className="text-3xl font-black text-slate-900 mb-4 uppercase ">Create <span className="text-pd-red">Free Listing</span></h2>
+                  <p className="text-xs text-slate-400 font-black uppercase tracking-widest  leading-relaxed">Join India's premiere venue booking network today.</p>
                </div>
 
                {success ? (
@@ -546,8 +546,8 @@ export default function FreeListingLanding() {
                      <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 mx-auto mb-8 animate-bounce">
                         <CheckCircle2 size={48} />
                      </div>
-                     <h3 className="text-2xl font-black text-slate-900 mb-4 italic">Registration Successful!</h3>
-                     <p className="text-slate-500 font-medium italic max-w-md mx-auto leading-relaxed">
+                     <h3 className="text-2xl font-black text-slate-900 mb-4 ">Registration Successful!</h3>
+                     <p className="text-slate-500 font-medium  max-w-md mx-auto leading-relaxed">
                         Your free venue account has been created. <br /> Check your email (<b>{formData.email}</b>) for your login credentials.
                      </p>
                      <p className="mt-8 text-pd-red text-[10px] font-black uppercase tracking-widest animate-pulse">Redirecting to login...</p>
@@ -555,7 +555,7 @@ export default function FreeListingLanding() {
                ) : (
                   <form onSubmit={handleSubmit} className="space-y-10">
                      {errors.general && (
-                        <div className="p-4 bg-red-50 text-red-500 text-xs font-black uppercase tracking-widest italic rounded-2xl border border-red-100 flex items-center gap-3">
+                        <div className="p-4 bg-red-50 text-red-500 text-xs font-black uppercase tracking-widest  rounded-2xl border border-red-100 flex items-center gap-3">
                            <X size={16} /> {errors.general}
                         </div>
                      )}
@@ -711,13 +711,13 @@ export default function FreeListingLanding() {
                               </label>
                            )}
                         </div>
-                        {errors.photos && <p className="mt-3 text-[10px] text-red-500 font-bold uppercase tracking-widest italic">{errors.photos}</p>}
+                        {errors.photos && <p className="mt-3 text-[10px] text-red-500 font-bold uppercase tracking-widest ">{errors.photos}</p>}
                      </div>
 
                      <button 
                         type="submit" 
                         disabled={isSubmitting}
-                        className="w-full h-16 bg-slate-900 text-white !rounded-[30px] flex items-center justify-center gap-4 text-[11px] uppercase tracking-[0.2em] font-black italic shadow-2xl active:scale-[0.98] transition-transform hover:bg-pd-pink"
+                        className="w-full h-16 bg-slate-900 text-white !rounded-[30px] flex items-center justify-center gap-4 text-[11px] uppercase tracking-[0.2em] font-black  shadow-2xl active:scale-[0.98] transition-transform hover:bg-pd-pink"
                      >
                         {isSubmitting ? (
                           <div className="flex items-center gap-3">

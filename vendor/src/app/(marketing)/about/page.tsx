@@ -25,10 +25,10 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-7xl font-black text-white italic uppercase leading-none mb-8"
+            className="text-4xl md:text-7xl font-black text-white  uppercase leading-none mb-8"
           >
             Building the future <br />
-            <span className="pd-gradient-text not-italic">of Venue Growth.</span>
+            <span className="pd-gradient-text not-">of Venue Growth.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
@@ -49,8 +49,8 @@ export default function AboutPage() {
       <section className="py-24 md:py-32 px-6">
         <div className="max-w-[1440px] mx-auto lg:px-12">
           <div className="text-center mb-20">
-            <h2 className="text-3xl md:text-5xl font-black text-[#0F172A] uppercase italic mb-4">
-              Our <span className="pd-gradient-text not-italic">DNA.</span>
+            <h2 className="text-3xl md:text-5xl font-black text-[#0F172A] uppercase  mb-4">
+              Our <span className="pd-gradient-text not-">DNA.</span>
             </h2>
             <p className="text-slate-500 font-medium">The principles that drive every lead we deliver.</p>
           </div>
@@ -82,7 +82,7 @@ export default function AboutPage() {
                 className="p-10 rounded-4xl bg-slate-50 border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
               >
                 <div className="mb-6">{value.icon}</div>
-                <h3 className="text-xl font-black text-[#0F172A] uppercase italic mb-4">{value.title}</h3>
+                <h3 className="text-xl font-black text-[#0F172A] uppercase  mb-4">{value.title}</h3>
                 <p className="text-slate-500 font-medium leading-relaxed">{value.desc}</p>
               </motion.div>
             ))}
@@ -95,8 +95,8 @@ export default function AboutPage() {
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12 lg:grid lg:grid-cols-2 gap-20 items-center relative z-10">
           <div>
             <span className="text-pd-pink text-[10px] font-black uppercase tracking-[0.4em] mb-8 block">Project North Star</span>
-            <h2 className="text-4xl md:text-6xl font-black text-white italic uppercase leading-tight mb-8">
-              Empowering <span className="pd-gradient-text not-italic">5,000+ Venues</span> <br />
+            <h2 className="text-4xl md:text-6xl font-black text-white  uppercase leading-tight mb-8">
+              Empowering <span className="pd-gradient-text not-">5,000+ Venues</span> <br />
               by 2027.
             </h2>
             <p className="text-lg text-slate-400 font-medium leading-relaxed mb-10">
@@ -105,11 +105,11 @@ export default function AboutPage() {
 
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <div className="text-3xl font-black text-white italic mb-1">500+</div>
+                <div className="text-3xl font-black text-white  mb-1">500+</div>
                 <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Active Partners</div>
               </div>
               <div>
-                <div className="text-3xl font-black text-white italic mb-1">150k+</div>
+                <div className="text-3xl font-black text-white  mb-1">150k+</div>
                 <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Monthly Queries</div>
               </div>
             </div>
@@ -122,7 +122,7 @@ export default function AboutPage() {
                 <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-8 mx-auto shadow-2xl">
                   <Target size={40} className="text-slate-900" />
                 </div>
-                <h4 className="text-white text-2xl font-black italic uppercase mb-2">Total Dominance.</h4>
+                <h4 className="text-white text-2xl font-black  uppercase mb-2">Total Dominance.</h4>
                 <p className="text-slate-500 font-bold uppercase tracking-widest text-[11px]">Active in 12 Major Cities</p>
               </div>
             </div>
@@ -135,8 +135,8 @@ export default function AboutPage() {
         <div className="max-w-[1440px] mx-auto lg:px-12 lg:grid lg:grid-cols-2 gap-20 items-center">
           <div>
             <span className="text-pd-red text-[10px] font-black uppercase tracking-[0.4em] mb-8 block">Corporate Foundation</span>
-            <h2 className="text-3xl md:text-5xl font-black text-[#0F172A] uppercase italic mb-8">
-              A <span className="pd-gradient-text not-italic">Preet Tech OPC Private Limited</span> Venture.
+            <h2 className="text-3xl md:text-5xl font-black text-[#0F172A] uppercase  mb-8">
+              A <span className="pd-gradient-text not-">Preet Tech OPC Private Limited</span> Venture.
             </h2>
             <p className="text-lg text-slate-600 font-medium leading-relaxed mb-10 text-justify">
               PartyDial is a flagship ecosystem developed and operated by <strong>Preet Tech OPC Private Limited </strong>.
@@ -154,7 +154,7 @@ export default function AboutPage() {
                     <Award size={14} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black uppercase italic text-slate-900 mb-1">{item.t}</h4>
+                    <h4 className="text-sm font-black uppercase  text-slate-900 mb-1">{item.t}</h4>
                     <p className="text-sm text-slate-500 font-medium">{item.d}</p>
                   </div>
                 </div>
@@ -167,8 +167,8 @@ export default function AboutPage() {
               {/* Visual Representation of Corporate Strength */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-pd-pink/10 transition-colors"></div>
               <div className="relative z-10">
-                <div className="text-white/20 text-6xl font-black uppercase italic mb-4 group-hover:text-pd-pink/20 transition-colors tracking-tighter">PREET TECH</div>
-                <h4 className="text-white text-3xl font-black italic uppercase leading-none mb-6">India's Lead <br />Gen Standard.</h4>
+                <div className="text-white/20 text-6xl font-black uppercase  mb-4 group-hover:text-pd-pink/20 transition-colors tracking-tighter">PREET TECH</div>
+                <h4 className="text-white text-3xl font-black  uppercase leading-none mb-6">India's Lead <br />Gen Standard.</h4>
                 <div className="flex items-center gap-4 text-slate-500">
                   <div className="px-3 py-1 bg-white/5 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10">ISO COMPLIANT</div>
                   <div className="px-3 py-1 bg-white/5 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10">EST 2026</div>
@@ -183,9 +183,9 @@ export default function AboutPage() {
       <section className="py-24 md:py-32 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <Users2 size={48} className="text-pd-pink mx-auto mb-8" />
-          <h2 className="text-3xl md:text-5xl font-black text-[#0F172A] uppercase italic mb-8">
+          <h2 className="text-3xl md:text-5xl font-black text-[#0F172A] uppercase  mb-8">
             A Team of <br />
-            <span className="pd-gradient-text not-italic">Market Disruptors.</span>
+            <span className="pd-gradient-text not-">Market Disruptors.</span>
           </h2>
           <p className="text-lg text-slate-500 font-medium leading-relaxed mb-12">
             Headquartered in the heart of Uttrakhand and reaching across India, our team comprises world-class designers, aggressive marketers, and expert engineers dedicated to your growth.

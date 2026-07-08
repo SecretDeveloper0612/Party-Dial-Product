@@ -274,7 +274,7 @@ export default function SubscriptionPage() {
             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-slate-200 group-hover:border-slate-900 transition-all">
               <ChevronLeft size={18} />
             </div>
-            <span className="text-sm font-bold italic">Back to Dashboard</span>
+            <span className="text-sm font-bold ">Back to Dashboard</span>
           </Link>
           <div className="flex items-center gap-4">
              <div className="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
@@ -287,12 +287,12 @@ export default function SubscriptionPage() {
         <header className="mb-16 text-center">
            {venueName && (
              <div className="mb-4 inline-block">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 block mb-2 italic">Official Partner</span>
-                <h2 className="text-4xl font-black text-slate-900 uppercase italic tracking-tighter bg-blue-50 px-8 py-4 rounded-2xl border border-blue-100/50 shadow-sm">{venueName}</h2>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 block mb-2 ">Official Partner</span>
+                <h2 className="text-4xl font-black text-slate-900 uppercase  tracking-tighter bg-blue-50 px-8 py-4 rounded-2xl border border-blue-100/50 shadow-sm">{venueName}</h2>
              </div>
            )}
-           <h1 className="text-4xl font-extrabold text-slate-900 uppercase italic mb-4 tracking-tighter">Activate Your <span className="pd-gradient-text uppercase">Storefront</span></h1>
-           <p className="text-slate-500 font-medium max-w-lg mx-auto leading-relaxed italic">
+           <h1 className="text-4xl font-extrabold text-slate-900 uppercase  mb-4 tracking-tighter">Activate Your <span className="pd-gradient-text uppercase">Storefront</span></h1>
+           <p className="text-slate-500 font-medium max-w-lg mx-auto leading-relaxed ">
              Get listed on India&apos;s fastest growing venue platform. Start receiving verified event leads for just ₹11.
            </p>
         </header>
@@ -317,15 +317,15 @@ export default function SubscriptionPage() {
 
                 <div className="mb-8">
                    <div className="flex flex-col mb-4">
-                      <h3 className="text-2xl font-[900] text-slate-900 leading-tight tracking-tight uppercase italic mb-1">{plan.name}</h3>
+                      <h3 className="text-2xl font-[900] text-slate-900 leading-tight tracking-tight uppercase  mb-1">{plan.name}</h3>
                       <span className="text-[11px] font-black uppercase tracking-[0.2em] text-pd-purple">{plan.packName}</span>
                    </div>
-                   <p className="text-xs font-medium leading-relaxed italic text-slate-500">{plan.desc}</p>
+                   <p className="text-xs font-medium leading-relaxed  text-slate-500">{plan.desc}</p>
                 </div>
 
                 <div className="mb-10">
                    <div className="flex items-baseline gap-2 mb-1">
-                      <span className="text-5xl font-black italic tracking-tighter text-slate-900">₹{plan.price}</span>
+                      <span className="text-5xl font-black  tracking-tighter text-slate-900">₹{plan.price}</span>
                       <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">/ Activation</span>
                    </div>
                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">
@@ -338,7 +338,7 @@ export default function SubscriptionPage() {
                     <Zap size={16} className="text-pd-pink fill-pd-pink" />
                     <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">Benefits Included</span>
                   </div>
-                  <p className="text-2xl font-black italic bg-linear-to-r from-red-500 to-purple-600 bg-clip-text text-transparent">
+                  <p className="text-2xl font-black  bg-linear-to-r from-red-500 to-purple-600 bg-clip-text text-transparent">
                      Unlimited Direct Leads
                   </p>
                 </div>
@@ -347,7 +347,7 @@ export default function SubscriptionPage() {
                    {(Array.isArray(plan.features) ? plan.features : []).map((feature: any, idx: number) => (
                      <li key={idx} className="flex items-center gap-3">
                         <CheckCircle2 size={20} className="text-emerald-500 shrink-0" />
-                        <span className="text-xs font-bold italic tracking-tight text-slate-600">{feature}</span>
+                        <span className="text-xs font-bold  tracking-tight text-slate-600">{feature}</span>
                      </li>
                    ))}
                 </ul>
@@ -359,7 +359,7 @@ export default function SubscriptionPage() {
                     if (currentPlan === plan.id) return;
                     setShowConfirmModal(true);
                   }}
-                  className={`w-full py-6 rounded-3xl text-sm font-black uppercase tracking-[0.2em] italic transition-all active:scale-95 flex items-center justify-center gap-3 ${
+                  className={`w-full py-6 rounded-3xl text-sm font-black uppercase tracking-[0.2em]  transition-all active:scale-95 flex items-center justify-center gap-3 ${
                     currentPlan === plan.id 
                       ? 'bg-emerald-500 text-white cursor-default shadow-emerald-200/50 shadow-lg' 
                       : 'bg-slate-900 text-white shadow-xl hover:bg-pd-pink group'
@@ -380,7 +380,7 @@ export default function SubscriptionPage() {
               ))}
               {plans.filter(p => p.isVisible !== false).length === 0 && (
                 <div className="col-span-full py-20 text-center bg-white rounded-[45px] border border-dashed border-slate-300">
-                  <p className="text-slate-400 font-bold italic">No active subscription plans available at the moment. Please check back later.</p>
+                  <p className="text-slate-400 font-bold ">No active subscription plans available at the moment. Please check back later.</p>
                 </div>
               )}
            </div>
@@ -413,24 +413,24 @@ export default function SubscriptionPage() {
                     <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 mb-6 border border-emerald-100 shadow-sm">
                       <ShieldCheck size={32} />
                     </div>
-                    <h2 className="text-3xl font-black text-slate-900 uppercase italic tracking-tighter mb-2">Secure Activation</h2>
-                    <p className="text-slate-500 font-medium italic">Finalize your {plans[0].name} activation.</p>
+                    <h2 className="text-3xl font-black text-slate-900 uppercase  tracking-tighter mb-2">Secure Activation</h2>
+                    <p className="text-slate-500 font-medium ">Finalize your {plans[0].name} activation.</p>
                   </header>
 
                   <div className="space-y-6 mb-10">
                     <div className="p-8 bg-slate-50 rounded-[35px] border border-slate-100">
                       <div className="flex justify-between items-center mb-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">One-Time Fee</span>
-                        <span className="text-xl font-black italic text-slate-900">₹11.00</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ">One-Time Fee</span>
+                        <span className="text-xl font-black  text-slate-900">₹11.00</span>
                       </div>
                       <div className="flex justify-between items-center text-slate-400 mb-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest italic">Gateway Processing</span>
-                        <span className="text-sm font-bold italic">FREE</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest ">Gateway Processing</span>
+                        <span className="text-sm font-bold ">FREE</span>
                       </div>
                       <div className="h-px bg-slate-200 mb-4" />
                       <div className="flex justify-between items-center">
-                        <span className="text-[11px] font-black uppercase tracking-widest text-slate-900 italic">Total Amount</span>
-                        <span className="text-3xl font-black italic text-pd-pink">₹11.00</span>
+                        <span className="text-[11px] font-black uppercase tracking-widest text-slate-900 ">Total Amount</span>
+                        <span className="text-3xl font-black  text-pd-pink">₹11.00</span>
                       </div>
                     </div>
 
@@ -451,7 +451,7 @@ export default function SubscriptionPage() {
                       handleActivate();
                     }}
                     disabled={isSaving}
-                    className="w-full h-16 bg-slate-900 text-white rounded-3xl text-xs font-black uppercase tracking-[0.2em] italic hover:bg-pd-pink transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 group"
+                    className="w-full h-16 bg-slate-900 text-white rounded-3xl text-xs font-black uppercase tracking-[0.2em]  hover:bg-pd-pink transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 group"
                   >
                     {isSaving ? (
                        <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -462,7 +462,7 @@ export default function SubscriptionPage() {
                       </>
                     )}
                   </button>
-                  <p className="text-center mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Encrypted Payment Processing</p>
+                  <p className="text-center mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest ">Encrypted Payment Processing</p>
                 </div>
               </motion.div>
             </div>

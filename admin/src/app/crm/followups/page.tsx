@@ -180,7 +180,7 @@ export default function CRMFollowUps() {
 
                  {/* Simulated Logic Indicator */}
                  <div className="mt-6 pt-6 border-t border-slate-50 flex items-center justify-between">
-                    <p className="text-[10px] font-bold text-slate-300 italic">Expected Outcome: Discovery Call regarding Platinum Subscription</p>
+                    <p className="text-[10px] font-bold text-slate-300 ">Expected Outcome: Discovery Call regarding Platinum Subscription</p>
                     <div className="flex -space-x-3">
                        {[1,2].map(u => (
                          <div key={u} className="w-8 h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400 shadow-sm"><User size={12} /></div>

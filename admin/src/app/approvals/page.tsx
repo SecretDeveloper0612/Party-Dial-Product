@@ -662,7 +662,7 @@ export default function ApprovalsQueue() {
 
       {/* Debug Info (Only in dev or for troubleshooting) */}
       <div className="mt-20 pt-8 border-t border-slate-100 flex items-center justify-between opacity-30 hover:opacity-100 transition-opacity">
-        <p className="text-[10px] font-medium text-slate-400 italic">
+        <p className="text-[10px] font-medium text-slate-400 ">
           Target API: <span className="font-bold text-[#b66dff]">{serverUrl}</span> | 
           Env Base: <span className="font-bold">{process.env.NEXT_PUBLIC_SERVER_URL || 'NONE (Using Fallback)'}</span>
         </p>

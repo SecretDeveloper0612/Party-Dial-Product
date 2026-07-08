@@ -1045,7 +1045,7 @@ export default function VendorDashboard() {
                      </div>
                      <div className="flex items-center gap-2 ml-1">
                         <div className="w-4 h-[1px] bg-pd-pink/50"></div>
-                        <span className="text-[10px] font-black uppercase text-pd-pink tracking-[0.5em] italic opacity-90">Partner</span>
+                        <span className="text-[10px] font-black uppercase text-pd-pink tracking-[0.5em]  opacity-90">Partner</span>
                      </div>
                   </div>
                </Link>
@@ -1174,7 +1174,7 @@ export default function VendorDashboard() {
 
             <button 
                onClick={handleLogout}
-               className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3 rounded-2xl text-sm font-bold italic text-red-500 hover:bg-red-50 transition-colors`}
+               className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3 rounded-2xl text-sm font-bold  text-red-500 hover:bg-red-50 transition-colors`}
                title={!sidebarOpen ? "Sign Out" : undefined}
             >
                <LogOut size={20} />
@@ -1231,10 +1231,10 @@ export default function VendorDashboard() {
                                 <span className="relative w-1.5 h-1.5 rounded-full bg-pd-pink"></span>
                              </div>
                              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                {expiryInfo.label} <span className="text-slate-800 italic">Validity</span>
+                                {expiryInfo.label} <span className="text-slate-800 ">Validity</span>
                              </span>
                           </div>
-                          <div className="bg-slate-100/80 px-2 py-0.5 rounded text-[10px] font-black text-slate-800 italic tracking-tighter">
+                          <div className="bg-slate-100/80 px-2 py-0.5 rounded text-[10px] font-black text-slate-800  tracking-tighter">
                              {expiryInfo.daysLeft > 0 ? `${expiryInfo.daysLeft} Days Left` : 'Expired'}
                           </div>
                        </div>
@@ -1394,7 +1394,7 @@ export default function VendorDashboard() {
                         </div>
                         <div className="flex flex-col">
                            <span className="text-[8px] font-black opacity-60 uppercase tracking-[0.2em] leading-none mb-1">Listing Status</span>
-                           <p className="text-[10px] font-black uppercase tracking-widest italic">{status.label}</p>
+                           <p className="text-[10px] font-black uppercase tracking-widest ">{status.label}</p>
                         </div>
                      </motion.div>
                    );
@@ -1432,8 +1432,8 @@ export default function VendorDashboard() {
                    <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mb-8 mx-auto shadow-inner">
                       <Zap size={45} className="fill-amber-500 animate-pulse" />
                    </div>
-                   <h3 className="text-3xl font-[900] text-slate-900 uppercase italic tracking-tighter mb-4">Direct Leads Restricted</h3>
-                   <p className="text-slate-500 font-medium italic max-w-md mx-auto mb-12 leading-relaxed">
+                   <h3 className="text-3xl font-[900] text-slate-900 uppercase  tracking-tighter mb-4">Direct Leads Restricted</h3>
+                   <p className="text-slate-500 font-medium  max-w-md mx-auto mb-12 leading-relaxed">
                       Your profile is currently on the <span className="text-slate-900 font-bold">Free Plan</span>. Purchase a subscription to unlock real-time inquiries, lead management tools, and customer contact details.
                    </p>
                    <div className="flex flex-col sm:flex-row gap-4 items-center">
@@ -1487,8 +1487,8 @@ export default function VendorDashboard() {
                    <div className="w-24 h-24 bg-pd-purple/5 rounded-full flex items-center justify-center text-pd-purple mb-8 mx-auto">
                       <Target size={45} className="animate-bounce" />
                    </div>
-                   <h3 className="text-3xl font-[900] text-slate-900 uppercase italic tracking-tighter mb-4">Pipeline Locked</h3>
-                   <p className="text-slate-500 font-medium italic max-w-md mx-auto mb-12 leading-relaxed">
+                   <h3 className="text-3xl font-[900] text-slate-900 uppercase  tracking-tighter mb-4">Pipeline Locked</h3>
+                   <p className="text-slate-500 font-medium  max-w-md mx-auto mb-12 leading-relaxed">
                       Managing your sales pipeline and booking flow requires an active subscription. Upgrade today to start converting inquiries into bookings.
                    </p>
                    <button 
@@ -1584,7 +1584,7 @@ export default function VendorDashboard() {
             )}
             <div className="flex flex-col">
                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] leading-none mb-1">System Message</span>
-               <p className="text-[12px] font-black uppercase tracking-tight italic">{toast.message}</p>
+               <p className="text-[12px] font-black uppercase tracking-tight ">{toast.message}</p>
             </div>
             <button onClick={() => setToast(null)} className="ml-4 p-1 hover:bg-white/10 rounded-lg transition-colors">
                <X size={14} className="text-white/40" />

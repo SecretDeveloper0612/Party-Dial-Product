@@ -81,7 +81,7 @@ export default function ForgotPasswordPage() {
                  <Lock size={32} className="text-pd-pink" />
               </div>
             </div>
-            <h2 className="text-3xl font-[900] text-slate-900 uppercase italic mb-2 tracking-tight">Recover Password</h2>
+            <h2 className="text-3xl font-[900] text-slate-900 uppercase  mb-2 tracking-tight">Recover Password</h2>
             <p className="text-sm text-slate-500 font-medium font-pd">
               {isSent 
                 ? "Check your email for the recovery link." 
@@ -117,7 +117,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm italic tracking-normal lowercase group shadow-lg shadow-pd-pink/10"
+                className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm  tracking-normal lowercase group shadow-lg shadow-pd-pink/10"
               >
                 {isSubmitting ? 'Sending Request...' : 'Send reset link'}
                 {!isSubmitting && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
@@ -134,7 +134,7 @@ export default function ForgotPasswordPage() {
               </div>
               
               <Link href="/login" className="block">
-                <button className="w-full h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center gap-3 text-sm italic font-bold tracking-normal lowercase hover:bg-slate-800 transition-all">
+                <button className="w-full h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center gap-3 text-sm  font-bold tracking-normal lowercase hover:bg-slate-800 transition-all">
                   Return to Login
                 </button>
               </Link>

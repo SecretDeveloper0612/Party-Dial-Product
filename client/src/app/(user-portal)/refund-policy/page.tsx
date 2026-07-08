@@ -11,7 +11,7 @@ export default function RefundPolicy() {
       <div className="space-y-8">
         <section>
           <h2 className="text-xl font-bold mb-4 text-red-600">1. No Refund Policy</h2>
-          <p className="mb-4 font-semibold italic">
+          <p className="mb-4 font-semibold ">
             In this SaaS, we do not have any return or refund policy.
           </p>
           <p>
@@ -56,7 +56,7 @@ export default function RefundPolicy() {
         </section>
 
         <div className="mt-12 p-8 bg-slate-50 rounded-xl border border-slate-200">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4 italic">Management Information:</h2>
+          <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4 ">Management Information:</h2>
           <p className="text-sm text-slate-700 leading-relaxed mb-4">
             This platform and all its financial operations are managed exclusively by <strong>Preet Tech OPC Private Limited</strong>, located at Preet Tech OPC Private Limited, near Krishna Hospital, Subhash Nagar, Haldwani, Uttarakhand 263139.
           </p>

@@ -106,7 +106,7 @@ const HelpCenter = () => {
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <motion.div {...fadeUp}>
             <span className="inline-block bg-white/5 text-pd-red text-[10px] md:text-xs font-black px-4 py-1.5 rounded-full mb-6 uppercase tracking-[0.2em] border border-white/5 shadow-2xl backdrop-blur-md">24/7 Support Desk</span>
-            <h1 className="text-4xl md:text-7xl font-black text-white leading-tight tracking-tighter mb-8 italic uppercase">
+            <h1 className="text-4xl md:text-7xl font-black text-white leading-tight tracking-tighter mb-8  uppercase">
               How can we help <br /> <span className="text-pd-red underline decoration-white/10 underline-offset-8">You today?</span>
             </h1>
             
@@ -118,15 +118,15 @@ const HelpCenter = () => {
                   <input 
                     type="text" 
                     placeholder="Search for articles, guides, or keywords..." 
-                    className="w-full bg-transparent px-4 py-4 md:py-5 font-bold text-slate-900 placeholder:text-slate-400 outline-none text-sm md:text-base italic"
+                    className="w-full bg-transparent px-4 py-4 md:py-5 font-bold text-slate-900 placeholder:text-slate-400 outline-none text-sm md:text-base "
                   />
-                  <button className="bg-slate-900 text-white px-6 md:px-10 py-3 md:py-4 rounded-[1rem] md:rounded-[1.5rem] font-black text-[10px] md:text-xs uppercase tracking-[0.2em] hover:bg-pd-red transition-all active:scale-95 shadow-lg italic leading-none whitespace-nowrap">Search</button>
+                  <button className="bg-slate-900 text-white px-6 md:px-10 py-3 md:py-4 rounded-[1rem] md:rounded-[1.5rem] font-black text-[10px] md:text-xs uppercase tracking-[0.2em] hover:bg-pd-red transition-all active:scale-95 shadow-lg  leading-none whitespace-nowrap">Search</button>
                </div>
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 mt-12">
                {['Booking Help', 'Verification', 'Partner Dashboard'].map((tag, i) => (
-                 <button key={i} className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-pd-red transition-colors italic border-b border-white/5 pb-1 hover:border-pd-red/20">{tag}</button>
+                 <button key={i} className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-pd-red transition-colors  border-b border-white/5 pb-1 hover:border-pd-red/20">{tag}</button>
                ))}
             </div>
           </motion.div>
@@ -136,8 +136,8 @@ const HelpCenter = () => {
       {/* 2. CATEGORIES GRID */}
       <section className="py-20 md:py-32 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-16 md:mb-24">
-            <h2 className="text-2xl md:text-4xl font-black text-slate-900 mb-4 italic uppercase tracking-tighter">Browse <span className="text-pd-purple">Categories.</span></h2>
-            <p className="text-slate-500 font-medium italic text-sm md:text-base">Quick access to specialized guides and support documentation.</p>
+            <h2 className="text-2xl md:text-4xl font-black text-slate-900 mb-4  uppercase tracking-tighter">Browse <span className="text-pd-purple">Categories.</span></h2>
+            <p className="text-slate-500 font-medium  text-sm md:text-base">Quick access to specialized guides and support documentation.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
@@ -154,10 +154,10 @@ const HelpCenter = () => {
                 <div className={`w-16 h-16 rounded-2xl bg-${cat.color}/10 flex items-center justify-center text-${cat.color} mb-8 border border-${cat.color}/10 group-hover:bg-${cat.color} group-hover:text-white transition-all transform group-hover:scale-110 duration-500 shadow-sm`}>
                    <cat.icon size={28} strokeWidth={2.5}/>
                 </div>
-                <h3 className="text-lg md:text-xl font-black text-slate-900 mb-4 italic uppercase tracking-tight">{cat.title}</h3>
-                <p className="text-xs md:text-sm text-slate-500 font-medium leading-relaxed italic mb-8 group-hover:text-slate-600 transition-colors">{cat.desc}</p>
+                <h3 className="text-lg md:text-xl font-black text-slate-900 mb-4  uppercase tracking-tight">{cat.title}</h3>
+                <p className="text-xs md:text-sm text-slate-500 font-medium leading-relaxed  mb-8 group-hover:text-slate-600 transition-colors">{cat.desc}</p>
                 <div className="h-[2px] w-8 bg-slate-100 group-hover:w-full group-hover:bg-pd-red transition-all duration-700 mb-8"></div>
-                <button className={`text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-${cat.color} flex items-center gap-2 transition-colors italic`}>
+                <button className={`text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-${cat.color} flex items-center gap-2 transition-colors `}>
                   Explore Guides <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
                 </button>
              </motion.div>
@@ -170,7 +170,7 @@ const HelpCenter = () => {
         <div className="max-w-4xl mx-auto">
            <div className="text-center mb-16">
               <span className="text-[10px] font-black text-pd-red uppercase tracking-widest mb-2 inline-block">Still Confused?</span>
-              <h2 className="text-2xl md:text-4xl font-black text-slate-900 mb-4 italic uppercase tracking-tighter font-pd">Popular <span className="text-pd-red">Questions.</span></h2>
+              <h2 className="text-2xl md:text-4xl font-black text-slate-900 mb-4  uppercase tracking-tighter font-pd">Popular <span className="text-pd-red">Questions.</span></h2>
            </div>
 
            <div className="space-y-4">
@@ -181,7 +181,7 @@ const HelpCenter = () => {
                   onClick={() => setActiveFaq(activeFaq === i ? null : i)}
                 >
                    <div className="p-6 md:p-8 flex items-center justify-between">
-                      <h3 className="text-sm md:text-lg font-bold text-slate-900 italic tracking-tight uppercase leading-tight">{faq.q}</h3>
+                      <h3 className="text-sm md:text-lg font-bold text-slate-900  tracking-tight uppercase leading-tight">{faq.q}</h3>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${activeFaq === i ? 'bg-pd-red text-white rotate-180' : 'bg-slate-50 text-slate-400'}`}>
                          <ChevronDown size={18} strokeWidth={3}/>
                       </div>
@@ -194,7 +194,7 @@ const HelpCenter = () => {
                           exit={{ height: 0, opacity: 0 }}
                           className="overflow-hidden"
                         >
-                           <div className="px-6 md:px-8 pb-8 pt-0 text-xs md:text-sm text-slate-500 font-medium leading-relaxed italic border-t border-slate-50 pt-6 mt-2 ml-2">
+                           <div className="px-6 md:px-8 pb-8 pt-0 text-xs md:text-sm text-slate-500 font-medium leading-relaxed  border-t border-slate-50 pt-6 mt-2 ml-2">
                              {faq.a}
                            </div>
                         </motion.div>
@@ -205,7 +205,7 @@ const HelpCenter = () => {
            </div>
 
            <div className="mt-16 text-center">
-              <button className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-pd-red border-b border-transparent hover:border-pd-red transition-all italic">View All Frequently Asked Questions</button>
+              <button className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-pd-red border-b border-transparent hover:border-pd-red transition-all ">View All Frequently Asked Questions</button>
            </div>
         </div>
       </section>
@@ -222,10 +222,10 @@ const HelpCenter = () => {
               >
                  <div>
                     <div className="w-20 h-20 rounded-3xl bg-pd-purple flex items-center justify-center text-white mb-10 shadow-xl group-hover:scale-110 transition-transform duration-500"><MessageCircle size={32} strokeWidth={2.5}/></div>
-                    <h2 className="text-2xl md:text-4xl font-black text-slate-900 mb-6 italic uppercase tracking-tighter">Instant <br /> <span className="text-pd-purple underline decoration-pd-purple/10 underline-offset-8">Live Chat.</span></h2>
-                    <p className="text-slate-500 font-medium italic mb-10 text-sm md:text-base leading-relaxed">Connect with our support experts in real-time for immediate answers to your queries.</p>
+                    <h2 className="text-2xl md:text-4xl font-black text-slate-900 mb-6  uppercase tracking-tighter">Instant <br /> <span className="text-pd-purple underline decoration-pd-purple/10 underline-offset-8">Live Chat.</span></h2>
+                    <p className="text-slate-500 font-medium  mb-10 text-sm md:text-base leading-relaxed">Connect with our support experts in real-time for immediate answers to your queries.</p>
                  </div>
-                 <button className="w-fit bg-slate-900 text-white px-10 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-pd-purple transition-all italic leading-none active:scale-95">Start Chatting Now</button>
+                 <button className="w-fit bg-slate-900 text-white px-10 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-pd-purple transition-all  leading-none active:scale-95">Start Chatting Now</button>
               </motion.div>
 
               {/* EMAIL SUPPORT */}
@@ -237,14 +237,14 @@ const HelpCenter = () => {
                  <div className="absolute top-0 right-0 w-64 h-64 bg-pd-red/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 opacity-30 pointer-events-none"></div>
                  <div className="relative z-10">
                     <div className="w-20 h-20 rounded-3xl bg-pd-red flex items-center justify-center text-white mb-10 shadow-xl group-hover:scale-110 transition-transform duration-500"><Mail size={32} strokeWidth={2.5}/></div>
-                    <h2 className="text-2xl md:text-4xl font-black text-white mb-6 italic uppercase tracking-tighter">Email <br /> <span className="text-pd-red underline decoration-white/10 underline-offset-8">Expert Support.</span></h2>
-                    <p className="text-white/50 font-medium italic mb-10 text-sm md:text-base leading-relaxed">Send us a detailed inquiry and our team will get back to you within 4 business hours.</p>
+                    <h2 className="text-2xl md:text-4xl font-black text-white mb-6  uppercase tracking-tighter">Email <br /> <span className="text-pd-red underline decoration-white/10 underline-offset-8">Expert Support.</span></h2>
+                    <p className="text-white/50 font-medium  mb-10 text-sm md:text-base leading-relaxed">Send us a detailed inquiry and our team will get back to you within 4 business hours.</p>
                  </div>
                  <div className="relative z-10 flex flex-col sm:flex-row gap-4 items-center">
                     <Link href="/contact" className="w-full sm:w-auto">
-                      <button className="w-full sm:w-auto bg-pd-red text-white px-10 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-white hover:text-pd-red transition-all italic leading-none active:scale-95">Send Ticket</button>
+                      <button className="w-full sm:w-auto bg-pd-red text-white px-10 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-white hover:text-pd-red transition-all  leading-none active:scale-95">Send Ticket</button>
                     </Link>
-                    <div className="flex items-center gap-2 text-white/40 italic text-[10px] font-black uppercase tracking-widest px-4">
+                    <div className="flex items-center gap-2 text-white/40  text-[10px] font-black uppercase tracking-widest px-4">
                        <Zap size={14} className="text-pd-red" /> 4h Response Time
                     </div>
                  </div>
@@ -261,16 +261,16 @@ const HelpCenter = () => {
               <div className="flex items-center gap-6">
                  <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-pd-blue transition-colors"><Phone size={24} strokeWidth={2.5}/></div>
                  <div>
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic leading-none mb-1">Corporate Hotline</h4>
-                    <p className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter italic">+91 98765 43210</p>
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest  leading-none mb-1">Corporate Hotline</h4>
+                    <p className="text-xl md:text-2xl font-black text-slate-900 tracking-tighter ">+91 98765 43210</p>
                  </div>
               </div>
               <div className="h-[20px] w-[1px] bg-slate-100 hidden md:block"></div>
               <div className="text-center md:text-left">
-                 <p className="text-xs font-bold text-slate-500 italic max-w-sm">Our phone lines are open from 9 AM to 8 PM (IST) Monday for urgent venue assistance.</p>
+                 <p className="text-xs font-bold text-slate-500  max-w-sm">Our phone lines are open from 9 AM to 8 PM (IST) Monday for urgent venue assistance.</p>
               </div>
               <Link href="/contact">
-                <button className="w-full md:w-auto px-8 py-3 bg-slate-50 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all italic">More Ways to Connect</button>
+                <button className="w-full md:w-auto px-8 py-3 bg-slate-50 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all ">More Ways to Connect</button>
               </Link>
            </motion.div>
         </div>
@@ -279,10 +279,10 @@ const HelpCenter = () => {
       {/* FOOTNOTE */}
       <section className="pb-16 pt-10 text-center border-t border-slate-100">
           <div className="w-16 h-1 bg-pd-red/10 rounded-full mx-auto mb-10"></div>
-          <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.6em] pointer-events-none mb-4 italic">PartyDial Support Ecosystem • Est. 2026</p>
+          <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.6em] pointer-events-none mb-4 ">PartyDial Support Ecosystem • Est. 2026</p>
           <div className="flex items-center justify-center gap-8">
              {['Forum', 'Community', 'Status'].map((item, i) => (
-               <button key={i} className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-pd-red transition-colors italic">{item}</button>
+               <button key={i} className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-pd-red transition-colors ">{item}</button>
              ))}
           </div>
       </section>

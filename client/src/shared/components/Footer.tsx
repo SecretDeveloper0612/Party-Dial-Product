@@ -133,7 +133,7 @@ export default function Footer() {
              <div className="p-8 bg-white/5 rounded-[40px] border border-white/10 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink/5 rounded-full blur-3xl"></div>
                 
-                <h4 className="text-sm font-black italic uppercase tracking-widest mb-4">Event Insights</h4>
+                <h4 className="text-sm font-black  uppercase tracking-widest mb-4">Event Insights</h4>
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-8 leading-relaxed">Join 1,000+ users receiving weekly event discovery tips and venue alerts.</p>
                 
                 <div className="relative">
@@ -158,7 +158,7 @@ export default function Footer() {
             <div className="hidden md:block w-[1px] h-4 bg-white/10"></div>
             <p className="text-[10px] font-black text-pd-pink uppercase tracking-[0.2em]">A Platform by Preet Tech OPC Private Limited</p>
             <div className="hidden md:block w-[1px] h-4 bg-white/10"></div>
-            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] italic">All billing and operations managed exclusively by Preet Tech OPC Private Limited</p>
+            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] ">All billing and operations managed exclusively by Preet Tech OPC Private Limited</p>
           </div>
           
         </div>

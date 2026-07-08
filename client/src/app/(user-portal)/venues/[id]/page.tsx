@@ -697,7 +697,7 @@ export default function VenueDetailPage() {
 
             {/* Amenities Grid */}
             <div>
-              <h2 className="text-2xl font-black text-slate-900 mb-8 border-l-4 border-pd-purple pl-5 uppercase tracking-widest italic">Key Amenities</h2>
+              <h2 className="text-2xl font-black text-slate-900 mb-8 border-l-4 border-pd-purple pl-5 uppercase tracking-widest ">Key Amenities</h2>
                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
                  {venue.amenities.map((amenity: any, i: number) => (
                    <div key={i} className="relative bg-white p-6 rounded-2xl border border-slate-100 flex flex-col items-center text-center gap-4 hover:border-pd-purple/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden">
@@ -715,7 +715,7 @@ export default function VenueDetailPage() {
 
             {/* Hall / Capacity Details */}
             <div className="bg-slate-900 rounded-2xl md:rounded-3xl p-6 md:p-10 text-white">
-               <h2 className="text-xl md:text-2xl font-black mb-6 md:mb-8 italic">Available Spaces</h2>
+               <h2 className="text-xl md:text-2xl font-black mb-6 md:mb-8 ">Available Spaces</h2>
                <div className="space-y-4 md:space-y-6">
                  {venue.halls.map((hall: any, i: number) => (
                    <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-6 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all">
@@ -740,7 +740,7 @@ export default function VenueDetailPage() {
             {/* Custom Packages Section */}
             {venue.packages && venue.packages.length > 0 && (
                <div>
-                  <h2 className="text-2xl font-black text-slate-900 mb-8 border-l-4 border-pd-pink pl-5 uppercase tracking-widest italic">Special Packages</h2>
+                  <h2 className="text-2xl font-black text-slate-900 mb-8 border-l-4 border-pd-pink pl-5 uppercase tracking-widest ">Special Packages</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                      {venue.packages.map((pkg: any, i: number) => (
                         <motion.div 
@@ -752,8 +752,8 @@ export default function VenueDetailPage() {
                            
                            <div className="relative z-10">
                               <div className="flex justify-between items-start mb-6">
-                                 <h4 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">{pkg.name}</h4>
-                                 <div className="flex items-center text-pd-pink font-black text-2xl italic leading-none drop-shadow-sm">
+                                 <h4 className="text-xl font-black text-slate-900 uppercase  tracking-tighter leading-none">{pkg.name}</h4>
+                                 <div className="flex items-center text-pd-pink font-black text-2xl  leading-none drop-shadow-sm">
                                     <span className="text-sm mr-0.5">₹</span>{pkg.price}
                                  </div>
                               </div>
@@ -853,7 +853,7 @@ export default function VenueDetailPage() {
                     <div className="flex items-center justify-center md:pl-4">
                        <button 
                          onClick={() => setIsReviewModalOpen(true)}
-                         className="px-8 py-4 bg-linear-to-r from-[#FF3B6B] to-[#9F50E1] text-white text-[10px] font-black uppercase tracking-[0.2em] italic rounded-[20px] shadow-xl shadow-pd-pink/30 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                         className="px-8 py-4 bg-linear-to-r from-[#FF3B6B] to-[#9F50E1] text-white text-[10px] font-black uppercase tracking-[0.2em]  rounded-[20px] shadow-xl shadow-pd-pink/30 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                        >
                          Write a Review
                        </button>
@@ -899,7 +899,7 @@ export default function VenueDetailPage() {
                                   ))}
                                </div>
                                
-                               <p className="text-sm md:text-base font-bold text-slate-700 leading-relaxed mb-6 italic">
+                               <p className="text-sm md:text-base font-bold text-slate-700 leading-relaxed mb-6 ">
                                  &quot;{sortedReviews[idx].comment}&quot;
                                </p>
   
@@ -908,7 +908,7 @@ export default function VenueDetailPage() {
                                      {(sortedReviews[idx].userName || 'A').charAt(0)}
                                   </div>
                                   <div>
-                                     <h5 className="font-black text-slate-900 text-[11px] uppercase italic leading-tight tracking-tight">{sortedReviews[idx].userName}</h5>
+                                     <h5 className="font-black text-slate-900 text-[11px] uppercase  leading-tight tracking-tight">{sortedReviews[idx].userName}</h5>
                                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{new Date(sortedReviews[idx].$createdAt).toLocaleDateString()}</p>
                                   </div>
                                </div>
@@ -924,7 +924,7 @@ export default function VenueDetailPage() {
                                      <CheckCircle2 size={12} className="text-pd-red" />
                                      <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white">Owner&apos;s Reply</span>
                                    </div>
-                                   <p className="text-[10px] md:text-xs text-slate-300 font-medium italic leading-relaxed relative z-10">
+                                   <p className="text-[10px] md:text-xs text-slate-300 font-medium  leading-relaxed relative z-10">
                                      &ldquo;{sortedReviews[idx].vendorReply}&rdquo;
                                    </p>
                                  </motion.div>
@@ -1141,7 +1141,7 @@ export default function VenueDetailPage() {
                  <button 
                     type="submit"
                     disabled={isSubmittingLead}
-                    className="w-full bg-linear-to-r from-pd-pink to-purple-500 hover:to-pd-pink text-white py-4 text-sm tracking-[0.2em] font-black uppercase italic rounded-2xl shadow-[0_10px_30px_rgba(255,59,107,0.3)] hover:shadow-[0_15px_40px_rgba(255,59,107,0.4)] flex items-center justify-center gap-3 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50"
+                    className="w-full bg-linear-to-r from-pd-pink to-purple-500 hover:to-pd-pink text-white py-4 text-sm tracking-[0.2em] font-black uppercase  rounded-2xl shadow-[0_10px_30px_rgba(255,59,107,0.3)] hover:shadow-[0_15px_40px_rgba(255,59,107,0.4)] flex items-center justify-center gap-3 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50"
                  >
                     {isSubmittingLead ? 'Sending...' : 'Get Best Rates'} <Send size={18} />
                  </button>
@@ -1183,10 +1183,10 @@ export default function VenueDetailPage() {
                        )}
                     </div>
                     <div className="p-6">
-                       <h4 className="text-xl font-black text-slate-900 mb-1 line-clamp-1 italic">{v.name}</h4>
+                       <h4 className="text-xl font-black text-slate-900 mb-1 line-clamp-1 ">{v.name}</h4>
                        <p className="text-xs font-bold text-slate-500 mb-4">{v.location}</p>
                        <div className="flex items-center justify-between">
-                          <span className="text-pd-pink font-black text-lg">₹{v.price} <span className="text-[10px] opacity-40 italic">/plate</span></span>
+                          <span className="text-pd-pink font-black text-lg">₹{v.price} <span className="text-[10px] opacity-40 ">/plate</span></span>
                           <div className="flex items-center gap-1 font-black text-xs text-slate-800">
                             <Star size={14} className="text-yellow-400 fill-yellow-400" /> {v.rating}
                           </div>
@@ -1221,7 +1221,7 @@ export default function VenueDetailPage() {
             >
               <div className="p-8 md:p-12">
                  <div className="flex items-center justify-between mb-8">
-                    <h3 className="text-2xl font-black text-slate-900 italic uppercase tracking-tight">Rate Your <span className="text-pd-red">Experience</span></h3>
+                    <h3 className="text-2xl font-black text-slate-900  uppercase tracking-tight">Rate Your <span className="text-pd-red">Experience</span></h3>
                     <button onClick={() => setIsReviewModalOpen(false)} className="p-3 bg-slate-50 hover:bg-slate-900 hover:text-white rounded-2xl transition-all shadow-sm"><X size={20} /></button>
                  </div>
 
@@ -1254,7 +1254,7 @@ export default function VenueDetailPage() {
 
                     <div className="text-center bg-slate-900 p-8 rounded-[40px] border border-white/10 shadow-2xl relative overflow-hidden">
                        <div className="absolute top-0 right-0 w-32 h-32 bg-pd-red/10 rounded-full blur-3xl -mr-10 -mt-10" />
-                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-4 relative z-10 italic">How was the venue?</p>
+                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-4 relative z-10 ">How was the venue?</p>
                        <div className="flex justify-center gap-4 relative z-10">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <button
@@ -1283,7 +1283,7 @@ export default function VenueDetailPage() {
                           rows={4} 
                           value={newReview.comment}
                           onChange={(e) => setNewReview({...newReview, comment: e.target.value})}
-                          className="w-full p-8 bg-slate-50 border border-slate-100 rounded-[40px] text-sm font-bold italic outline-none focus:border-pd-red transition-all shadow-pd-soft-inner"
+                          className="w-full p-8 bg-slate-50 border border-slate-100 rounded-[40px] text-sm font-bold  outline-none focus:border-pd-red transition-all shadow-pd-soft-inner"
                        ></textarea>
                     </div>
 
@@ -1291,14 +1291,14 @@ export default function VenueDetailPage() {
                        <button 
                          type="button"
                          onClick={() => setIsReviewModalOpen(false)}
-                         className="flex-1 py-5 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all italic"
+                         className="flex-1 py-5 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all "
                        >
                          Cancel
                        </button>
                        <button 
                           type="submit"
                           disabled={isSubmittingReview}
-                          className="flex-1 pd-btn-primary py-5 rounded-2xl uppercase text-[11px] font-black italic shadow-xl shadow-pd-pink/20 flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50"
+                          className="flex-1 pd-btn-primary py-5 rounded-2xl uppercase text-[11px] font-black  shadow-xl shadow-pd-pink/20 flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50"
                        >
                           {isSubmittingReview ? 'Syncing...' : 'Post Review'} <Send size={16} className="rotate-45" />
                        </button>
@@ -1324,7 +1324,7 @@ export default function VenueDetailPage() {
           {toast.type === 'success' ? <CheckCircle2 className="text-emerald-500" size={24} /> : <XCircle className="text-pd-red" size={24} />}
           <div className="flex flex-col">
              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 leading-none mb-1">Notification</span>
-             <p className="text-sm font-black uppercase tracking-tight italic">{toast.message}</p>
+             <p className="text-sm font-black uppercase tracking-tight ">{toast.message}</p>
           </div>
           <button onClick={() => setToast(null)} className="ml-4 p-2 hover:bg-white/10 rounded-full transition-all">
              <X size={16} className="text-white/40" />

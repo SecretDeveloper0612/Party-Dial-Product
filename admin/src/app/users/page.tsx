@@ -484,7 +484,7 @@ export default function UserRoleManagement() {
                             <div className="w-6 h-6 rounded-full bg-slate-100 text-[9px] font-black flex items-center justify-center text-slate-500">{manager.name.charAt(0)}</div>
                             <span className="text-[10px] font-black text-slate-500 uppercase">{manager.name}</span>
                           </div>
-                        ) : <span className="text-[10px] italic text-slate-300">Top Level</span>}
+                        ) : <span className="text-[10px]  text-slate-300">Top Level</span>}
                       </td>
 
                       {/* Territory */}
@@ -703,7 +703,7 @@ export default function UserRoleManagement() {
                   
                   <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
                     {allVenues.length === 0 ? (
-                       <p className="text-[10px] italic text-slate-400">No venues available to assign.</p>
+                       <p className="text-[10px]  text-slate-400">No venues available to assign.</p>
                     ) : (
                       allVenues.map(venue => {
                         const isAssigned = form.assignedVenues.includes(venue.$id);
@@ -741,7 +741,7 @@ export default function UserRoleManagement() {
                       })
                     )}
                   </div>
-                  <p className="text-[9px] text-slate-400 font-medium leading-relaxed italic">
+                  <p className="text-[9px] text-slate-400 font-medium leading-relaxed ">
                     Note: Assigned users can view and edit the complete profile of these venues even if they aren't the primary owner.
                   </p>
                 </div>

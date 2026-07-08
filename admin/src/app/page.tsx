@@ -538,7 +538,7 @@ export default function Dashboard() {
       <section className="purple-card p-10">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h3 className="text-lg font-bold text-[#343a40] m-0 italic">Revenue Intelligence Breakdown</h3>
+            <h3 className="text-lg font-bold text-[#343a40] m-0 ">Revenue Intelligence Breakdown</h3>
             <p className="text-xs text-slate-400 font-medium mt-1 uppercase tracking-tighter">Plan-Wise Live Distribution</p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1 bg-[#b66dff]/10 text-[#b66dff] rounded-full">

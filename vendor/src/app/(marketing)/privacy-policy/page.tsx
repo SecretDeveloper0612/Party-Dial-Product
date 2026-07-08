@@ -10,7 +10,7 @@ const SectionHeader = ({ title, icon: Icon, color }: { title: string; icon: any;
     <div className={`p-2 rounded-lg bg-${color}/10 text-${color}`}>
       <Icon size={20} />
     </div>
-    <h2 className="text-xl font-bold text-slate-900 uppercase tracking-tight italic">{title}</h2>
+    <h2 className="text-xl font-bold text-slate-900 uppercase tracking-tight ">{title}</h2>
   </div>
 );
 
@@ -37,10 +37,10 @@ const PrivacyPolicy = () => {
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <motion.div {...fadeUp} className="mb-6">
             <span className="inline-block bg-pd-blue/10 text-pd-blue text-[10px] md:text-xs font-black px-4 py-1.5 rounded-full mb-4 uppercase tracking-[0.2em] border border-pd-blue/10 shadow-sm text-black">Trust & Safety</span>
-            <h1 className="text-4xl md:text-6xl font-black text-slate-900 leading-tight tracking-tighter mb-4 italic uppercase">
+            <h1 className="text-4xl md:text-6xl font-black text-slate-900 leading-tight tracking-tighter mb-4  uppercase">
               Privacy <span className="text-pd-blue">Policy.</span>
             </h1>
-            <p className="text-slate-500 font-medium max-w-2xl mx-auto italic text-sm md:text-base leading-relaxed">
+            <p className="text-slate-500 font-medium max-w-2xl mx-auto  text-sm md:text-base leading-relaxed">
               At PartyDial, we are committed to protecting our Merchant Partners' data and ensuring the privacy of your business operations.
             </p>
           </motion.div>
@@ -70,7 +70,7 @@ const PrivacyPolicy = () => {
           {/* STICKY SIDEBAR NAVIGATION */}
           <aside className="lg:col-span-1 border-r border-slate-100 pr-8 hidden lg:block">
             <div className="sticky top-24 space-y-2">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-6 italic underline decoration-pd-blue/20 underline-offset-4">Merchant Policy</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-6  underline decoration-pd-blue/20 underline-offset-4">Merchant Policy</p>
               {sections.map((section) => (
                 <a
                   key={section.id}
@@ -85,8 +85,8 @@ const PrivacyPolicy = () => {
                 <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
                   <div className="w-8 h-8 rounded-lg bg-emerald-400/10 flex items-center justify-center text-emerald-400 border border-emerald-400/20"><UserCheck size={16} /></div>
                   <div>
-                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900 italic leading-none mb-1">DPO Contact</h4>
-                    <p className="text-[11px] font-medium text-slate-500 italic">support@partydial.com</p>
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900  leading-none mb-1">DPO Contact</h4>
+                    <p className="text-[11px] font-medium text-slate-500 ">support@partydial.com</p>
                   </div>
                 </div>
               </div>
@@ -99,19 +99,19 @@ const PrivacyPolicy = () => {
             {/* 2.1 Information Collection */}
             <motion.div {...fadeUp} id="collection" className="scroll-mt-24">
               <SectionHeader title="Data Collection" icon={Database} color="pd-blue" />
-              <div className="space-y-4 text-slate-600 font-medium leading-[1.8] text-sm md:text-base italic border-l-2 border-slate-100 pl-6 md:pl-10 text-justify">
+              <div className="space-y-4 text-slate-600 font-medium leading-[1.8] text-sm md:text-base  border-l-2 border-slate-100 pl-6 md:pl-10 text-justify">
                 <p>
                   As a Merchant Partner, we collect information necessary to manage your venue listings, process subscription payments, and facilitate lead management.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
                   <div className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl transition-all group">
                     <Mail size={16} className="text-pd-blue mb-2 group-hover:scale-110 transition-transform" />
-                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 italic mb-2">Business Data</h3>
+                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-900  mb-2">Business Data</h3>
                     <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Company name, GST details, KYC documents, and financial information for billing and payouts.</p>
                   </div>
                   <div className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl transition-all group">
                     <Globe size={16} className="text-pd-purple mb-2 group-hover:scale-110 transition-transform" />
-                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 italic mb-2">Platform Metrics</h3>
+                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-900  mb-2">Platform Metrics</h3>
                     <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Engagement stats, lead conversion data, and dashboard interaction history to optimize your performance.</p>
                   </div>
                 </div>
@@ -121,7 +121,7 @@ const PrivacyPolicy = () => {
             {/* 2.2 How We Use Data */}
             <motion.div {...fadeUp} transition={{ delay: 0.1 }} id="usage" className="scroll-mt-24">
               <SectionHeader title="How We Use Data" icon={Eye} color="pd-purple" />
-              <div className="space-y-4 text-slate-600 font-medium leading-[1.8] text-sm md:text-base italic border-l-2 border-slate-100 pl-6 md:pl-10 text-justify">
+              <div className="space-y-4 text-slate-600 font-medium leading-[1.8] text-sm md:text-base  border-l-2 border-slate-100 pl-6 md:pl-10 text-justify">
                 <p>
                   Your business data is used to empower your presence on PartyDial. We utilize this information for:
                 </p>
@@ -134,7 +134,7 @@ const PrivacyPolicy = () => {
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-3 group">
                       <CheckCircle2 size={16} className="text-emerald-400 flex-shrink-0 mt-1" />
-                      <span className="font-bold text-slate-800 text-xs md:text-sm italic uppercase tracking-tight border-b border-slate-50 pb-1 w-full">{item}</span>
+                      <span className="font-bold text-slate-800 text-xs md:text-sm  uppercase tracking-tight border-b border-slate-50 pb-1 w-full">{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -144,7 +144,7 @@ const PrivacyPolicy = () => {
             {/* 2.3 Third-Party Sharing */}
             <motion.div {...fadeUp} transition={{ delay: 0.2 }} id="sharing" className="scroll-mt-24">
               <SectionHeader title="Third-Party Sharing" icon={Globe} color="pd-red" />
-              <div className="space-y-4 text-slate-600 font-medium leading-[1.8] text-sm md:text-base italic border-l-2 border-slate-100 pl-6 md:pl-10 text-justify">
+              <div className="space-y-4 text-slate-600 font-medium leading-[1.8] text-sm md:text-base  border-l-2 border-slate-100 pl-6 md:pl-10 text-justify">
                 <p>
                   We prioritize your business intelligence. We do not share your lead data or performance metrics with competing venues.
                 </p>
@@ -154,8 +154,8 @@ const PrivacyPolicy = () => {
                       <Shield size={24} />
                     </div>
                     <div>
-                      <h3 className="text-white font-black italic uppercase tracking-widest mb-1 text-sm">Strategic Governance</h3>
-                      <p className="text-white/50 text-xs font-medium leading-relaxed italic">
+                      <h3 className="text-white font-black  uppercase tracking-widest mb-1 text-sm">Strategic Governance</h3>
+                      <p className="text-white/50 text-xs font-medium leading-relaxed ">
                         Your lead data is proprietary. We only share summary analytics with authorized payment gateway partners and statutory bodies as required by law.
                       </p>
                     </div>
@@ -167,7 +167,7 @@ const PrivacyPolicy = () => {
             {/* 2.4 Security Measures */}
             <motion.div {...fadeUp} transition={{ delay: 0.3 }} id="security" className="scroll-mt-24">
               <SectionHeader title="Security Measures" icon={Lock} color="pd-pink" />
-              <div className="space-y-4 text-slate-600 font-medium leading-[1.8] text-sm md:text-base italic border-l-2 border-slate-100 pl-6 md:pl-10 text-justify">
+              <div className="space-y-4 text-slate-600 font-medium leading-[1.8] text-sm md:text-base  border-l-2 border-slate-100 pl-6 md:pl-10 text-justify">
                 <p>
                   We utilize enterprise-level security protocols to protect your financial transactions and lead databases.
                 </p>
@@ -184,22 +184,22 @@ const PrivacyPolicy = () => {
             {/* 2.5 Your Rights */}
             <motion.div {...fadeUp} transition={{ delay: 0.4 }} id="rights" className="scroll-mt-24">
               <SectionHeader title="Your Rights" icon={UserCheck} color="emerald-400" />
-              <div className="space-y-4 text-slate-600 font-medium leading-[1.8] text-sm md:text-base italic border-l-2 border-slate-100 pl-6 md:pl-10 text-justify">
+              <div className="space-y-4 text-slate-600 font-medium leading-[1.8] text-sm md:text-base  border-l-2 border-slate-100 pl-6 md:pl-10 text-justify">
                 <p>
                   You maintain full ownership of your venue's listing information. You can modify or remove listing data at your discretion through the Partner Dashboard.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-6 text-black">
                   <div className="p-4 bg-emerald-400/[0.03] border border-emerald-400/10 rounded-xl text-center group hover:border-emerald-400 transition-all">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 italic mb-2 leading-none">Access Control</p>
-                    <p className="text-[9px] font-medium text-slate-500 italic">Manage staff permissions and data access levels from your settings.</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400  mb-2 leading-none">Access Control</p>
+                    <p className="text-[9px] font-medium text-slate-500 ">Manage staff permissions and data access levels from your settings.</p>
                   </div>
                   <div className="p-4 bg-emerald-400/[0.03] border border-emerald-400/10 rounded-xl text-center group hover:border-emerald-400 transition-all">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 italic mb-2 leading-none">Portability</p>
-                    <p className="text-[9px] font-medium text-slate-500 italic">Export your lead data and performance reports anytime in CSV format.</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400  mb-2 leading-none">Portability</p>
+                    <p className="text-[9px] font-medium text-slate-500 ">Export your lead data and performance reports anytime in CSV format.</p>
                   </div>
                   <div className="p-4 bg-emerald-400/[0.03] border border-emerald-400/10 rounded-xl text-center group hover:border-emerald-400 transition-all">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 italic mb-2 leading-none">Suspension</p>
-                    <p className="text-[9px] font-medium text-slate-500 italic">Temporarily hide your venue from the discovery portal when needed.</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400  mb-2 leading-none">Suspension</p>
+                    <p className="text-[9px] font-medium text-slate-500 ">Temporarily hide your venue from the discovery portal when needed.</p>
                   </div>
                 </div>
               </div>
@@ -216,12 +216,12 @@ const PrivacyPolicy = () => {
           <div className="w-16 h-16 rounded-full bg-pd-blue/10 flex items-center justify-center text-pd-blue mx-auto mb-8 border border-white/5 shadow-2xl text-white">
             <Bell size={28} />
           </div>
-          <h2 className="text-3xl md:text-5xl font-black mb-6 italic uppercase tracking-tighter italic">Merchant <span className="text-pd-blue">Security.</span></h2>
-          <p className="text-white/50 font-medium mb-12 italic text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+          <h2 className="text-3xl md:text-5xl font-black mb-6  uppercase tracking-tighter ">Merchant <span className="text-pd-blue">Security.</span></h2>
+          <p className="text-white/50 font-medium mb-12  text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
             We periodically review our data handling practices for Merchant Partners. Any significant updates to the merchant console privacy will be notified via your dashboard.
           </p>
           <Link href="/contact" className="inline-block">
-            <button className="bg-pd-blue text-white px-10 py-4 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-pd-blue/80 transition-all active:scale-95 shadow-xl italic leading-none">Merchant Support Desk</button>
+            <button className="bg-pd-blue text-white px-10 py-4 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-pd-blue/80 transition-all active:scale-95 shadow-xl  leading-none">Merchant Support Desk</button>
           </Link>
           <div className="mt-20 text-[9px] font-black text-white/20 uppercase tracking-[0.4em] space-y-2 pointer-events-none">
             <p>© 2026 PARTYDIAL</p>

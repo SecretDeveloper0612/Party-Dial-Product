@@ -306,7 +306,7 @@ export default function VenueSignupPage() {
                   </div>
                 ))}
               </div>
-              <div className="text-[12px] font-bold text-slate-400 italic">
+              <div className="text-[12px] font-bold text-slate-400 ">
                 Join 500+ successful venue owners
               </div>
             </div>
@@ -317,12 +317,12 @@ export default function VenueSignupPage() {
         <div className="absolute top-6 left-6 lg:top-12 lg:left-12 z-20 flex items-center gap-3">
           <Link href="/">
             <div className="flex items-center gap-2 group cursor-pointer bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20">
-              <div className="w-8 h-8 rounded-lg bg-pd-pink flex items-center justify-center text-white font-black italic shadow-lg group-hover:scale-110 transition-transform">P</div>
-              <span className="text-sm font-black text-white italic tracking-tighter uppercase group-hover:tracking-widest transition-all">PARTYDIAL</span>
+              <div className="w-8 h-8 rounded-lg bg-pd-pink flex items-center justify-center text-white font-black  shadow-lg group-hover:scale-110 transition-transform">P</div>
+              <span className="text-sm font-black text-white  tracking-tighter uppercase group-hover:tracking-widest transition-all">PARTYDIAL</span>
             </div>
           </Link>
           <div className="bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20">
-            <span className="text-[10px] font-black text-white italic tracking-[0.2em] uppercase">Partner</span>
+            <span className="text-[10px] font-black text-white  tracking-[0.2em] uppercase">Partner</span>
           </div>
         </div>
       </section>
@@ -337,7 +337,7 @@ export default function VenueSignupPage() {
         >
           <div className="mb-6">
             <div className="mb-6 lg:mb-10 text-center lg:text-left">
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase italic mb-2 tracking-tight">Venue Registration</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase  mb-2 tracking-tight">Venue Registration</h2>
               <p className="text-xs sm:text-sm text-slate-500 font-medium">Get started with PartyDial & grow your venue business.</p>
             </div>
 
@@ -606,7 +606,7 @@ export default function VenueSignupPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm italic tracking-normal lowercase disabled:opacity-70 disabled:cursor-not-allowed group"
+                className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm  tracking-normal lowercase disabled:opacity-70 disabled:cursor-not-allowed group"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">

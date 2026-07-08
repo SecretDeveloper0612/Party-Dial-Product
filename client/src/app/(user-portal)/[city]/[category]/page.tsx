@@ -159,7 +159,7 @@ export default async function SEORoute({ params }: Props) {
         </nav>
 
         <header className="mb-12">
-          <h1 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 italic tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-black text-slate-900 mb-4  tracking-tight">
             Top {category.name} in <span className="text-pd-red">{cityName}</span>
           </h1>
           <p className="max-w-3xl text-slate-500 font-medium leading-relaxed">
@@ -208,7 +208,7 @@ export default async function SEORoute({ params }: Props) {
 
             {/* FAQs Section */}
             <section className="mt-20">
-              <h2 className="text-2xl font-black text-slate-900 mb-8 italic flex items-center gap-3">
+              <h2 className="text-2xl font-black text-slate-900 mb-8  flex items-center gap-3">
                 <HelpCircle className="text-pd-red" /> Frequently Asked Questions
               </h2>
               <div className="space-y-4">
@@ -269,7 +269,7 @@ export default async function SEORoute({ params }: Props) {
 
         {/* Global Cities Directory (Mention All) */}
         <section className="mt-20 pt-20 border-t border-slate-200">
-           <h2 className="text-xl font-black text-slate-900 mb-10 italic">Cities we Serve for {category.name}</h2>
+           <h2 className="text-xl font-black text-slate-900 mb-10 ">Cities we Serve for {category.name}</h2>
            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-4">
               {[...new Set(SEO_CITIES)].map(cityItem => (
                 <Link 

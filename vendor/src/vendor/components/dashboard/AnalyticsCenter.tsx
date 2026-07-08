@@ -8,8 +8,8 @@ const AnalyticsCenter = () => {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-             <h1 className="text-4xl font-black text-slate-900 uppercase italic tracking-tighter mb-2 leading-none">Performance <span className="text-pd-pink">Analytics</span></h1>
-             <p className="text-sm font-medium text-slate-500 italic">Advanced tracking of your venue&apos;s digital growth and velocity.</p>
+             <h1 className="text-4xl font-black text-slate-900 uppercase  tracking-tighter mb-2 leading-none">Performance <span className="text-pd-pink">Analytics</span></h1>
+             <p className="text-sm font-medium text-slate-500 ">Advanced tracking of your venue&apos;s digital growth and velocity.</p>
           </div>
           <div className="flex bg-white p-1.5 rounded-2xl border border-slate-100 shadow-pd-soft self-start">
              {['7D', '30D', '90D', '1Y'].map(t => (
@@ -24,7 +24,7 @@ const AnalyticsCenter = () => {
              <div className="relative z-10">
                 <div className="flex items-center justify-between mb-12">
                    <div>
-                      <h3 className="text-xl font-black italic uppercase text-slate-900">Visibility Trend</h3>
+                      <h3 className="text-xl font-black  uppercase text-slate-900">Visibility Trend</h3>
                       <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-1">+24% vs last month</p>
                    </div>
                    <div className="flex items-center gap-6">
@@ -83,8 +83,8 @@ const AnalyticsCenter = () => {
                    ].map((f, i) => (
                       <div key={i}>
                          <div className="flex justify-between items-end mb-2">
-                            <span className="text-[10px] font-bold text-slate-500 uppercase italic">{f.label}</span>
-                            <span className="text-sm font-black text-slate-900 italic">{f.value}</span>
+                            <span className="text-[10px] font-bold text-slate-500 uppercase ">{f.label}</span>
+                            <span className="text-sm font-black text-slate-900 ">{f.value}</span>
                          </div>
                          <div className={`h-2 w-full ${f.color} rounded-full overflow-hidden`}>
                             <div className="h-full bg-slate-900 w-3/4 rounded-full" />
@@ -96,7 +96,7 @@ const AnalyticsCenter = () => {
              
              <div className="bg-slate-900 p-10 rounded-[50px] text-white">
                 <h4 className="text-[10px] font-black uppercase tracking-widest text-pd-pink mb-4">Pro Insight</h4>
-                <p className="text-sm font-black italic tracking-tight leading-relaxed">Your conversion rate is 8% higher than average Gurgaon venues this week. Keep up the high response speed!</p>
+                <p className="text-sm font-black  tracking-tight leading-relaxed">Your conversion rate is 8% higher than average Gurgaon venues this week. Keep up the high response speed!</p>
              </div>
           </div>
        </div>

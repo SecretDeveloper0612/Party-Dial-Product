@@ -72,13 +72,13 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
                     />
                   </div>
                   <div className="pr-12"> {/* Add padding right to avoid overlap with button */}
-                    <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 italic block mb-0.5 sm:mb-1">Action Required</span>
-                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">Payment Pending</h2>
+                    <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-amber-600  block mb-0.5 sm:mb-1">Action Required</span>
+                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase  tracking-tighter leading-none">Payment Pending</h2>
                   </div>
                 </div>
                 
                 <div className="p-4 sm:p-5 bg-slate-50 rounded-[20px] sm:rounded-[28px] border border-slate-100/50 mb-4">
-                  <p className="text-slate-600 font-medium italic leading-relaxed text-xs sm:text-base">
+                  <p className="text-slate-600 font-medium  leading-relaxed text-xs sm:text-base">
                     Hey{venueName ? ` ${venueName}` : ''}! Your onboarding is complete, but your account is <span className="text-slate-900 font-bold underline decoration-pd-pink underline-offset-4">not yet active</span>. Complete the payment to start receiving leads.
                   </p>
                 </div>
@@ -95,11 +95,11 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
                       <div>
                         <p className="text-white/60 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] mb-1">Subscription Plan</p>
-                        <h3 className="text-xl sm:text-2xl font-black italic uppercase tracking-tight">Introductory Pack</h3>
+                        <h3 className="text-xl sm:text-2xl font-black  uppercase tracking-tight">Introductory Pack</h3>
                       </div>
                       <div>
                         <p className="text-white/60 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] mb-1">Total Due</p>
-                        <p className="text-2xl sm:text-3xl font-black italic text-pd-pink">₹11.00</p>
+                        <p className="text-2xl sm:text-3xl font-black  text-pd-pink">₹11.00</p>
                       </div>
                     </div>
 
@@ -108,13 +108,13 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
                         <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
                           <Zap size={16} className="text-pd-pink" />
                         </div>
-                        <span className="text-[10px] sm:text-xs font-bold italic text-white/80">Valid Until 30 April</span>
+                        <span className="text-[10px] sm:text-xs font-bold  text-white/80">Valid Until 30 April</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
                           <ShieldCheck size={16} className="text-emerald-400" />
                         </div>
-                        <span className="text-[10px] sm:text-xs font-bold italic text-white/80">Full Platform Access</span>
+                        <span className="text-[10px] sm:text-xs font-bold  text-white/80">Full Platform Access</span>
                       </div>
                     </div>
                   </div>
@@ -122,7 +122,7 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
 
                 <div className="flex items-center gap-3 px-4 py-2 bg-blue-50 text-blue-700 rounded-2xl border border-blue-100">
                   <Clock size={16} className="flex-shrink-0 animate-pulse" />
-                  <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest italic leading-tight">Purchase Deadline: 20 April. Plan valid until 30 April.</span>
+                  <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest  leading-tight">Purchase Deadline: 20 April. Plan valid until 30 April.</span>
                 </div>
               </div>
 
@@ -133,7 +133,7 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
                     router.push('/dashboard/onboarding/subscription');
                     onClose();
                   }}
-                  className="w-full h-16 bg-slate-900 text-white rounded-[22px] text-xs font-black uppercase tracking-[0.3em] italic hover:bg-pd-pink transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 group"
+                  className="w-full h-16 bg-slate-900 text-white rounded-[22px] text-xs font-black uppercase tracking-[0.3em]  hover:bg-pd-pink transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 group"
                 >
                   Pay Now & Activate
                   <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -142,7 +142,7 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
                 <button 
                   id="payment-reminder-later"
                   onClick={onClose}
-                  className="w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-600 transition-colors italic"
+                  className="w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-600 transition-colors "
                 >
                   Remind me later
                 </button>
@@ -151,12 +151,12 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
               <div className="mt-8 flex items-center justify-center gap-4 text-slate-400">
                 <div className="flex items-center gap-1.5 grayscale opacity-50">
                   <CreditCard size={14} />
-                  <span className="text-[9px] font-black uppercase tracking-tighter italic">Secure Checkout</span>
+                  <span className="text-[9px] font-black uppercase tracking-tighter ">Secure Checkout</span>
                 </div>
                 <div className="w-px h-3 bg-slate-200" />
                 <div className="flex items-center gap-1.5 grayscale opacity-50">
                   <ShieldCheck size={14} />
-                  <span className="text-[9px] font-black uppercase tracking-tighter italic">SSL Encrypted</span>
+                  <span className="text-[9px] font-black uppercase tracking-tighter ">SSL Encrypted</span>
                 </div>
               </div>
             </div>

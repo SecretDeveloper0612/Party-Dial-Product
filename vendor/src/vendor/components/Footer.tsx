@@ -38,7 +38,7 @@ export default function Footer() {
                 className="h-10 w-auto object-contain" 
               />
               <div className="h-4 w-[1px] bg-white/20 mx-2"></div>
-              <span className="text-pd-red text-[10px] font-black uppercase tracking-[0.3em] italic">Partner</span>
+              <span className="text-pd-red text-[10px] font-black uppercase tracking-[0.3em] ">Partner</span>
             </div>
             
             <p className="max-w-sm text-slate-400 text-base font-medium leading-relaxed">
@@ -136,7 +136,7 @@ export default function Footer() {
              <div className="p-8 bg-white/5 rounded-[40px] border border-white/10 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink/5 rounded-full blur-3xl"></div>
                 
-                <h4 className="text-sm font-black italic uppercase tracking-widest mb-4">Growth Insights</h4>
+                <h4 className="text-sm font-black  uppercase tracking-widest mb-4">Growth Insights</h4>
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-8 leading-relaxed">Join 500+ venues receiving weekly market reports and lead tips.</p>
                 
                 <div className="relative">
@@ -161,7 +161,7 @@ export default function Footer() {
             <div className="hidden md:block w-[1px] h-4 bg-white/10"></div>
             <p className="text-[10px] font-black text-pd-red uppercase tracking-[0.2em]">A Platform by Preet Tech OPC Private Limited</p>
             <div className="hidden md:block w-[1px] h-4 bg-white/10"></div>
-            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] italic">All billing and operations managed exclusively by Preet Tech OPC Private Limited</p>
+            <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] ">All billing and operations managed exclusively by Preet Tech OPC Private Limited</p>
           </div>
           
         </div>

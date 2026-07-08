@@ -20,7 +20,7 @@ export default function FreeVenuesDiscoveryPage() {
          <div className="max-w-7xl mx-auto relative z-10 text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] mb-6">Discovery</span>
-               <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6 italic uppercase tracking-tighter">
+               <h1 className="text-4xl md:text-6xl font-black text-white leading-tight mb-6  uppercase tracking-tighter">
                   Explore <span className="text-pd-red">Value</span> Venues
                </h1>
                <p className="text-lg text-slate-400 mb-10 leading-relaxed font-medium max-w-2xl mx-auto">

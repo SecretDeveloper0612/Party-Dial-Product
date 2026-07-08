@@ -1,4 +1,6 @@
 const { sendQuotationEmail, sendClientQuotationEmail } = require('../utils/emailService');
+const { databases, DATABASE_ID, ID } = require('../config/appwrite');
+const PAYMENTS_COLLECTION_ID = process.env.APPWRITE_PAYMENTS_COLLECTION_ID || 'payments';
 
 exports.sendQuotationEmail = async (req, res) => {
   try {
@@ -21,6 +23,35 @@ exports.sendQuotationEmail = async (req, res) => {
     }
 
     await sendQuotationEmail(email, venueName, planName, amount, checkoutLink, attachments);
+
+    // Save quotation record to Appwrite so it shows in Super Admin Dashboard
+    try {
+      await databases.createDocument(
+        DATABASE_ID,
+        PAYMENTS_COLLECTION_ID,
+        ID.unique(),
+        {
+          razorpayOrderId: 'QUOTE_' + Date.now(),
+          razorpayPaymentId: 'QUOTE_' + Date.now(),
+          venueId: '',
+          venueName: venueName || 'Private Client',
+          ownerEmail: email || '',
+          planId: '',
+          planName: planName || 'Custom Quotation',
+          amount: amount || 0,
+          currency: 'INR',
+          method: 'quote',
+          status: 'Sent',
+          paidAt: new Date().toISOString(), // Using as sent date for UI compatibility
+          invoiceNumber: '',
+          billingDetails: JSON.stringify({ email, name: venueName }),
+          couponUsed: '',
+          invoiceFileId: ''
+        }
+      );
+    } catch (dbErr) {
+      console.warn('Could not store quotation record in DB:', dbErr.message);
+    }
 
     res.json({ status: 'success', message: 'Quotation sent to ' + email });
   } catch (error) {

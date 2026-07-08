@@ -998,7 +998,7 @@ const QuotationManager = ({
                               {quoteData.specialRequests && (
                                  <div className="col-span-2 pt-4 border-t border-slate-200 mt-2">
                                     <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Special Directives</h4>
-                                    <p className="text-xs text-slate-600 italic">"{quoteData.specialRequests}"</p>
+                                    <p className="text-xs text-slate-600 ">"{quoteData.specialRequests}"</p>
                                  </div>
                               )}
                            </div>

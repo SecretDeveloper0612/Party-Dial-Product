@@ -569,7 +569,7 @@ const PricingCard = React.memo(({ plan, onSelect, billingDuration }: { plan: typ
             </div>
           )}
             <div className="flex flex-col mb-4">
-               <h3 className="text-xl font-[900] text-slate-900 leading-tight tracking-tight uppercase italic">{plan.name}</h3>
+               <h3 className="text-xl font-[900] text-slate-900 leading-tight tracking-tight uppercase ">{plan.name}</h3>
                <span className="text-[10px] font-black text-pd-purple uppercase tracking-[0.2em] mt-1">{plan.packName}</span>
             </div>
           <div className="space-y-1">
@@ -703,7 +703,7 @@ export default function PricingPage() {
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-[900] text-[#0F172A] flex flex-col items-center justify-center gap-2 md:gap-4 mb-8 tracking-tighter uppercase leading-[1.1]">
                <span className="text-center">Advertise Your Venue</span>
                <div className="flex items-center justify-center gap-3 md:gap-6 mt-2">
-                  <span className="text-xl md:text-4xl font-black text-slate-300 italic lowercase tracking-tight">on</span> 
+                  <span className="text-xl md:text-4xl font-black text-slate-300  lowercase tracking-tight">on</span> 
                   <span className="pd-logo text-3xl md:text-6xl lg:text-8xl">PartyDial</span>
                </div>
             </h1>
@@ -741,7 +741,7 @@ export default function PricingPage() {
         </div>
 
         <div className="max-w-7xl mx-auto text-center mb-10">
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-2 tracking-tight uppercase italic">Pricing</h2>
+          <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-2 tracking-tight uppercase ">Pricing</h2>
           <p className="text-slate-500 font-bold text-lg">(According to Pax, you serve)</p>
           
           <div className="flex justify-center mt-8 mb-4">
@@ -794,7 +794,7 @@ export default function PricingPage() {
         </div>
 
         {/* ADD-ON RATES SECTION */}
-        <div className="max-w-4xl mx-auto mt-24 italic">
+        <div className="max-w-4xl mx-auto mt-24 ">
             <motion.div 
                initial={{ opacity: 0, scale: 0.95 }}
                whileInView={{ opacity: 1, scale: 1 }}
@@ -806,8 +806,8 @@ export default function PricingPage() {
 
                <div className="relative z-10 text-center mb-12">
                   <span className="text-pink-500 text-[10px] font-black tracking-[0.3em] uppercase block mb-4">Extra Coverage</span>
-                  <h2 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter leading-none">Add-On <span className={textGradientStyle}>Rates</span></h2>
-                  <p className="mt-4 text-slate-400 font-bold max-w-lg mx-auto text-sm md:text-base italic">Boost your visibility with specialized expansion packs tailored to your pax capacity.</p>
+                  <h2 className="text-3xl md:text-5xl font-black  uppercase tracking-tighter leading-none">Add-On <span className={textGradientStyle}>Rates</span></h2>
+                  <p className="mt-4 text-slate-400 font-bold max-w-lg mx-auto text-sm md:text-base ">Boost your visibility with specialized expansion packs tailored to your pax capacity.</p>
                </div>
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
@@ -832,11 +832,11 @@ export default function PricingPage() {
                         )}
                         <div className="flex flex-col">
                            <span className={`text-[10px] font-black uppercase tracking-widest mb-1 transition-colors ${selectedAddon === i ? 'text-pd-pink' : 'text-slate-500'}`}>PAX Capacity</span>
-                           <span className="text-base font-black text-white italic">{addon.pax} Guests</span>
+                           <span className="text-base font-black text-white ">{addon.pax} Guests</span>
                         </div>
                         <div className="text-right">
                            <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest mb-1 block">Price</span>
-                           <span className="text-2xl font-black text-white italic tracking-tight">₹{addon.price.toLocaleString()}</span>
+                           <span className="text-2xl font-black text-white  tracking-tight">₹{addon.price.toLocaleString()}</span>
                         </div>
                      </button>
                   ))}
@@ -946,9 +946,9 @@ export default function PricingPage() {
       <section className="py-16 md:py-24 px-6 lg:px-12 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 uppercase flex flex-col md:flex-row items-center justify-center gap-4">
-             <h2 className="text-3xl md:text-6xl font-extrabold text-[#0F172A] tracking-tight leading-none italic uppercase">Why Choose</h2>
+             <h2 className="text-3xl md:text-6xl font-extrabold text-[#0F172A] tracking-tight leading-none  uppercase">Why Choose</h2>
              <span className="pd-logo text-4xl md:text-7xl">PartyDial</span>
-             <span className="text-3xl md:text-6xl font-extrabold text-[#0F172A] tracking-tight leading-none italic uppercase">?</span>
+             <span className="text-3xl md:text-6xl font-extrabold text-[#0F172A] tracking-tight leading-none  uppercase">?</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
