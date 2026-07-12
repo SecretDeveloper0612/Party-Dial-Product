@@ -253,8 +253,8 @@ exports.login = async (req, res) => {
         const tempAccount = new Account(tempClient);
 
         // ── MASTER ADMIN BYPASS ──
-        const masterAdminEmail = process.env.ADMIN_EMAIL || "admin@partydial.com";
-        const masterAdminPass = process.env.ADMIN_PASS || "Admin123";
+        const masterAdminEmail = process.env.ADMIN_EMAIL;
+        const masterAdminPass = process.env.ADMIN_PASS;
 
         if (email === masterAdminEmail && password === masterAdminPass) {
             console.log('Master Admin login detected');

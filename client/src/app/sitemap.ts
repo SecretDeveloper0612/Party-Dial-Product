@@ -41,6 +41,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // 4. Dynamic Venue Routes (Fetch from Backend)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let venueRoutes: any[] = [];
   try {
     const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5005/api';
@@ -54,6 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const result = await response.json();
     
     if (result.status === 'success' && Array.isArray(result.data)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       venueRoutes = result.data.map((venue: any) => ({
         url: `${baseUrl}/venues/${venue.$id}`,
         lastModified: new Date(venue.$updatedAt || venue.$createdAt),

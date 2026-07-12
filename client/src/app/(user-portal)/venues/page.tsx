@@ -178,7 +178,8 @@ function VenuesContent() {
         
         const fetchVenues = async () => {
           try {
-            const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+            const envBase = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+            const base = typeof window !== 'undefined' && envBase.includes('localhost') ? envBase.replace('localhost', window.location.hostname) : envBase;
             const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
             const response = await fetch(`${baseUrl}/venues?verified=true`);
             const result = await response.json();
@@ -224,8 +225,9 @@ function VenuesContent() {
                   pincode: doc.pincode?.toString() || "",
                   rating: venueRating,
                   reviews: doc.totalReviews || 0,
-                  img: photos.length > 0 ? getAppwriteImageUrl(photos[0]) : "",
-                  images: photos.map((p: any) => getAppwriteImageUrl(p)),
+                  img: photos.length > 0 ? getAppwriteImageUrl(photos[0]?.id || photos[0]) : "",
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  images: photos.map((p: any) => getAppwriteImageUrl(p?.id || p)),
                   verified: doc.isVerified || false,
                   popular: doc.status === 'active',
                   isNew: doc.$createdAt

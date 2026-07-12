@@ -401,9 +401,9 @@ function CheckoutContent() {
                 </span>
              </div>
            ))}
-           <div className="absolute top-5 left-0 w-full h-0.5 bg-slate-100 -z-0" />
+           <div className="absolute top-5 left-0 w-full h-0.5 bg-slate-100 z-0" />
            <motion.div 
-             className="absolute top-5 left-0 h-0.5 grad-brand -z-0" 
+             className="absolute top-5 left-0 h-0.5 grad-brand z-0" 
              initial={{ width: "0%" }}
              animate={{ width: `${((step - 1) / 1) * 100}%` }}
            />
@@ -428,7 +428,7 @@ function CheckoutContent() {
                 <motion.div 
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-50 overflow-hidden mb-8"
+                  className="bg-white rounded-4xl shadow-2xl shadow-slate-200/50 border border-slate-50 overflow-hidden mb-8"
                 >
                   <div className="p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
@@ -454,13 +454,13 @@ function CheckoutContent() {
                   </div>
                 </motion.div>
               )}
-              <div className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-50 overflow-hidden">
+              <div className="bg-white rounded-4xl shadow-2xl shadow-slate-200/50 border border-slate-50 overflow-hidden">
                  <div className="bg-slate-900 p-8 text-white relative">
                     <div className="relative z-10">
                        <h2 className="text-2xl font-black tracking-tight">Billing Information</h2>
                        <p className="text-white/40 text-sm font-medium mt-1">Details for your tax-compliant invoice</p>
                     </div>
-                    <MapPin size={60} className="absolute right-[-10px] top-[-10px] text-white/5 rotate-12" />
+                    <MapPin size={60} className="absolute -right-2.5 -top-2.5 text-white/5 rotate-12" />
                  </div>                  <div className="p-8 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                        <div className="space-y-2">
@@ -585,7 +585,7 @@ function CheckoutContent() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="max-w-md mx-auto"
             >
-              <div className="bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100 mb-8">
+              <div className="bg-white rounded-4xl shadow-2xl overflow-hidden border border-slate-100 mb-8">
                  <div className="p-8 border-b border-slate-100 bg-slate-50/50">
                     <h3 className="text-xl font-black text-slate-800">Order Summary</h3>
                     <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-widest">Verify and Pay</p>
@@ -729,7 +729,7 @@ function CheckoutContent() {
                 Your subscription has been activated. A tax invoice has been sent to 
                 <span className="font-bold text-slate-700"> {billingData.email}</span>.
               </p>
-              <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl mb-8">
+              <div className="bg-white p-6 rounded-4xl border border-slate-100 shadow-xl mb-8">
                  <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-black text-slate-400 uppercase tracking-widest text-left">Recipient</span>
                     <span className="text-xs font-black text-slate-700">{billingData.name}</span>

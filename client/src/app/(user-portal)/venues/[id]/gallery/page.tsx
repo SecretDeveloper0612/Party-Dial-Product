@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import Image from 'next/image';
@@ -10,8 +13,7 @@ import {
   X, 
   Filter,
   Camera,
-  Image as ImageIcon,
-  Heart
+  Image as ImageIcon
 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 
@@ -159,15 +161,6 @@ export default function VenueGalleryPage() {
         >
           <AnimatePresence>
             {filteredImages.map((img: any, i: number) => {
-              // Bento Grid Span Logic
-              const spanClass = 
-                i % 12 === 0 ? "md:col-span-2 md:row-span-2 lg:col-span-2 lg:row-span-3" : // Large Hero
-                i % 12 === 1 ? "md:col-span-2 md:row-span-1 lg:col-span-2 lg:row-span-1" : // Horizontal Wide
-                i % 12 === 2 ? "md:col-span-2 md:row-span-2 lg:col-span-2 lg:row-span-2" : // Square Big
-                i % 12 === 3 ? "md:col-span-1 md:row-span-2 lg:col-span-1 lg:row-span-2" : // Vertical Tall
-                i % 12 === 5 ? "md:col-span-2 md:row-span-1 lg:col-span-3 lg:row-span-1" : // Extra Wide
-                "md:col-span-1 md:row-span-1"; // Standard Small
-
               return (
                 <motion.div
                   key={img.id}

@@ -18,7 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 interface Venue {
   $id: string;
   venueName: string;
-  ownerEmail: string;
+  contactEmail: string;
   subscriptionPlan: string;
   subscriptionExpiry: string;
   $createdAt: string;
@@ -62,12 +62,16 @@ export default function ManualAccessPage() {
     setLoading(true);
     try {
       const res = await fetch(`${serverUrl}/access/eligible-users`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       const result = await res.json();
       if (result.status === "success") {
         setVenues(result.data);
+      } else {
+        throw new Error(result.message || "Failed to load");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to fetch eligible venues", err);
+      showPopup("Fetch Error", err.message || "Unknown error", "error");
     } finally {
       setLoading(false);
     }
@@ -149,7 +153,7 @@ export default function ManualAccessPage() {
     if (!q) return venues;
     return venues.filter(v => 
       v.venueName?.toLowerCase().includes(q) ||
-      v.ownerEmail?.toLowerCase().includes(q)
+      v.contactEmail?.toLowerCase().includes(q)
     );
   }, [venues, searchQuery]);
 
@@ -171,7 +175,7 @@ export default function ManualAccessPage() {
         </div>
         <div>
           <h4 className="text-sm font-black text-slate-800 m-0">{venue.venueName}</h4>
-          <p className="text-[10px] text-slate-400 font-bold mt-0.5">{venue.ownerEmail}</p>
+          <p className="text-[10px] text-slate-400 font-bold mt-0.5">{venue.contactEmail}</p>
         </div>
       </div>
       <div className="text-right">

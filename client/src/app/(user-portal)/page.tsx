@@ -8,7 +8,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, MapPin, Users, ArrowRight, Building2, PartyPopper, PhoneCall,
-  Sparkles, Zap, Mic, IndianRupee, X, Cake, Briefcase, Heart,
+  Zap, Mic, IndianRupee, X,
   TriangleAlert, RefreshCcw, TrendingUp
 } from 'lucide-react';
 import VenueCard from '@/shared/components/VenueCard';
@@ -401,7 +401,6 @@ export default function AISearchPage() {
   const [scoredResults, setScoredResults] = useState<ScoredVenue[]>([]);
   const [fallbackMode, setFallbackMode] = useState<'none' | 'relaxCapacity' | 'relaxBudget' | 'noMatch'>('none');
   const [isMobile, setIsMobile] = useState(false);
-  const [displayedExamples, setDisplayedExamples] = useState<any[]>([]);
 
   const [isListening, setIsListening] = useState(false);
   const [hasRecognition, setHasRecognition] = useState(false);
@@ -411,21 +410,6 @@ export default function AISearchPage() {
   const runSearchRef = useRef<any>(null);
 
   useEffect(() => {
-    const allExamples = [
-      { text: 'Birthday party for 50 pax', icon: <Cake size={13} className="text-pd-purple" /> },
-      { text: 'Corporate event in Noida', icon: <Briefcase size={13} className="text-pd-pink" /> },
-      { text: 'Wedding venue for 300 guests with parking', icon: <Heart size={13} className="text-rose-500" /> },
-      { text: 'Rooftop venue under ₹2 Lakhs', icon: <Building2 size={13} className="text-blue-500" /> },
-      { text: 'Engagement party in Delhi', icon: <PartyPopper size={13} className="text-amber-500" /> },
-      { text: 'Banquet hall for 150 guests', icon: <Users size={13} className="text-emerald-500" /> },
-      { text: 'Resort in Goa with swimming pool', icon: <Sparkles size={13} className="text-cyan-500" /> },
-      { text: 'Farmhouse under ₹50k', icon: <IndianRupee size={13} className="text-emerald-600" /> },
-    ];
-    // Delay state update slightly to avoid 'setState synchronously within an effect' warning
-    setTimeout(() => {
-      setDisplayedExamples([...allExamples].sort(() => 0.5 - Math.random()).slice(0, 8));
-    }, 0);
-
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -484,7 +468,8 @@ export default function AISearchPage() {
   useEffect(() => {
     const fetchVenues = async () => {
       try {
-        const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+        const envBase = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+        const base = typeof window !== 'undefined' && envBase.includes('localhost') ? envBase.replace('localhost', window.location.hostname) : envBase;
         const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
         const response = await fetch(`${baseUrl}/venues?verified=true`);
         const result = await response.json();
@@ -606,7 +591,7 @@ export default function AISearchPage() {
   }, [intent]);
 
   return (
-    <div className={`bg-white flex flex-col selection:bg-pd-purple/10 relative min-h-[calc(100vh-100px)] pt-20 overflow-x-hidden`}>
+    <div className={`bg-white flex flex-col selection:bg-pd-purple/10 relative min-h-[calc(100vh-100px)] pt-4 overflow-x-hidden`}>
 
       {/* ── HERO / SEARCH SECTION ── */}
       <motion.div

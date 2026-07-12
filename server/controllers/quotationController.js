@@ -89,3 +89,41 @@ exports.sendClientQuotation = async (req, res) => {
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
+
+exports.submitInquiry = async (req, res) => {
+  try {
+    const { venueId, venueName, vendorEmail, requestedPax } = req.body;
+    
+    if (!vendorEmail || !requestedPax) {
+      return res.status(400).json({ status: 'error', message: 'Missing required fields' });
+    }
+
+    const doc = await databases.createDocument(
+      DATABASE_ID,
+      'subscription-inquiries',
+      ID.unique(),
+      {
+        venueId: venueId || 'N/A',
+        venueName: venueName || 'Unknown',
+        vendorEmail,
+        requestedPax,
+        status: 'Pending'
+      }
+    );
+
+    res.json({ status: 'success', data: doc });
+  } catch (error) {
+    console.error('Submit inquiry error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+exports.getInquiries = async (req, res) => {
+  try {
+    const result = await databases.listDocuments(DATABASE_ID, 'subscription-inquiries');
+    res.json({ status: 'success', data: result.documents });
+  } catch (error) {
+    console.error('Get inquiries error:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};

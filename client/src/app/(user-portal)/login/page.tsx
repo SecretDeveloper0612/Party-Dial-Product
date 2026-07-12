@@ -11,11 +11,18 @@ import {
   ArrowRight, 
   Chrome,
   CheckCircle2,
-  ChevronLeft
+  ChevronLeft,
+  User
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 
 export default function LoginPage() {
+  const isApp = useSyncExternalStore(
+    () => () => {},
+    () => typeof navigator !== 'undefined' && navigator.userAgent.includes('PartyDialMobileApp'),
+    () => false
+  );
+  
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -33,13 +40,11 @@ export default function LoginPage() {
       const { account } = await import('@/lib/appwrite');
       const { OAuthProvider } = await import('appwrite');
       
-      // Get current URL to redirect back
       const currentUrl = window.location.origin;
-      
       await account.createOAuth2Session(
         OAuthProvider.Google,
-        `${currentUrl}/`, // Success redirect
-        `${currentUrl}/login` // Failure redirect
+        `${currentUrl}/`, 
+        `${currentUrl}/login` 
       );
     } catch (error) {
       console.error('Google login failed:', error);
@@ -47,6 +52,140 @@ export default function LoginPage() {
     }
   };
 
+  // ─────────────────────────────────────────────────────────────────
+  // MOBILE APP PREMIUM REDESIGN
+  // ─────────────────────────────────────────────────────────────────
+  if (isApp) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col justify-center px-6 py-12 relative overflow-hidden font-pd pb-24">
+        {/* Animated Background Ornaments */}
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0.8, 0.6] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-32 -left-32 w-96 h-96 bg-pd-pink/20 rounded-full blur-[100px] pointer-events-none mix-blend-multiply"
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.6, 0.4] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute top-1/3 -right-32 w-[500px] h-[500px] bg-pd-purple/20 rounded-full blur-[120px] pointer-events-none mix-blend-multiply"
+        />
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-sm mx-auto relative z-10"
+        >
+          {/* Header */}
+          <div className="text-center mb-10">
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, type: 'spring' }}
+              className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white border border-slate-100 mb-6 shadow-[0_10px_40px_rgba(255,107,248,0.15)] relative"
+            >
+              <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-pd-pink/5 to-transparent opacity-50"></div>
+              <User size={32} className="text-pd-pink relative z-10" />
+            </motion.div>
+            <h2 className="text-[2rem] font-black text-slate-900 mb-2 tracking-tight">Sign In</h2>
+            <p className="text-slate-500 text-sm font-medium">Access your dashboard to manage bookings and enquiries.</p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Email Address</label>
+              <div className="relative group">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors">
+                   <Mail size={18} />
+                </div>
+                <input 
+                  type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com" 
+                  className="w-full h-14 pl-14 pr-6 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 outline-none focus:border-pd-pink/50 focus:ring-4 focus:ring-pd-pink/10 transition-all placeholder:text-slate-400 shadow-sm"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center ml-4 mr-2">
+                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Password</label>
+                 <Link href="/forgot-password" className="text-[10px] font-black text-pd-pink uppercase tracking-widest hover:text-pd-purple transition-colors">Forgot?</Link>
+              </div>
+              <div className="relative group">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors">
+                   <Lock size={18} />
+                </div>
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••" 
+                  className="w-full h-14 pl-14 pr-14 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 outline-none focus:border-pd-pink/50 focus:ring-4 focus:ring-pd-pink/10 transition-all placeholder:text-slate-400 shadow-sm"
+                  required
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 ml-4 py-2">
+               <input type="checkbox" className="w-4 h-4 rounded border-slate-300 bg-white text-pd-pink focus:ring-pd-pink focus:ring-offset-0" id="remember" />
+               <label htmlFor="remember" className="text-xs font-bold text-slate-500 cursor-pointer">Remember me for 30 days</label>
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full h-14 mt-2 bg-linear-to-r from-pd-purple to-pd-pink text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(255,107,248,0.3)] flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+            >
+               {isLoading ? (
+                 <motion.div 
+                   animate={{ rotate: 360 }}
+                   transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                   className="w-5 h-5 border-2 border-white/50 border-t-white rounded-full"
+                 />
+               ) : (
+                 <>Sign In <ArrowRight size={18} /></>
+               )}
+            </button>
+          </form>
+
+          <div className="relative my-8">
+             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
+             <div className="relative flex justify-center text-[10px] uppercase font-black text-slate-400 tracking-[0.2em]">
+                <span className="bg-slate-50 px-4">OR CONTINUE WITH</span>
+             </div>
+          </div>
+
+          <button 
+            onClick={handleGoogleLogin}
+            className="w-full h-14 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-3 hover:bg-slate-50 transition-all font-black text-slate-700 text-xs uppercase tracking-widest active:scale-95 shadow-sm"
+          >
+             <Chrome size={20} className="text-pd-purple" />
+             Google
+          </button>
+
+          <p className="mt-10 text-center text-sm font-semibold text-slate-500">
+            Don&apos;t have an account? {' '}
+            <Link href="/signup" className="text-pd-red font-black uppercase tracking-widest text-[11px] ml-2 hover:text-pd-pink transition-colors">Create Account</Link>
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // ORIGINAL WEB REDESIGN (Unaffected)
+  // ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row overflow-hidden">
       
@@ -101,10 +240,12 @@ export default function LoginPage() {
 
       {/* RIGHT SIDE: LOGIN FORM */}
       <div className="flex-1 flex flex-col justify-center px-6 md:px-12 lg:px-24 py-12 relative">
-        <div className="lg:hidden absolute top-8 left-8">
-           <Link href="/" className="text-pd-red font-black text-xl  ">PartyDial</Link>
-        </div>
-
+        {/* PartyDial text logo conditionally shown on web but hidden in app */}
+        {!isApp && (
+          <div className="lg:hidden absolute top-8 left-8">
+             <Link href="/" className="text-pd-red font-black text-xl">PartyDial</Link>
+          </div>
+        )}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -199,7 +340,7 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-12 text-center text-sm font-semibold text-slate-400">
-            Don't have an account? {' '}
+            Don&apos;t have an account? {' '}
             <Link href="/signup" className="text-pd-red font-black uppercase tracking-widest text-[11px] ml-2 hover:underline">Create Account</Link>
           </p>
         </motion.div>

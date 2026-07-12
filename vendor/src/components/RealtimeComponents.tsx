@@ -43,7 +43,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       try {
         const audio = new Audio("/notification.mp3");
         audio.play().catch(() => console.log("Audio playback failed (interaction required)"));
-      } catch (_) {}
+      } catch (err) {}
       // In a real app we'd integrate with Sonner or react-hot-toast here
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("toast", { 
@@ -78,7 +78,7 @@ export const RealtimeAppWrapper = ({ children }: { children: React.ReactNode }) 
       // Small timeout to prevent React 18 synchronous cascading render warning
       setTimeout(() => setToken(jwt), 0);
     }
-  }, []);
+  }, [token]);
 
   return (
     <RealtimeProvider token={token}>

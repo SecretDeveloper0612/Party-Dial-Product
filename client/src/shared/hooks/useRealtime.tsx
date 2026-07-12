@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, createContext, useContext, ReactNode } from "react";
+import { useEffect, useState, createContext, useContext, ReactNode } from "react";
 import { RealtimeClient } from "../lib/realtime";
 
 interface RealtimeContextType {
@@ -22,29 +22,30 @@ export const RealtimeProvider = ({
   url?: string 
 }) => {
   const [status, setStatus] = useState<"connecting" | "connected" | "reconnecting" | "offline">("offline");
-  const clientRef = useRef<RealtimeClient | null>(null);
+  const [client, setClient] = useState<RealtimeClient | null>(null);
 
   useEffect(() => {
     if (!token) {
-      if (clientRef.current) {
-        clientRef.current.disconnect();
-        clientRef.current = null;
+      if (client) {
+        client.disconnect();
+        setTimeout(() => setClient(null), 0);
       }
       return;
     }
 
     const wsUrl = url.replace("http", "ws");
-    const client = new RealtimeClient(wsUrl, token, setStatus);
-    clientRef.current = client;
-    client.connect();
+    const newClient = new RealtimeClient(wsUrl, token, setStatus);
+    setClient(newClient);
+    newClient.connect();
 
     return () => {
-      client.disconnect();
+      newClient.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, url]);
 
   return (
-    <RealtimeContext.Provider value={{ client: clientRef.current, status }}>
+    <RealtimeContext.Provider value={{ client, status }}>
       {children}
     </RealtimeContext.Provider>
   );
@@ -56,11 +57,13 @@ export const useRealtime = () => {
     throw new Error("useRealtime must be used within a RealtimeProvider");
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const subscribe = (event: string, callback: (payload: any) => void) => {
     if (!context.client) return () => {};
     return context.client.subscribe(event, callback);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const emit = (event: string, room: string, payload: any) => {
     if (!context.client) return;
     context.client.emit(event, room, payload);

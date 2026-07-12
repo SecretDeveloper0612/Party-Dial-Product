@@ -6,3 +6,5 @@ router.post('/send-email', quotationController.sendQuotationEmail);
 router.post('/send-client-email', quotationController.sendClientQuotation);
 
 module.exports = router;
+router.post('/inquiry', quotationController.submitInquiry);
+router.get('/inquiries', quotationController.getInquiries);

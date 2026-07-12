@@ -460,6 +460,7 @@ const InquiryForm = memo(({
       onChange({ target: { name: 'pincode', value: localPincode } } as any);
     }, 400);
     return () => clearTimeout(debounceTimer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localPincode]);
 
   if (isSubmitted) {
@@ -799,7 +800,7 @@ export default function PopupInquiry() {
       window.removeEventListener('open-inquiry-popup', handleOpen);
       window.removeEventListener('auth-change', handleAuthChange);
     };
-  }, [isSubmitted]);
+  }, [isOpen, isSubmitted]);
 
   // Auth Actions
   const handleSendOtp = async () => {

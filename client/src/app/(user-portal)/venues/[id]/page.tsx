@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 'use client';
 
@@ -967,12 +968,12 @@ export default function VenueDetailPage() {
 
           {/* RIGHT SIDEBAR (Sticky Form) */}
           <aside className="w-full lg:w-[420px] shrink-0">
-            <div className="sticky top-28 bg-white p-8 md:p-10 rounded-2xl border border-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.06)] relative overflow-hidden">
+            <div className="sticky top-28 bg-white p-8 md:p-10 rounded-2xl border border-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.06)] overflow-hidden">
                {/* Premium Top Line Glow effect for form */}
                <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-pd-pink via-purple-400 to-pd-blue"></div>
                
                <div className="text-center mb-10 pb-8 border-b border-slate-50">
-                  <div className="text-pd-pink font-black text-[10px] uppercase tracking-[0.3em] mb-4 flex justify-center items-center gap-2 bg-pd-pink/5 inline-flex px-4 py-1.5 rounded-full mx-auto">
+                  <div className="text-pd-pink font-black text-[10px] uppercase tracking-[0.3em] mb-4 flex justify-center items-center gap-2 bg-pd-pink/5 px-4 py-1.5 rounded-full mx-auto">
                     <CheckCircle2 size={16} /> Direct Lead Contact
                   </div>
                   <h3 className="text-3xl font-black text-slate-900 mb-3 tracking-tight leading-none">Get Free Customized Quotes</h3>

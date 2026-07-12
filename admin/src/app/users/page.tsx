@@ -600,7 +600,7 @@ export default function UserRoleManagement() {
                   </div>
                   {modalType === "create" && (
                     <div className="space-y-1">
-                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1"><Lock size={10} /> Password *</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1"><Lock size={10} /> Password *</label>
                       <input required type="password" placeholder="Min. 8 characters" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
                         className="w-full bg-white border border-slate-100 rounded-xl p-3 text-sm font-semibold outline-none focus:border-[#b66dff] transition-all" />
                     </div>

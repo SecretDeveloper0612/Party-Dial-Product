@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element, @typescript-eslint/no-explicit-any */
 'use client';
 import { account, ID } from '@/lib/appwrite';
 
@@ -76,9 +76,7 @@ export default function Header() {
   });
 
   // Auth State
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [signinData, setSigninData] = useState({ email: '', password: '' });
 
@@ -106,7 +104,6 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -129,7 +126,6 @@ export default function Header() {
       }
     } else {
       // Logic for iOS or desktop where beforeinstallprompt isn't triggered
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
       if (isIOS) {
         alert('To install PartyDial on iPhone:\n\n1. Tap the Share button (square with arrow) at the bottom\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" at the top right');
@@ -164,7 +160,6 @@ export default function Header() {
   
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [locationInput, setLocationInput] = useState("");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -210,20 +205,16 @@ export default function Header() {
 
         if (data[0].Status === 'Success') {
           const offices = data[0].PostOffice || [];
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const filteredOffices = offices.filter((office: any) => 
             office.State && office.State.toLowerCase() === 'uttarakhand'
           );
           
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const formattedSuggestions = filteredOffices.map((office: any) => ({
             display: `${office.Name}-${office.Pincode}`,
             name: office.Name,
             pincode: office.Pincode
           }));
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const uniqueSuggestions = Array.from(new Set(formattedSuggestions.map((s: any) => s.display)))
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .map(display => formattedSuggestions.find((s: any) => s.display === display));
           
           setSuggestions(uniqueSuggestions);
@@ -280,7 +271,7 @@ export default function Header() {
       )}
 
       {/* 2. MAIN HEADER */}
-      <header className="sticky top-2 md:top-4 mt-2 md:mt-4 z-50 w-full h-0 px-4 md:px-8 transition-all duration-300">
+      <header className="sticky top-2 md:top-4 mt-2 md:mt-4 z-50 w-full px-4 md:px-8 transition-all duration-300">
         <nav className="mx-auto max-w-5xl h-14 sm:h-[68px] flex items-center justify-between px-4 sm:px-6 md:px-8 bg-white/95 backdrop-blur-xl rounded-full shadow-lg border border-slate-100">
           <Link href="/" className="flex items-center gap-2 md:gap-4 shrink-0">
              <div className="relative w-28 sm:w-36 h-10 sm:h-12 cursor-pointer hover:scale-105 transition-transform flex items-center">
@@ -452,7 +443,7 @@ export default function Header() {
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               transition={{ type: "tween", duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
               style={{ willChange: "transform, opacity", transform: 'translateZ(0)' }}
-              className="relative w-full max-w-5xl bg-white rounded-4xl md:rounded-[40px] shadow-pd-strong overflow-hidden flex flex-col md:flex-row min-h-[500px] md:min-h-[600px] z-[110] transform-gpu"
+              className="relative w-full max-w-5xl bg-white rounded-3xl md:rounded-[40px] shadow-pd-strong overflow-hidden flex flex-col md:flex-row min-h-auto md:min-h-[600px] z-[110] transform-gpu"
               onClick={e => e.stopPropagation()}
             >
               {/* Left Visual Side */}
@@ -481,16 +472,16 @@ export default function Header() {
               </div>
 
               {/* Right Form Side */}
-              <div className="flex-1 p-8 md:p-14 overflow-y-auto no-scrollbar max-h-[90vh] md:max-h-none">
+              <div className="flex-1 p-5 md:p-14 overflow-y-auto no-scrollbar max-h-[85vh] md:max-h-none">
                  <button 
                   onClick={() => setAuthModal({...authModal, isOpen: false})} 
-                  className="absolute top-8 right-8 p-2 hover:bg-slate-100 rounded-full transition-colors z-20"
+                  className="absolute top-4 md:top-8 right-4 md:right-8 p-2 hover:bg-slate-100 rounded-full transition-colors z-20"
                  >
                    <X size={24} />
                  </button>
 
-                 <div className="max-w-md mx-auto">
-                    <div className="mb-10">
+                  <div className="max-w-md mx-auto">
+                    <div className="mb-6 md:mb-10">
                        <h3 className="text-3xl font-bold text-slate-900 mb-2">
                          {authModal.type === 'signup' ? "Join PartyDial" : authModal.type === 'signin' ? "Sign In" : "Verify Phone"}
                        </h3>
@@ -562,7 +553,6 @@ export default function Header() {
 
                               window.dispatchEvent(new Event('auth-change'));
                               setAuthModal({ ...authModal, isOpen: false });
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             } catch (error: any) {
                               setAuthError(error.message || 'Invalid OTP. Please try again.');
                             } finally {
@@ -590,7 +580,6 @@ export default function Header() {
                                 const token = await account.createPhoneToken(ID.unique(), phone);
                                 setAuthUserId(token.userId);
                                 setResendTimer(45);
-                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
                               } catch(e: any) {
                                 setAuthError(e.message || 'Failed to resend OTP.');
                               } finally {
@@ -604,7 +593,7 @@ export default function Header() {
                         </div>
                       </div>
                     ) : (
-                    <form className="space-y-6" onSubmit={async (e) => { 
+                    <form className="space-y-4 md:space-y-6" onSubmit={async (e) => { 
                       e.preventDefault(); 
                       try {
                         setIsAuthLoading(true);
@@ -658,7 +647,6 @@ export default function Header() {
                            window.dispatchEvent(new Event('auth-change'));
                            setAuthModal({...authModal, isOpen: false});
                         }
-                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       } catch (error: any) {
                         setAuthError(error.message || 'Authentication failed. Please check your details.');
                       } finally {
@@ -676,7 +664,7 @@ export default function Header() {
                                  placeholder="John Doe" 
                                  value={signupData.name}
                                  onChange={(e) => setSignupData({...signupData, name: e.target.value})}
-                                 className="w-full h-14 pl-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" 
+                                 className="w-full h-12 md:h-14 pl-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" 
                                />
                            </div>
                          </div>
@@ -694,7 +682,7 @@ export default function Header() {
                                 onChange={(e) => authModal.type === 'signup' 
                                   ? setSignupData({...signupData, email: e.target.value})
                                   : setSigninData({...signinData, email: e.target.value})}
-                                className="w-full h-14 pl-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" 
+                                className="w-full h-12 md:h-14 pl-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" 
                              />
                           </div>
                        </div>
@@ -721,7 +709,7 @@ export default function Header() {
                                     }
                                     setSignupData({...signupData, phone: formatted});
                                   }}
-                                  className="w-full h-14 pl-24 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" 
+                                  className="w-full h-12 md:h-14 pl-24 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" 
                                 />
                              </div>
                           </div>
@@ -743,7 +731,7 @@ export default function Header() {
                               onChange={(e) => authModal.type === 'signup' 
                                 ? setSignupData({...signupData, password: e.target.value})
                                 : setSigninData({...signinData, password: e.target.value})}
-                              className="w-full h-14 pl-14 pr-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" 
+                              className="w-full h-12 md:h-14 pl-14 pr-14 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-pd-red transition-all" 
                              />
                              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors">
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -758,7 +746,7 @@ export default function Header() {
                         <button 
                          type="submit" 
                          disabled={isAuthLoading}
-                         className="w-full h-16 bg-slate-900 text-white rounded-2xl font-bold text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+                         className="w-full h-14 md:h-16 bg-slate-900 text-white rounded-2xl font-bold text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
                         >
                           {isAuthLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>{authModal.type === 'signin' ? 'Sign In' : 'Create Account'} <ArrowRight size={18}/></>}
                         </button>

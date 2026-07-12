@@ -1,4 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const fs = require('fs');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const https = require('https');
 
 const url = 'https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/json/cities.json';

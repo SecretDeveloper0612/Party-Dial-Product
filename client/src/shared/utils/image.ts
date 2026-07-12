@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getAppwriteImageUrl = (fileId: string | any) => {
   if (!fileId) return "/gallery/interior.png";
   
@@ -11,13 +12,12 @@ export const getAppwriteImageUrl = (fileId: string | any) => {
     return id;
   }
   
-  // Use environment variables or hardcoded fallbacks
-  const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com';
-  const serverUrl = base.endsWith('/api') ? base : `${base}/api`;
+  const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
+  const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '69ae84bc001ca4edf8c2';
   const bucketId = process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID || 'venues_photos';
   
-  // Create a URL pointing to our proxy
-  return `${serverUrl}/venues/proxy/image/${bucketId}/${id}`;
+  // Use direct Appwrite view URL because images now have public read permissions
+  return `${endpoint}/storage/buckets/${bucketId}/files/${id}/view?project=${projectId}`;
 };
 
 export interface GalleryPhoto {
@@ -25,6 +25,7 @@ export interface GalleryPhoto {
     category: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const parsePhotos = (photosData: any): GalleryPhoto[] => {
   if (!photosData) return [];
   

@@ -9,9 +9,7 @@ import {
   Trash2, 
   Plus, 
   Sparkles,
-  CheckCircle2,
   ArrowRight,
-  Info,
   Building2
 } from 'lucide-react';
 import Link from 'next/link';
@@ -21,7 +19,7 @@ import Image from 'next/image';
 export default function UploadPhotosPage() {
   const router = useRouter();
   const [photos, setPhotos] = useState<{id: string, category: string}[]>([]);
-  const [venueProfile, setVenueProfile] = useState<any>(null);
+  const [venueProfile, setVenueProfile] = useState<Record<string, unknown> | null>(null);
   const [docId, setDocId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -52,9 +50,9 @@ export default function UploadPhotosPage() {
           if (profile.photos) {
             const parsed = JSON.parse(profile.photos);
             // Handle both old format (string[]) and new format ({id, category}[])
-            const normalized = parsed.map((p: any) => {
+            const normalized = parsed.map((p: unknown) => {
               if (typeof p === 'string') return { id: p, category: 'ALL PHOTOS' };
-              return p;
+              return p as { id: string; category: string };
             });
             setPhotos(normalized);
           }
@@ -102,7 +100,12 @@ export default function UploadPhotosPage() {
       const categoryToAssign = activeCategory === "ALL PHOTOS" ? "INTERIOR" : activeCategory;
 
       for (const file of Array.from(selectedFiles)) {
-        const response = await storage.createFile(STORAGE_BUCKET_ID, ID.unique(), file);
+        const response = await storage.createFile(
+          STORAGE_BUCKET_ID, 
+          ID.unique(), 
+          file,
+          [Permission.read(Role.any())]
+        );
         uploadedPhotos.push({ id: response.$id, category: categoryToAssign });
       }
 
@@ -137,7 +140,7 @@ export default function UploadPhotosPage() {
         setDocId(newDoc.$id);
       }
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Upload failed:', err);
       alert('Upload failed. Please ensure a storage bucket named "venues_photos" exists.');
     } finally {
@@ -170,6 +173,8 @@ export default function UploadPhotosPage() {
   });
 
   const getFilePreview = (id: string) => {
+    if (!id) return '';
+    if (id.startsWith('http')) return id;
     return `${appConfig.endpoint}/storage/buckets/${appConfig.bucketId}/files/${id}/view?project=${appConfig.projectId}`;
   };
 
@@ -323,7 +328,7 @@ export default function UploadPhotosPage() {
              </div>
              <Link href="/dashboard/onboarding/pricing">
                <button 
-                  className="pd-btn-primary flex items-center gap-2 min-w-[200px] justify-center  tracking-normal"
+                  className="pd-btn-primary flex items-center gap-2 min-w-50 justify-center  tracking-normal"
                >
                   Verify & Next Step
                   <ArrowRight size={18} />

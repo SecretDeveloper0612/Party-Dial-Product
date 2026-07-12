@@ -12,11 +12,18 @@ import {
   ChevronRight,
   Facebook
 } from 'lucide-react';
+import { useSyncExternalStore } from 'react';
 import { usePathname } from 'next/navigation';
 
 export default function Footer() {
   const pathname = usePathname();
-  if (pathname === '/' || pathname === '/ai-search') return null;
+  const isApp = useSyncExternalStore(
+    () => () => {},
+    () => typeof navigator !== 'undefined' && navigator.userAgent.includes('PartyDialMobileApp'),
+    () => false
+  );
+
+  if (pathname === '/' || pathname === '/ai-search' || isApp) return null;
 
   return (
     <footer suppressHydrationWarning className="bg-[#0B1121] pt-24 pb-12 px-6 text-white relative overflow-hidden font-pd">
@@ -41,7 +48,7 @@ export default function Footer() {
             </div>
             
             <p className="max-w-sm text-slate-400 text-base font-medium leading-relaxed">
-              India's most sophisticated event discovery ecosystem. We curate extraordinary venues and seamless experiences to elevate every milestone.
+              India&apos;s most sophisticated event discovery ecosystem. We curate extraordinary venues and seamless experiences to elevate every milestone.
             </p>
 
             <div className="flex flex-wrap gap-3 justify-center md:justify-start">
