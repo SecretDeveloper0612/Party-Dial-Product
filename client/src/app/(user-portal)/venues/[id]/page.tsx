@@ -385,6 +385,7 @@ export default function VenueDetailPage() {
     rating: 0,
     comment: ''
   });
+  const [hoverRating, setHoverRating] = useState(0);
 
   const fetchReviews = async () => {
     if (!id) return;

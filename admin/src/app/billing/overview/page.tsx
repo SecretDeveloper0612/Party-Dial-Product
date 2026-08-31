@@ -194,7 +194,7 @@ export default function BillingOverview() {
                     <RechartsTooltip 
                       contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)', fontWeight: 700 }}
                       itemStyle={{ color: '#0f172a' }}
-                      formatter={(value: number) => [`₹${value.toLocaleString()}`, 'Revenue']}
+                      formatter={(value: any) => [`₹${value.toLocaleString()}`, 'Revenue']}
                     />
                     <Area 
                        type="monotone" 

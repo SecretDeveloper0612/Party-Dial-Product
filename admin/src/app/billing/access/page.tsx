@@ -268,7 +268,7 @@ export default function ManualAccessPage() {
                    <h3 className="text-xl font-black m-0">{selectedVenue.venueName}</h3>
                    <div className="flex items-center gap-3 mt-4 text-white/60">
                      <Building2 size={16} />
-                     <span className="text-xs font-bold">{selectedVenue.ownerEmail}</span>
+                     <span className="text-xs font-bold">{(selectedVenue as any).ownerEmail || 'Email not available'}</span>
                    </div>
                  </div>
 
@@ -422,7 +422,7 @@ export default function ManualAccessPage() {
                       </button>
                       <button 
                         onClick={() => setNotification({ ...notification, show: false })}
-                        className="w-full h-14 bg-slate-50 text-slate-400 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all font-bold"
+                        className="w-full h-14 bg-slate-50 text-slate-400 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all"
                       >
                         Cancel Transaction
                       </button>

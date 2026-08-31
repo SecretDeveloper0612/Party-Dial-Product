@@ -196,7 +196,7 @@ const LeadInbox = ({
                           }`}
                           value={displayStatus}
                           onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
-                          disabled={isExpired}
+                          disabled={!!isExpired}
                        >
                           {isExpired ? (
                              <option value="Expired">Expired</option>

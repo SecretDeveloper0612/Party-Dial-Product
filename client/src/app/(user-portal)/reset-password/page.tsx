@@ -4,7 +4,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { account } from '@/lib/appwrite';
 import Link from 'next/link';
 
-export default function ResetPasswordPage() {
+import { Suspense } from 'react';
+
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -40,7 +42,7 @@ export default function ResetPasswordPage() {
     setError('');
 
     try {
-      await account.updateRecovery(userId, secret, password, password);
+      await account.updateRecovery(userId, secret, password);
       // Success! Redirect to home with a flag to open the login modal
       router.push('/?login=true');
     } catch (err: any) {
@@ -108,5 +110,14 @@ export default function ResetPasswordPage() {
         )}
       </div>
     </div>
+  );
+}
+
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

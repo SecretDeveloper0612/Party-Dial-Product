@@ -71,7 +71,7 @@ export default function UploadPhotosPage() {
     setIsUploading(true);
     try {
       const { storage, STORAGE_BUCKET_ID, databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
-      const { ID } = await import('appwrite');
+      const { ID, Permission, Role } = await import('appwrite');
       const userJson = localStorage.getItem('user');
       const user = userJson ? JSON.parse(userJson) : null;
 

@@ -82,7 +82,9 @@ export default function RootLayout({
             }
           `}
         </Script>
-        <Header />
+        <Suspense fallback={null}>
+          <Header />
+        </Suspense>
         {children}
         <Suspense fallback={null}>
           <PopupInquiry />
