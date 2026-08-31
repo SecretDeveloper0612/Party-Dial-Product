@@ -1,970 +1,1217 @@
-/* eslint-disable @next/next/no-img-element */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
+/* eslint-disable @next/next/no-img-element, react-hooks/exhaustive-deps, react/no-unescaped-entities */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/autoplay';
 import {
-  Search, MapPin, Users, ArrowRight, Building2, PartyPopper, PhoneCall,
-  Zap, Mic, IndianRupee, X,
-  TriangleAlert, RefreshCcw, TrendingUp
-} from 'lucide-react';
-import VenueCard from '@/shared/components/VenueCard';
-import { getAppwriteImageUrl, parsePhotos } from '@/shared/utils/image';
-
-// ─────────────────────────────────────────────────────────────────
-// NLP INTENT ENGINE
-// ─────────────────────────────────────────────────────────────────
-
-const EVENT_TYPES = [
-  'birthday', 'wedding', 'reception', 'engagement', 'sangeet', 'mehndi',
-  'anniversary', 'corporate', 'conference', 'seminar', 'meeting',
-  'kitty party', 'kitty', 'bachelor', 'bachelorette', 'baby shower',
-  'pre-wedding', 'pre wedding', 'retirement', 'farewell', 'prom',
-  'festival', 'reunion', 'product launch', 'launch', 'award',
-] as const;
-
-const VENUE_TYPES = [
-  'banquet', 'banquet hall', 'hotel', 'resort', 'farmhouse', 'farm house',
-  'lawn', 'rooftop', 'rooftop venue', 'club', 'lounge', 'convention center',
-  'hall', 'auditorium', 'studio', 'ballroom', 'garden', 'terrace',
-] as const;
-
-const AMENITY_KEYWORDS: Record<string, string[]> = {
-  'Parking':      ['parking', 'car park', 'valet'],
-  'DJ':           ['dj', 'disc jockey', 'music system', 'sound system'],
-  'Decoration':   ['decoration', 'decor', 'decorations', 'theme'],
-  'Catering':     ['catering', 'food', 'meals', 'buffet', 'dinner', 'lunch', 'breakfast'],
-  'AC':           ['ac', 'air conditioning', 'air-conditioned', 'air conditioned'],
-  'WiFi':         ['wifi', 'wi-fi', 'internet', 'wireless'],
-  'Projector':    ['projector', 'screen', 'presentation', 'av'],
-  'Dance Floor':  ['dance floor', 'dance', 'dancing'],
-  'Bar':          ['bar', 'drinks', 'cocktail', 'beverages'],
-  'Lawn':         ['lawn', 'garden', 'outdoor', 'open air', 'open-air'],
-  'Stage':        ['stage', 'podium', 'performance'],
-  'Swimming Pool':['pool', 'swimming'],
-};
-
-const INDIAN_CITIES = [
-  'haldwani', 'nainital', 'dehradun', 'haridwar', 'rishikesh', 'kathgodam',
-  'delhi', 'new delhi', 'noida', 'gurgaon', 'gurugram', 'faridabad', 'ghaziabad',
-  'mumbai', 'pune', 'bangalore', 'bengaluru', 'chennai', 'hyderabad',
-  'kolkata', 'ahmedabad', 'surat', 'jaipur', 'lucknow', 'chandigarh',
-  'agra', 'varanasi', 'bhopal', 'indore', 'nagpur', 'patna',
-  'kochi', 'coimbatore', 'visakhapatnam', 'vizag', 'goa',
-];
-
-export interface ParsedIntent {
-  eventType: string;
-  venueType: string;
-  capacity: number;
-  maxBudget: number | null;
-  city: string;
-  pincode: string;
-  amenities: string[];
-  rawQuery: string;
-  isUnrelated: boolean;
-}
-
-export interface ScoredVenue {
-  venue: any;
-  score: number;
-  matchedSignals: string[];
-}
-
-function extractIntent(query: string): ParsedIntent {
-  const q = query.toLowerCase().trim();
-
-  // ── Pincode ─────────────────────────────────
-  const pincodeMatch = q.match(/\b(\d{6})\b/);
-  const pincode = pincodeMatch ? pincodeMatch[1] : '';
-
-  // ── Capacity ─────────────────────────────────
-  // "50 pax", "50 guests", "50 people", "for 50", "upto 50", "50+", "50-60"
-  let capacity = 0;
-  const capPatterns = [
-    /(\d+)\s*(?:pax|guests?|people|persons?|heads?|attendees?)/i,
-    /(?:for|of|upto|up to|atleast|at least|minimum)\s*(\d+)/i,
-    /(\d+)\s*[-–to]+\s*\d+\s*(?:pax|guests?|people)?/i,
-  ];
-  for (const pat of capPatterns) {
-    const m = q.match(pat);
-    if (m && parseInt(m[1]) > 5) { capacity = parseInt(m[1]); break; }
-  }
-
-  // ── Budget ───────────────────────────────────
-  let maxBudget: number | null = null;
-  const lakhMatch = q.match(/(?:under|below|within|upto|budget\s*of)?\s*₹?\s*(\d+(?:\.\d+)?)\s*(?:lakh|lac|l\b)/i);
-  if (lakhMatch) {
-    maxBudget = parseFloat(lakhMatch[1]) * 100000;
-  } else {
-    const kMatch = q.match(/(?:under|below|within|upto|budget\s*of)?\s*₹?\s*(\d+)\s*k\b/i);
-    if (kMatch) {
-      maxBudget = parseInt(kMatch[1]) * 1000;
-    } else {
-      const rsMatch = q.match(/(?:under|below|within|upto|budget\s*of)?\s*(?:₹|rs\.?|inr)\s*([\d,]+)/i);
-      if (rsMatch) maxBudget = parseInt(rsMatch[1].replace(/,/g, ''));
-      else {
-        const pureUnder = q.match(/(?:under|below|within|budget of)\s*([\d,]+)/i);
-        if (pureUnder) maxBudget = parseInt(pureUnder[1].replace(/,/g, ''));
-      }
-    }
-  }
-
-  // ── City ─────────────────────────────────────
-  let city = '';
-  for (const c of INDIAN_CITIES) {
-    if (q.includes(c)) { city = c; break; }
-  }
-
-  // ── Event Type ───────────────────────────────
-  let eventType = '';
-  for (const e of EVENT_TYPES) {
-    if (q.includes(e)) { eventType = e; break; }
-  }
-
-  // ── Venue Type ───────────────────────────────
-  let venueType = '';
-  for (const v of VENUE_TYPES) {
-    if (q.includes(v)) { venueType = v; break; }
-  }
-
-  // ── Amenities ────────────────────────────────
-  const amenities: string[] = [];
-  for (const [amenityName, keywords] of Object.entries(AMENITY_KEYWORDS)) {
-    if (keywords.some(kw => q.includes(kw))) amenities.push(amenityName);
-  }
-
-  // ── Unrelated query detection ─────────────────
-  const venueRelatedWords = [
-    'venue', 'hall', 'event', 'party', 'wedding', 'birthday', 'function',
-    'book', 'celebrate', 'celebration', 'marriage', 'find', 'search',
-    'banquet', 'hotel', 'resort', 'farmhouse', 'pax', 'guests', 'people',
-    ...EVENT_TYPES, ...VENUE_TYPES, ...INDIAN_CITIES,
-  ];
-  const hasVenueContext = venueRelatedWords.some(w => q.includes(w))
-    || capacity > 0 || maxBudget !== null || pincode !== '';
-
-  return {
-    eventType,
-    venueType,
-    capacity,
-    maxBudget,
-    city,
-    pincode,
-    amenities,
-    rawQuery: query,
-    isUnrelated: !hasVenueContext,
-  };
-}
-
-// ─────────────────────────────────────────────────────────────────
-// RELEVANCE SCORING + FILTERING
-// ─────────────────────────────────────────────────────────────────
-
-function filterAndRank(
-  venues: any[],
-  intent: ParsedIntent,
-  options: { relaxCapacity?: boolean; relaxBudget?: boolean } = {}
-): ScoredVenue[] {
-  const results: ScoredVenue[] = [];
-
-  for (const venue of venues) {
-    if (!venue.verified) continue;
-    if (venue.subscriptionPlan === 'free' || !venue.subscriptionPlan) continue;
-
-    const venueCap = parseInt(venue.capacity) || 0;
-    const matchedSignals: string[] = [];
-    let score = 0;
-
-    // ── Hard Filter: Capacity ─────────────────────
-    if (intent.capacity > 0) {
-      const minCap = options.relaxCapacity ? intent.capacity * 0.7 : intent.capacity;
-      const maxCap = options.relaxCapacity ? intent.capacity * 1.4 : Infinity;
-      if (venueCap < minCap) continue;
-      if (venueCap > maxCap) continue;
-      score += 30;
-      matchedSignals.push(`${venueCap} PAX capacity`);
-    }
-
-    // ── Hard Filter: Budget ───────────────────────
-    if (!options.relaxBudget && intent.maxBudget !== null && venue.price !== null && venue.price > 0) {
-      const pax = intent.capacity > 0 ? intent.capacity : 100;
-      const maxPerPlate = intent.maxBudget / pax;
-      if (venue.price > maxPerPlate * 1.3) continue; // 30% tolerance
-      score += 15;
-      matchedSignals.push(`within ₹${intent.maxBudget.toLocaleString('en-IN')} budget`);
-    }
-
-    // ── Soft Score: Event Type ────────────────────
-    if (intent.eventType) {
-      const cats: string[] = venue.categories || [];
-      const hasMatch = cats.some(c => c.toLowerCase().includes(intent.eventType) || intent.eventType.includes(c.toLowerCase()));
-      if (hasMatch) { score += 25; matchedSignals.push(intent.eventType); }
-    }
-
-    // ── Soft Score: Venue Type ────────────────────
-    if (intent.venueType) {
-      const venueTypeLower = (venue.type || '').toLowerCase();
-      if (venueTypeLower.includes(intent.venueType) || intent.venueType.includes(venueTypeLower)) {
-        score += 20;
-        matchedSignals.push(intent.venueType);
-      }
-    }
-
-    // ── Hard Filter: City ──────────────────────────
-    if (intent.city) {
-      const venueCity = (venue.city || '').toLowerCase();
-      if (!venueCity.includes(intent.city) && !intent.city.includes(venueCity)) continue;
-      score += 20;
-      matchedSignals.push(venue.city);
-    }
-
-    // ── Hard Filter: Pincode ───────────────────────
-    if (intent.pincode) {
-      if (!(venue.pincode || '').startsWith(intent.pincode.slice(0, 4))) continue;
-      score += 15;
-      matchedSignals.push(`near ${intent.pincode}`);
-    }
-
-    // ── Soft Score: Amenities ─────────────────────
-    if (intent.amenities.length > 0) {
-      const venueAmenities: string[] = venue.amenities || [];
-      const venueAmenitiesLower = venueAmenities.map(a => a.toLowerCase());
-      for (const reqAmenity of intent.amenities) {
-        const matched = venueAmenitiesLower.some(a => a.includes(reqAmenity.toLowerCase()) || reqAmenity.toLowerCase().includes(a));
-        if (matched) { score += 5; matchedSignals.push(reqAmenity); }
-      }
-    }
-
-    // ── Bonus: Paid Plan ──────────────────────────
-    if (venue.subscriptionPlan && venue.subscriptionPlan !== 'free') score += 10;
-
-    // ── Bonus: Rating ─────────────────────────────
-    score += (parseFloat(venue.rating) || 0) * 3;
-
-    results.push({ venue, score, matchedSignals });
-  }
-
-  return results.sort((a, b) => b.score - a.score);
-}
-
-// ─────────────────────────────────────────────────────────────────
-// VENUE DATA MAPPER
-// ─────────────────────────────────────────────────────────────────
-function mapVenueDoc(doc: any) {
-  const photos = parsePhotos(doc.photos);
-  const hasPaidPlan = doc.subscriptionPlan &&
-    doc.subscriptionPlan !== 'free' &&
-    doc.subscriptionPlan !== 'None' &&
-    doc.subscriptionPlan !== '';
-
-  return {
-    id: doc.$id,
-    name: doc.venueName || 'Unnamed Venue',
-    location: doc.landmark || doc.city || 'India',
-    city: doc.city || 'India',
-    type: doc.venueType || 'Banquet Hall',
-    capacity: parseInt(doc.capacity) || 0,
-    price: doc.perPlateVeg ? parseFloat(doc.perPlateVeg) : null,
-    pincode: doc.pincode?.toString() || '',
-    rating: parseFloat(doc.rating) || 0,
-    reviews: doc.totalReviews || 0,
-    img: photos.length > 0 ? getAppwriteImageUrl(photos[0]) : '',
-    images: photos.map((p: any) => getAppwriteImageUrl(p)),
-    verified: doc.isVerified || false,
-    popular: doc.status === 'active',
-    isPaid: !!hasPaidPlan,
-    amenities: doc.amenities
-      ? typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities
-      : [],
-    categories: doc.eventTypes
-      ? typeof doc.eventTypes === 'string' ? JSON.parse(doc.eventTypes) : doc.eventTypes
-      : [],
-    subscriptionPlan: doc.subscriptionPlan || 'free',
-    foodTypes: (() => {
-      let parsed = doc.foodTypes ? (typeof doc.foodTypes === 'string' ? JSON.parse(doc.foodTypes) : doc.foodTypes) : [];
-      if (!Array.isArray(parsed) || parsed.length === 0) {
-        parsed = [];
-        if (doc.perPlateVeg) parsed.push('Veg');
-        if (doc.perPlateNonVeg) parsed.push('Non-Veg');
-        if (parsed.length === 0) parsed.push('Veg');
-      }
-      return parsed;
-    })(),
-  };
-}
-
-// ─────────────────────────────────────────────────────────────────
-// FOLLOW-UP SUGGESTION CHIPS
-// ─────────────────────────────────────────────────────────────────
-function FollowUpSuggestions({
-  intent,
-  onSuggest,
-}: {
-  intent: ParsedIntent;
-  onSuggest: (query: string) => void;
-}) {
-  const suggestions: { label: string; query: string; icon: React.ReactNode }[] = [];
-
-  if (intent.capacity > 0) {
-    const lo = Math.round(intent.capacity * 0.7);
-    const hi = Math.round(intent.capacity * 1.4);
-    suggestions.push({
-      label: `Show venues for ${lo}–${hi} guests`,
-      query: `${intent.eventType || 'event'} venue for ${lo}-${hi} guests${intent.city ? ` in ${intent.city}` : ''}`,
-      icon: <Users size={14} />,
-    });
-  }
-
-  if (intent.maxBudget !== null) {
-    const relaxed = intent.maxBudget * 1.5;
-    suggestions.push({
-      label: `Increase budget to ₹${(relaxed / 100000).toFixed(1)}L`,
-      query: `${intent.eventType || 'event'} venue${intent.capacity > 0 ? ` for ${intent.capacity} guests` : ''}${intent.city ? ` in ${intent.city}` : ''} under ₹${relaxed.toLocaleString('en-IN')}`,
-      icon: <IndianRupee size={14} />,
-    });
-  }
-
-  if (intent.city) {
-    suggestions.push({
-      label: `Show all venues in ${intent.city}`,
-      query: `venue in ${intent.city}`,
-      icon: <MapPin size={14} />,
-    });
-  } else {
-    suggestions.push({
-      label: 'Show all available venues',
-      query: `${intent.eventType || 'event'} venue`,
-      icon: <Building2 size={14} />,
-    });
-  }
-
-  if (intent.eventType) {
-    suggestions.push({
-      label: `Any ${intent.eventType} venue`,
-      query: `${intent.eventType} venue`,
-      icon: <PartyPopper size={14} />,
-    });
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mt-6 p-6 bg-amber-50 border border-amber-100 rounded-3xl"
-    >
-      <div className="flex items-center gap-2 mb-4">
-        <TriangleAlert size={16} className="text-amber-500" />
-        <p className="text-sm font-bold text-amber-700">
-          No exact matches — try one of these:
-        </p>
-      </div>
-      <div className="flex flex-wrap gap-3">
-        {suggestions.map((s, i) => (
-          <button
-            key={i}
-            onClick={() => onSuggest(s.query)}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-amber-200 text-amber-800 rounded-full text-xs font-bold hover:bg-amber-100 hover:border-amber-300 transition-all"
-          >
-            {s.icon}
-            {s.label}
-          </button>
-        ))}
-      </div>
-    </motion.div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
-// SIGNAL TAGS — compact chips for matched intent signals
-// ─────────────────────────────────────────────────────────────────
-function SignalTag({ label, color }: { label: string; color: string }) {
-  return (
-    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${color}`}>
-      {label}
-    </span>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
-// MAIN PAGE
-// ─────────────────────────────────────────────────────────────────
-export default function AISearchPage() {
-  const [query, setQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [liveVenues, setLiveVenues] = useState<any[]>([]);
-  const [intent, setIntent] = useState<ParsedIntent | null>(null);
-  const [scoredResults, setScoredResults] = useState<ScoredVenue[]>([]);
-  const [fallbackMode, setFallbackMode] = useState<'none' | 'relaxCapacity' | 'relaxBudget' | 'noMatch'>('none');
-  const [isMobile, setIsMobile] = useState(false);
-
-  const [isListening, setIsListening] = useState(false);
-  const [hasRecognition, setHasRecognition] = useState(false);
-  const recognitionRef = useRef<any>(null);
+  Search,
+  MapPin,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  User,
+  LogOut,
+  Smartphone,
+  Menu,
+  X,
+  Users,
+  Calendar,
+  IndianRupee,
+  CheckCircle2,
+  Star,
+  Quote,
+  ShieldCheck,
+  Zap,
+  Tag,
+  Clock,
+  ArrowRight,
+  Send,
+  Building2,
+  LayoutDashboard,
+  Heart,
+  Globe,
   
-  // We need a ref to the latest runSearch to call it from the speech recognition callback
-  const runSearchRef = useRef<any>(null);
+  Gift,
+  GlassWater,
+  PartyPopper,
+  Music,
+  Baby,
+  Smile,
+  Home as HomeIcon,
+  Camera,
+  Brush,
+  Cake
+} from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import VenueCard from '@/shared/components/VenueCard';
+import MinimalVenueCard from '@/shared/components/MinimalVenueCard';
+import CustomDatePicker from '@/shared/components/CustomDatePicker';
+import { Venue } from '@/data/venues';
+
+const AnimatedCounter = ({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-10px 0px" });
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
-    // Restore AI Search State
-    setTimeout(() => {
-      try {
-        const savedState = sessionStorage.getItem('partyDialAiSearchState');
-        if (savedState) {
-          const parsed = JSON.parse(savedState);
-          if (parsed.hasSearched) {
-            setHasSearched(parsed.hasSearched);
-            setIntent(parsed.intent);
-            setScoredResults(parsed.scoredResults);
-            setFallbackMode(parsed.fallbackMode);
-            setQuery(parsed.query || '');
-          }
-        }
-      } catch (e) {
-        console.warn("Could not restore AI search state", e);
-      }
-    }, 0);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // ── Speech Recognition ────────────────────────
-  useEffect(() => {
-    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      recognitionRef.current = new SR();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
-      setTimeout(() => setHasRecognition(true), 0);
-      recognitionRef.current.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setQuery(transcript);
-        setIsListening(false);
-        
-        // Auto-trigger search when speaking stops
-        if (runSearchRef.current) {
-          runSearchRef.current(transcript);
+    if (isInView) {
+      let startTimestamp: number | null = null;
+      const step = (timestamp: number) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        setCount(Math.floor(progress * end));
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
         }
       };
-      recognitionRef.current.onerror = () => setIsListening(false);
-      recognitionRef.current.onend = () => setIsListening(false);
+      window.requestAnimationFrame(step);
     }
-  }, []);
+  }, [isInView, end, duration]);
 
-  const toggleListening = () => {
-    if (isListening) { recognitionRef.current?.stop(); setIsListening(false); }
-    else { setQuery(''); recognitionRef.current?.start(); setIsListening(true); }
-  };
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
+};
 
-  // ── Fetch Venues ──────────────────────────────
+// Helper to map capacity integer to range label
+const getCapacityLabel = (capacity: any) => {
+  const cap = parseInt(capacity);
+  if (cap === 2000) return "2000-5000";
+  if (cap === 1000) return "1000-2000";
+  if (cap === 500) return "500-1000";
+  if (cap === 200) return "200-500";
+  if (cap === 100) return "100-200";
+  if (cap === 50) return "50-100";
+  if (cap === 0) return "0-50";
+  if (cap === 5000) return "5000+";
+  return capacity?.toString() || "0";
+};
+
+export default function Home() {
+  const locationRef = useRef<HTMLDivElement>(null);
+
+  // Form States
+  const [activeTab, setActiveTab] = useState<'standard' | 'ai'>('standard');
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const heroImages = [
+    "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2098&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=2069&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1532712938310-34cb3982ef74?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop"
+  ];
+
   useEffect(() => {
-    const fetchVenues = async () => {
-      try {
-        const envBase = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
-        const base = typeof window !== 'undefined' && envBase.includes('localhost') ? envBase.replace('localhost', window.location.hostname) : envBase;
-        const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
-        const response = await fetch(`${baseUrl}/venues?verified=true`);
-        const result = await response.json();
-        if (result.status === 'success') {
-          setLiveVenues(result.data.map(mapVenueDoc));
-        }
-      } catch (err) {
-        console.warn('Could not fetch venues:', err);
-      }
-    };
-    fetchVenues();
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(timer);
   }, []);
+  const [aiQuery, setAiQuery] = useState('');
+  
+  const [formData, setFormData] = useState({
+    eventType: '',
+    locations: [] as any[], // Changed from city: ''
+    date: '',
+    guests: ''
+  });
 
+  const [locationInput, setLocationInput] = useState('');
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [isLoadingLocations, setIsLoadingLocations] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [isEventDropdownOpen, setIsEventDropdownOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isGuestDropdownOpen, setIsGuestDropdownOpen] = useState(false);
+  const eventDropdownRef = useRef<HTMLDivElement>(null);
+  const datePickerContainerRef = useRef<HTMLDivElement>(null);
+  const guestDropdownRef = useRef<HTMLDivElement>(null);
+  const venueScrollRef = useRef<any>(null);
+  const haldwaniScrollRef = useRef<any>(null);
+  const ramnagarScrollRef = useRef<any>(null);
+  const categoriesScrollRef = useRef<any>(null);
+  const [isHoveringVenues, setIsHoveringVenues] = useState(false);
+  const [isHoveringCategories, setIsHoveringCategories] = useState(false);
 
-  // ── Core Search Logic ─────────────────────────
-  const runSearch = useCallback((searchQuery: string) => {
-    if (!searchQuery.trim()) return;
-    setIsSearching(true);
-    setHasSearched(false);
+  // Drag states for Categories
+  const [isDraggingCats, setIsDraggingCats] = useState(false);
+  const [startXCats, setStartXCats] = useState(0);
+  const [scrollLeftCats, setScrollLeftCats] = useState(0);
 
-    setTimeout(() => {
-      const parsed = extractIntent(searchQuery);
-      setIntent(parsed);
+  // Drag states for Venues
+  const [isDraggingVenues, setIsDraggingVenues] = useState(false);
+  const [startXVenues, setStartXVenues] = useState(0);
+  const [scrollLeftVenues, setScrollLeftVenues] = useState(0);
 
-      if (parsed.isUnrelated) {
-        setScoredResults([]);
-        setFallbackMode('none');
-        setHasSearched(true);
-        setIsSearching(false);
+  // Fetch Location from Indian Post API
+  useEffect(() => {
+    const fetchLocations = async () => {
+      if (locationInput.length < 3) {
+        setSuggestions([]);
         return;
       }
 
-      // Pass 1: strict
-      let results = filterAndRank(liveVenues, parsed, {});
-      let mode: 'none' | 'relaxCapacity' | 'relaxBudget' | 'noMatch' = 'none';
-
-      // Pass 2: relax capacity ±30%
-      if (results.length === 0 && parsed.capacity > 0) {
-        results = filterAndRank(liveVenues, parsed, { relaxCapacity: true });
-        if (results.length > 0) mode = 'relaxCapacity';
+      // Special Case for Haldwani (263139) and nearby areas
+      if (locationInput === '263139') {
+        const customSuggestions = [
+          { display: 'Haldwani-263139', name: 'Haldwani', pincode: '263139', state: 'Uttarakhand' },
+          { display: 'Kathgodam-263126', name: 'Kathgodam', pincode: '263126', state: 'Uttarakhand' },
+          { display: 'Lalkuan-263131', name: 'Lalkuan', pincode: '263131', state: 'Uttarakhand' },
+          { display: 'Mukhani-263139', name: 'Mukhani', pincode: '263139', state: 'Uttarakhand' },
+          { display: 'Kaladhungi-263140', name: 'Kaladhungi', pincode: '263140', state: 'Uttarakhand' },
+          { display: 'Bhowali-263132', name: 'Bhowali', pincode: '263132', state: 'Uttarakhand' },
+          { display: 'Nainital-263001', name: 'Nainital', pincode: '263001', state: 'Uttarakhand' },
+          { display: 'Damuadhunga-263126', name: 'Damuadhunga', pincode: '263126', state: 'Uttarakhand' },
+          { display: 'Lamachaur-263139', name: 'Lamachaur', pincode: '263139', state: 'Uttarakhand' },
+          { display: 'Dahariya-263139', name: 'Dahariya', pincode: '263139', state: 'Uttarakhand' },
+          { display: 'Kamaluaganja-263139', name: 'Kamaluaganja', pincode: '263139', state: 'Uttarakhand' }
+        ];
+        setSuggestions(customSuggestions);
+        setIsLoadingLocations(false);
+        return;
       }
 
-      // Pass 3: relax budget
-      if (results.length === 0 && parsed.maxBudget !== null) {
-        results = filterAndRank(liveVenues, parsed, { relaxBudget: true });
-        if (results.length > 0) mode = 'relaxBudget';
-      }
-
-      // Pass 4: no match → show follow-ups
-      if (results.length === 0) mode = 'noMatch';
-
-      setScoredResults(results);
-      setFallbackMode(mode);
-      setHasSearched(true);
-      setIsSearching(false);
-
+      setIsLoadingLocations(true);
       try {
-        sessionStorage.setItem('partyDialAiSearchState', JSON.stringify({
-          hasSearched: true,
-          intent: parsed,
-          scoredResults: results,
-          fallbackMode: mode,
-          query: searchQuery
-        }));
-      } catch (e) {
-        console.warn("Could not save AI search state", e);
+        const isPincode = /^\d+$/.test(locationInput);
+        const url = isPincode
+          ? `https://api.postalpincode.in/pincode/${locationInput}`
+          : `https://api.postalpincode.in/postoffice/${locationInput}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data[0].Status === 'Success') {
+          const offices = data[0].PostOffice;
+          const formattedSuggestions = offices
+            .filter((office: any) => office.State === 'Uttarakhand')
+            .map((office: any) => ({
+              display: `${office.Name}-${office.Pincode}`,
+              name: office.Name,
+              pincode: office.Pincode,
+              district: office.District,
+              state: office.State
+            }));
+
+          if (formattedSuggestions.length === 0 && offices.length > 0) {
+            setSuggestions([{ isError: true, message: 'Only Uttarakhand Pincodes allowed' }]);
+          } else {
+            const uniqueSuggestions = Array.from(new Set(formattedSuggestions.map((s: any) => s.display)))
+              .map(display => formattedSuggestions.find((s: any) => s.display === display));
+            setSuggestions(uniqueSuggestions);
+          }
+        } else {
+          setSuggestions([{ isError: true, message: 'No matching pincode found' }]);
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error);
+        setSuggestions([]);
+      } finally {
+        setIsLoadingLocations(false);
       }
-    }, 1000);
-  }, [liveVenues]);
+    };
 
-  // Update the runSearchRef whenever runSearch changes (or on mount)
+    const debounceTimer = setTimeout(fetchLocations, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [locationInput]);
+
+  // Close dropdown on scroll (Removed scroll listener to fix scroll lag)
   useEffect(() => {
-    runSearchRef.current = runSearch;
-  });
+    // Click outside already handles closing the dropdown
+  }, []);
 
-  const handleSearch = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    runSearch(query);
-    setQuery('');
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (locationRef.current && !locationRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+      if (eventDropdownRef.current && !eventDropdownRef.current.contains(event.target as Node)) {
+        setIsEventDropdownOpen(false);
+      }
+      if (datePickerContainerRef.current && !datePickerContainerRef.current.contains(event.target as Node)) {
+        setIsDatePickerOpen(false);
+      }
+      if (guestDropdownRef.current && !guestDropdownRef.current.contains(event.target as Node)) {
+        setIsGuestDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const categories = [
+    { name: "Birthday Party", icon: <Gift size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/birthday.png" },
+    { name: "Wedding Events", icon: <Heart size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/wedding.png" },
+    { name: "Pre-Wedding Events", icon: <PartyPopper size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/wedding.png" },
+    { name: "Anniversary Party", icon: <GlassWater size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/festival.png" },
+    { name: "Corporate Events", icon: <Building2 size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/corporate.png" },
+    { name: "Kitty Party", icon: <Users size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/bachelor.png" },
+    { name: "Family Functions", icon: <HomeIcon size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/kids.png" },
+    { name: "Festival Parties", icon: <PartyPopper size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/festival.png" },
+    { name: "Social Gatherings", icon: <Users size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/festival.png" },
+    { name: "Kids Parties", icon: <Smile size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/kids.png" },
+    { name: "Bachelor / Bachelorette Party", icon: <Music size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/bachelor.png" },
+    { name: "Housewarming Party", icon: <HomeIcon size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/corporate.png" },
+    { name: "Baby Shower", icon: <Baby size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/baby-shower.png" },
+    { name: "Engagement Ceremony", icon: <Heart size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/wedding.png" },
+    { name: "Entertainment / Theme Parties", icon: <Music size={16} strokeWidth={2.5} className="text-white" />, img: "/categories/kids.png" }
+  ];
+
+  const [liveVenues, setLiveVenues] = useState<any[]>([]);
+  const [isLoadingVenues, setIsLoadingVenues] = useState(true);
+  const displayVenues = liveVenues;
+  const haldwaniVenues = displayVenues.filter((v: any) => v.city?.toLowerCase().includes('haldwani') || v.location?.city?.toLowerCase().includes('haldwani') || v.pincode === '263139' || v.location?.pincode === '263139' || v.pincode === 263139 || v.location?.pincode === 263139);
+  const ramnagarVenues = displayVenues.filter((v: any) => v.city?.toLowerCase().includes('ramnagar') || v.location?.city?.toLowerCase().includes('ramnagar') || v.pincode === '244715' || v.location?.pincode === '244715' || v.pincode === 244715 || v.location?.pincode === 244715);
+
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const fetchTopVenues = async () => {
+      try {
+        const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+        const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
+        const response = await fetch(`${baseUrl}/venues`);
+        const result = await response.json();
+
+        if (result.status === 'success' && result.data) {
+          const allDocs = result.data;
+
+          // Calculate counts per category (for now using venueType as a proxy or just randomizing for demo if field missing)
+          const counts: Record<string, number> = {};
+          categories.forEach(cat => {
+            const matchCount = allDocs.filter((v: any) => {
+              // 1. Try to check the specific eventTypes field first (now that we have it from onboarding)
+              if (v.eventTypes) {
+                try {
+                  const types = typeof v.eventTypes === 'string' ? JSON.parse(v.eventTypes) : v.eventTypes;
+                  if (Array.isArray(types) && types.includes(cat.name)) return true;
+                } catch (e) { }
+              }
+
+              // 2. Fallback to name or description (legacy or if not filled)
+              return v.venueType === cat.name ||
+                (v.description && v.description.toLowerCase().includes(cat.name.toLowerCase()));
+            }).length;
+            counts[cat.name] = matchCount;
+          });
+          setCategoryCounts(counts);
+
+          const mapped = allDocs.map((doc: any) => ({
+            id: doc.$id,
+            name: doc.venueName || "Unnamed Venue",
+            location: doc.landmark || doc.city || "India",
+            city: doc.city || "Unknown",
+            type: doc.venueType || "Banquet Hall",
+            capacity: getCapacityLabel(doc.capacity),
+            price: doc.perPlateVeg ? `₹${doc.perPlateVeg}` : "N/A",
+            rating: parseFloat(doc.rating) || 4.5,
+            reviews: doc.totalReviews || 0,
+            verified: doc.isVerified || false,
+            popular: doc.status === 'active',
+            bestValue: true,
+            isNew: doc.$createdAt
+              ? (Date.now() - new Date(doc.$createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000
+              : false,
+            amenities: (doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : []),
+            foodTypes: ["Veg", "Non-Veg"],
+            isPaid: !!(doc.subscriptionPlan && doc.subscriptionPlan !== 'free' && doc.subscriptionPlan !== 'None' && doc.subscriptionPlan !== ''),
+            // profileComplete = has real name + at least one photo + valid capacity
+            profileComplete: (() => {
+              const hasName = !!(doc.venueName && doc.venueName.trim() && doc.venueName.trim() !== 'Unnamed Venue');
+              const hasCapacity = !!(doc.capacity && parseInt(doc.capacity) > 0);
+              let hasPhotos = false;
+              try {
+                const photos = typeof doc.photos === 'string' ? JSON.parse(doc.photos || '[]') : (doc.photos || []);
+                hasPhotos = Array.isArray(photos) && photos.length > 0;
+              } catch { hasPhotos = false; }
+              return hasName && hasPhotos && hasCapacity;
+            })(),
+            img: doc.photos ? (() => {
+              try {
+                const photos = JSON.parse(doc.photos);
+                const firstId = typeof photos[0] === 'string' ? photos[0] : photos[0].id;
+                const baseSrv = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+                const serverUrl = baseSrv.endsWith('/api') ? baseSrv : `${baseSrv}/api`;
+                return `${serverUrl}/venues/proxy/image/venues_photos/${firstId}`;
+              } catch (e) { return ""; }
+            })() : ""
+          }));
+
+          // "Top Venues Near You" — only venues with COMPLETE PROFILES (name + photos + capacity)
+          const weightedShuffle = (venues: any[]) =>
+            [...venues]
+              .map(v => ({ v, score: (v.rating || 0) + (v.reviews > 0 ? 100 : 0) + (v.isPaid ? 50 : 0) + Math.random() * 0.5 }))
+              .sort((a, b) => b.score - a.score)
+              .map(item => item.v);
+
+          // profileComplete = has real name + has photos + has capacity
+          let completeVenues = mapped.filter((v: any) => v.profileComplete === true);
+
+          // Fallback: If no venues meet the strict criteria (common in dev/testing), show all venues
+          if (completeVenues.length === 0) {
+            completeVenues = mapped;
+          }
+
+          // Prioritize Paid venues, then shuffle the rest
+          const finalVenues = weightedShuffle(completeVenues);
+          setLiveVenues(finalVenues.slice(0, 15)); // Show up to 15 venues in the new carousel
+        }
+      } catch (err) {
+        console.warn('Home: Failed to fetch live venues via backend:', err);
+      } finally {
+        setIsLoadingVenues(false);
+      }
+    };
+
+    fetchTopVenues();
+  }, []);
+
+  const steps = [
+    { title: "Submit Requirement", desc: "Tell us about your event type, guest count, and budget.", icon: <Send className="text-white" size={24} /> },
+    { title: "Receive Quotes", desc: "Top venues will send you customized quotes in minutes.", icon: <Tag className="text-white" size={24} /> },
+    { title: "Book Venue", desc: "Compare venues, check availability, and book your favorite.", icon: <CheckCircle2 className="text-white" size={24} /> }
+  ];
+
+  const benefits = [
+    { name: "Verified Venues", desc: "Every venue on our list is personally verified.", icon: <ShieldCheck size={32} /> },
+    { name: "Instant Quotes", desc: "No more long wait times for price sheets.", icon: <Zap size={32} /> },
+    { name: "Best Price Guarantee", desc: "We ensure you get the most competitive rates.", icon: <IndianRupee size={32} /> },
+    { name: "Free Assistance", desc: "Our expert planners help you decide for free.", icon: <Star size={32} /> }
+  ];
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (formData.eventType) params.set('type', formData.eventType.toLowerCase().replace(/\s+/g, '-'));
+
+    if (formData.locations.length > 0) {
+      const locationString = formData.locations.map(l => l.display).join(',');
+      params.set('location', locationString);
+    } else if (locationInput) {
+      params.set('location', locationInput);
+    }
+
+    if (formData.guests) params.set('capacity', formData.guests);
+
+    window.location.href = `/venues?${params.toString()}`;
   };
 
-  const handleFollowUp = (suggestedQuery: string) => {
-    runSearch(suggestedQuery);
-    setQuery('');
+  const addLocation = (loc: any) => {
+    if (!formData.locations.find(l => l.display === loc.display)) {
+      setFormData({
+        ...formData,
+        locations: [...formData.locations, loc]
+      });
+    }
+    setLocationInput('');
+    setShowSuggestions(false);
   };
 
-  // ── Summary Text ──────────────────────────────
-  const getSummaryText = () => {
-    if (!intent) return '';
-    const parts: string[] = [];
-    if (intent.venueType) parts.push(`**${intent.venueType}s**`);
-    else parts.push('venues');
-    if (intent.eventType) parts.push(`for a **${intent.eventType}**`);
-    if (intent.capacity > 0) parts.push(`for **${intent.capacity}+ guests**`);
-    if (intent.city) parts.push(`in **${intent.city.charAt(0).toUpperCase() + intent.city.slice(1)}**`);
-    else if (intent.pincode) parts.push(`near **${intent.pincode}**`);
-    if (intent.maxBudget) parts.push(`under **₹${intent.maxBudget.toLocaleString('en-IN')}**`);
-    const n = scoredResults.length;
-    const prefix = fallbackMode === 'relaxCapacity'
-      ? `Showing **${n}** nearby-capacity`
-      : fallbackMode === 'relaxBudget'
-        ? `Showing **${n}** (budget relaxed)`
-        : `Found **${n}**`;
-    return `${prefix} ${parts.join(' ')}.`;
+  const removeLocation = (display: string) => {
+    setFormData({
+      ...formData,
+      locations: formData.locations.filter(l => l.display !== display)
+    });
   };
 
-  // ── Signal Tags for Summary Card ──────────────
-  const signalTags = useMemo(() => {
-    if (!intent) return [];
-    const tags: { label: string; color: string }[] = [];
-    if (intent.eventType) tags.push({ label: intent.eventType, color: 'bg-pd-pink/10 text-pd-pink border-pd-pink/20' });
-    if (intent.venueType) tags.push({ label: intent.venueType, color: 'bg-pd-purple/10 text-pd-purple border-pd-purple/20' });
-    if (intent.capacity > 0) tags.push({ label: `${intent.capacity} PAX`, color: 'bg-blue-50 text-blue-600 border-blue-100' });
-    if (intent.city) tags.push({ label: intent.city, color: 'bg-emerald-50 text-emerald-600 border-emerald-100' });
-    if (intent.pincode) tags.push({ label: `PIN ${intent.pincode}`, color: 'bg-emerald-50 text-emerald-600 border-emerald-100' });
-    if (intent.maxBudget) tags.push({ label: `₹${intent.maxBudget >= 100000 ? `${intent.maxBudget / 100000}L` : `${intent.maxBudget / 1000}K`}`, color: 'bg-amber-50 text-amber-600 border-amber-100' });
-    intent.amenities.forEach(a => tags.push({ label: a, color: 'bg-slate-50 text-slate-600 border-slate-100' }));
-    return tags;
-  }, [intent]);
+
 
   return (
-    <div className={`bg-white flex flex-col selection:bg-pd-purple/10 relative min-h-[calc(100vh-100px)] pt-4 overflow-x-hidden`}>
+    <main className="min-h-screen">
+      {/* HERO SECTION */}
+      <section className="relative pt-32 md:pt-40 pb-16 px-4 md:px-6 overflow-hidden min-h-[90vh] flex flex-col justify-start">
+        
+        {/* Background Slideshow */}
+        <div className="absolute inset-0 z-0">
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={currentSlide}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${heroImages[currentSlide]})` }}
+            />
+          </AnimatePresence>
+          {/* Dark Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-black/40 z-10 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-pd-pink/40 to-pd-purple/40 z-10 pointer-events-none" />
+        </div>
 
-      {/* ── HERO / SEARCH SECTION ── */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{
-          opacity: 1,
-          minHeight: hasSearched ? 'auto' : 'auto',
-          paddingTop: hasSearched ? '2rem' : '1rem',
-          paddingBottom: '1rem',
-        }}
-        className="w-full px-4 md:px-12 lg:px-24 relative z-10 flex flex-col justify-start"
-      >
-        <div className={`w-full max-w-350 mx-auto ${hasSearched ? 'mb-12' : ''}`}>
-          <AnimatePresence mode="wait">
-            {!hasSearched ? (
-              isSearching ? (
-                <motion.div
-                  key="thinking"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="flex-1 w-full flex flex-col items-center justify-center min-h-[calc(100vh-250px)] z-20"
-                >
-                  <div className="w-full max-w-3xl mx-auto flex flex-col items-center justify-center animate-in fade-in zoom-in duration-500">
-                    <div className="relative flex items-center justify-center w-64 md:w-80 h-28 md:h-36 mb-10 md:mb-12 perspective-1000">
-                      {/* Glow effect behind logo */}
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 md:w-72 h-24 md:h-32 bg-pd-purple/20 blur-[40px] rounded-full animate-pulse" style={{ animationDuration: '2s' }} />
-                      
-                      {/* Floating and rotating logo */}
-                      <motion.div 
-                        animate={{ 
-                          y: [0, -12, 0],
-                          rotateY: [0, 8, -8, 0]
-                        }}
-                        transition={{
-                          duration: 4,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                        className="relative z-10 w-full h-full flex items-center justify-center"
-                      >
-                        <img src="/logo-nav.png" alt="PartyDial AI" className="w-full h-full object-contain drop-shadow-2xl drop-shadow-pd-pink" />
-                      </motion.div>
+        <div className="max-w-6xl mx-auto relative z-10 w-full text-center mt-0">
+            {/* Hero Text */}
+            <div className="inline-block mb-6 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-sm">
+                <span className="text-xs md:text-sm font-bold text-white uppercase tracking-wider">
+                India&apos;s #1 Venue Booking Platform
+                </span>
+            </div>
 
-                      {/* Sci-fi Scanning Laser */}
-                      <motion.div 
-                        animate={{ top: ['0%', '100%', '0%'] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                        className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-pd-pink to-transparent z-20 shadow-[0_0_12px_4px_rgba(236,72,153,0.7)]"
-                      />
-                    </div>
-                    <h3 className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pd-pink to-pd-purple mb-4">
-                      AI is finding your perfect venue...
-                    </h3>
-                    <p className="text-base md:text-lg text-slate-500 font-medium max-w-lg text-center">
-                      Scanning through thousands of luxury locations, checking capacities, and matching your vibe.
-                    </p>
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="hero-text"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="w-full max-w-4xl mx-auto flex flex-col items-center text-center z-20"
-                >
-                <div className="inline-flex items-center gap-2 px-5 py-2 bg-white shadow-sm border border-slate-100 rounded-full text-pd-purple mb-8">
-                  <span className="text-[11px] font-bold text-pd-purple">AI-Powered Venue Search — Type naturally</span>
-                </div>
+            <h1 className="text-4xl md:text-5xl lg:text-[64px] font-semibold text-white tracking-tight leading-[1.1] mb-6 drop-shadow-lg" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                Find the Perfect Venue for Your Event
+            </h1>
 
-                <h1 className="text-[2rem] leading-none md:text-5xl lg:text-6xl font-black tracking-tighter mb-4">
-                  <span className="text-slate-900">What kind of<br /></span>
-                  <span className="text-pd-pink">venue are </span>
-                  <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-500 to-cyan-400">you looking for?</span>
-                </h1>
+            <p className="text-base md:text-lg text-slate-200 mb-10 max-w-2xl mx-auto leading-relaxed font-medium drop-shadow-md">
+                Get free customized quotes from top venues in minutes. Direct connections. Zero brokerage. Beautiful memories.
+            </p>
 
-                <p className="text-slate-500 font-medium text-base md:text-xl max-w-xl leading-relaxed mb-8 md:mb-12">
-                  Describe your event in plain English — I&apos;ll find the best matching venues for you.
-                </p>
+            {/* HORIZONTAL SEARCH WIDGET */}
+            <div className="max-w-5xl mx-auto bg-white rounded-[32px] p-2 md:p-3 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-slate-100 relative mt-8 z-50">
+              
+              {/* Tabs */}
+              <div className="flex items-center gap-2 mb-2 px-2 pt-2 border-b border-slate-100 pb-2">
+                 <button onClick={() => setActiveTab('standard')} className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${activeTab === 'standard' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}>
+                    <span className="flex items-center gap-2">
+                       <MapPin size={16} /> Locations & Dates
+                    </span>
+                 </button>
+                 <button onClick={() => setActiveTab('ai')} className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${activeTab === 'ai' ? 'bg-pd-pink/10 text-pd-pink' : 'text-slate-500 hover:text-slate-800'}`}>
+                    <span className="flex items-center gap-2">
+                       Ask AI
+                    </span>
+                 </button>
+              </div>
 
-                {/* ACTION CARDS */}
-                <div className="flex flex-col md:flex-row gap-4 md:gap-6 w-full max-w-3xl mx-auto mb-10 md:mb-12">
-                  <Link
-                    href="/venues"
-                    className="flex-1 bg-pd-pink/5 border border-pd-pink/10 rounded-[2rem] p-5 md:p-6 flex items-center gap-4 hover:shadow-lg transition-all cursor-pointer group"
-                  >
-                    <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
-                      <Search className="text-pd-pink w-6 h-6 md:w-7 md:h-7" />
-                    </div>
-                    <div className="text-left flex-1">
-                      <h3 className="font-bold text-slate-900 text-base md:text-lg">Manual Search</h3>
-                      <p className="text-xs md:text-sm text-slate-500">Filter venues your way</p>
-                    </div>
-                    <div className="w-8 h-8 md:w-10 md:h-10 border border-pd-pink/20 rounded-full flex items-center justify-center group-hover:bg-pd-pink transition-colors">
-                      <ArrowRight className="w-4 h-4 md:w-[18px] md:h-[18px] text-pd-pink group-hover:text-white transition-colors" />
-                    </div>
-                  </Link>
-
-                  <a href="tel:+918679933302" className="flex-1 bg-blue-50 border border-blue-100 rounded-[2rem] p-5 md:p-6 flex items-center gap-4 hover:shadow-lg transition-all cursor-pointer group">
-                    <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
-                      <PhoneCall className="text-blue-500 w-6 h-6 md:w-7 md:h-7" />
-                    </div>
-                    <div className="text-left flex-1">
-                      <h3 className="font-bold text-slate-900 text-base md:text-lg">Call Our Team</h3>
-                      <p className="text-xs md:text-sm font-semibold text-slate-600">+91 86799 33302</p>
-                    </div>
-                    <div className="w-8 h-8 md:w-10 md:h-10 border border-blue-200 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors">
-                      <ArrowRight className="w-4 h-4 md:w-[18px] md:h-[18px] text-blue-500 group-hover:text-white transition-colors" />
-                    </div>
-                  </a>
-                </div>
-
-                {/* SEARCH BAR */}
-                <div className="w-full max-w-5xl mx-auto relative group">
-                  {/* Subtle ambient glow behind the search bar */}
-                  <div className="absolute -inset-1 bg-linear-to-r from-pd-pink via-pd-purple to-pd-blue rounded-[32px] blur-xl opacity-20 group-hover:opacity-40 transition duration-700 pointer-events-none"></div>
+              {/* Standard Search Fields */}
+              {activeTab === 'standard' && (
+                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-0 bg-slate-50 rounded-[24px] p-2">
                   
-                  <form onSubmit={handleSearch} className="relative flex items-end w-full bg-white shadow-[0_8px_40px_rgb(0,0,0,0.08)] rounded-[32px] transition-all duration-500 p-2 md:p-3 outline-none border-none ring-0">
-                    {/* Left Icon */}
-                    <div className="pl-4 md:pl-5 pr-2 pb-[10px] md:pb-[12px] flex items-center justify-center pointer-events-none">
-                    </div>
-
-                    {/* Input */}
-                    <textarea
-                      id="ai-search-input"
-                      rows={1}
-                      value={query}
-                      onChange={(e) => {
-                        setQuery(e.target.value);
-                        e.target.style.height = 'auto';
-                        e.target.style.height = `${e.target.scrollHeight}px`;
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          if (query.trim() && !isSearching) {
-                            const form = e.currentTarget.closest('form');
-                            if (form) form.requestSubmit();
-                          }
-                        }
-                      }}
-                      placeholder={isMobile ? "Describe your perfect event..." : "Describe your perfect event and we'll find the best venues"}
-                      className="flex-1 bg-transparent border-none outline-none ring-0 text-sm md:text-lg font-medium text-slate-800 placeholder:text-slate-400 py-2 md:py-[10px] min-w-0 resize-none overflow-y-auto max-h-[120px] scrollbar-hide"
-                    />
-
-                    {/* Right Actions */}
-                    <div className="flex-shrink-0 flex items-center gap-1 md:gap-2 pr-1 md:pr-2">
-                      {hasRecognition && (
-                        <button
-                          type="button"
-                          onClick={toggleListening}
-                          className={`p-2 rounded-full transition-all duration-300 ${isListening ? 'bg-pd-red/10 text-pd-red shadow-[0_0_15px_rgba(239,68,68,0.3)] animate-pulse' : 'text-slate-400 hover:text-pd-purple hover:bg-slate-50'}`}
-                        >
-                          <Mic className="w-5 h-5" />
-                        </button>
-                      )}
-                      
-                      <button
-                        type="submit"
-                        disabled={!query.trim() || isSearching}
-                        className="w-10 h-10 md:w-12 md:h-12 shrink-0 flex items-center justify-center rounded-full bg-slate-900 text-white hover:bg-slate-800 hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:bg-slate-200 disabled:text-slate-400 disabled:pointer-events-none transition-all"
-                      >
-                        {isSearching ? (
-                          <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <ArrowRight className="w-5 h-5 md:w-6 md:h-6" />
-                        )}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-
-
-              </motion.div>
-              )
-            ) : (
-              <motion.div
-                key="results"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="w-full pb-36"
-              >
-                {/* SEARCH BAR (RESULTS VIEW) - FIXED AT BOTTOM */}
-                <div className="fixed bottom-6 md:bottom-10 left-0 right-0 mx-auto z-50 w-[calc(100%-2rem)] md:w-[calc(100%-4rem)] max-w-5xl group shadow-2xl shadow-slate-900/10 rounded-[32px]">
-                  <div className="absolute -inset-1 bg-linear-to-r from-pd-pink via-pd-purple to-pd-blue rounded-[32px] blur-xl opacity-20 group-hover:opacity-40 transition duration-700 pointer-events-none"></div>
-                  
-                  <form onSubmit={handleSearch} className="relative flex items-end w-full bg-white rounded-[32px] transition-all duration-500 p-2 md:p-3 outline-none border-none ring-0">
-                    <div className="pl-4 md:pl-5 pr-2 pb-[10px] md:pb-[12px] flex items-center justify-center pointer-events-none">
-                      {isSearching ? (
-                        <div className="w-5 h-5 md:w-6 md:h-6 border-2 border-pd-purple border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <></>
-                      )}
-                    </div>
-
-                    <textarea
-                      id="ai-search-results-input"
-                      rows={1}
-                      value={query}
-                      onChange={(e) => {
-                        setQuery(e.target.value);
-                        e.target.style.height = 'auto';
-                        e.target.style.height = `${e.target.scrollHeight}px`;
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          if (query.trim() && !isSearching) {
-                            const form = e.currentTarget.closest('form');
-                            if (form) form.requestSubmit();
-                          }
-                        }
-                      }}
-                      placeholder={isMobile ? "Describe your perfect event..." : "Describe your perfect event and we'll find the best venues"}
-                      className="flex-1 bg-transparent border-none outline-none ring-0 text-sm md:text-lg font-medium text-slate-800 placeholder:text-slate-400 py-2 md:py-[10px] min-w-0 resize-none overflow-y-auto max-h-[120px] scrollbar-hide"
-                    />
-
-                    <div className="flex-shrink-0 flex items-center gap-1 md:gap-2 pr-1 md:pr-2">
-                      {hasRecognition && (
-                        <button
-                          type="button"
-                          onClick={toggleListening}
-                          className={`p-2 rounded-full transition-all duration-300 ${isListening ? 'bg-pd-red/10 text-pd-red shadow-[0_0_15px_rgba(239,68,68,0.3)] animate-pulse' : 'text-slate-400 hover:text-pd-purple hover:bg-slate-50'}`}
-                        >
-                          <Mic className="w-5 h-5" />
-                        </button>
-                      )}
-                      
-                      <button
-                        type="submit"
-                        disabled={!query.trim() || isSearching}
-                        className="w-10 h-10 md:w-12 md:h-12 shrink-0 flex items-center justify-center rounded-full bg-slate-900 text-white hover:bg-slate-800 hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:bg-slate-200 disabled:text-slate-400 disabled:pointer-events-none transition-all"
-                      >
-                        {isSearching ? (
-                          <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <ArrowRight className="w-5 h-5 md:w-6 md:h-6" />
-                        )}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-
-                {/* UNRELATED QUERY */}
-                {intent?.isUnrelated ? (
-                  <div className="text-center py-24 bg-white rounded-[48px] border border-slate-100 shadow-pd-soft">
-                    <div className="inline-flex justify-center items-center w-24 h-24 bg-red-50 rounded-full text-pd-red mb-8">
-                      <X size={40} />
-                    </div>
-                    <h2 className="text-3xl font-black text-slate-900 mb-3 ">I can only help with venues</h2>
-                    <p className="text-slate-500 font-medium mb-10 max-w-lg mx-auto px-6">
-                      I&apos;m an AI assistant specifically designed to help you discover and book premium venues. Please describe what kind of event or venue you&apos;re looking for!
-                    </p>
-                    <button
-                      onClick={() => { setQuery(''); setHasSearched(false); setIntent(null); }}
-                      className="pd-btn-primary rounded-2xl!"
-                    >
-                      Start New Search
+                  {/* Event Type */}
+                  <div className="relative w-full md:w-[22%]" ref={eventDropdownRef}>
+                    <button type="button" onClick={() => setIsEventDropdownOpen(!isEventDropdownOpen)} className="w-full text-left h-[60px] px-4 rounded-xl hover:bg-slate-100 transition-colors flex flex-col justify-center">
+                       <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Event Type</span>
+                       <span className={`text-sm font-bold truncate ${formData.eventType ? 'text-slate-900' : 'text-slate-500'}`}>
+                         {formData.eventType || "Any Event"}
+                       </span>
                     </button>
-                  </div>
-                ) : (
-                  <>
-                    {/* AI SUMMARY CARD */}
-                    <div className="mb-8 p-6 md:p-8 bg-white border border-slate-100 rounded-[32px] shadow-pd-soft relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-40 h-40 bg-pd-purple/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-
-                      {/* Fallback badge */}
-                      {fallbackMode !== 'none' && fallbackMode !== 'noMatch' && (
-                        <div className="flex items-center gap-2 mb-4 px-3 py-1.5 bg-amber-50 border border-amber-100 rounded-full w-fit">
-                          <RefreshCcw size={12} className="text-amber-500" />
-                          <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">
-                            {fallbackMode === 'relaxCapacity' ? 'Showing nearby capacity matches' : 'Budget relaxed to show results'}
-                          </span>
-                        </div>
-                      )}
-
-                      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-                        <div className="flex items-start gap-5">
-                          <div className="p-4 bg-pd-purple/10 text-pd-purple rounded-2xl shrink-0">
-                            <Zap size={28} className="fill-pd-purple/20" />
-                          </div>
-                          <div>
-                            <p className="text-[10px] font-black text-pd-purple uppercase tracking-[0.3em] mb-1">AI MATCH SUMMARY</p>
-                            <p
-                              className="text-xl md:text-2xl font-bold text-slate-800 leading-tight"
-                              dangerouslySetInnerHTML={{
-                                __html: getSummaryText().replace(/\*\*(.*?)\*\*/g, '<span class="pd-gradient-text">$1</span>')
+                    <AnimatePresence>
+                      {isEventDropdownOpen && (
+                        <div className="absolute top-[calc(100%+8px)] left-0 w-64 bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-40 py-2 max-h-64 overflow-y-auto custom-scrollbar text-left">
+                          {categories.map((cat, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => {
+                                setFormData({ ...formData, eventType: cat.name });
+                                setIsEventDropdownOpen(false);
                               }}
-                            />
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() => { 
-                            setHasSearched(false); 
-                            setIntent(null); 
-                            setScoredResults([]); 
-                            setQuery('');
-                            sessionStorage.removeItem('partyDialAiSearchState'); 
-                          }}
-                          className="p-2.5 bg-slate-900 text-white rounded-xl hover:bg-pd-red transition-colors shrink-0"
-                          title="Clear Search"
-                        >
-                          <X size={18} />
-                        </button>
-                      </div>
-
-                      {/* Signal Tags */}
-                      {signalTags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-5 relative z-10">
-                          {signalTags.map((tag, i) => (
-                            <SignalTag key={i} label={tag.label} color={tag.color} />
+                              className={`w-full text-left px-5 py-3 text-sm font-bold transition-all flex items-center gap-3 hover:bg-slate-50 ${formData.eventType === cat.name ? 'text-pd-red bg-pd-red/[0.04]' : 'text-slate-600 hover:text-slate-900'}`}
+                            >
+                              <span className="text-xl opacity-80">{cat.icon}</span>
+                              {cat.name}
+                              {formData.eventType === cat.name && <CheckCircle2 size={16} className="ml-auto text-pd-red" />}
+                            </button>
                           ))}
                         </div>
                       )}
+                    </AnimatePresence>
+                  </div>
+                  
+                  <div className="hidden md:block w-px h-10 bg-slate-200" />
+                  
+                  {/* City / Location */}
+                  <div className="relative w-full md:w-[28%]" ref={locationRef}>
+                    <div className="w-full h-[60px] px-4 rounded-xl hover:bg-slate-100 transition-colors flex flex-col justify-center cursor-text" onClick={() => {}}>
+                       <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider text-left">Location</span>
+                       
+                       <div className="flex items-center gap-1 w-full overflow-x-auto custom-scrollbar no-scrollbar py-0.5">
+                         {formData.locations.map((loc, i) => (
+                            <div key={i} className="flex items-center gap-1 bg-white border border-slate-200 text-slate-800 px-2 py-0.5 rounded-lg text-xs font-bold shrink-0">
+                              <span>{loc.display.split('-')[0]}</span>
+                              <button onClick={(e) => { e.stopPropagation(); removeLocation(loc.display); }} className="text-slate-400 hover:text-pd-red">
+                                <X size={12} />
+                              </button>
+                            </div>
+                         ))}
+                         <input
+                           type="text"
+                           placeholder={formData.locations.length === 0 ? "Where are you going?" : "Add..."}
+                           value={locationInput}
+                           onChange={(e) => {
+                             setLocationInput(e.target.value);
+                             setShowSuggestions(true);
+                           }}
+                           onFocus={() => setShowSuggestions(true)}
+                           className="flex-1 bg-transparent border-none text-sm font-bold text-slate-800 outline-none min-w-[100px] placeholder:text-slate-500 placeholder:font-medium p-0 m-0 focus:ring-0 focus:outline-none"
+                           style={{ boxShadow: 'none' }}
+                         />
+                       </div>
                     </div>
 
-                    {/* RESULTS GRID */}
-                    {scoredResults.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                        {scoredResults.map(({ venue, matchedSignals }, idx) => (
-                          <motion.div
-                            key={venue.id}
-                            initial={{ opacity: 0, y: 12 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.04, duration: 0.35 }}
-                          >
-                            <div className="relative h-full">
-                              {/* Relevance indicator */}
-                              {idx === 0 && (
-                                <div className="absolute -top-3 left-4 z-10 flex items-center gap-1.5 px-3 py-1 bg-pd-purple rounded-full shadow-lg">
-                                  <TrendingUp size={11} className="text-white" />
-                                  <span className="text-[9px] font-black text-white uppercase tracking-widest">Best Match</span>
-                                </div>
-                              )}
-                              <VenueCard venue={venue} index={idx} isPremium={idx < 3} />
-                              {/* Matched signals under card */}
-                              {matchedSignals.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 mt-2 px-1">
-                                  {matchedSignals.slice(0, 3).map((s, si) => (
-                                    <span key={si} className="text-[9px] font-bold text-slate-400 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-full">
-                                      ✓ {s}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
+                    <AnimatePresence>
+                      {showSuggestions && (locationInput.length >= 3) && (suggestions.length > 0 || isLoadingLocations) && (
+                        <div className="absolute top-[calc(100%+8px)] left-0 w-72 bg-white border border-slate-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] z-40 max-h-64 overflow-y-auto custom-scrollbar text-left">
+                          {isLoadingLocations ? (
+                            <div className="p-6 flex justify-center items-center gap-3 text-sm text-slate-500 font-bold">
+                              <div className="w-4 h-4 border-2 border-pd-purple border-t-transparent rounded-full animate-spin" /> Searching...
                             </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    ) : fallbackMode === 'noMatch' ? (
-                      // FOLLOW-UP SUGGESTIONS
-                      <div className="text-center py-16 bg-white rounded-[48px] border border-slate-100 shadow-pd-soft">
-                        <div className="inline-flex justify-center items-center w-20 h-20 bg-slate-50 rounded-full text-slate-300 mb-6">
-                          <Search size={36} />
+                          ) : (
+                            suggestions.map((s, i) => (
+                              s.isError ? (
+                                <div key={i} className="p-4 text-center text-xs text-pd-red font-black uppercase tracking-widest bg-pd-red/5 m-2 rounded-xl">
+                                  {s.message}
+                                </div>
+                              ) : (
+                                <button
+                                  key={i}
+                                  onClick={() => addLocation(s)}
+                                  className="w-full text-left px-5 py-3 hover:bg-slate-50 text-sm font-bold text-slate-800 transition-colors border-b border-slate-50 last:border-none flex items-center justify-between group"
+                                >
+                                  <span className="group-hover:text-pd-purple transition-colors">{s.display}</span>
+                                  <span className="text-[10px] text-slate-400 uppercase font-black bg-slate-100 px-2 py-1 rounded-md">{s.state}</span>
+                                </button>
+                              )
+                            ))
+                          )}
                         </div>
-                        <h2 className="text-2xl font-black text-slate-900 mb-2">No exact matches found</h2>
-                        <p className="text-slate-500 font-medium max-w-md mx-auto mb-2 px-6">
-                          The AI couldn&apos;t find venues matching all your criteria exactly.
-                        </p>
-                        {intent && (
-                          <FollowUpSuggestions intent={intent} onSuggest={handleFollowUp} />
-                        )}
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <div className="hidden md:block w-px h-10 bg-slate-200" />
+
+                  {/* Event Date */}
+                  <div className="relative w-full md:w-[15%]" ref={datePickerContainerRef}>
+                     <div 
+                        className="w-full h-[60px] px-4 rounded-xl hover:bg-slate-100 transition-colors flex flex-col justify-center relative cursor-pointer"
+                        onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+                     >
+                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider text-left">Date</span>
+                        <div className="relative w-full">
+                          {/* Display Layer */}
+                          <div className={`text-sm truncate text-left pointer-events-none ${formData.date ? 'text-slate-900 font-bold' : 'text-slate-800 font-bold'}`}>
+                            {formData.date ? new Date(formData.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Add dates'}
+                          </div>
+                        </div>
+                     </div>
+                     
+                     <AnimatePresence>
+                       {isDatePickerOpen && (
+                         <motion.div
+                           initial={{ opacity: 0, y: -10 }}
+                           animate={{ opacity: 1, y: 0 }}
+                           exit={{ opacity: 0, y: -10 }}
+                           transition={{ duration: 0.2 }}
+                           className="absolute top-[100%] left-0 z-50"
+                         >
+                           <CustomDatePicker 
+                             selectedDate={formData.date}
+                             onChange={(date) => setFormData({ ...formData, date })}
+                             onClose={() => setIsDatePickerOpen(false)}
+                           />
+                         </motion.div>
+                       )}
+                     </AnimatePresence>
+                  </div>
+
+                  <div className="hidden md:block w-px h-10 bg-slate-200" />
+
+                  {/* Guest Count */}
+                  <div className="relative w-full md:w-[15%]" ref={guestDropdownRef}>
+                     <div 
+                        className="w-full h-[60px] px-4 rounded-xl hover:bg-slate-100 transition-colors flex flex-col justify-center relative cursor-pointer"
+                        onClick={() => setIsGuestDropdownOpen(!isGuestDropdownOpen)}
+                     >
+                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider text-left">Guests</span>
+                        <div className="flex items-center justify-between">
+                          <span className={`text-sm truncate font-bold ${formData.guests ? 'text-slate-900' : 'text-slate-800'}`}>
+                            {formData.guests || 'Capacity'}
+                          </span>
+                          <ChevronDown size={14} className="text-slate-400" />
+                        </div>
+                     </div>
+                     
+                     <AnimatePresence>
+                       {isGuestDropdownOpen && (
+                         <motion.div
+                           initial={{ opacity: 0, y: -10 }}
+                           animate={{ opacity: 1, y: 0 }}
+                           exit={{ opacity: 0, y: -10 }}
+                           transition={{ duration: 0.2 }}
+                           className="absolute top-[100%] left-0 z-50 w-48 bg-white border border-slate-100 rounded-[24px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] py-4 flex flex-col"
+                         >
+                           {['0-50', '50-100', '100-200', '200-500', '500-1000', '1000-2000', '2000-5000', '5000+'].map(capacity => (
+                             <button
+                               key={capacity}
+                               type="button"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setFormData({ ...formData, guests: capacity });
+                                 setIsGuestDropdownOpen(false);
+                               }}
+                               className={`px-6 py-2.5 text-left text-sm font-bold transition-colors ${
+                                 formData.guests === capacity ? 'text-pd-pink bg-pd-pink/5' : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                               }`}
+                             >
+                               {capacity}
+                             </button>
+                           ))}
+                         </motion.div>
+                       )}
+                     </AnimatePresence>
+                  </div>
+
+                  {/* Search Button */}
+                  <div className="w-full md:w-[20%] p-1">
+                    <button onClick={handleSearch} className="w-full h-[52px] bg-pd-pink text-white rounded-[16px] font-black text-sm uppercase tracking-wider hover:bg-pd-red transition-all flex items-center justify-center gap-2 shadow-lg shadow-pd-pink/30 hover:shadow-pd-pink/40 hover:-translate-y-0.5">
+                      <Search size={18} /> Search
+                    </button>
+                  </div>
+
+                </div>
+              )}
+              
+              {/* AI Search Field */}
+              {activeTab === 'ai' && (
+                 <div className="flex flex-col md:flex-row items-center gap-2 md:gap-0 bg-slate-50 rounded-[24px] p-2">
+                   <div className="flex-1 w-full flex items-center gap-3 px-4 h-[60px]">
+                      
+                      <input 
+                         type="text" 
+                         value={aiQuery}
+                         onChange={(e) => setAiQuery(e.target.value)}
+                         placeholder="e.g. Find a wedding venue in Delhi for 500 guests under 20 lakhs" 
+                         className="w-full bg-transparent border-none outline-none text-slate-800 text-sm md:text-base font-medium placeholder:text-slate-400 focus:ring-0"
+                      />
+                   </div>
+                   <div className="w-full md:w-auto p-1 shrink-0">
+                     <button className="w-full md:w-auto px-8 h-[52px] bg-linear-to-r from-pd-purple to-pd-blue text-white rounded-[16px] font-black text-sm uppercase tracking-wider hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-pd-purple/30 hover:-translate-y-0.5">
+                       Ask AI
+                     </button>
+                   </div>
+                 </div>
+              )}
+            </div>
+
+            {/* Social Proof */}
+            <div className="mt-12 flex justify-center">
+                <div className="inline-flex flex-col sm:flex-row items-center gap-4 text-sm font-bold text-slate-700 bg-white/40 p-3 rounded-full border border-white/60 shadow-sm px-6">
+                  <div className="flex -space-x-3 shrink-0">
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden shadow-sm">
+                        <img src={`https://i.pravatar.cc/100?u=${i}`} alt="user" className="w-full h-full object-cover" />
                       </div>
-                    ) : null}
-                  </>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-0.5 text-amber-400">
+                      {[1, 2, 3, 4, 5].map(star => <Star key={star} size={12} fill="currentColor" />)}
+                    </div>
+                    <span className="leading-tight text-slate-800">Trusted by <span className="text-pd-purple font-black">50,000+</span> happy hosts</span>
+                  </div>
+                </div>
+            </div>
         </div>
-      </motion.div>
-    </div>
+      </section>
+
+
+
+
+      {/* TOP VENUES NEAR YOU */}
+      <section className="py-24 px-6 lg:px-12 bg-slate-50">
+        <div className="max-w-[1600px] mx-auto">
+          <div className="flex flex-col md:flex-row items-center md:items-end justify-between mb-12 md:mb-16 gap-8 text-center md:text-left">
+            <div className="max-w-2xl">
+              <h2 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-4 leading-none tracking-tight">
+                Top Venues <span className="pd-gradient-text block sm:inline px-1">Near You</span>
+              </h2>
+              <p className="text-slate-500 font-medium text-base md:text-lg">Personally verified luxury venues for your grand celebrations.</p>
+            </div>
+            <div className="flex items-center gap-4 w-full md:w-auto justify-center md:justify-end">
+              <div className="flex items-center gap-2 mr-2">
+                <button
+                  onClick={() => venueScrollRef.current?.slidePrev()}
+                  className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
+                  aria-label="Scroll Left"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={() => venueScrollRef.current?.slideNext()}
+                  className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
+                  aria-label="Scroll Right"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+              <Link href="/venues" className="hidden sm:block">
+                <button className="group w-full sm:w-auto relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-800 transition-all hover:shadow-lg hover:shadow-pd-pink/10 border border-slate-200 hover:border-pd-pink/30">
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    View All
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-linear-to-r from-pd-pink/5 to-pd-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          <Swiper
+            onSwiper={(swiper) => (venueScrollRef.current = swiper)}
+            slidesPerView="auto"
+            spaceBetween={32}
+            grabCursor={true}
+            className="pb-10 px-6"
+          >
+            {isLoadingVenues ? (
+              [1,2,3,4,5].map(i => (
+                <SwiperSlide key={i} className="!w-full sm:!w-[320px] md:!w-[340px] lg:!w-[340px] xl:!w-[360px] !h-[420px]">
+                  <div className="w-full h-full bg-slate-200 animate-pulse rounded-[1.5rem]" />
+                </SwiperSlide>
+              ))
+            ) : displayVenues.map((venue, i) => (
+              <SwiperSlide key={venue.id} className="!w-full sm:!w-[320px] md:!w-[340px] lg:!w-[340px] xl:!w-[360px] !h-auto self-stretch flex flex-col">
+                <VenueCard venue={venue} index={i} isPremium={venue.isPaid} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      </section>
+
+      {/* FEATURED SERVICES / VENDORS */}
+      <section className="py-24 px-6 lg:px-12 bg-slate-50 relative overflow-hidden">
+        <div className="absolute top-0 w-full h-px bg-linear-to-r from-transparent via-slate-200 to-transparent" />
+        <div className="max-w-[1600px] mx-auto mb-12 flex flex-col md:flex-row items-center md:items-end justify-between gap-6">
+          <div className="text-center md:text-left">
+            <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-4 tracking-tight leading-none">
+              Featured <span className="pd-gradient-text px-1">Services</span>
+            </h2>
+            <p className="text-slate-500 font-medium text-base md:text-lg">Discover top-rated decorators, caterers, and other premium vendors.</p>
+          </div>
+          <Link href="/services" className="hidden sm:block">
+            <button className="group relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-800 transition-all hover:shadow-lg hover:shadow-pd-pink/10 border border-slate-200 hover:border-pd-pink/30">
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                All Services <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              </span>
+            </button>
+          </Link>
+        </div>
+
+        <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { title: "Premium Catering", desc: "Delight your guests with exquisite multi-cuisine menus.", img: "/categories/corporate.png" },
+            { title: "Expert Decorators", desc: "Transform any space into a mesmerizing dreamscape.", img: "/categories/wedding.png" },
+            { title: "Top Photographers", desc: "Capture every precious moment perfectly.", img: "/categories/birthday.png" },
+            { title: "Makeup Artists", desc: "Look your absolute best for your special day.", img: "/categories/bachelor.png" },
+          ].map((service, i) => (
+            <div key={i} className="group bg-white rounded-[2rem] p-4 md:p-6 border border-slate-100 hover:border-pd-pink/30 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col">
+              <div className="w-full h-48 md:h-56 rounded-2xl overflow-hidden mb-6 bg-slate-100 relative">
+                <img src={service.img} alt={service.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+              </div>
+              <div className="px-2 pb-2">
+                <h3 className="text-xl font-semibold text-slate-900 mb-2 group-hover:text-pd-pink transition-colors">{service.title}</h3>
+                <p className="text-slate-500 font-medium mb-6 text-sm leading-relaxed">{service.desc}</p>
+                <div className="flex items-center text-sm font-bold text-pd-pink group-hover:gap-2 transition-all mt-auto">
+                  Explore <ArrowRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* BEST VENUES IN HALDWANI */}
+      {(isLoadingVenues || haldwaniVenues.length > 0) && (
+        <section className="py-24 px-6 lg:px-12 bg-white">
+          <div className="max-w-[1600px] mx-auto">
+            <div className="flex flex-col md:flex-row items-center md:items-end justify-between mb-12 md:mb-16 gap-8 text-center md:text-left">
+              <div className="max-w-2xl">
+                <h2 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-4 leading-none tracking-tight">
+                  Best Venues in <span className="pd-gradient-text block sm:inline px-1">Haldwani</span>
+                </h2>
+                <p className="text-slate-500 font-medium text-base md:text-lg">Discover the most sought-after celebration spaces in the city of Haldwani.</p>
+              </div>
+              <div className="flex items-center gap-4 w-full md:w-auto justify-center md:justify-end">
+                <div className="flex items-center gap-2 mr-2">
+                  <button
+                    onClick={() => haldwaniScrollRef.current?.slidePrev()}
+                    className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
+                    aria-label="Scroll Left"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    onClick={() => haldwaniScrollRef.current?.slideNext()}
+                    className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
+                    aria-label="Scroll Right"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+                <Link href="/venues?location=Haldwani" className="hidden sm:block">
+                  <button className="group w-full sm:w-auto relative overflow-hidden rounded-2xl bg-slate-50 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-800 transition-all hover:shadow-lg hover:shadow-pd-pink/10 border border-slate-200 hover:border-pd-pink/30">
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      View All
+                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    </span>
+                    <div className="absolute inset-0 bg-linear-to-r from-pd-pink/5 to-pd-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </button>
+                </Link>
+              </div>
+            </div>
+
+            <Swiper
+              onSwiper={(swiper) => (haldwaniScrollRef.current = swiper)}
+              slidesPerView="auto"
+              spaceBetween={32}
+              grabCursor={true}
+              className="pb-10 px-6"
+            >
+              {isLoadingVenues ? (
+              [1,2,3,4,5].map(i => (
+                <SwiperSlide key={i} className="!w-full sm:!w-[320px] md:!w-[340px] lg:!w-[340px] xl:!w-[360px] !h-[420px]">
+                  <div className="w-full h-full bg-slate-200 animate-pulse rounded-[1.5rem]" />
+                </SwiperSlide>
+              ))
+            ) : haldwaniVenues.map((venue: any, i: number) => (
+                <SwiperSlide key={venue.id} className="!w-full sm:!w-[320px] md:!w-[340px] lg:!w-[340px] xl:!w-[360px] !h-auto self-stretch flex flex-col">
+                  <MinimalVenueCard venue={venue} index={i} isPremium={venue.isPaid} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        </section>
+      )}
+
+      {/* BEST VENUES IN RAMNAGAR */}
+      {(isLoadingVenues || ramnagarVenues.length > 0) && (<section className="py-24 px-6 lg:px-12 bg-slate-50">
+        <div className="max-w-[1600px] mx-auto">
+          <div className="flex flex-col md:flex-row items-center md:items-end justify-between mb-12 md:mb-16 gap-8 text-center md:text-left">
+            <div className="max-w-2xl">
+              <h2 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-4 leading-none tracking-tight">
+                Best Venues in <span className="pd-gradient-text block sm:inline px-1">Ramnagar</span>
+              </h2>
+              <p className="text-slate-500 font-medium text-base md:text-lg">Discover the most sought-after celebration spaces in the city of Ramnagar.</p>
+            </div>
+            <div className="flex items-center gap-4 w-full md:w-auto justify-center md:justify-end">
+              <div className="flex items-center gap-2 mr-2">
+                <button
+                  onClick={() => ramnagarScrollRef.current?.slidePrev()}
+                  className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
+                  aria-label="Scroll Left"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={() => ramnagarScrollRef.current?.slideNext()}
+                  className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-pd-red hover:border-pd-red/20 hover:shadow-lg transition-all active:scale-90"
+                  aria-label="Scroll Right"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+              <Link href="/venues?location=Ramnagar" className="hidden sm:block">
+                <button className="group w-full sm:w-auto relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-800 transition-all hover:shadow-lg hover:shadow-pd-pink/10 border border-slate-200 hover:border-pd-pink/30">
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    View All
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-linear-to-r from-pd-pink/5 to-pd-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          <Swiper
+            onSwiper={(swiper) => (ramnagarScrollRef.current = swiper)}
+            slidesPerView="auto"
+            spaceBetween={32}
+            grabCursor={true}
+            className="pb-10 px-6"
+          >
+            {isLoadingVenues ? (
+              [1,2,3,4,5].map(i => (
+                <SwiperSlide key={i} className="!w-full sm:!w-[320px] md:!w-[340px] lg:!w-[340px] xl:!w-[360px] !h-[420px]">
+                  <div className="w-full h-full bg-slate-200 animate-pulse rounded-[1.5rem]" />
+                </SwiperSlide>
+              ))
+            ) : ramnagarVenues.map((venue: any, i: number) => (
+              <SwiperSlide key={venue.id} className="!w-full sm:!w-[320px] md:!w-[340px] lg:!w-[340px] xl:!w-[360px] !h-auto self-stretch flex flex-col">
+                <MinimalVenueCard venue={venue} index={i} isPremium={venue.isPaid} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      </section>)}
+
+      {/* HOW IT WORKS - PREMIUM LIGHT THEME */}
+      <section className="py-24 md:py-32 px-6 bg-white relative overflow-hidden">
+        {/* Subtle Background Elements */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(236,72,153,0.03)_0%,transparent_70%)] rounded-full transform-gpu pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(59,130,246,0.03)_0%,transparent_70%)] rounded-full transform-gpu pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-16 md:mb-24">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-4 tracking-tight">
+                How it <span className="pd-gradient-text">Works</span>
+              </h2>
+              <p className="text-slate-500 font-bold tracking-[0.3em] text-[10px] md:text-xs">Your journey to the perfect event in 3 simple steps</p>
+            </motion.div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative">
+            {/* Horizontal Flow Line connecting them on Desktop */}
+            <div className="hidden md:block absolute top-[48px] left-[15%] right-[15%] h-[2px] bg-slate-100 rounded-full z-0 overflow-hidden">
+              <div className="w-1/3 h-full bg-linear-to-r from-transparent via-pd-pink to-pd-blue animate-[marquee_3s_linear_infinite]" />
+            </div>
+
+            {steps.map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15, duration: 0.6, ease: "easeOut" }}
+                className="group relative z-10 h-full"
+              >
+                {/* Flow Arrow for Mobile */}
+                {i < steps.length - 1 && (
+                  <div className="md:hidden absolute -bottom-6 left-1/2 -translate-x-1/2 w-4 h-4 text-slate-300 z-0">
+                    <ArrowRight className="rotate-90 opacity-50" size={16} />
+                  </div>
+                )}
+
+                <div className="h-full bg-white rounded-[40px] p-8 md:p-12 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-2xl hover:shadow-pd-pink/10 transition-all duration-500 flex flex-col items-center text-center relative overflow-hidden group-hover:-translate-y-2">
+
+                  {/* Decorative background gradient on hover */}
+                  <div className="absolute inset-0 bg-linear-to-b from-transparent to-pd-pink/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  {/* Big Number Watermark */}
+                  <div className="absolute -top-4 -right-4 text-[140px] font-black text-slate-50 group-hover:text-pd-pink/[0.03] transition-colors duration-500 pointer-events-none select-none leading-none tracking-tighter">
+                    0{i + 1}
+                  </div>
+
+                  {/* Icon Container */}
+                  <div className="relative mb-10 mt-4">
+                    {/* Pulsing ring on hover */}
+                    <div className="absolute inset-0 border-2 border-pd-pink/20 rounded-full scale-100 opacity-0 group-hover:scale-[1.35] group-hover:opacity-100 transition-all duration-700 ease-out" />
+                    <div className="absolute inset-0 bg-pd-pink/10 rounded-full blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                    <div className="w-24 h-24 bg-white rounded-full shadow-lg border border-slate-100 flex items-center justify-center relative z-10 group-hover:border-pd-pink/30 transition-colors duration-500">
+                      <div className="text-slate-400 group-hover:text-pd-pink transition-colors duration-500">
+                        {React.isValidElement(step.icon) ? React.cloneElement(step.icon as React.ReactElement<any>, { size: 40, strokeWidth: 1.5, className: "group-hover:scale-110 transition-transform duration-500" }) : step.icon}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step Badge */}
+                  <div className="mb-4 bg-slate-50 text-slate-400 px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest border border-slate-200 group-hover:bg-pd-pink group-hover:text-white group-hover:border-pd-pink transition-colors duration-300 relative z-10">
+                    Step 0{i + 1}
+                  </div>
+
+                  {/* Content */}
+                  <h3 className="text-xl md:text-2xl font-semibold text-slate-900 mb-3 tracking-tight group-hover:text-pd-pink transition-colors duration-300 relative z-10">
+                    {step.title}
+                  </h3>
+                  <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed relative z-10">
+                    {step.desc}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+
+      {/* TESTIMONIALS - PREMIUM WHITE EDITION */}
+      <section className="py-32 bg-slate-50 relative overflow-hidden">
+        {/* Soft Background Blurs */}
+        <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(236,72,153,0.05)_0%,transparent_70%)] rounded-full blur-3xl transform-gpu pointer-events-none" />
+        <div className="absolute -bottom-[20%] -left-[10%] w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(59,130,246,0.05)_0%,transparent_70%)] rounded-full blur-3xl transform-gpu pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-6 mb-24 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl md:text-6xl font-semibold text-slate-900 mb-6 tracking-tighter leading-none">
+              Happy <br className="md:hidden" />
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-500 to-pd-blue drop-shadow-sm px-2">
+                Celebrators
+              </span>
+            </h2>
+            <p className="text-slate-400 uppercase tracking-[0.4em] font-black text-[10px] md:text-xs">Real stories from our valued clients</p>
+          </motion.div>
+        </div>
+
+        {/* Style to force linear smooth scrolling for Swiper */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+          .testimonials-swiper .swiper-wrapper {
+            transition-timing-function: linear !important;
+          }
+        `}} />
+
+        {/* Marquee Container with Gradient Mask */}
+        <div className="relative flex flex-col overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] pb-10 gap-6 md:gap-8">
+
+          {/* Row 1 - Scrolling Left */}
+          <div className="w-full">
+            <Swiper
+              modules={[Autoplay]}
+              spaceBetween={32}
+              slidesPerView="auto"
+              loop={true}
+              speed={6000}
+              allowTouchMove={false}
+              autoplay={{
+                delay: 0,
+                disableOnInteraction: false,
+              }}
+              className="testimonials-swiper"
+            >
+              {[
+                { name: "Rahul Malhotra", text: "PartyDial made our wedding planning so much easier! We received 5 quotes within 2 hours and booked a beautiful palace.", avatar: "https://randomuser.me/api/portraits/men/18.jpg" },
+                { name: "Sneha Kapoor", text: "As a corporate event planner, I need quick responses. PartyDial delivered! Found an amazing rooftop venue for our team's meet.", avatar: "https://randomuser.me/api/portraits/women/20.jpg" },
+                { name: "Amit Verma", text: "Found the perfect banquet hall for my son's 1st birthday. The zero brokerage promise is real – we saved a lot!", avatar: "https://randomuser.me/api/portraits/men/24.jpg" },
+                { name: "Priya Sharma", text: "The aesthetic of the venues I found through PartyDial was incredible. Perfect for my content and within budget!", avatar: "https://randomuser.me/api/portraits/women/45.jpg" },
+                { name: "Vikram Singh", text: "Professional service and transparent pricing. No hidden costs. Best platform for premium venue discovery.", avatar: "https://randomuser.me/api/portraits/men/63.jpg" }
+              ].map((t, i) => (
+                <SwiperSlide key={i} className="!w-[320px] md:!w-[420px]">
+                  <div className="w-full h-[300px] bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative group hover:-translate-y-2 transition-all duration-500 hover:shadow-xl hover:shadow-pd-pink/10 hover:border-pd-pink/20 whitespace-normal flex flex-col cursor-grab active:cursor-grabbing">
+                    <div className="absolute top-6 right-8 opacity-20 group-hover:opacity-100 group-hover:text-pd-pink transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 pointer-events-none">
+                      <Quote size={48} fill="currentColor" className="text-slate-300 group-hover:text-pd-pink" />
+                    </div>
+
+                    <div className="flex items-center gap-4 mb-6 relative z-10">
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-md group-hover:border-pd-pink transition-colors duration-500 relative shrink-0">
+                        <img src={t.avatar} alt={t.name} className="w-full h-full object-cover pointer-events-none" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-slate-900 text-lg tracking-tight">{t.name}</h4>
+                      </div>
+                    </div>
+                    <p className="text-slate-500 font-medium leading-relaxed flex-1 text-sm md:text-base select-none relative z-10">
+                      &quot;{t.text}&quot;
+                    </p>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+
+          {/* Row 2 - Scrolling Right */}
+          <div className="w-full">
+            <Swiper
+              modules={[Autoplay]}
+              spaceBetween={32}
+              slidesPerView="auto"
+              loop={true}
+              speed={6000}
+              allowTouchMove={false}
+              autoplay={{
+                delay: 0,
+                disableOnInteraction: false,
+                reverseDirection: true
+              }}
+              className="testimonials-swiper"
+            >
+              {[
+                { name: "Neha Gupta", role: "Anniversary Celebration", text: "Booked a resort for our 10th anniversary. The options provided were exactly what we had in mind. Flawless experience!", avatar: "6" },
+                { name: "Karan Desai", role: "Event Organizer", text: "I regularly use PartyDial for my clients. The interface is smooth, and the venues listed are verified. It saves me days of research.", avatar: "7" },
+                { name: "Anjali Rao", role: "Pre-Wedding Shoot", text: "Finding an aesthetic venue for our shoot was tough until we used PartyDial. Directly connected with the owner and booked it!", avatar: "8" },
+                { name: "Sameer Khan", role: "Startup Founder", text: "Hosted our product launch party at a venue found here. The direct pricing feature helped us stay well within our bootstrap budget.", avatar: "9" },
+                { name: "Pooja Mehta", role: "Baby Shower", text: "Everything from finding the venue to booking was completely hassle-free. Absolutely highly recommend PartyDial to anyone!", avatar: "10" }
+              ].map((t, i) => (
+                <SwiperSlide key={i} className="!w-[320px] md:!w-[420px]">
+                  <div className="w-full h-[300px] bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative group hover:-translate-y-2 transition-all duration-500 hover:shadow-xl hover:shadow-pd-blue/10 hover:border-pd-blue/20 whitespace-normal flex flex-col cursor-grab active:cursor-grabbing">
+                    <div className="absolute top-6 right-8 opacity-20 group-hover:opacity-100 group-hover:text-pd-blue transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 pointer-events-none">
+                      <Quote size={48} fill="currentColor" className="text-slate-300 group-hover:text-pd-blue" />
+                    </div>
+
+                    <div className="flex items-center gap-4 mb-6 relative z-10">
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-md group-hover:border-pd-blue transition-colors duration-500 relative">
+                        <img src={`https://i.pravatar.cc/150?u=user${t.avatar}`} alt={t.name} className="w-full h-full object-cover pointer-events-none" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-slate-900 text-lg tracking-tight">{t.name}</h4>
+                        <p className="text-[10px] font-bold text-pd-blue uppercase tracking-widest">{t.role}</p>
+                      </div>
+                    </div>
+                    <p className="text-slate-500 font-medium leading-relaxed flex-1 text-sm md:text-base select-none relative z-10">
+                      &quot;{t.text}&quot;
+                    </p>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ SECTION */}
+      <section className="py-24 px-6 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-semibold text-slate-900 mb-4">Got <span className="pd-gradient-text px-1">Questions?</span></h2>
+            <div className="w-20 h-1.5 bg-pd-red mx-auto rounded-full mb-6"></div>
+            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Everything you need to know about planning your next event</p>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              { q: "How does PartyDial help me find the right venue?", a: "We match you with the best venues based on your event type, guest count, and budget. You receive real-time quotes and can compare amenities and pricing instantly." },
+              { q: "Is there any charge for using PartyDial services?", a: "No, PartyDial is completely free for event organizers. We connect you directly with venues without any brokerage or hidden convenience fees." },
+              { q: "Are the venues on PartyDial personally verified?", a: "Yes, our team personally visits and verifies each venue for quality standards, amenities, and credibility before listing them on our platform." },
+              { q: "How soon will I receive quotes for my requirement?", a: "Most users receive their first set of personalized quotes within 30-60 minutes of submitting their requirements." },
+              { q: "Can I book a site visit through the platform?", a: "Absolutely! Once you receive a quote you like, you can directly message the venue manager or request a free site visit through our 'Help Desk'." }
+            ].map((faq, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-pd-soft transition-shadow"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full text-left px-8 py-7 flex items-center justify-between group"
+                >
+                  <span className="font-semibold text-slate-700 text-base group-hover:text-pd-red transition-colors pr-8 leading-tight">{faq.q}</span>
+                  <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all ${openFaq === i ? 'bg-pd-red text-white -rotate-180' : 'bg-slate-50 text-slate-400 group-hover:bg-pd-red group-hover:text-white'}`}>
+                    <ChevronDown size={18} />
+                  </div>
+                </button>
+                <AnimatePresence>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      <div className="px-8 pb-7 border-t border-slate-50 pt-6">
+                        <p className="text-slate-500 font-medium leading-relaxed  border-l-4 border-pd-red/20 pl-6">{faq.a}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+
+
+
+
+    </main>
   );
 }

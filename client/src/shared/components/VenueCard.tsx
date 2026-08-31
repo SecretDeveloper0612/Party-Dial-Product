@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 import Link from 'next/link';
-import { MapPin, Star, Heart, Users, ArrowRight, Eye, Sparkles } from 'lucide-react';
+import { MapPin, Star, Heart, Users, ArrowRight, Eye, IndianRupee, Car, Wind, Zap, Utensils, Music, Wine, Accessibility, Wifi, Shield, Bed, Tent, PartyPopper, CheckCircle } from 'lucide-react';
 import { Venue } from '@/data/venues';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
@@ -27,6 +27,22 @@ const getCapacityLabel = (capacity: string | number) => {
   if (cap >= 51)   return "50-100";
   if (cap >= 1)    return "0-50";
   return "0-50";
+};
+const getAmenityIcon = (amenity: string) => {
+  const lower = amenity.toLowerCase();
+  if (lower.includes('parking') || lower.includes('valet')) return <Car size={14} className="text-slate-700" />;
+  if (lower.includes('ac') || lower.includes('air condition') || lower.includes('hvac')) return <Wind size={14} className="text-slate-700" />;
+  if (lower.includes('power') || lower.includes('generator')) return <Zap size={14} className="text-slate-700" />;
+  if (lower.includes('cater') || lower.includes('food') || lower.includes('kitchen')) return <Utensils size={14} className="text-slate-700" />;
+  if (lower.includes('dj') || lower.includes('music') || lower.includes('sound')) return <Music size={14} className="text-slate-700" />;
+  if (lower.includes('bar') || lower.includes('alcohol') || lower.includes('drink')) return <Wine size={14} className="text-slate-700" />;
+  if (lower.includes('wheelchair') || lower.includes('access')) return <Accessibility size={14} className="text-slate-700" />;
+  if (lower.includes('wifi') || lower.includes('internet')) return <Wifi size={14} className="text-slate-700" />;
+  if (lower.includes('secur')) return <Shield size={14} className="text-slate-700" />;
+  if (lower.includes('room') || lower.includes('bed')) return <Bed size={14} className="text-slate-700" />;
+  if (lower.includes('lawn') || lower.includes('outdoor')) return <Tent size={14} className="text-slate-700" />;
+  if (lower.includes('decor')) return <PartyPopper size={14} className="text-slate-700" />;
+  return <CheckCircle size={14} className="text-slate-700" />;
 };
 
 export default function VenueCard({ venue: v, isPremium }: VenueCardProps) {
@@ -79,12 +95,6 @@ export default function VenueCard({ venue: v, isPremium }: VenueCardProps) {
         {/* Top Badges */}
         <div className="absolute top-4 inset-x-4 flex items-start justify-between z-10">
           <div className="flex flex-wrap gap-2">
-            {(isPremium || true) && (
-              <div className="bg-[#f59e0b] px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-white shadow-md">
-                <Star size={12} fill="white" className="text-white" />
-                <span className="text-[11px] font-bold tracking-wide">Featured</span>
-              </div>
-            )}
           </div>
           
           {/* Favorite Button */}
@@ -109,12 +119,12 @@ export default function VenueCard({ venue: v, isPremium }: VenueCardProps) {
       <div className="p-5 flex-1 flex flex-col bg-white">
         
         {/* Title & Subtitle */}
-        <div className="mb-5 mt-1">
-           <div className="flex items-start justify-between gap-2 mb-1.5">
-             <h3 className="text-[1.35rem] font-black text-slate-900 tracking-tight leading-tight line-clamp-1 flex-1" title={v.name}>
+         <div className="mb-4">
+           <div className="flex justify-between items-start">
+             <h3 className="font-pd font-semibold text-[18px] text-[#1a1f36] leading-tight line-clamp-1">
                {v.name}
              </h3>
-             <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
+             <div className="flex items-center gap-1.5 shrink-0 pt-0.5 ml-2">
                {/* Food Type Badge */}
                {v.foodTypes && v.foodTypes.length > 0 && (
                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200" title={v.foodTypes.join(', ')}>
@@ -129,11 +139,6 @@ export default function VenueCard({ venue: v, isPremium }: VenueCardProps) {
                </div>
              </div>
            </div>
-           <p className="text-xs font-semibold text-slate-500 tracking-wide">
-             {v.amenities && v.amenities.length >= 3 
-                ? v.amenities.slice(0, 3).join(' • ') 
-                : "Nature • Luxury • Comfort"}
-           </p>
         </div>
 
         {/* Info Boxes */}
@@ -141,7 +146,7 @@ export default function VenueCard({ venue: v, isPremium }: VenueCardProps) {
           {/* Price Box */}
           <div className="flex items-center gap-3 p-3 rounded-2xl border border-slate-100 bg-slate-50/80">
             <div className="p-2 bg-pd-purple/10 rounded-xl shrink-0">
-               <Sparkles size={16} className="text-pd-purple" />
+               <IndianRupee size={16} className="text-pd-purple" />
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-[10px] font-bold text-slate-500 truncate">Price / Plate</span>
@@ -167,23 +172,23 @@ export default function VenueCard({ venue: v, isPremium }: VenueCardProps) {
           </div>
         </div>
         
-        {/* Amenities */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {(v.amenities || []).slice(0, 3).map((a: string) => (
-            <span key={a} className="px-3 py-1.5 bg-white text-slate-600 rounded-lg text-[10px] font-bold border border-slate-200">
-              {a}
-            </span>
+        {/* Amenities Icons */}
+        <div className="flex flex-wrap gap-1.5 mb-6 mt-auto">
+          {(v.amenities || []).slice(0, 4).map((a: string, i: number) => (
+            <div key={i} className="flex items-center justify-center w-8 h-8 bg-white border border-slate-200 rounded-lg shrink-0" title={a}>
+              {getAmenityIcon(a)}
+            </div>
           ))}
-          {(v.amenities || []).length > 3 && (
-            <span className="px-3 py-1.5 bg-pd-purple/10 text-pd-purple rounded-lg text-[10px] font-bold border border-pd-purple/20">
-              +{(v.amenities || []).length - 3} more
-            </span>
+          {(v.amenities || []).length > 4 && (
+            <div className="px-2 flex items-center justify-center bg-pd-purple/10 border border-pd-purple/20 text-pd-purple text-[11px] font-bold rounded-lg shrink-0 h-8">
+              +{(v.amenities || []).length - 4}
+            </div>
           )}
         </div>
 
         {/* Buttons */}
         <div className="flex items-center gap-3 w-full mt-auto">
-          <Link href={`/venues/${v.id}`} className="flex-1">
+          <Link href={`/venues/${v.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${v.id}`} className="flex-1">
             <button className="w-full py-3.5 rounded-xl text-[13px] font-bold text-pd-purple bg-white border border-pd-purple/30 hover:bg-pd-purple/5 transition-all flex items-center justify-center gap-2">
               <Eye size={16} className="text-pd-purple" /> View Details
             </button>
@@ -192,7 +197,7 @@ export default function VenueCard({ venue: v, isPremium }: VenueCardProps) {
             onClick={() => {
               window.dispatchEvent(new CustomEvent('open-inquiry-popup', { detail: { venueId: v.id } }));
             }}
-            className="flex-1 py-3.5 rounded-xl text-[13px] font-bold text-white bg-gradient-to-r from-pd-pink to-pd-blue hover:shadow-lg hover:shadow-pd-pink/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+            className="flex-1 py-3.5 rounded-xl text-[13px] font-bold text-white bg-pd-pink hover:shadow-lg hover:shadow-pd-pink/20 transition-all active:scale-95 flex items-center justify-center gap-2"
           >
             Get Quote <ArrowRight size={16} />
           </button>

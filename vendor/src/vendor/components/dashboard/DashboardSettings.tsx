@@ -436,10 +436,16 @@ const DashboardSettings = ({
                                   <textarea 
                                     rows={5}
                                     value={venueProfile?.description || ""} 
+                                    maxLength={1000}
                                     onChange={(e) => handleProfileUpdate('description', e.target.value)}
                                     placeholder="Tell customers about your venue's ambiance..."
                                     className="w-full bg-slate-50 border border-slate-200/60 rounded-xl p-4 text-sm font-medium focus:bg-white focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all outline-none resize-none" 
                                   />
+                                  <div className="flex justify-end mt-1">
+                                    <p className={`text-[10px] font-bold ${(venueProfile?.description?.length || 0) >= 1000 ? 'text-pd-red' : 'text-slate-400'}`}>
+                                      {venueProfile?.description?.length || 0} / 1000
+                                    </p>
+                                  </div>
                                </div>
                             </section>
 

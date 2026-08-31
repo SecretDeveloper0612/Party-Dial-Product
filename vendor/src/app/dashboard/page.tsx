@@ -289,6 +289,8 @@ export default function VendorDashboard() {
     return null;
   }, [venueProfile]);
  
+  const hasActivePaidPlan = venueProfile?.subscriptionPlan && venueProfile.subscriptionPlan !== 'free' && (!expiryInfo || expiryInfo.daysLeft > 0);
+
   // Unified Activity History Generation
   const pastActivities = useMemo(() => {
     return recentLeads.map((lead, idx) => ({
@@ -658,15 +660,7 @@ export default function VendorDashboard() {
              state: billing_data.state || profile.state || ''
           });
 
-          // Hard expiry check for Trial Plan (Expires April 30th)
-          if (profile.subscriptionPlan === 'trial_30') {
-            const trialDeadline = new Date('2026-04-30T23:59:59');
-            if (new Date() > trialDeadline) {
-              router.push('/dashboard/onboarding/subscription?expired=true');
-              return;
-            }
-          }
-          
+
           setIsLoadingLeads(true);
           let leadsDocuments: any[] = [];
           
@@ -1029,7 +1023,7 @@ export default function VendorDashboard() {
           x: isMobile && !sidebarOpen ? -280 : 0
         }}
         transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-        className={`bg-white border-r border-slate-200/60 flex flex-col fixed md:sticky top-0 h-[100dvh] z-70 md:z-50 overflow-hidden no-print shadow-[4px_0_24px_rgba(0,0,0,0.02)]`}
+        className={`bg-white border-r border-slate-200/60 flex flex-col fixed md:sticky top-0 h-dvh z-70 md:z-50 overflow-hidden no-print shadow-[4px_0_24px_rgba(0,0,0,0.02)]`}
       >
          <div className={`py-8 pb-4 flex-1 w-full scrollbar-hide overflow-y-auto overflow-x-hidden ${sidebarOpen ? 'px-8' : 'px-4'}`}>
             <div className={`flex items-center ${sidebarOpen ? 'justify-between mb-16 px-2' : 'justify-center mb-16'}`}>
@@ -1044,7 +1038,7 @@ export default function VendorDashboard() {
                         />
                      </div>
                      <div className="flex items-center gap-2 ml-1">
-                        <div className="w-4 h-[1px] bg-pd-pink/50"></div>
+                        <div className="w-4 h-px bg-pd-pink/50"></div>
                         <span className="text-[10px] font-black uppercase text-pd-pink tracking-[0.5em]  opacity-90">Partner</span>
                      </div>
                   </div>
@@ -1110,7 +1104,6 @@ export default function VendorDashboard() {
                     { id: 'profile', label: 'Set Profile', icon: <User size={18} />, href: '/dashboard/onboarding/profile' },
                     { id: 'photos', label: 'Upload Photos', icon: <ImageIcon size={18} />, href: '/dashboard/onboarding/photos' },
                     { id: 'pricing', label: 'Manage Pricing', icon: <IndianRupee size={18} />, href: '/dashboard/onboarding/pricing' },
-                    { id: 'subscription', label: 'Subscription', icon: <ShieldCheck size={18} />, href: '/dashboard/onboarding/subscription' },
                   ].map(item => (
                     <Link key={item.id} href={item.href || '#'} onClick={() => isMobile && setSidebarOpen(false)}>
                       <div className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-slate-500 hover:bg-slate-50 hover:text-pd-pink transition-all cursor-pointer`} title={!sidebarOpen ? item.label : undefined}>
@@ -1221,7 +1214,7 @@ export default function VendorDashboard() {
 
             {/* Center Section: Plan Validity Status */}
             <div className="hidden xl:flex items-center justify-center flex-1 px-8">
-               <div className="bg-white/60 backdrop-blur-md border border-slate-200/50 shadow-[0_2px_10px_rgba(0,0,0,0.02)] rounded-2xl p-2.5 px-5 flex flex-col min-w-[340px]">
+               <div className="bg-white/60 backdrop-blur-md border border-slate-200/50 shadow-[0_2px_10px_rgba(0,0,0,0.02)] rounded-2xl p-2.5 px-5 flex flex-col min-w-85">
                   {expiryInfo ? (
                      <>
                        <div className="flex items-center justify-between w-full mb-2">
@@ -1280,16 +1273,16 @@ export default function VendorDashboard() {
                     <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Live Sync</span>
                   </div>
 
-                  <div className="w-[1px] h-6 bg-slate-200/60 mx-1"></div>
+                  <div className="w-px h-6 bg-slate-200/60 mx-1"></div>
 
                   <div className="relative">
                     <button 
                       onClick={() => setShowNotifDropdown(!showNotifDropdown)}
-                      className="w-[38px] h-[38px] rounded-xl bg-slate-50/80 flex items-center justify-center text-slate-600 hover:text-pd-pink hover:bg-pd-pink/5 hover:shadow-sm transition-all relative group"
+                      className="w-9.5 h-9.5 rounded-xl bg-slate-50/80 flex items-center justify-center text-slate-600 hover:text-pd-pink hover:bg-pd-pink/5 hover:shadow-sm transition-all relative group"
                     >
                       <Bell size={18} className="group-hover:scale-110 transition-transform duration-300" />
                       {unreadLeadsCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-[18px] h-[18px] bg-linear-to-tr from-pd-pink to-rose-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow-md">
+                        <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-linear-to-tr from-pd-pink to-rose-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow-md">
                           {unreadLeadsCount}
                         </span>
                       )}
@@ -1305,7 +1298,7 @@ export default function VendorDashboard() {
                   </div>
                </div>
                
-               <div className="hidden lg:block h-8 w-[1px] bg-slate-200/50"></div>
+               <div className="hidden lg:block h-8 w-px bg-slate-200/50"></div>
 
                {venueProfile && !venueProfile.isVerified && venueProfile.onboardingComplete && (
                   <button 
@@ -1323,7 +1316,7 @@ export default function VendorDashboard() {
                   className="flex items-center gap-3 lg:gap-4 pl-1 cursor-pointer group hover:opacity-90 active:scale-[0.98] transition-all"
                >
                   <div className="text-right hidden md:flex flex-col items-end">
-                     <p className="text-[14px] font-[900] text-slate-900 leading-none mb-1 group-hover:text-pd-pink transition-colors">{venueProfile?.venueName || userData?.name || "Your Venue"}</p>
+                     <p className="text-[14px] font-black text-slate-900 leading-none mb-1 group-hover:text-pd-pink transition-colors">{venueProfile?.venueName || userData?.name || "Your Venue"}</p>
                       <div className="flex items-center gap-1.5 bg-emerald-50/50 px-2 py-0.5 rounded border border-emerald-100">
                         <span className={`w-1.5 h-1.5 rounded-full ${isRealtimeConnected ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500'}`}></span>
                         <p className={`text-[9px] ${isRealtimeConnected ? 'text-emerald-600' : 'text-rose-600'} font-black uppercase tracking-widest leading-none`}>
@@ -1332,7 +1325,7 @@ export default function VendorDashboard() {
                       </div>
                   </div>
                   <div className="relative">
-                     <div className="w-[46px] h-[46px] lg:w-[50px] lg:h-[50px] rounded-2xl bg-linear-to-tr from-pd-pink via-purple-500 to-emerald-400 p-[2px] shadow-lg shadow-slate-200/50 group-hover:shadow-pd-pink/20 group-hover:scale-105 transition-all duration-300">
+                     <div className="w-11.5 h-11.5 lg:w-12.5 lg:h-12.5 rounded-2xl bg-linear-to-tr from-pd-pink via-purple-500 to-emerald-400 p-0.5 shadow-lg shadow-slate-200/50 group-hover:shadow-pd-pink/20 group-hover:scale-105 transition-all duration-300">
                         <div className="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center border-2 border-white">
                            {(() => {
                               try {
@@ -1414,7 +1407,7 @@ export default function VendorDashboard() {
             )}
 
             {activeTab === 'leads' && (
-              (venueProfile?.subscriptionPlan && venueProfile?.subscriptionPlan !== 'free') ? (
+              hasActivePaidPlan ? (
                 <LeadInbox 
                   filteredAdvancedLeads={filteredAdvancedLeads}
                   leadFilter={leadFilter}
@@ -1427,12 +1420,12 @@ export default function VendorDashboard() {
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center justify-center min-h-[500px] bg-white rounded-[40px] border border-slate-100 shadow-pd-soft p-12 text-center"
+                  className="flex flex-col items-center justify-center min-h-125 bg-white rounded-[40px] border border-slate-100 shadow-pd-soft p-12 text-center"
                 >
                    <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mb-8 mx-auto shadow-inner">
                       <Zap size={45} className="fill-amber-500 animate-pulse" />
                    </div>
-                   <h3 className="text-3xl font-[900] text-slate-900 uppercase  tracking-tighter mb-4">Direct Leads Restricted</h3>
+                   <h3 className="text-3xl font-black text-slate-900 uppercase  tracking-tighter mb-4">Direct Leads Restricted</h3>
                    <p className="text-slate-500 font-medium  max-w-md mx-auto mb-12 leading-relaxed">
                       Your profile is currently on the <span className="text-slate-900 font-bold">Free Plan</span>. Purchase a subscription to unlock real-time inquiries, lead management tools, and customer contact details.
                    </p>
@@ -1452,6 +1445,7 @@ export default function VendorDashboard() {
             )}
 
             {activeTab === 'quotations' && (
+              hasActivePaidPlan ? (
               <QuotationManager 
                 quoteData={quoteData}
                 setQuoteData={setQuoteData}
@@ -1468,10 +1462,25 @@ export default function VendorDashboard() {
                 gstAmount={gstAmount}
                 totalWithTax={totalWithTax}
               />
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center justify-center min-h-125 bg-white rounded-[40px] border border-white shadow-pd-soft p-12 text-center"
+                >
+                   <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 mb-8 mx-auto">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="animate-pulse"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                   </div>
+                   <h3 className="text-3xl font-black text-slate-900 uppercase  tracking-tighter mb-4">Quotations Locked</h3>
+                   <p className="text-slate-500 font-medium  max-w-md mx-auto mb-12 leading-relaxed">
+                      Sending professional quotations and tracking their status requires an active subscription. Upgrade your plan to use this feature.
+                   </p>
+                </motion.div>
+              )
             )}
 
             {activeTab === 'pipeline' && (
-              (venueProfile?.subscriptionPlan && venueProfile?.subscriptionPlan !== 'free') ? (
+              hasActivePaidPlan ? (
                 <LeadPipeline 
                   recentLeads={recentLeads}
                   pipelineStages={PIPELINE_STAGES}
@@ -1482,12 +1491,12 @@ export default function VendorDashboard() {
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center justify-center min-h-[500px] bg-white rounded-[40px] border border-white shadow-pd-soft p-12 text-center"
+                  className="flex flex-col items-center justify-center min-h-125 bg-white rounded-[40px] border border-white shadow-pd-soft p-12 text-center"
                 >
                    <div className="w-24 h-24 bg-pd-purple/5 rounded-full flex items-center justify-center text-pd-purple mb-8 mx-auto">
                       <Target size={45} className="animate-bounce" />
                    </div>
-                   <h3 className="text-3xl font-[900] text-slate-900 uppercase  tracking-tighter mb-4">Pipeline Locked</h3>
+                   <h3 className="text-3xl font-black text-slate-900 uppercase  tracking-tighter mb-4">Pipeline Locked</h3>
                    <p className="text-slate-500 font-medium  max-w-md mx-auto mb-12 leading-relaxed">
                       Managing your sales pipeline and booking flow requires an active subscription. Upgrade today to start converting inquiries into bookings.
                    </p>
@@ -1515,12 +1524,28 @@ export default function VendorDashboard() {
             )}
 
             {activeTab === 'reviews' && (
+              hasActivePaidPlan ? (
               <ReviewManager 
                 venueId={venueProfile?.$id}
                 replyTarget={replyTarget}
                 setReplyTarget={setReplyTarget}
                 showToast={showToast}
               />
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center justify-center min-h-125 bg-white rounded-[40px] border border-white shadow-pd-soft p-12 text-center"
+                >
+                   <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mb-8 mx-auto">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="animate-pulse"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                   </div>
+                   <h3 className="text-3xl font-black text-slate-900 uppercase  tracking-tighter mb-4">Reviews Locked</h3>
+                   <p className="text-slate-500 font-medium  max-w-md mx-auto mb-12 leading-relaxed">
+                      Responding to customer reviews and managing your reputation requires an active subscription. Upgrade your plan to use this feature.
+                   </p>
+                </motion.div>
+              )
             )}
 
             {activeTab === 'finance' && (

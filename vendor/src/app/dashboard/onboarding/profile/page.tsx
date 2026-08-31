@@ -269,9 +269,15 @@ export default function CompleteProfilePage() {
                     placeholder="Tell customers what makes your venue special. Mention the ambiance, suitability for different events, and unique features..."
                     className="w-full bg-slate-50 border border-slate-100 rounded-3xl p-6 text-sm font-medium text-slate-900 focus:bg-white focus:border-pd-pink focus:shadow-sm transition-all outline-none resize-none leading-relaxed"
                     value={description}
+                    maxLength={1000}
                     onChange={(e) => setDescription(e.target.value)}
                   />
-                  <p className="text-[10px] text-slate-400 font-bold  text-right ">Recommended: Minimum 200 characters</p>
+                  <div className="flex justify-between items-center mt-2">
+                    <p className="text-[10px] text-slate-400 font-bold">Recommended: Minimum 200 characters</p>
+                    <p className={`text-[10px] font-bold ${description.length >= 1000 ? 'text-pd-red' : 'text-slate-400'}`}>
+                      {description.length} / 1000
+                    </p>
+                  </div>
                </section>
 
                {/* Amenities */}

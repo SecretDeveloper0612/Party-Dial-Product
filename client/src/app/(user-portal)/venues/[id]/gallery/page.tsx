@@ -156,21 +156,22 @@ export default function VenueGalleryPage() {
         </div>
 
         <motion.div 
-          layout
-          className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6 auto-rows-[160px] md:auto-rows-[200px] grid-flow-dense"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5"
         >
-          <AnimatePresence>
+          <AnimatePresence mode="popLayout">
             {filteredImages.map((img: any, i: number) => {
               return (
                 <motion.div
                   key={img.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.4, delay: i * 0.05 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ 
+                    duration: 0.3, 
+                    delay: i * 0.05 
+                  }}
                   onClick={() => setSelectedImage(img)}
-                  className="group relative bg-white rounded-2xl md:rounded-4xl overflow-hidden shadow-pd-soft border border-slate-100 cursor-pointer hover:shadow-pd-strong transition-all duration-500 aspect-square"
+                  className="group relative bg-slate-100 rounded-xl overflow-hidden cursor-pointer transition-all duration-500 aspect-[4/3]"
                 >
                   <img 
                     src={img.url} 

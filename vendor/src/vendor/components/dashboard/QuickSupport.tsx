@@ -1,82 +1,138 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageSquare, HelpCircle, PhoneCall, Headphones, BookOpen, ExternalLink } from 'lucide-react';
+import { Headphones, Sparkles, Send, CheckCircle2, Ticket } from 'lucide-react';
 
 const QuickSupport = () => {
+  const [category, setCategory] = useState('');
+  const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!category || !description) return;
+    
+    setIsSubmitting(true);
+    // Simulate API call to create ticket
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsSuccess(true);
+      setCategory('');
+      setDescription('');
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => setIsSuccess(false), 5000);
+    }, 1500);
+  };
+
   return (
-    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-5xl mx-auto space-y-8">
-       {/* Header */}
-       <div className="bg-slate-900 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden shadow-xl shadow-slate-900/10">
-          <div className="relative z-10 max-w-2xl">
-             <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-pd-pink mb-6 backdrop-blur-sm border border-white/10">
-                <Headphones size={24} />
-             </div>
-             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">Partner Support Center</h1>
-             <p className="text-slate-400 font-medium text-lg max-w-lg">We're dedicated to helping you maximize your venue's potential on our platform.</p>
-          </div>
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      transition={{ duration: 0.5 }} 
+      className="w-full max-w-5xl mx-auto space-y-8"
+    >
+       {/* Premium Header */}
+       <div className="relative rounded-[2.5rem] p-10 md:p-14 overflow-hidden border border-white/10 shadow-2xl shadow-pd-purple/20">
+          <div className="absolute inset-0 bg-linear-to-br from-slate-950 via-indigo-950 to-slate-900" />
           
-          {/* Abstract Decoration */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-br from-pd-pink/20 to-purple-600/20 blur-3xl -mr-20 -mt-20 rounded-full pointer-events-none" />
-          <div className="absolute bottom-0 right-32 w-64 h-64 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
+          <div className="absolute top-0 right-0 w-125 h-125 bg-linear-to-bl from-pd-pink/30 to-purple-600/30 blur-[100px] rounded-full pointer-events-none -mr-40 -mt-40" />
+          <div className="absolute bottom-0 left-0 w-100 h-100 bg-emerald-500/20 blur-[100px] rounded-full pointer-events-none -ml-40 -mb-40" />
+
+          <div className="relative z-10 max-w-2xl">
+             <motion.div 
+               initial={{ scale: 0 }}
+               animate={{ scale: 1 }}
+               transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+               className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-pd-pink mb-8 backdrop-blur-md border border-white/20 shadow-inner"
+             >
+                <Headphones size={32} />
+             </motion.div>
+             <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-4 text-white drop-shadow-sm flex items-center gap-3">
+                Partner Support Center <Sparkles className="text-amber-400" size={28} />
+             </h1>
+             <p className="text-slate-300 font-medium text-lg max-w-lg leading-relaxed">
+                Experience priority assistance. Raise a ticket describing your issue, and our team will resolve it promptly.
+             </p>
+          </div>
        </div>
        
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <a 
-            href="https://wa.me/918864959977?text=Hi%20PartyDial%20Support,%20I%20need%20help%20with%20my%20venue%20listing." 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="bg-white p-8 rounded-3xl border border-slate-200/60 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-emerald-500/30 transition-all cursor-pointer group"
-          >
-             <div className="flex items-start justify-between mb-8">
-                <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center border border-emerald-100 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-all shadow-sm">
-                   <MessageSquare size={24} />
-                </div>
-                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                   <ExternalLink size={14} />
-                </div>
+       {/* Ticket System */}
+       <div className="bg-white p-8 md:p-12 rounded-[2.5rem] border border-slate-100 shadow-pd-soft">
+          <div className="flex items-center gap-4 mb-8 pb-8 border-b border-slate-100">
+             <div className="w-14 h-14 bg-pd-purple/5 text-pd-purple rounded-2xl flex items-center justify-center">
+                <Ticket size={28} />
              </div>
              <div>
-                <h4 className="text-lg font-extrabold text-slate-900 mb-2">WhatsApp Support</h4>
-                <p className="text-sm text-slate-500 font-medium">Chat instantly with our partner success team for quick resolutions and onboarding help.</p>
-             </div>
-          </a>
-
-          <a 
-            href="mailto:support@partydial.com"
-            className="bg-white p-8 rounded-3xl border border-slate-200/60 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-pd-pink/30 transition-all cursor-pointer group"
-          >
-             <div className="flex items-start justify-between mb-8">
-                <div className="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center border border-rose-100 text-pd-pink group-hover:bg-pd-pink group-hover:text-white transition-all shadow-sm">
-                   <HelpCircle size={24} />
-                </div>
-                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-rose-50 group-hover:text-pd-pink transition-colors">
-                   <ExternalLink size={14} />
-                </div>
-             </div>
-             <div>
-                <h4 className="text-lg font-extrabold text-slate-900 mb-2">Email Support</h4>
-                <p className="text-sm text-slate-500 font-medium">Send us an email for detailed queries, billing issues, or feature requests. We typically reply within 24 hours.</p>
-             </div>
-          </a>
-       </div>
-
-       {/* FAQ / Resources Teaser */}
-       <div className="bg-slate-50 rounded-3xl border border-slate-200/60 p-8 md:p-10 mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-             <div className="w-12 h-12 bg-white rounded-2xl border border-slate-200 flex items-center justify-center text-slate-500 shadow-sm shrink-0">
-                <BookOpen size={20} />
-             </div>
-             <div>
-                <h4 className="text-base font-extrabold text-slate-900 mb-1">Knowledge Base</h4>
-                <p className="text-sm font-medium text-slate-500">Learn how to optimize your profile and get more bookings.</p>
+                <h3 className="text-2xl font-black text-slate-900">Raise a Ticket</h3>
+                <p className="text-slate-500 font-medium mt-1">Submit your problem and track its resolution.</p>
              </div>
           </div>
-          <button className="w-full md:w-auto px-6 py-3 bg-white border border-slate-200/80 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition-colors shadow-sm whitespace-nowrap">
-             View Guides
-          </button>
+          
+          {isSuccess ? (
+             <motion.div 
+               initial={{ opacity: 0, scale: 0.95 }}
+               animate={{ opacity: 1, scale: 1 }}
+               className="flex flex-col items-center justify-center py-12 text-center"
+             >
+                <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-6">
+                   <CheckCircle2 size={40} />
+                </div>
+                <h4 className="text-2xl font-black text-slate-900 mb-2">Ticket Submitted!</h4>
+                <p className="text-slate-500 max-w-md mx-auto">Your support ticket has been raised successfully. Our team will review the issue and contact you within 24 hours.</p>
+             </motion.div>
+          ) : (
+             <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                   <label className="block text-sm font-bold text-slate-700 mb-2">Issue Category</label>
+                   <select 
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      required
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pd-purple/20 focus:border-pd-purple/40 transition-all font-medium text-slate-700 appearance-none"
+                   >
+                      <option value="" disabled>Select the type of problem...</option>
+                      <option value="profile">Profile & Listing Updates</option>
+                      <option value="billing">Billing & Subscriptions</option>
+                      <option value="leads">Lead Discrepancies</option>
+                      <option value="technical">Technical Glitches</option>
+                      <option value="other">Other Issues</option>
+                   </select>
+                </div>
+                
+                <div>
+                   <label className="block text-sm font-bold text-slate-700 mb-2">Description</label>
+                   <textarea 
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      required
+                      placeholder="Please describe your issue in detail so we can help you faster..."
+                      rows={5}
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pd-purple/20 focus:border-pd-purple/40 transition-all font-medium text-slate-700 resize-none"
+                   />
+                </div>
+                
+                <div className="pt-2">
+                   <button 
+                      type="submit" 
+                      disabled={isSubmitting || !category || !description}
+                      className="w-full sm:w-auto px-10 py-5 bg-slate-900 text-white font-bold rounded-2xl hover:bg-pd-purple transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg shadow-slate-900/10"
+                   >
+                      {isSubmitting ? (
+                         <>Processing...</>
+                      ) : (
+                         <>
+                            Submit Ticket <Send size={18} />
+                         </>
+                      )}
+                   </button>
+                </div>
+             </form>
+          )}
        </div>
+
     </motion.div>
   );
 };

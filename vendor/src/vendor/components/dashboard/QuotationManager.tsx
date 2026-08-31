@@ -61,7 +61,7 @@ interface QuoteData {
 
 interface QuotationManagerProps {
    quoteData: QuoteData;
-   setQuoteData: (data: any) => void;
+   setQuoteData: (data: unknown) => void;
    handleFinalize: () => void;
    isFinalizing: boolean;
    qtnSuccess: boolean;
@@ -69,10 +69,10 @@ interface QuotationManagerProps {
    gstAmount: number;
    totalWithTax: number;
    setActiveTab: (tab: string) => void;
-   logo: any;
+   logo: unknown;
    handleDownload: () => void;
    handleSend: () => void;
-   venueProfile: any;
+   venueProfile: unknown;
    showToast: (message: string, type?: 'success' | 'error') => void;
 }
 
@@ -112,7 +112,7 @@ const QuotationManager = ({
                const leadDoc = await databases.getDocument(DATABASE_ID, LEADS_COLLECTION_ID, quoteData.leadId);
 
                if (leadDoc) {
-                  setQuoteData((prev: any) => ({
+                  setQuoteData((prev: unknown) => ({
                      ...prev,
                      client: leadDoc.name || prev.client,
                      contact: leadDoc.phone || prev.contact,
@@ -319,7 +319,7 @@ const QuotationManager = ({
          link.click();
          URL.revokeObjectURL(url);
          showToast('Quotation downloaded successfully!', 'success');
-      } catch (error: any) {
+      } catch (error: unknown) {
          console.error('PDF Generation Error:', error);
          showToast(`Generation failed: ${error.message || 'Please try again'}`, 'error');
       } finally {
@@ -378,7 +378,7 @@ const QuotationManager = ({
          window.open(waUrl, '_blank', 'noopener,noreferrer');
 
          showToast('WhatsApp opened successfully!', 'success');
-      } catch (error: any) {
+      } catch (error: unknown) {
          console.error('WhatsApp Share Error:', error);
          showToast(`Sharing failed: ${error.message || 'Please try again'}`, 'error');
       } finally {
@@ -440,7 +440,7 @@ const QuotationManager = ({
          } else {
             throw new Error(data.message || 'Email sending failed');
          }
-      } catch (error: any) {
+      } catch (error: unknown) {
          console.error('Email Send Error:', error);
          showToast(`Email failed: ${error.message || 'Please try again'}`, 'error');
       } finally {
@@ -498,7 +498,7 @@ const QuotationManager = ({
 
             <div className="flex-1 flex flex-col lg:flex-row printable-container relative">
                {/* LEFT: ADVANCED FORM SECTION - STICKY */}
-               <div className="w-full lg:w-[460px] bg-white/60 backdrop-blur-3xl border-r border-slate-200/60 p-6 lg:p-8 no-print lg:sticky lg:top-[80px] lg:h-[calc(100vh-80px)] lg:overflow-y-auto custom-scrollbar z-10">
+               <div className="w-full lg:w-115 bg-white/60 backdrop-blur-3xl border-r border-slate-200/60 p-6 lg:p-8 no-print lg:sticky lg:top-20 lg:h-[calc(100vh-80px)] lg:overflow-y-auto custom-scrollbar z-10">
                   <div className="space-y-10">
                      {/* Section: Customer Details */}
                      <section className="space-y-6">
@@ -569,10 +569,21 @@ const QuotationManager = ({
                                  className="w-full bg-white border border-slate-200/80 rounded-xl py-2.5 px-4 text-[13px] font-medium text-slate-900 outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all shadow-sm appearance-none"
                               >
                                  <option>Wedding Ceremony</option>
+                                 <option>Engagement Party</option>
+                                 <option>Reception</option>
+                                 <option>Haldi / Mehndi Ceremony</option>
                                  <option>Corporate Gala</option>
                                  <option>Cocktail Party</option>
                                  <option>Birthday Bash</option>
                                  <option>Anniversary Celebration</option>
+                                 <option>Baby Shower</option>
+                                 <option>Bridal Shower</option>
+                                 <option>Farewell Party</option>
+                                 <option>Reunion</option>
+                                 <option>Product Launch</option>
+                                 <option>Private Dinner</option>
+                                 <option>Festive Event</option>
+                                 <option>Other / Custom Event</option>
                               </select>
                            </div>
                            <div className="grid grid-cols-2 gap-4">
@@ -719,7 +730,7 @@ const QuotationManager = ({
                            </div>
                            <div className="space-y-2">
                               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Extra Charges</label>
-                              <div className="h-[28px]" /> {/* Spacer to align with discount buttons */}
+                              <div className="h-7" /> {/* Spacer to align with discount buttons */}
                               <div className="relative mt-2">
                                  <input
                                     type="number"
@@ -769,10 +780,10 @@ const QuotationManager = ({
                               let photos = [];
                               try {
                                  const rawPhotos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : (Array.isArray(venueProfile?.photos) ? venueProfile.photos : []);
-                                 photos = rawPhotos.map((p: any) => typeof p === 'string' ? { id: p, category: 'All Photos' } : p);
+                                 photos = rawPhotos.map((p: unknown) => typeof p === 'string' ? { id: p, category: 'All Photos' } : p);
                               } catch (e) { photos = []; }
 
-                              const galleryPhotos = photos.filter((p: any) => p.category !== 'Profile');
+                              const galleryPhotos = photos.filter((p: unknown) => p.category !== 'Profile');
 
                               if (galleryPhotos.length === 0) {
                                  return (
@@ -883,7 +894,7 @@ const QuotationManager = ({
                </div>
 
                {/* RIGHT: PREMIUM PREVIEW SECTION - SCROLLABLE */}
-               <div className="flex-1 bg-slate-50/50 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] p-8 lg:p-16 flex flex-col items-center printable-container min-h-[calc(100vh-80px)] overflow-y-auto">
+               <div className="flex-1 bg-slate-50/50 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[20px_20px] p-8 lg:p-16 flex flex-col items-center printable-container min-h-[calc(100vh-80px)] overflow-y-auto">
 
                   {/* Floating Premium Controls */}
                   <div className="mb-8 flex items-center gap-2 bg-white/90 backdrop-blur-md p-2 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 no-print sticky top-8 z-20">
@@ -934,7 +945,7 @@ const QuotationManager = ({
                      layout
                      ref={quotationRef}
                      id="quotation-preview-doc"
-                     className="w-full max-w-[850px] bg-white shadow-2xl shadow-slate-200 rounded-2xl relative min-h-[1056px] flex flex-col overflow-hidden border border-slate-200 print:shadow-none print:rounded-none print-only"
+                     className="w-full max-w-[212.5rem] bg-white shadow-2xl shadow-slate-200 rounded-2xl relative min-h-264 flex flex-col overflow-hidden border border-slate-200 print:shadow-none print:rounded-none print-only"
                   >
                      <div className="p-12 lg:p-14 space-y-12">
 
@@ -950,21 +961,21 @@ const QuotationManager = ({
                            <div className="w-16 h-16 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-center overflow-hidden">
                               {(() => {
                                  const rawPhotos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
-                                 const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => typeof p === 'string' ? { id: p, category: 'All Photos' } : p) : [];
-                                 const avatar = photos.find((p: any) => p.category === 'Profile');
+                                 const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: unknown) => typeof p === 'string' ? { id: p, category: 'All Photos' } : p) : [];
+                                 const avatar = photos.find((p: unknown) => p.category === 'Profile');
                                  if (avatar) {
                                     return (
-                                       <Image
-                                          priority
+                                       /* eslint-disable-next-line @next/next/no-img-element */
+                                       <img
+                                          crossOrigin="anonymous"
                                           src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${avatar.id}/view?project=69ae84bc001ca4edf8c2`}
                                           alt="Logo"
-                                          width={64}
-                                          height={64}
                                           className="object-cover w-full h-full"
                                        />
                                     );
                                  }
-                                 return <Image priority src={logo} alt="Logo" className="object-contain w-10 h-10 opacity-50" />;
+                                 return /* eslint-disable-next-line @next/next/no-img-element */
+                                 <img crossOrigin="anonymous" src={typeof logo === 'string' ? logo : logo.src} alt="Logo" className="object-contain w-10 h-10 opacity-50" />;
                               })()}
                            </div>
                         </div>
@@ -998,7 +1009,7 @@ const QuotationManager = ({
                               {quoteData.specialRequests && (
                                  <div className="col-span-2 pt-4 border-t border-slate-200 mt-2">
                                     <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Special Directives</h4>
-                                    <p className="text-xs text-slate-600 ">"{quoteData.specialRequests}"</p>
+                                    <p className="text-xs text-slate-600 ">&quot;{quoteData.specialRequests}&quot;</p>
                                  </div>
                               )}
                            </div>
@@ -1009,14 +1020,27 @@ const QuotationManager = ({
                            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Amenities Included</h4>
                            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
                               <div className="flex flex-wrap gap-4">
-                                 {Object.entries(AMENITY_ICONS).slice(0, 5).map(([key, icon]) => (
-                                    <div key={key} className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm">
-                                       <div className="text-slate-500 scale-90">
-                                          {icon}
-                                       </div>
-                                       <span className="text-[10px] font-semibold text-slate-700 uppercase tracking-wider">{key}</span>
-                                    </div>
-                                 ))}
+                                 {(() => {
+                                    const rawAmenities = typeof venueProfile?.amenities === 'string' 
+                                       ? JSON.parse(venueProfile.amenities) 
+                                       : (Array.isArray(venueProfile?.amenities) ? venueProfile.amenities : []);
+                                    
+                                    if (rawAmenities.length === 0) {
+                                       return <span className="text-sm text-slate-400">No amenities listed.</span>;
+                                    }
+
+                                    return rawAmenities.map((amenity: string) => {
+                                       const icon = AMENITY_ICONS[amenity] || AMENITY_ICONS['Garden'];
+                                       return (
+                                          <div key={amenity} className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm">
+                                             <div className="text-slate-500 scale-90">
+                                                {icon}
+                                             </div>
+                                             <span className="text-[10px] font-semibold text-slate-700 uppercase tracking-wider">{amenity}</span>
+                                          </div>
+                                       );
+                                    });
+                                 })()}
                               </div>
                            </div>
                         </div>
@@ -1024,7 +1048,7 @@ const QuotationManager = ({
                         {/* Venue Gallery */}
                         {(() => {
                            const rawPhotos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
-                           const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => typeof p === 'string' ? { id: p, category: 'All Photos' } : p) : [];
+                           const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: unknown) => typeof p === 'string' ? { id: p, category: 'All Photos' } : p) : [];
                            const gallery = photos.filter(p => quoteData.selectedImages?.includes(p.id));
 
                            if (gallery.length === 0) return null;
@@ -1035,12 +1059,12 @@ const QuotationManager = ({
                                  <div className="grid grid-cols-3 gap-3">
                                     {gallery.map((photo: any, i) => (
                                        <div key={photo.id || i} className="aspect-4/3 rounded-xl bg-slate-100 overflow-hidden relative border border-slate-200">
-                                          <Image
-                                             priority
+                                          /* eslint-disable-next-line @next/next/no-img-element */
+                                       <img
+                                             crossOrigin="anonymous"
                                              src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${photo.id}/view?project=69ae84bc001ca4edf8c2`}
                                              alt={`View ${i}`}
-                                             fill
-                                             className="object-cover"
+                                             className="absolute inset-0 w-full h-full object-cover"
                                           />
                                        </div>
                                     ))}

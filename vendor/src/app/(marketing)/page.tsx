@@ -20,7 +20,6 @@ import {
    Smartphone,
    MapPin,
    Target,
-   BarChart3,
    ShieldCheck,
    LayoutDashboard,
    MessageSquare,
@@ -28,18 +27,12 @@ import {
    Calendar,
    Phone,
    Mail,
-   PieChart,
-   HelpCircle,
    Clock,
-   Briefcase,
    TrendingUp,
    Globe,
-   Plus,
    Check,
    ArrowUpRight,
    Shield,
-   Layers,
-   Image as ImageIcon,
    PartyPopper,
    Heart,
    Wine,
@@ -47,7 +40,6 @@ import {
    Baby,
    Gem,
    UsersRound,
-   CircleDot,
    Search,
    Facebook,
    Instagram
@@ -55,61 +47,11 @@ import {
 
 // --- DATA ---
 
-const trustedStats = [
-   { label: "Venues Listed", value: 500, suffix: "+", icon: <Building2 size={16} /> },
-   { label: "Party Inquiries", value: 10000, suffix: "+", icon: <Users size={16} /> },
-   { label: "Cities Covered", value: 7, suffix: " Major Cities", icon: <Globe size={16} /> }
-];
 
-const howItWorks = [
-   {
-      title: "Register",
-      desc: "Fill out your venue details in under 5 minutes. Our guided form makes the onboarding process quick and easy.",
-      step: "01",
-      icon: <Briefcase size={22} />,
-      accent: "#E91E8C",
-      tag: "Takes 5 min"
-   },
-   {
-      title: "Build Profile",
-      desc: "Showcase your venue with high-quality photos, pricing, capacity, and event types you host.",
-      step: "02",
-      icon: <ImageIcon size={22} />,
-      accent: "#3B82F6",
-      tag: "Stand Out"
-   },
-   {
-      title: "Get Inquiries",
-      desc: "Start receiving real-time, verified leads from customers actively searching for venues in your city.",
-      step: "03",
-      icon: <MessageSquare size={22} />,
-      accent: "#10B981",
-      tag: "Live Alerts"
-   },
-   {
-      title: "Close Bookings",
-      desc: "Connect with customers directly, discuss requirements, and convert inquiries into confirmed bookings.",
-      step: "04",
-      icon: <TrendingUp size={22} />,
-      accent: "#F59E0B",
-      tag: "More Revenue"
-   }
-];
 
-const venueTypes = [
-   { name: "Banquet Halls", icon: <Building2 size={20} />, desc: "Grand celebrations" },
-   { name: "Luxury Hotels", icon: <Building2 size={20} />, desc: "Premium stays & events" },
-   { name: "Restaurants", icon: <Wine size={20} />, desc: "Fine dining & parties" },
-   { name: "Cafes & Bistros", icon: <Zap size={20} />, desc: "Cozy gatherings" },
-   { name: "Party Lawns", icon: <Sparkles size={20} />, desc: "Outdoor festivities" },
-   { name: "Resorts", icon: <Globe size={20} />, desc: "Destination events" },
-   { name: "Farmhouses", icon: <Building2 size={20} />, desc: "Private getaways" },
-   { name: "Rooftop Venues", icon: <Layers size={20} />, desc: "Skyline celebrations" },
-   { name: "Clubs & Lounges", icon: <Zap size={20} />, desc: "Nightlife & music" },
-   { name: "Community Halls", icon: <Users size={20} />, desc: "Social gatherings" },
-   { name: "Marriage Gardens", icon: <Heart size={20} />, desc: "Timeless weddings" },
-   { name: "Convention Centers", icon: <Building2 size={20} />, desc: "Large scale events" }
-];
+
+
+
 
 const eventCategories = [
    { name: "Birthdays", icon: <PartyPopper size={28} />, accent: "#F43F5E", bg: "from-rose-500/20 to-pink-500/5", demand: "2.4K+ monthly" },
@@ -153,67 +95,7 @@ const AnimatedCounter = ({ end, duration = 2000, suffix = "" }: { end: number, d
    return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 };
 
-const CursorZoomImage = ({ src, alt, height, priority = false }: { src: string, alt: string, height: string, priority?: boolean }) => {
-   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-   const [isHovered, setIsHovered] = useState(false);
-   const containerRef = useRef<HTMLDivElement>(null);
 
-   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!containerRef.current) return;
-      const { left, top, width, height } = containerRef.current.getBoundingClientRect();
-      const x = (e.clientX - left) / width;
-      const y = (e.clientY - top) / height;
-      setMousePos({ x, y });
-   };
-
-   return (
-      <div
-         ref={containerRef}
-         onMouseMove={handleMouseMove}
-         onMouseEnter={() => setIsHovered(true)}
-         onMouseLeave={() => setIsHovered(false)}
-         className={`relative ${height} rounded-4xl overflow-hidden shadow-2xl group cursor-none`}
-      >
-         <motion.div
-            animate={{
-               scale: isHovered ? 1.25 : 1,
-               x: isHovered ? (0.5 - mousePos.x) * 60 : 0,
-               y: isHovered ? (0.5 - mousePos.y) * 60 : 0,
-            }}
-            transition={{ type: "spring", stiffness: 100, damping: 20, mass: 0.5 }}
-            className="relative w-full h-full"
-         >
-            <Image
-               src={src}
-               alt={alt}
-               fill
-               className="object-cover"
-               priority={priority}
-            />
-         </motion.div>
-
-         {/* Lens effect / Cursor follower */}
-         <AnimatePresence>
-            {isHovered && (
-               <motion.div
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{
-                     opacity: 1,
-                     scale: 1,
-                     left: `${mousePos.x * 100}%`,
-                     top: `${mousePos.y * 100}%`,
-                  }}
-                  exit={{ opacity: 0, scale: 0 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 30, mass: 0.5 }}
-                  className="absolute w-20 h-20 border-2 border-white/40 rounded-full pointer-events-none z-30 flex items-center justify-center -translate-x-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-[2px]"
-               >
-                  <div className="w-1.5 h-1.5 bg-white rounded-full shadow-lg"></div>
-               </motion.div>
-            )}
-         </AnimatePresence>
-      </div>
-   );
-};
 
 const features = [
    { title: 'Smart Dashboard', type: 'dashboard', desc: 'Centralized command for lead management, revenue tracking, and venue operations.', icon: <LayoutDashboard size={24} />, accent: '#F43F5E', stats: '200% Growth', img: '/dashboard-preview.png' },
@@ -228,17 +110,17 @@ const FeatureHub = () => {
    const [mounted, setMounted] = useState(false);
 
    useEffect(() => {
-      setMounted(true);
+      setTimeout(() => setMounted(true), 0);
       const interval = setInterval(() => {
          setSelected((prev) => (prev + 1) % features.length);
       }, 6000);
       return () => clearInterval(interval);
    }, []);
 
-   if (!mounted) return <div className="h-[400px] lg:h-[500px] bg-slate-900 rounded-4xl animate-pulse" />;
+   if (!mounted) return <div className="h-100 lg:h-125 bg-slate-900 rounded-4xl animate-pulse" />;
 
    return (
-      <div className="relative flex flex-col p-4 md:p-6 lg:p-8 bg-[#0B0F19] rounded-4xl lg:rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-white/10 min-h-[600px] lg:min-h-[500px] max-w-[1200px] mx-auto overflow-hidden group/hub">
+      <div className="relative flex flex-col p-4 md:p-6 lg:p-8 bg-[#0B0F19] rounded-4xl lg:rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-white/10 min-h-150 lg:min-h-125 max-w-300 mx-auto overflow-hidden group/hub">
 
          {/* Background Decorative Glows */}
          <div
@@ -252,9 +134,9 @@ const FeatureHub = () => {
                <button
                   key={i}
                   onClick={() => setSelected(i)}
-                  className={`flex items-center gap-2 md:gap-3 px-4 py-2 md:px-5 md:py-3 rounded-full transition-all duration-500 flex-shrink-0 relative overflow-hidden snap-start ${selected === i
+                  className={`flex items-center gap-2 md:gap-3 px-4 py-2 md:px-5 md:py-3 rounded-full transition-all duration-500 shrink-0 relative overflow-hidden snap-start ${selected === i
                      ? 'bg-white/10 text-white shadow-lg border border-white/20 scale-100'
-                     : 'bg-white/[0.02] text-slate-500 hover:text-white hover:bg-white/5 border border-transparent scale-[0.98]'
+                     : 'bg-white/2 text-slate-500 hover:text-white hover:bg-white/5 border border-transparent scale-[0.98]'
                      }`}
                >
                   {selected === i && (
@@ -282,7 +164,7 @@ const FeatureHub = () => {
 
             {/* Left Side: Text and Descriptions (Below UI on mobile) */}
             <div className="w-full lg:w-1/3 flex flex-col justify-center order-2 lg:order-1 mt-4 lg:mt-0">
-               <div className="h-[180px] lg:h-[260px] relative">
+               <div className="h-45 lg:h-65 relative">
                   <AnimatePresence mode="wait" initial={false}>
                      <motion.div
                         key={selected}
@@ -318,7 +200,7 @@ const FeatureHub = () => {
             </div>
 
             {/* Right Side: UI Showcase (Above text on mobile) */}
-            <div className="flex-1 relative w-full h-[320px] md:h-[400px] lg:h-auto order-1 lg:order-2">
+            <div className="flex-1 relative w-full h-80 md:h-100 lg:h-auto order-1 lg:order-2">
                <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                      key={selected + 'infographic'}
@@ -363,7 +245,7 @@ const FeatureHub = () => {
                               {features[selected].type === 'alerts' && (
                                  <div className="h-full flex flex-col items-center justify-center relative">
                                     <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
-                                       <MapPin size={200} className="md:w-[240px] md:h-[240px]" strokeWidth={0.5} />
+                                       <MapPin size={200} className="md:w-60 md:h-60" strokeWidth={0.5} />
                                     </div>
                                     <div className="flex flex-col gap-3 md:gap-4 justify-center w-full max-w-sm relative z-10 px-2 md:px-0">
                                        {[1, 2, 3].map((i) => (
@@ -389,7 +271,7 @@ const FeatureHub = () => {
 
                               {features[selected].type === 'verification' && (
                                  <div className="h-full flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-8 items-center justify-center">
-                                    <div className="bg-white shadow-sm p-4 md:p-6 rounded-[20px] md:rounded-3xl border border-slate-100 flex flex-col items-center justify-center w-full h-[120px] md:h-full">
+                                    <div className="bg-white shadow-sm p-4 md:p-6 rounded-[20px] md:rounded-3xl border border-slate-100 flex flex-col items-center justify-center w-full h-30 md:h-full">
                                        <div className="relative w-24 h-24 md:w-40 md:h-40 flex items-center justify-center">
                                           <svg className="w-full h-full -rotate-90 drop-shadow-md md:drop-shadow-xl" viewBox="0 0 144 144">
                                              <circle cx="72" cy="72" r="60" fill="none" stroke="#F1F5F9" strokeWidth="8" className="md:stroke-[12px]" />
@@ -410,7 +292,7 @@ const FeatureHub = () => {
                                              transition={{ delay: i * 0.1 }}
                                              className="flex items-center gap-2 md:gap-3 p-2.5 md:p-4 bg-white rounded-xl md:rounded-2xl shadow-sm border border-slate-100"
                                           >
-                                             <div className="w-5 h-5 md:w-6 md:h-6 rounded-[6px] md:rounded-[8px] bg-emerald-500 text-white flex items-center justify-center shrink-0"><Check size={10} className="md:w-3 md:h-3" /></div>
+                                             <div className="w-5 h-5 md:w-6 md:h-6 rounded-md md:rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0"><Check size={10} className="md:w-3 md:h-3" /></div>
                                              <span className="text-[9px] md:text-[11px] font-bold text-slate-700">{c}</span>
                                           </motion.div>
                                        ))}
@@ -444,7 +326,7 @@ const FeatureHub = () => {
                                              </div>
                                              <div className="text-right flex flex-col items-end">
                                                 <p className="text-[8px] md:text-[9px] font-black text-pd-blue mb-1 md:mb-1.5">{f.time}</p>
-                                                <div className="text-pd-blue bg-pd-blue/10 p-1 md:p-1.5 rounded-[8px] md:rounded-[10px]">{f.icon}</div>
+                                                <div className="text-pd-blue bg-pd-blue/10 p-1 md:p-1.5 rounded-lg md:rounded-[10px]">{f.icon}</div>
                                              </div>
                                           </motion.div>
                                        ))}
@@ -454,7 +336,7 @@ const FeatureHub = () => {
 
                               {features[selected].type === 'support' && (
                                  <div className="h-full flex flex-col justify-end p-0 sm:p-2 lg:p-4 pb-2 sm:pb-4">
-                                    <div className="space-y-2 sm:space-y-4 max-w-[240px] md:max-w-[260px] sm:max-w-sm ml-auto">
+                                    <div className="space-y-2 sm:space-y-4 max-w-60 md:max-w-65 sm:max-w-sm ml-auto">
                                        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-[20px] rounded-br-sm border border-slate-100 shadow-sm">
                                           <p className="text-[9px] md:text-[10px] sm:text-xs font-bold text-slate-600 leading-relaxed">I have a question about my monthly lead limit on the Elite plan.</p>
                                        </motion.div>
@@ -464,7 +346,7 @@ const FeatureHub = () => {
                                        </motion.div>
                                     </div>
                                     <div className="mt-4 sm:mt-8 flex items-center gap-3 sm:gap-4 p-2.5 md:p-3 sm:p-4 bg-white rounded-2xl sm:rounded-[20px] border border-slate-100 shadow-sm w-max max-w-full">
-                                       <div className="w-7 h-7 md:w-8 md:h-8 sm:w-10 sm:h-10 rounded-[8px] md:rounded-[10px] sm:rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center animate-pulse shrink-0"><Clock size={14} className="sm:hidden" /><Clock size={20} className="hidden sm:block" /></div>
+                                       <div className="w-7 h-7 md:w-8 md:h-8 sm:w-10 sm:h-10 rounded-lg md:rounded-[10px] sm:rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center animate-pulse shrink-0"><Clock size={14} className="sm:hidden" /><Clock size={20} className="hidden sm:block" /></div>
                                        <div>
                                           <p className="text-[11px] md:text-xs sm:text-sm font-black text-slate-800 leading-none sm:leading-normal">2 min avg.</p>
                                           <p className="text-[7px] md:text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 md:mt-0.5">Response time</p>
@@ -484,7 +366,6 @@ const FeatureHub = () => {
 };
 
 export default function PartnerLandingPage() {
-   const router = useRouter();
    const [activeFaq, setActiveFaq] = useState<number | null>(null);
    const [showSticky, setShowSticky] = useState(false);
 
@@ -506,16 +387,16 @@ export default function PartnerLandingPage() {
                <motion.div 
                   animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }} 
                   transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} 
-                  className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/40 to-transparent"
+                  className="absolute left-0 right-0 top-0 -z-10 m-auto h-77.5 w-77.5 rounded-full pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/40 to-transparent"
                ></motion.div>
                <motion.div 
                   animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }} 
                   transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }} 
-                  className="absolute left-1/2 right-0 bottom-0 -z-10 m-auto h-[400px] w-[400px] rounded-full pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-blue/40 to-transparent"
+                  className="absolute left-1/2 right-0 bottom-0 -z-10 m-auto h-100 w-100 rounded-full pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-blue/40 to-transparent"
                ></motion.div>
             </div>
 
-            <div className="max-w-[1440px] w-full mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center relative z-10">
+            <div className="max-w-360 w-full mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center relative z-10">
                {/* Left Side: Information */}
                <motion.div
                   initial={{ opacity: 0, x: -40 }}
@@ -535,12 +416,12 @@ export default function PartnerLandingPage() {
                   </motion.div>
 
                   <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-6">
-                     Scale Your Venue's <br />
+                     Scale Your Venue&apos;s <br />
                      <span className="relative inline-block mt-2">
                         <span className="relative z-10 text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-500 to-pd-blue">
                            Party Bookings
                         </span>
-                        <span className="absolute -bottom-2 left-0 w-full h-3 bg-pd-pink/10 -z-0 rounded-full blur-sm"></span>
+                        <span className="absolute -bottom-2 left-0 w-full h-3 bg-pd-pink/10 z-0 rounded-full blur-sm"></span>
                      </span>
                   </h1>
 
@@ -573,83 +454,179 @@ export default function PartnerLandingPage() {
                   </div>
                </motion.div>
 
-               {/* Right Side: Animated Floating Images (SaaS Style) */}
-               <style>{`
-                  @keyframes float-y { 0%, 100% { transform: translateY(-10px); } 50% { transform: translateY(10px); } }
-                  @keyframes float-r1 { 0%, 100% { transform: translateY(10px) rotate(-2deg); } 50% { transform: translateY(-15px) rotate(2deg); } }
-                  @keyframes float-r2 { 0%, 100% { transform: translateY(-15px) rotate(2deg); } 50% { transform: translateY(15px) rotate(-2deg); } }
-                  @keyframes pulse-s1 { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } }
-                  @keyframes pulse-s2 { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.2); opacity: 0.6; } }
-               `}</style>
+               {/* Right Side: Enquiry Form */}
                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 1, delay: 0.3 }}
-                  className="relative h-[600px] w-full hidden lg:block"
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="w-full max-w-md mx-auto lg:ml-auto lg:mr-0 mt-12 lg:mt-0 relative"
                >
-                  {/* Central Image Card */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[460px] z-20">
-                     <div className="w-full h-full rounded-4xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100" style={{ animation: 'float-y 6s ease-in-out infinite' }}>
-                        <Image src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=800" alt="Venue" fill className="object-cover" priority />
-                        <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-black/80 to-transparent flex items-end p-6">
-                           <div className="flex items-center gap-3 w-full backdrop-blur-md bg-white/20 p-3 rounded-2xl border border-white/30">
-                              <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white"><CheckCircle2 size={20} /></div>
-                              <div className="flex-1">
-                                 <p className="text-xs font-bold text-white">New Booking Request</p>
-                                 <p className="text-[10px] text-white/80">Wedding Reception • 250 Guests</p>
-                              </div>
+                  {/* Decorative background blobs behind the form */}
+                  <div className="absolute -top-10 -right-10 w-40 h-40 bg-pd-pink/20 rounded-full blur-[40px] pointer-events-none" />
+                  <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-pd-blue/20 rounded-full blur-[40px] pointer-events-none" />
+
+                  <div className="bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100/60 p-8 relative overflow-hidden backdrop-blur-xl">
+                     <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-pd-pink/10 to-pd-blue/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+                     
+                     <h3 className="text-2xl font-black text-slate-800 mb-2">Partner Enquiry</h3>
+                     <p className="text-sm text-slate-500 mb-8 font-medium">Fill in your details and our onboarding team will get back to you within 24 hours.</p>
+
+                     <form className="space-y-4 relative z-10" onSubmit={(e) => e.preventDefault()}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <div className="space-y-1">
+                              <label className="text-xs font-bold text-slate-700 ml-1">Your Name *</label>
+                              <input type="text" required placeholder="John Doe" className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 placeholder:font-normal" />
+                           </div>
+                           <div className="space-y-1">
+                              <label className="text-xs font-bold text-slate-700 ml-1">Phone Number *</label>
+                              <input type="tel" required placeholder="+91 98765 43210" className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 placeholder:font-normal" />
                            </div>
                         </div>
-                     </div>
-                  </div>
 
-                  {/* Floating Card 1 */}
-                  <div
-                     className="absolute top-12 left-0 w-[240px] h-[300px] rounded-3xl overflow-hidden shadow-xl border-4 border-white z-10 bg-slate-100 opacity-90"
-                     style={{ animation: 'float-r1 8s ease-in-out infinite 1s' }}
-                  >
-                     <Image src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800" alt="Party" fill className="object-cover" />
-                  </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <div className="space-y-1">
+                              <label className="text-xs font-bold text-slate-700 ml-1">Email Address</label>
+                              <input type="email" placeholder="john@example.com" className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 placeholder:font-normal" />
+                           </div>
+                           <div className="space-y-1">
+                              <label className="text-xs font-bold text-slate-700 ml-1">Business Name *</label>
+                              <input type="text" required placeholder="The Grand Banquet" className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 placeholder:font-normal" />
+                           </div>
+                        </div>
 
-                  {/* Floating Card 2 */}
-                  <div
-                     className="absolute bottom-12 right-0 w-[260px] h-[280px] rounded-3xl overflow-hidden shadow-xl border-4 border-white z-10 bg-slate-100"
-                     style={{ animation: 'float-r2 7s ease-in-out infinite 2s' }}
-                  >
-                     <Image src="https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&q=80&w=800" alt="Banquet" fill className="object-cover" />
-                     <div className="absolute top-4 right-4 bg-white px-3 py-1.5 rounded-full shadow-md flex items-center gap-2">
-                        <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span></span>
-                        <span className="text-[10px] font-bold text-slate-800">Live Demand</span>
-                     </div>
-                  </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <div className="space-y-1">
+                              <label className="text-xs font-bold text-slate-700 ml-1">City *</label>
+                              <input type="text" required placeholder="Mumbai" className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 placeholder:font-normal" />
+                           </div>
+                           <div className="space-y-1">
+                              <label className="text-xs font-bold text-slate-700 ml-1">Service Category *</label>
+                              <select required defaultValue="" className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 appearance-none">
+                                 <option value="" disabled>Select Category</option>
+                                 <option value="venue">Venue Provider</option>
+                                 <option value="catering">Catering Service</option>
+                                 <option value="decor">Event Decorator</option>
+                                 <option value="photo">Photography</option>
+                                 <option value="makeup">Makeup Artist</option>
+                                 <option value="other">Other</option>
+                              </select>
+                           </div>
+                        </div>
 
-                  {/* Decorative Elements */}
-                  <div
-                     className="absolute top-1/4 right-12 w-32 h-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-blue/40 to-transparent z-0 pointer-events-none"
-                     style={{ animation: 'pulse-s1 4s ease-in-out infinite' }}
-                  ></div>
-                  <div
-                     className="absolute bottom-1/4 left-12 w-40 h-40 -translate-x-1/2 translate-y-1/2 rounded-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/40 to-transparent z-0 pointer-events-none"
-                     style={{ animation: 'pulse-s2 5s ease-in-out infinite 2s' }}
-                  ></div>
+                        <div className="space-y-1">
+                           <label className="text-xs font-bold text-slate-700 ml-1">Message (Optional)</label>
+                           <textarea placeholder="Tell us a bit about your business..." rows={3} className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 placeholder:font-normal resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" className="w-full bg-pd-pink text-white rounded-xl py-3.5 mt-6 font-black text-sm hover:bg-pd-red transition-all shadow-lg shadow-pd-pink/30 hover:shadow-pd-pink/50 hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                           Request Callback <ArrowRight size={16} strokeWidth={3} />
+                        </button>
+                     </form>
+                     <p className="text-[10px] text-center text-slate-400 mt-6 font-medium">By submitting, you agree to our <Link href="/terms-of-service" className="underline hover:text-pd-pink">Terms & Conditions</Link>.</p>
+                  </div>
                </motion.div>
-
-               {/* Mobile Images Grid */}
-               <div className="grid grid-cols-2 gap-4 lg:hidden mt-12">
-                  <div className="h-48 rounded-3xl overflow-hidden relative shadow-lg"><Image src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=800" alt="Venue" fill className="object-cover" /></div>
-                  <div className="h-48 rounded-3xl overflow-hidden relative mt-8 shadow-lg"><Image src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800" alt="Party" fill className="object-cover" /></div>
-               </div>
             </div>
          </section>
 
 
+         {/* ABOUT PARTYDIAL SECTION (FOR VENDORS) */}
+         <section className="py-24 px-6 lg:px-12 bg-white overflow-hidden relative">
+            {/* Decorative Background Elements */}
+            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-pd-pink/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-pd-blue/5 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3 pointer-events-none" />
+
+            <div className="max-w-[1600px] mx-auto relative z-10">
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                  
+                  {/* Left Side: Content */}
+                  <motion.div 
+                     initial={{ opacity: 0, x: -40 }}
+                     whileInView={{ opacity: 1, x: 0 }}
+                     viewport={{ once: true, margin: "-100px" }}
+                     transition={{ duration: 0.8 }}
+                     className="max-w-2xl"
+                  >
+                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-100 text-pd-pink text-[11px] font-bold uppercase tracking-[0.2em] mb-6">
+                        About Us
+                     </div>
+                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-slate-900 mb-6 leading-[1.1] tracking-tight">
+                        Redefining <span className="pd-gradient-text">Growth</span>. <br />
+                        The PartyDial Way.
+                     </h2>
+                     <p className="text-lg md:text-xl text-slate-500 font-medium leading-relaxed mb-8">
+                        PartyDial is India&apos;s most trusted platform for discovering and booking premium event spaces and services. We eliminate the guesswork from lead generation, bringing you verified customers, transparent bookings, and unparalleled support.
+                     </p>
+                     
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+                        <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 hover:border-pd-pink/30 hover:shadow-lg transition-all group">
+                           <h4 className="text-4xl font-semibold text-slate-900 mb-2 group-hover:text-pd-pink transition-colors">50K+</h4>
+                           <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Monthly Leads</p>
+                        </div>
+                        <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 hover:border-pd-blue/30 hover:shadow-lg transition-all group">
+                           <h4 className="text-4xl font-semibold text-slate-900 mb-2 group-hover:text-pd-blue transition-colors">10K+</h4>
+                           <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Verified Partners</p>
+                        </div>
+                     </div>
+
+                     <Link href="/about">
+                        <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-semibold tracking-wide flex items-center gap-3 transition-all hover:bg-pd-pink shadow-xl shadow-slate-900/20 hover:shadow-pd-pink/40 hover:-translate-y-1">
+                           Learn More About Us <ArrowRight size={18} />
+                        </button>
+                     </Link>
+                  </motion.div>
+
+                  {/* Right Side: Bento Grid Features */}
+                  <motion.div 
+                     initial={{ opacity: 0, x: 40 }}
+                     whileInView={{ opacity: 1, x: 0 }}
+                     viewport={{ once: true, margin: "-100px" }}
+                     transition={{ duration: 0.8, delay: 0.2 }}
+                     className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10 lg:mt-0 pb-8 sm:pb-0"
+                  >
+                     <div className="bg-white rounded-3xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 hover:-translate-y-1 transition-transform group">
+                        <div className="w-12 h-12 rounded-2xl bg-pd-pink/10 flex items-center justify-center text-pd-pink mb-4 group-hover:scale-110 transition-transform">
+                           <ShieldCheck size={24} />
+                        </div>
+                        <h4 className="text-lg font-semibold text-slate-800 mb-2">Verified Customers</h4>
+                        <p className="text-sm text-slate-500 font-medium">Every lead is OTP-verified and matched precisely to your venue criteria.</p>
+                     </div>
+
+                     <div className="bg-white rounded-3xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 hover:-translate-y-1 transition-transform group sm:translate-y-8">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4 group-hover:scale-110 transition-transform">
+                           <TrendingUp size={24} />
+                        </div>
+                        <h4 className="text-lg font-semibold text-slate-800 mb-2">Higher ROI</h4>
+                        <p className="text-sm text-slate-500 font-medium">Zero listing fees. You only pay for confirmed, high-value bookings.</p>
+                     </div>
+
+                     <div className="bg-white rounded-3xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 hover:-translate-y-1 transition-transform group">
+                        <div className="w-12 h-12 rounded-2xl bg-pd-blue/10 flex items-center justify-center text-pd-blue mb-4 group-hover:scale-110 transition-transform">
+                           <LayoutDashboard size={24} />
+                        </div>
+                        <h4 className="text-lg font-semibold text-slate-800 mb-2">Smart Dashboard</h4>
+                        <p className="text-sm text-slate-500 font-medium">Manage leads, availability, and payments in one intuitive platform.</p>
+                     </div>
+
+                     <div className="bg-white rounded-3xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 hover:-translate-y-1 transition-transform group sm:translate-y-8">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4 group-hover:scale-110 transition-transform">
+                           <Heart size={24} />
+                        </div>
+                        <h4 className="text-lg font-semibold text-slate-800 mb-2">Dedicated Support</h4>
+                        <p className="text-sm text-slate-500 font-medium">Your success is our priority with 24/7 dedicated account management.</p>
+                     </div>
+                  </motion.div>
+
+               </div>
+            </div>
+         </section>
+
          {/* 5. EVENT CATEGORIES - INFINITE MOSAIC CAROUSEL */}
          <section id="categories" className="relative py-12 md:py-16 px-6 bg-slate-50 overflow-hidden">
             {/* Abstract Background Accents */}
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] opacity-20 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-active-blue/30 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] opacity-20 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/30 to-transparent"></div>
+            <div className="absolute top-0 right-0 w-100 h-100 opacity-20 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-active-blue/30 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 w-100 h-100 opacity-20 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/30 to-transparent"></div>
 
-            <div className="max-w-[1440px] mx-auto lg:px-12 relative z-10">
+            <div className="max-w-360 mx-auto lg:px-12 relative z-10">
                <div className="text-center mb-16">
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white shadow-sm border border-slate-100 text-pd-pink text-[11px] font-black uppercase tracking-[0.4em] mb-6">
                      <Target size={12} className="fill-pd-pink/10" /> Market Segments
@@ -665,7 +642,7 @@ export default function PartnerLandingPage() {
 
             {/* Swiper Carousel Container */}
             <div 
-               className="relative w-full max-w-[1440px] mx-auto px-4 lg:px-12 py-10"
+               className="relative w-full max-w-360 mx-auto px-4 lg:px-12 py-10"
                style={{ WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)', maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)' }}
             >
                <style jsx global>{`
@@ -699,10 +676,10 @@ export default function PartnerLandingPage() {
                   }}
                   pagination={{ clickable: true }}
                   modules={[EffectCoverflow, Pagination, Autoplay]}
-                  className="w-full !pb-16"
+                  className="w-full pb-16!"
                >
                   {eventCategories.map((evt, i) => (
-                     <SwiperSlide key={i} className="!w-[280px] md:!w-[340px]">
+                     <SwiperSlide key={i} className="w-70! md:w-85!">
                         <motion.div
                            whileHover={{ y: -10, scale: 1.02, boxShadow: `0 20px 40px -10px ${evt.accent}40` }}
                            className="relative p-8 rounded-[40px] bg-white border border-slate-100 shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden cursor-pointer flex flex-col items-center justify-center text-center group h-full mx-2"
@@ -714,7 +691,7 @@ export default function PartnerLandingPage() {
                            ></div>
 
                            <div
-                              className="w-20 h-20 rounded-4xl flex items-center justify-center mb-6 transition-transform duration-500 group-hover:rotate-[10deg] shadow-lg border-2 border-slate-50 group-hover:bg-white"
+                              className="w-20 h-20 rounded-4xl flex items-center justify-center mb-6 transition-transform duration-500 group-hover:rotate-10 shadow-lg border-2 border-slate-50 group-hover:bg-white"
                               style={{ color: evt.accent, backgroundColor: `${evt.accent}08` }}
                            >
                               {evt.icon}
@@ -745,9 +722,9 @@ export default function PartnerLandingPage() {
          {/* 5.5 BENEFITS - WHY PARTNER WITH US */}
          <section className="py-20 md:py-32 px-6 bg-white relative overflow-hidden border-t border-slate-100">
             {/* Background Effects */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-pd-blue/5 via-white to-white pointer-events-none"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-pd-blue/5 via-white to-white pointer-events-none"></div>
             
-            <div className="max-w-[1440px] mx-auto lg:px-12 relative z-10">
+            <div className="max-w-360 mx-auto lg:px-12 relative z-10">
                <div className="flex flex-col md:flex-row gap-12 lg:gap-20 items-end mb-20">
                   <div className="flex-1">
                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pd-blue/5 text-pd-blue text-xs font-black uppercase tracking-[0.4em] mb-6 border border-pd-blue/10">
@@ -759,7 +736,7 @@ export default function PartnerLandingPage() {
                   </div>
                   <div className="flex-1 md:pb-4">
                      <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed max-w-lg">
-                        We don't just list your venue. We equip you with a high-performance growth engine designed to dominate your local market.
+                        We don&apos;t just list your venue. We equip you with a high-performance growth engine designed to dominate your local market.
                      </p>
                   </div>
                </div>
@@ -819,7 +796,7 @@ export default function PartnerLandingPage() {
 
          {/* 6. MERCHANT FEATURES - COMPACT INTERACTIVE HUB */}
          <section id="features" className="relative py-12 md:py-16 px-6 bg-slate-50 overflow-hidden">
-            <div className="max-w-[1440px] mx-auto lg:px-12 relative z-10">
+            <div className="max-w-360 mx-auto lg:px-12 relative z-10">
 
                <div className="text-center mb-10">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white shadow-sm border border-slate-100 text-pd-pink text-[10px] font-black uppercase tracking-[0.4em] mb-4">
@@ -841,11 +818,11 @@ export default function PartnerLandingPage() {
          {/* 8.5 THE LEAD ENGINE - ACQUISITION TO REVENUE */}
          <section className="py-12 md:py-20 px-6 bg-[#030712] overflow-hidden relative border-y border-white/5">
             {/* Background Visuals - High performance gradients */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none"></div>
-            <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.05)_0%,transparent_60%)] pointer-events-none"></div>
-            <div className="absolute top-1/2 right-1/4 w-[600px] h-[600px] translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.05)_0%,transparent_60%)] pointer-events-none"></div>
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none"></div>
+            <div className="absolute top-1/2 left-1/4 w-150 h-150 -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.05)_0%,transparent_60%)] pointer-events-none"></div>
+            <div className="absolute top-1/2 right-1/4 w-150 h-150 translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.05)_0%,transparent_60%)] pointer-events-none"></div>
 
-            <div className="max-w-[1200px] mx-auto relative z-10">
+            <div className="max-w-300 mx-auto relative z-10">
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
                   {/* Left Content - Sleek Typography and Cards */}
@@ -868,7 +845,7 @@ export default function PartnerLandingPage() {
 
                      <div className="space-y-4">
                         {/* Feature Card 1 */}
-                        <motion.div whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.06)", boxShadow: "0 10px 30px rgba(59,130,246,0.15)" }} className="relative p-5 rounded-3xl bg-white/[0.02] border border-white/[0.05] transition-colors group">
+                        <motion.div whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.06)", boxShadow: "0 10px 30px rgba(59,130,246,0.15)" }} className="relative p-5 rounded-3xl bg-white/2 border border-white/5 transition-colors group">
                            <div className="absolute top-5 left-5 w-8 h-8 rounded-[10px] bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                               <Target size={16} />
                            </div>
@@ -881,7 +858,7 @@ export default function PartnerLandingPage() {
                         </motion.div>
 
                         {/* Feature Card 2 */}
-                        <motion.div whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.06)", boxShadow: "0 10px 30px rgba(16,185,129,0.15)" }} className="relative p-5 rounded-3xl bg-white/[0.02] border border-white/[0.05] transition-colors group">
+                        <motion.div whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.06)", boxShadow: "0 10px 30px rgba(16,185,129,0.15)" }} className="relative p-5 rounded-3xl bg-white/2 border border-white/5 transition-colors group">
                            <div className="absolute top-5 left-5 w-8 h-8 rounded-[10px] bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                               <ShieldCheck size={16} />
                            </div>
@@ -914,7 +891,7 @@ export default function PartnerLandingPage() {
                   </motion.div>
 
                   {/* Right Content - Smooth High-Tech Data Engine Animation */}
-                  <div className="relative w-full aspect-square max-w-[400px] mx-auto order-1 lg:order-2 flex items-center justify-center mt-10 lg:mt-0">
+                  <div className="relative w-full aspect-square max-w-100 mx-auto order-1 lg:order-2 flex items-center justify-center mt-10 lg:mt-0">
                      <style>{`
                         @keyframes map-float { 0%, 100% { transform: translateY(-8px); } 50% { transform: translateY(8px); } }
                         @keyframes scan-line { 0% { left: -100%; } 100% { left: 100%; } }
@@ -961,7 +938,7 @@ export default function PartnerLandingPage() {
                         {/* Central Hub */}
                         <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-24 h-24 md:w-32 md:h-32 z-30">
                            <div
-                              className="w-full h-full rounded-3xl bg-linear-to-br from-pd-pink via-purple-500 to-pd-blue p-[1px] shadow-[0_0_50px_rgba(139,92,246,0.3)]"
+                              className="w-full h-full rounded-3xl bg-linear-to-br from-pd-pink via-purple-500 to-pd-blue p-px shadow-[0_0_50px_rgba(139,92,246,0.3)]"
                               style={{ animation: 'map-float 5s ease-in-out infinite' }}
                            >
                               <div className="w-full h-full bg-[#030712] rounded-[23px] flex flex-col items-center justify-center relative overflow-hidden">
@@ -1008,7 +985,7 @@ export default function PartnerLandingPage() {
                         {/* Output Node: Verified Leads */}
                         <motion.div
                            initial={{ opacity: 0, scale: 0.5 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ delay: 0.8 }}
-                           className="absolute top-[90%] left-[50%] -translate-x-1/2 -translate-y-1/2 bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-3xl flex flex-col items-center shadow-[0_0_30px_rgba(16,185,129,0.15)] backdrop-blur-md min-w-[140px]"
+                           className="absolute top-[90%] left-[50%] -translate-x-1/2 -translate-y-1/2 bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-3xl flex flex-col items-center shadow-[0_0_30px_rgba(16,185,129,0.15)] backdrop-blur-md min-w-35"
                         >
                            <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-1.5 shadow-lg shadow-emerald-500/20">
                               <ShieldCheck size={16} />
@@ -1033,7 +1010,7 @@ export default function PartnerLandingPage() {
                whileInView={{ opacity: 1, y: 0 }} 
                viewport={{ once: true, margin: "-50px" }} 
                transition={{ duration: 0.8 }}
-               className="max-w-[1440px] mx-auto mb-16 px-6 lg:px-12 text-center"
+               className="max-w-360 mx-auto mb-16 px-6 lg:px-12 text-center"
             >
                <h3 className="text-3xl md:text-5xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-4">Real Success Stories</h3>
                <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed">Join hundreds of top-tier venues scaling with PartyDial</p>
@@ -1059,11 +1036,11 @@ export default function PartnerLandingPage() {
                      pauseOnMouseEnter: true,
                   }}
                   modules={[Autoplay]}
-                  className="w-full !px-6 !pb-16 ticker-swiper"
+                  className="w-full px-6! pb-16! ticker-swiper"
                >
                   {/* Duplicate array to ensure enough slides exist for seamless linear looping */}
                   {[...successStories, ...successStories, ...successStories, ...successStories].map((t, i) => (
-                     <SwiperSlide key={i} className="!w-[320px] md:!w-[420px] h-auto">
+                     <SwiperSlide key={i} className="w-[320px]! md:w-105! h-auto">
                         <div className="relative p-8 md:p-10 bg-white rounded-4xl shadow-[0_10px_40px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col group transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)] overflow-hidden cursor-grab active:cursor-grabbing">
                            <div className="flex text-amber-400 mb-6 gap-1 relative z-10">
                               {[...Array(5)].map((_, j) => (
@@ -1097,7 +1074,7 @@ export default function PartnerLandingPage() {
          {/* 10. NATIONAL EXPANSION - DISCOVERY HUB */}
          <section className="relative py-12 md:py-16 px-6 overflow-hidden bg-white border-y border-slate-50">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,#F43F5E08,transparent_50%)]"></div>
-            <div className="max-w-[1440px] mx-auto lg:px-12 relative z-10">
+            <div className="max-w-360 mx-auto lg:px-12 relative z-10">
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                   {/* Left Content */}
                   <motion.div
@@ -1164,7 +1141,7 @@ export default function PartnerLandingPage() {
                      transition={{ duration: 0.8 }}
                      className="relative lg:pl-10"
                   >
-                     <div className="relative aspect-square w-full max-w-[650px] mx-auto group">
+                     <div className="relative aspect-square w-full max-w-162.5 mx-auto group">
                         {/* Premium Background Glows */}
                         <div className="absolute inset-0 rounded-full animate-pulse bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-emerald-500/20 to-transparent pointer-events-none"></div>
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] rounded-full pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-blue-500/10 to-transparent"></div>
@@ -1285,7 +1262,7 @@ export default function PartnerLandingPage() {
 
          {/* 11. FAQ - MILLION DOLLAR SAAS REDESIGN */}
          <section id="faq" suppressHydrationWarning className="py-20 md:py-32 px-6 bg-white relative overflow-hidden">
-            <div className="max-w-[1200px] mx-auto lg:px-6">
+            <div className="max-w-300 mx-auto lg:px-6">
                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-24">
 
                   {/* Left Column: Heading */}
@@ -1299,12 +1276,12 @@ export default function PartnerLandingPage() {
                         CURIOUS ABOUT <span className="text-transparent bg-clip-text bg-linear-to-r from-[#F43F5E] via-[#D946EF] to-[#3B82F6]">GROWTH?</span>
                      </h3>
                      
-                     <p className="text-slate-500 text-sm md:text-base font-medium max-w-[400px] leading-relaxed mb-8 lg:mb-12">
+                     <p className="text-slate-500 text-sm md:text-base font-medium max-w-100 leading-relaxed mb-8 lg:mb-12">
                         Everything you need to know about the most powerful event engine in the country.
                      </p>
 
                      <div className="hidden lg:block">
-                        <div className="p-8 bg-[#16161F] rounded-3xl text-white w-full max-w-[340px] shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
+                        <div className="p-8 bg-[#16161F] rounded-3xl text-white w-full max-w-85 shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-white">Still have doubts?</h4>
                            <p className="text-slate-400 text-xs font-medium leading-[1.8] mb-8 pr-6">Our partner success team is available 24/7 to help you dominate your city.</p>
                            <Link href="/contact">
@@ -1336,9 +1313,9 @@ export default function PartnerLandingPage() {
                            >
                               <div className="flex items-center gap-6">
                                  <span className={`text-[9px] font-black tracking-[0.2em] transition-colors ${activeFaq === i ? 'text-[#3B82F6]' : 'text-slate-300'}`}>0{i + 1}</span>
-                                 <span className={`text-sm md:text-[15px] font-[900] tracking-tight transition-colors duration-300 ${activeFaq === i ? 'text-[#0F172A]' : 'text-[#0F172A] group-hover:text-[#3B82F6]'}`}>{f.q}</span>
+                                 <span className={`text-sm md:text-[15px] font-black tracking-tight transition-colors duration-300 ${activeFaq === i ? 'text-[#0F172A]' : 'text-[#0F172A] group-hover:text-[#3B82F6]'}`}>{f.q}</span>
                               </div>
-                              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${activeFaq === i ? 'bg-blue-50 text-[#3B82F6] rotate-180' : 'bg-slate-50 text-slate-400 rotate-0 group-hover:bg-slate-100'}`}>
+                              <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${activeFaq === i ? 'bg-blue-50 text-[#3B82F6] rotate-180' : 'bg-slate-50 text-slate-400 rotate-0 group-hover:bg-slate-100'}`}>
                                  <ChevronDown size={14} strokeWidth={2.5} />
                               </div>
                            </button>
@@ -1352,7 +1329,7 @@ export default function PartnerLandingPage() {
                                     transition={{ duration: 0.3, ease: "easeOut" }}
                                     className="overflow-hidden bg-white"
                                  >
-                                    <div className="px-6 pb-7 pl-[4.5rem]">
+                                    <div className="px-6 pb-7 pl-18">
                                        <p className="text-[13px] md:text-sm text-slate-500 font-medium leading-[1.8] max-w-125">
                                           {f.a}
                                        </p>
@@ -1388,7 +1365,7 @@ export default function PartnerLandingPage() {
                }
             `}</style>
 
-            <div className="max-w-[1440px] mx-auto lg:px-12">
+            <div className="max-w-360 mx-auto lg:px-12">
                <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -1400,12 +1377,12 @@ export default function PartnerLandingPage() {
                   <motion.div 
                      animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }} 
                      transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} 
-                     className="absolute top-0 right-0 w-125 h-[500px] rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-blue/30 to-transparent"
+                     className="absolute top-0 right-0 w-125 h-125 rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-blue/30 to-transparent"
                   ></motion.div>
                   <motion.div 
                      animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.7, 0.3] }} 
                      transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }} 
-                     className="absolute bottom-0 left-0 w-125 h-[500px] rounded-full translate-y-1/3 -translate-x-1/3 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/30 to-transparent"
+                     className="absolute bottom-0 left-0 w-125 h-125 rounded-full translate-y-1/3 -translate-x-1/3 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/30 to-transparent"
                   ></motion.div>
 
                   {/* Dot Grid Overlay */}
@@ -1421,7 +1398,7 @@ export default function PartnerLandingPage() {
                         the <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue not-">Leaders?</span>
                      </h3>
                      <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed max-w-xl mb-12">
-                        India's most powerful venue growth engine. Stop waiting for leads and start <span className="text-white font-bold  border-b border-pd-pink">commanding them.</span>
+                        India&apos;s most powerful venue growth engine. Stop waiting for leads and start <span className="text-white font-bold  border-b border-pd-pink">commanding them.</span>
                      </p>
                      <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
                         <Link href="/signup" className="px-14 py-5 bg-white text-slate-900 rounded-[20px] text-xs font-black uppercase tracking-[0.3em]  hover:bg-pd-pink hover:text-white transition-all duration-500 shadow-2xl shadow-white/5 hover:shadow-pd-pink/30 hover:-translate-y-1 w-full sm:w-auto text-center">
@@ -1437,11 +1414,11 @@ export default function PartnerLandingPage() {
                   </div>
 
                   {/* Right Visual: Floating Success Badge (Pure CSS Animation) */}
-                  <div className="flex-1 relative w-full max-w-[450px] aspect-square flex items-center justify-center mt-10 lg:mt-0">
+                  <div className="flex-1 relative w-full max-w-112.5 aspect-square flex items-center justify-center mt-10 lg:mt-0">
                      <div className="absolute inset-0 rounded-full animate-pulse pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-white/10 to-transparent"></div>
 
                      {/* The "Elite Achievement" Card */}
-                     <div className="relative w-[280px] md:w-80 h-[380px] md:h-[400px] bg-white rounded-3xl shadow-[0_20px_80px_rgba(0,0,0,0.3)] border border-slate-100 p-8 overflow-hidden group/card animate-float-slow">
+                     <div className="relative w-70 md:w-80 h-95 md:h-100 bg-white rounded-3xl shadow-[0_20px_80px_rgba(0,0,0,0.3)] border border-slate-100 p-8 overflow-hidden group/card animate-float-slow">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-pd-blue/10 rounded-full blur-3xl group-hover/card:bg-pd-pink/10 transition-colors duration-700"></div>
 
                         <div className="relative z-10 flex flex-col h-full justify-between">
@@ -1454,9 +1431,9 @@ export default function PartnerLandingPage() {
                            </div>
 
                            <div className="space-y-4">
-                              <div className="h-[3px] w-full bg-slate-100 overflow-hidden rounded-full">
+                              <div className="h-0.75 w-full bg-slate-100 overflow-hidden rounded-full">
                                  {/* Pure CSS Progress Bar Fill */}
-                                 <div className="h-full bg-linear-to-r from-pd-blue to-pd-pink rounded-full w-[85%] relative overflow-hidden transition-all duration-1000 group-hover/card:w-[100%]">
+                                 <div className="h-full bg-linear-to-r from-pd-blue to-pd-pink rounded-full w-[85%] relative overflow-hidden transition-all duration-1000 group-hover/card:w-full">
                                     <div className="absolute top-0 left-0 w-full h-full bg-white/30 animate-[pulse_2s_ease-in-out_infinite]"></div>
                                  </div>
                               </div>
@@ -1496,10 +1473,10 @@ export default function PartnerLandingPage() {
          <section id="register" suppressHydrationWarning className="py-20 md:py-32 px-6 bg-slate-50 relative overflow-hidden flex justify-center">
 
             {/* Ambient background glows (Static for perfect performance) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] pointer-events-none opacity-60">
-               <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-blue/40 to-transparent"></div>
-               <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/40 to-transparent"></div>
-               <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-emerald-400/30 to-transparent"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 pointer-events-none opacity-60">
+               <div className="absolute top-0 right-0 w-100 h-100 rounded-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-blue/40 to-transparent"></div>
+               <div className="absolute bottom-0 left-0 w-100 h-100 rounded-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/40 to-transparent"></div>
+               <div className="absolute top-1/4 left-1/4 w-75 h-75 rounded-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-emerald-400/30 to-transparent"></div>
             </div>
 
             <motion.div
@@ -1507,7 +1484,7 @@ export default function PartnerLandingPage() {
                whileInView={{ opacity: 1, y: 0 }}
                viewport={{ once: true }}
                transition={{ duration: 0.8 }}
-               className="max-w-[1200px] w-full bg-white/95 rounded-3xl md:rounded-[40px] p-4 sm:p-8 md:p-16 border border-white shadow-[0_40px_100px_rgba(0,0,0,0.05)] relative z-10"
+               className="max-w-300 w-full bg-white/95 rounded-3xl md:rounded-[40px] p-4 sm:p-8 md:p-16 border border-white shadow-[0_40px_100px_rgba(0,0,0,0.05)] relative z-10"
             >
                <div className="flex flex-col lg:flex-row gap-10 lg:gap-24 items-center">
                   {/* Left Column: Benefits & Copy */}
@@ -1520,7 +1497,7 @@ export default function PartnerLandingPage() {
                         <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue not-">Legacy.</span>
                      </h2>
                      <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed max-w-sm mb-8 md:mb-12">
-                        Join India's most exclusive venue network. Apply now and our partner success team will review your application within 24 hours.
+                        Join India&apos;s most exclusive venue network. Apply now and our partner success team will review your application within 24 hours.
                      </p>
 
                      <div className="space-y-3 md:space-y-4">

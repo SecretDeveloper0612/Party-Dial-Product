@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
   ArrowRight,
-  Sparkles,
+  
   PartyPopper,
   Users,
   Briefcase,
@@ -41,17 +41,17 @@ const CATEGORIES = [
   { id: 3, title: "Adult Birthday Party", slug: "adult-birthday", description: "Chic lounges and rooftop bars for adult celebrations.", count: "400+ Venues", img: "/categories/birthday.png", icon: <Wine size={20} />, tag: "Birthday Party" },
   { id: 4, title: "Milestone Birthday", slug: "milestone-birthday", description: "Grand venues for 18th, 21st, 25th, 50th etc.", count: "280+ Venues", img: "/categories/birthday.png", icon: <Gem size={20} />, tag: "Birthday Party" },
   { id: 5, title: "Surprise Birthday Party", slug: "surprise-birthday", description: "Hidden gems and private rooms for the perfect surprise.", count: "220+ Venues", img: "/categories/birthday.png", icon: <Gift size={20} />, tag: "Birthday Party" },
-  { id: 6, title: "Theme Birthday Party", slug: "theme-birthday", description: "Versatile spaces that can be transformed into any world.", count: "190+ Venues", img: "/categories/birthday.png", icon: <Sparkles size={20} />, tag: "Birthday Party" },
+  { id: 6, title: "Theme Birthday Party", slug: "theme-birthday", description: "Versatile spaces that can be transformed into any world.", count: "190+ Venues", img: "/categories/birthday.png", icon: <PartyPopper size={20} />, tag: "Birthday Party" },
 
   // 2. Wedding Events
   { id: 7, title: "Wedding Ceremony", slug: "wedding-ceremony", description: "Prestigious banquet halls and lush lawns for your Vows.", count: "850+ Venues", img: "/categories/wedding.png", icon: <Heart size={20} />, tag: "Wedding Events" },
   { id: 8, title: "Wedding Reception", slug: "wedding-reception", description: "Grand ballrooms for your first dinner as a married couple.", count: "780+ Venues", img: "/categories/wedding.png", icon: <Users size={20} />, tag: "Wedding Events" },
   { id: 9, title: "Destination Wedding", slug: "destination-wedding", description: "Exotic resorts and palaces for a memorable getaway.", count: "300+ Venues", img: "/categories/wedding.png", icon: <Globe size={20} />, tag: "Wedding Events" },
   { id: 10, title: "Court Marriage Celebration", slug: "court-marriage", description: "Intimate and elegant spaces for close group dinners.", count: "150+ Venues", img: "/categories/wedding.png", icon: <Briefcase size={20} />, tag: "Wedding Events" },
-  { id: 11, title: "Traditional Wedding", slug: "traditional-wedding", description: "Culturally rich venues with traditional aesthetics.", count: "420+ Venues", img: "/categories/wedding.png", icon: <Sparkles size={20} />, tag: "Wedding Events" },
+  { id: 11, title: "Traditional Wedding", slug: "traditional-wedding", description: "Culturally rich venues with traditional aesthetics.", count: "420+ Venues", img: "/categories/wedding.png", icon: <PartyPopper size={20} />, tag: "Wedding Events" },
 
   // 3. Pre-Wedding Events
-  { id: 12, title: "Mehendi Ceremony", slug: "mehendi", description: "Vibrant and colorful festive spaces for heena ceremony.", count: "340+ Venues", img: "/categories/wedding.png", icon: <Sparkles size={20} />, tag: "Pre-Wedding Events" },
+  { id: 12, title: "Mehendi Ceremony", slug: "mehendi", description: "Vibrant and colorful festive spaces for heena ceremony.", count: "340+ Venues", img: "/categories/wedding.png", icon: <PartyPopper size={20} />, tag: "Pre-Wedding Events" },
   { id: 13, title: "Haldi Ceremony", slug: "haldi", description: "Bright and cheerful venues for the auspicious haldi.", count: "280+ Venues", img: "/categories/wedding.png", icon: <Zap size={20} />, tag: "Pre-Wedding Events" },
   { id: 14, title: "Sangeet Night", slug: "sangeet", description: "Lively venues with dance floors and great acoustics.", count: "500+ Venues", img: "/categories/wedding.png", icon: <Music size={20} />, tag: "Pre-Wedding Events" },
   { id: 15, title: "Cocktail Party", slug: "cocktail", description: "Sophisticated bars for pre-wedding drinks and fun.", count: "380+ Venues", img: "/categories/wedding.png", icon: <Wine size={20} />, tag: "Pre-Wedding Events" },
@@ -75,7 +75,7 @@ const CATEGORIES = [
   // 6. Kitty Party
   { id: 28, title: "Ladies Kitty Party", slug: "ladies-kitty", description: "Private dining rooms for your monthly ladies meet.", count: "220+ Venues", img: "/categories/bachelor.png", icon: <Users size={20} />, tag: "Kitty Party" },
   { id: 29, title: "Couples Kitty Party", slug: "couples-kitty", description: "Trendy spots for social couple gatherings.", count: "160+ Venues", img: "/categories/bachelor.png", icon: <Users size={20} />, tag: "Kitty Party" },
-  { id: 30, title: "Theme Kitty Party", slug: "theme-kitty", description: "Venues that help you bring your themes to life.", count: "140+ Venues", img: "/categories/bachelor.png", icon: <Sparkles size={20} />, tag: "Kitty Party" },
+  { id: 30, title: "Theme Kitty Party", slug: "theme-kitty", description: "Venues that help you bring your themes to life.", count: "140+ Venues", img: "/categories/bachelor.png", icon: <PartyPopper size={20} />, tag: "Kitty Party" },
   { id: 31, title: "Monthly Kitty Meet", slug: "monthly-kitty", description: "Consistent and reliable spots for your circle.", count: "210+ Venues", img: "/categories/bachelor.png", icon: <Calendar size={20} />, tag: "Kitty Party" },
 
   // 7. Family Functions
@@ -83,10 +83,10 @@ const CATEGORIES = [
   { id: 33, title: "Retirement Party", slug: "retirement", description: "Honor long careers at these elegant venues.", count: "110+ Venues", img: "/categories/kids.png", icon: <Users size={20} />, tag: "Family Functions" },
   { id: 34, title: "Naming Ceremony", slug: "naamkaran", description: "Heartwarming spaces for the baby's naming.", count: "140+ Venues", img: "/categories/kids.png", icon: <Users size={20} />, tag: "Family Functions" },
   { id: 35, title: "Mundan Ceremony", slug: "mundan", description: "Traditional venues for auspicious childhood rituals.", count: "120+ Venues", img: "/categories/kids.png", icon: <Users size={20} />, tag: "Family Functions" },
-  { id: 36, title: "Religious Ceremony", slug: "religious-ceremony", description: "Pure and serene spaces for soul-cleansing rituals.", count: "180+ Venues", img: "/categories/kids.png", icon: <Sparkles size={20} />, tag: "Family Functions" },
+  { id: 36, title: "Religious Ceremony", slug: "religious-ceremony", description: "Pure and serene spaces for soul-cleansing rituals.", count: "180+ Venues", img: "/categories/kids.png", icon: <PartyPopper size={20} />, tag: "Family Functions" },
 
   // 8. Festival Parties
-  { id: 37, title: "Diwali Party", slug: "diwali", description: "Bright and festive venues for the festival of lights.", count: "400+ Venues", img: "/categories/festival.png", icon: <Sparkles size={20} />, tag: "Festival Parties" },
+  { id: 37, title: "Diwali Party", slug: "diwali", description: "Bright and festive venues for the festival of lights.", count: "400+ Venues", img: "/categories/festival.png", icon: <PartyPopper size={20} />, tag: "Festival Parties" },
   { id: 38, title: "Holi Party", slug: "holi", description: "Organic color friendly open lawn venues.", count: "300+ Venues", img: "/categories/festival.png", icon: <Wind size={20} />, tag: "Festival Parties" },
   { id: 39, title: "New Year Party", slug: "new-year", description: "Hottest spots for the ultimate countdown night.", count: "600+ Venues", img: "/categories/festival.png", icon: <PartyPopper size={20} />, tag: "Festival Parties" },
   { id: 40, title: "Christmas Party", slug: "christmas", description: "Cozy, snow-themed and festive venues.", count: "250+ Venues", img: "/categories/festival.png", icon: <Gift size={20} />, tag: "Festival Parties" },
@@ -101,14 +101,14 @@ const CATEGORIES = [
   { id: 47, title: "House Party", slug: "house-party", description: "Penthouse and villas that feel like home.", count: "180+ Venues", img: "/categories/bachelor.png", icon: <Home size={20} />, tag: "Social Gatherings" },
 
   // 10. Kids Parties
-  { id: 48, title: "Kids Theme Party", slug: "kids-theme", description: "Specialized venues for fantasy world setups.", count: "160+ Venues", img: "/categories/kids.png", icon: <Sparkles size={20} />, tag: "Kids Parties" },
+  { id: 48, title: "Kids Theme Party", slug: "kids-theme", description: "Specialized venues for fantasy world setups.", count: "160+ Venues", img: "/categories/kids.png", icon: <PartyPopper size={20} />, tag: "Kids Parties" },
   { id: 49, title: "School Party", slug: "school-party", description: "Safe and spacious fun spots for school circles.", count: "130+ Venues", img: "/categories/kids.png", icon: <Users size={20} />, tag: "Kids Parties" },
   { id: 50, title: "Playdate Party", slug: "playdate", description: "Cozy activity centers for little one's meets.", count: "100+ Venues", img: "/categories/kids.png", icon: <Users size={20} />, tag: "Kids Parties" },
-  { id: 51, title: "Cartoon Theme", slug: "cartoon-theme", description: "Animated wonderlands for the kids.", count: "140+ Venues", img: "/categories/kids.png", icon: <Sparkles size={20} />, tag: "Kids Parties" },
+  { id: 51, title: "Cartoon Theme", slug: "cartoon-theme", description: "Animated wonderlands for the kids.", count: "140+ Venues", img: "/categories/kids.png", icon: <PartyPopper size={20} />, tag: "Kids Parties" },
 
   // 11. Bachelor / Bachelorette Party
   { id: 52, title: "Bachelor Party", slug: "bachelor-party", description: "Wild and epic venues for the groom's team.", count: "170+ Venues", img: "/categories/bachelor.png", icon: <Wine size={20} />, tag: "Bachelor / Bachelorette Party" },
-  { id: 53, title: "Bachelorette Party", slug: "bachelorette-party", description: "Trendy retreats for the bride and her girls.", count: "160+ Venues", img: "/categories/bachelor.png", icon: <Sparkles size={20} />, tag: "Bachelor / Bachelorette Party" },
+  { id: 53, title: "Bachelorette Party", slug: "bachelorette-party", description: "Trendy retreats for the bride and her girls.", count: "160+ Venues", img: "/categories/bachelor.png", icon: <PartyPopper size={20} />, tag: "Bachelor / Bachelorette Party" },
   { id: 54, title: "Bachelor Trip Party", slug: "bachelor-trip", description: "Large villas and resorts for the final trip.", count: "120+ Venues", img: "/categories/bachelor.png", icon: <Globe size={20} />, tag: "Bachelor / Bachelorette Party" },
   { id: 55, title: "Friends Pre-Wedding", slug: "friends-pre-wedding", description: "Cool party houses for the close friends circle.", count: "140+ Venues", img: "/categories/bachelor.png", icon: <Users size={20} />, tag: "Bachelor / Bachelorette Party" },
 
@@ -119,7 +119,7 @@ const CATEGORIES = [
 
   // 13. Baby Shower
   { id: 59, title: "Godh Bharai", slug: "godh-bharai", description: "Traditional venues for auspicious baby rituals.", count: "130+ Venues", img: "/categories/baby-shower.png", icon: <Baby size={20} />, tag: "Baby Shower" },
-  { id: 60, title: "Baby Shower Party", slug: "baby-shower-party", description: "Cute and aesthetic venues for the mom-to-be.", count: "210+ Venues", img: "/categories/baby-shower.png", icon: <Sparkles size={20} />, tag: "Baby Shower" },
+  { id: 60, title: "Baby Shower Party", slug: "baby-shower-party", description: "Cute and aesthetic venues for the mom-to-be.", count: "210+ Venues", img: "/categories/baby-shower.png", icon: <PartyPopper size={20} />, tag: "Baby Shower" },
   { id: 61, title: "Gender Reveal", slug: "gender-reveal", description: "Exciting spots to share the big news.", count: "120+ Venues", img: "/categories/baby-shower.png", icon: <PartyPopper size={20} />, tag: "Baby Shower" },
   { id: 62, title: "Welcome Baby", slug: "welcome-baby", description: "Warm settings to welcome the newest family member.", count: "150+ Venues", img: "/categories/baby-shower.png", icon: <Users size={20} />, tag: "Baby Shower" },
 
@@ -133,8 +133,8 @@ const CATEGORIES = [
   { id: 67, title: "Dance Party", slug: "dance-party", description: "High-energy spaces to groove and dance.", count: "360+ Venues", img: "/categories/festival.png", icon: <Music size={20} />, tag: "Entertainment / Theme Parties" },
   { id: 68, title: "Karaoke Party", slug: "karaoke-party", description: "Fun private pods and stages to sing tonight.", count: "120+ Venues", img: "/categories/festival.png", icon: <Mic2 size={20} />, tag: "Entertainment / Theme Parties" },
   { id: 69, title: "Pool Party", slug: "pool-party", description: "Cool decks and luxury poolsides.", count: "140+ Venues", img: "/categories/festival.png", icon: <Wind size={20} />, tag: "Entertainment / Theme Parties" },
-  { id: 70, title: "Costume Party", slug: "costume-party", description: "Versatile spaces to transform into any theme.", count: "110+ Venues", img: "/categories/kids.png", icon: <Sparkles size={20} />, tag: "Entertainment / Theme Parties" },
-  { id: 71, title: "Retro Theme", slug: "retro-theme", description: "Classic settings for a nostalgic trip back.", count: "130+ Venues", img: "/categories/festival.png", icon: <Sparkles size={20} />, tag: "Entertainment / Theme Parties" },
+  { id: 70, title: "Costume Party", slug: "costume-party", description: "Versatile spaces to transform into any theme.", count: "110+ Venues", img: "/categories/kids.png", icon: <PartyPopper size={20} />, tag: "Entertainment / Theme Parties" },
+  { id: 71, title: "Retro Theme", slug: "retro-theme", description: "Classic settings for a nostalgic trip back.", count: "130+ Venues", img: "/categories/festival.png", icon: <PartyPopper size={20} />, tag: "Entertainment / Theme Parties" },
   { id: 72, title: "Bollywood Theme", slug: "bollywood-theme", description: "Dhamaka venues for a filmy celebration.", count: "150+ Venues", img: "/categories/festival.png", icon: <Music size={20} />, tag: "Entertainment / Theme Parties" },
 ];
 

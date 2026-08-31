@@ -152,6 +152,10 @@ function VenueManagementContent() {
       }
     } catch (e) {
       console.error("Failed to fetch fresh user data", e);
+      try {
+        const session = JSON.parse(sessionStr);
+        setCurrentUser(session.user);
+      } catch (err) {}
     }
   }, []);
 

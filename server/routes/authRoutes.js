@@ -14,4 +14,6 @@ router.post('/complete-registration', authController.completeRegistration);
 router.post('/check-phone', authController.checkPhone);
 
 
+router.post("/check-email-role", authController.checkEmailRole);
+
 module.exports = router;

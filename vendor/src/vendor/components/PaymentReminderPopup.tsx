@@ -121,7 +121,7 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
                 </div>
 
                 <div className="flex items-center gap-3 px-4 py-2 bg-blue-50 text-blue-700 rounded-2xl border border-blue-100">
-                  <Clock size={16} className="flex-shrink-0 animate-pulse" />
+                  <Clock size={16} className="shrink-0 animate-pulse" />
                   <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest  leading-tight">Purchase Deadline: 20 April. Plan valid until 30 April.</span>
                 </div>
               </div>
@@ -130,7 +130,6 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
                 <button 
                   id="payment-reminder-pay-now"
                   onClick={() => {
-                    router.push('/dashboard/onboarding/subscription');
                     onClose();
                   }}
                   className="w-full h-16 bg-slate-900 text-white rounded-[22px] text-xs font-black uppercase tracking-[0.3em]  hover:bg-pd-pink transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 group"

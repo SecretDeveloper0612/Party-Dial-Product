@@ -140,9 +140,7 @@ exports.register = async (req, res) => {
                                 onboardingComplete: false,
                                 isVerified: false,
                                 status: 'active',
-                                subscriptionPlan: req.body.subscriptionPlan || 'None',
-                                accessLevel: req.body.accessLevel || 'standard',
-                                registrationDate: new Date().toISOString()
+                                subscriptionPlan: req.body.subscriptionPlan || 'None'
                             }
                         );
             }
@@ -522,5 +520,29 @@ exports.completeRegistration = async (req, res) => {
             status: 'error',
             message: error.message || 'Error occurred during registration completion'
         });
+    }
+};
+
+exports.checkEmailRole = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ status: 'error', message: 'Email is required' });
+        }
+
+        const userList = await users.list([Query.equal('email', email)]);
+        
+        if (userList.total === 0) {
+            return res.status(200).json({ isVendor: false });
+        }
+
+        const user = userList.users[0];
+        const labels = user.labels || [];
+        const isVendor = labels.includes('vendor');
+
+        return res.status(200).json({ isVendor });
+    } catch (error) {
+        console.error('Error in checkEmailRole:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
     }
 };

@@ -76,6 +76,7 @@ function timeAgo(iso: string): string {
 }
 
 export default function Dashboard() {
+  const [timeFilter, setTimeFilter] = useState("Today");
   const [venues, setVenues] = useState<LiveVenue[]>([]);
   const [myLeads, setMyLeads] = useState<any[]>([]);
   const [userRole, setUserRole] = useState("Super Admin");
@@ -220,17 +221,43 @@ export default function Dashboard() {
   }, []);
 
   // ── Derived Metrics ───────────────────────────────────────────────────────
-  const totalVenues = venues.length;
-  const subscribedVenues = venues.filter(v => v.subscriptionPlan && v.subscriptionPlan !== "None").length;
-  const freeVenues = totalVenues - subscribedVenues;
-  const pendingVerification = venues.filter(v => !v.isVerified).length;
-  const onboardedVenues = venues.filter(v => v.onboardingComplete).length;
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfWeek = startOfToday - 7 * 24 * 60 * 60 * 1000;
+  const startOfMonth = startOfToday - 30 * 24 * 60 * 60 * 1000;
+  const startOfYear = startOfToday - 365 * 24 * 60 * 60 * 1000;
 
-  const totalRevenue = venues.reduce((sum, v) => {
+  const filteredVenues = venues.filter(v => {
+    if (timeFilter === "Lifetime") return true;
+    const createdAt = v.$createdAt ? new Date(v.$createdAt).getTime() : 0;
+    if (timeFilter === "Today") return createdAt >= startOfToday;
+    if (timeFilter === "Weekly") return createdAt >= startOfWeek;
+    if (timeFilter === "Monthly") return createdAt >= startOfMonth;
+    if (timeFilter === "Yearly") return createdAt >= startOfYear;
+    return true;
+  });
+
+  const filteredLeads = myLeads.filter(l => {
+    if (timeFilter === "Lifetime") return true;
+    const createdAt = l.$createdAt ? new Date(l.$createdAt).getTime() : 0;
+    if (timeFilter === "Today") return createdAt >= startOfToday;
+    if (timeFilter === "Weekly") return createdAt >= startOfWeek;
+    if (timeFilter === "Monthly") return createdAt >= startOfMonth;
+    if (timeFilter === "Yearly") return createdAt >= startOfYear;
+    return true;
+  });
+
+  const totalVenues = filteredVenues.length;
+  const subscribedVenues = filteredVenues.filter(v => v.subscriptionPlan && v.subscriptionPlan !== "None").length;
+  const freeVenues = totalVenues - subscribedVenues;
+  const pendingVerification = filteredVenues.filter(v => !v.isVerified).length;
+  const onboardedVenues = filteredVenues.filter(v => v.onboardingComplete).length;
+
+  const totalRevenue = filteredVenues.reduce((sum, v) => {
     return sum + (PLAN_REVENUE[v.subscriptionPlan] || 0);
   }, 0);
 
-  const renewalsPending = venues.filter(v =>
+  const renewalsPending = filteredVenues.filter(v =>
     v.subscriptionPlan && v.subscriptionPlan !== "None" && !v.isVerified
   ).length;
 
@@ -282,6 +309,17 @@ export default function Dashboard() {
           <div className="flex items-center gap-2 text-[13px] font-medium text-slate-400">
             <span>Overview</span>
             <Info size={14} className="text-purple-400" />
+            <select 
+              value={timeFilter} 
+              onChange={(e) => setTimeFilter(e.target.value)}
+              className="ml-2 bg-white border border-slate-200 text-slate-700 text-xs rounded-lg px-2 py-1 outline-none hover:border-purple-300 transition-colors cursor-pointer"
+            >
+              <option value="Today">Today</option>
+              <option value="Weekly">Weekly</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Yearly">Yearly</option>
+              <option value="Lifetime">Lifetime</option>
+            </select>
           </div>
         </div>
       </div>
@@ -301,7 +339,7 @@ export default function Dashboard() {
           </div>
           <div className="relative z-10">
             <h2 className="text-2xl font-bold m-0 tracking-tight">
-              {loading ? "—" : (userRole === "Super Admin" ? `₹${totalRevenue.toLocaleString("en-IN")}` : myLeads.length)}
+              {loading ? "—" : (userRole === "Super Admin" ? `₹${totalRevenue.toLocaleString("en-IN")}` : filteredLeads.length)}
             </h2>
             <p className="text-[9px] mt-3 font-bold opacity-80 uppercase tracking-widest text-white/70">{userRole === "Super Admin" ? "Yield Index" : "Total Assignment"}</p>
           </div>
@@ -320,7 +358,7 @@ export default function Dashboard() {
             </div>
             <div className="relative z-10">
               <h2 className="text-2xl font-bold m-0 tracking-tight text-white">
-                {loading ? "—" : (userRole === "Super Admin" ? pendingVerification : myLeads.filter(l => l.status === "Contacted" || l.status === "Qualified").length)}
+                {loading ? "—" : (userRole === "Super Admin" ? pendingVerification : filteredLeads.filter(l => l.status === "Contacted" || l.status === "Qualified").length)}
               </h2>
               <p className="text-[9px] mt-3 font-bold opacity-80 uppercase tracking-widest text-white/70">{userRole === "Super Admin" ? "Partners" : "Active Follow-ups"}</p>
             </div>
@@ -343,7 +381,7 @@ export default function Dashboard() {
             </div>
             <div className="relative z-10">
               <h2 className="text-2xl font-bold m-0 tracking-tight text-white">
-                {loading ? "—" : (userRole === "Super Admin" ? subscribedVenues : myLeads.filter(l => l.status === "Won").length)}
+                {loading ? "—" : (userRole === "Super Admin" ? subscribedVenues : filteredLeads.filter(l => l.status === "Won").length)}
               </h2>
               <p className="text-[9px] mt-3 font-bold opacity-80 uppercase tracking-widest text-white/70">{userRole === "Super Admin" ? "Paid Partners" : "Leads Won"}</p>
             </div>
@@ -558,7 +596,7 @@ export default function Dashboard() {
             { plan: "pax_2000_5000", label: "2000–5000 PAX", rate: "₹379/day", color: "bg-rose-400" },
             { plan: "trial_30", label: "Trial (30-day)", rate: "₹11 flat", color: "bg-pink-400" },
           ].map((sub) => {
-            const count = venues.filter(v => v.subscriptionPlan === sub.plan).length;
+            const count = filteredVenues.filter(v => v.subscriptionPlan === sub.plan).length;
             const share = totalVenues > 0 ? Math.round((count / totalVenues) * 100) : 0;
             const revenueVal = count * (PLAN_REVENUE[sub.plan] || 0);
 

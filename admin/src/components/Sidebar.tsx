@@ -25,14 +25,19 @@ import {
   LogOut,
   ShieldCheck,
   CreditCard,
-  X
+  X,
+  Receipt,
+  TrendingUp
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: PieChart, label: "Financial Reports", path: "/billing/reports" },
+  { icon: TrendingUp, label: "Billing Overview", path: "/billing/overview" },
+  { icon: FileText, label: "Quotations", path: "/billing/quotations" },
+  { icon: Receipt, label: "Invoices", path: "/billing/invoices" },
   { icon: CreditCard, label: "Payment Logs", path: "/billing/payments" },
+  { icon: PieChart, label: "Financial Reports", path: "/billing/reports" },
   { icon: Zap, label: "Coupon System", path: "/billing/coupons" },
   { icon: ShieldCheck, label: "Manual Access", path: "/billing/access" },
   { icon: Building2, label: "Venue Management", path: "/venues" },
@@ -88,8 +93,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     if (role === "BDE" && item.label === "Lead Distribution") return false;
 
     const moduleMap: Record<string, string> = {
-       "Financial Reports": "Billing",
+       "Billing Overview": "Billing",
+       "Quotations": "Billing",
+       "Invoices": "Billing",
        "Payment Logs": "Billing",
+       "Financial Reports": "Billing",
        "Coupon System": "Billing",
        "Manual Access": "Billing",
        "Venue Management": "Venues",

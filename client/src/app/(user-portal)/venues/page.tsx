@@ -1,19 +1,76 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import VenueCard from '@/shared/components/VenueCard';
+import MinimalVenueCard from '@/shared/components/MinimalVenueCard';
 import { 
   Search, 
-  MapPin, 
+  MapPin,
+  Calendar,
+  Building2, 
   Star, 
   Filter, 
   ChevronDown, 
   X, 
   ArrowRight,
-  Check
+  Check,
+  SlidersHorizontal,
+  ChevronLeft,
+  ChevronRight,
+  IndianRupee,
+  Users,
+  LayoutGrid,
+  Car,
+  Utensils,
+  PartyPopper,
+  Music,
+  Wind,
+  Tent,
+  Bed,
+  Zap,
+  Accessibility,
+  CheckCircle,
+  Wine,
+  Wifi,
+  Shield
 } from 'lucide-react';
 import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+
+
+const getAmenityIcon = (amenity: string, active: boolean) => {
+  const lower = amenity.toLowerCase();
+  const cl = active ? "text-white" : "text-slate-400";
+  if (lower.includes('parking') || lower.includes('valet')) return <Car size={16} className={cl} />;
+  if (lower.includes('ac') || lower.includes('air condition') || lower.includes('hvac')) return <Wind size={16} className={cl} />;
+  if (lower.includes('power') || lower.includes('generator') || lower.includes('backup')) return <Zap size={16} className={cl} />;
+  if (lower.includes('cater') || lower.includes('food') || lower.includes('kitchen')) return <Utensils size={16} className={cl} />;
+  if (lower.includes('dj') || lower.includes('music') || lower.includes('sound')) return <Music size={16} className={cl} />;
+  if (lower.includes('bar') || lower.includes('alcohol') || lower.includes('drink')) return <Wine size={16} className={cl} />;
+  if (lower.includes('wheelchair') || lower.includes('access')) return <Accessibility size={16} className={cl} />;
+  if (lower.includes('wifi') || lower.includes('internet')) return <Wifi size={16} className={cl} />;
+  if (lower.includes('secur')) return <Shield size={16} className={cl} />;
+  if (lower.includes('room') || lower.includes('bed') || lower.includes('bridal')) return <Bed size={16} className={cl} />;
+  if (lower.includes('lawn') || lower.includes('outdoor')) return <Tent size={16} className={cl} />;
+  if (lower.includes('decor')) return <PartyPopper size={16} className={cl} />;
+  return <CheckCircle size={16} className={cl} />;
+};
+
+const DEFAULT_UK_CITIES = [
+  'Haldwani-263139',
+  'Kathgodam-263126',
+  'Lalkuan-263131',
+  'Mukhani-263139',
+  'Kaladhungi-263140',
+  'Bhowali-263132',
+  'Nainital-263001',
+  'Damuadhunga-263126',
+  'Dahariya-263139',
+  'Lamachaur-263139',
+  'Kamaluaganja-263139',
+  'Ramnagar-244715',
+  'Rudrapur-263153',
+  'Kashipur-244713'
+];
 
 
 
@@ -97,7 +154,7 @@ function VenuesContent() {
   
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 4;
+  const ITEMS_PER_PAGE = 12;
 
   // Reset pagination when filters change
   useEffect(() => {
@@ -108,7 +165,6 @@ function VenuesContent() {
   useEffect(() => {
     const fetchCities = async () => {
       if (locationSearchQuery.length < 3) {
-        setCitySuggestions([]);
         return;
       }
 
@@ -166,6 +222,7 @@ function VenuesContent() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [liveVenues, setLiveVenues] = useState<any[]>([]);
+  const [isLoadingVenues, setIsLoadingVenues] = useState(true);
 
   // --- FETCH LIVE VENUES & REALTIME SYNC ---
   useEffect(() => {
@@ -181,7 +238,7 @@ function VenuesContent() {
             const envBase = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
             const base = typeof window !== 'undefined' && envBase.includes('localhost') ? envBase.replace('localhost', window.location.hostname) : envBase;
             const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
-            const response = await fetch(`${baseUrl}/venues?verified=true`);
+            const response = await fetch(`${baseUrl}/venues`);
             const result = await response.json();
             
             if (result.status === 'success' && isMounted) {
@@ -257,6 +314,8 @@ function VenuesContent() {
             }
           } catch (err) {
             console.error('Fetch error:', err);
+          } finally {
+            if (isMounted) setIsLoadingVenues(false);
           }
         };
 
@@ -376,7 +435,7 @@ function VenuesContent() {
     const weightedShuffle = (venues: any[]) => {
       if (venues.length <= 1) return venues;
       return [...venues]
-        .map(v => ({ v, score: (v.rating || 0) + Math.random() * 0.5 }))
+        .map(v => ({ v, score: (v.rating || 0) + (v.reviews > 0 ? 100 : 0) + (v.isPaid ? 50 : 0) + Math.random() * 0.5 }))
         .sort((a, b) => b.score - a.score)
         .map(item => item.v);
     };
@@ -435,486 +494,472 @@ function VenuesContent() {
     setList(list.includes(item) ? list.filter(i => i !== item) : [...list, item]);
   };
 
-  const totalPages = Math.ceil(resultsByLocation.others.length / ITEMS_PER_PAGE);
-  const paginatedOthers = resultsByLocation.others.slice(
+  const allCombinedVenues = useMemo(() => {
+    const premiumWithFlag = resultsByLocation.premium.map(v => ({...v, isPremium: true}));
+    const othersWithFlag = resultsByLocation.others.map(v => ({...v, isPremium: false}));
+    return [...premiumWithFlag, ...othersWithFlag];
+  }, [resultsByLocation]);
+
+  const totalPages = Math.ceil(allCombinedVenues.length / ITEMS_PER_PAGE);
+  const paginatedVenues = allCombinedVenues.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
-  return (
-    <main className="min-h-screen bg-slate-50 relative pb-16">
-      <div className="max-w-screen-2xl mx-auto px-4 md:px-8 pt-24 pb-20">
-        <div className="flex flex-col lg:flex-row gap-8">
+  
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [activeFilterDropdown, setActiveFilterDropdown] = useState<string | null>(null);
+
+  const filterFormUI = (
+    <div className="w-full max-w-7xl mx-auto mb-12 z-20 relative px-4">
+      {/* --- TOP MAIN SEARCH BAR --- */}
+      <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col lg:flex-row items-stretch p-3 lg:h-[88px] relative z-20">
+        
+        {/* 1. Where */}
+        <div className="flex-1 px-4 lg:px-6 py-3 lg:py-0 flex items-center gap-4 hover:bg-slate-50 rounded-2xl h-full transition-colors relative cursor-text group">
+          <div className="w-10 h-10 rounded-xl bg-pd-red/5 flex items-center justify-center shrink-0">
+            <MapPin size={20} className="text-pd-red" />
+          </div>
+          <div className="flex-1 flex flex-col justify-center">
+            <label className="text-[11px] font-bold text-slate-800 mb-0.5 cursor-text">Where</label>
+            <input 
+              type="text" 
+              placeholder="City or Pincode" 
+              className="w-full bg-transparent text-sm font-black text-slate-900 outline-none truncate placeholder:text-slate-400 placeholder:font-medium"
+              value={locationSearchQuery}
+              onFocus={() => {
+                setIsInputFocused(true);
+                if (locationSearchQuery.length === 0) setCitySuggestions(DEFAULT_UK_CITIES);
+                else if (locationSearchQuery.length < 3) setCitySuggestions(DEFAULT_UK_CITIES.filter(c => c.toLowerCase().includes(locationSearchQuery.toLowerCase())));
+              }}
+              onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setLocationSearchQuery(val);
+                if (val.length === 0) setCitySuggestions(DEFAULT_UK_CITIES);
+                else if (val.length < 3) setCitySuggestions(DEFAULT_UK_CITIES.filter(c => c.toLowerCase().includes(val.toLowerCase())));
+              }}
+            />
+          </div>
+          <ChevronDown size={14} className="text-slate-400 shrink-0" />
           
-          {/* DESKTOP SIDEBAR */}
-          <aside className="hidden lg:block w-[320px] shrink-0">
-             <div className="sticky top-6 space-y-8 bg-white p-8 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-y-auto max-h-[calc(100vh-40px)] no-scrollbar">
-                <div className="flex items-center justify-between mb-4 pb-6 border-b border-slate-50">
-                   <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Filters</h3>
-                   <button onClick={clearFilters} className="text-xs font-semibold text-pd-pink hover:text-white transition-colors bg-pd-pink/10 hover:bg-pd-pink px-4 py-2 rounded-full">Clear All</button>
-                </div>
+          {isLoadingCities && (
+            <div className="absolute right-12 top-1/2 -translate-y-1/2">
+              <div className="w-4 h-4 border-2 border-pd-red border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
+          
+          <AnimatePresence>
+            {(isInputFocused && citySuggestions.length > 0) && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute top-full left-0 right-0 mt-4 bg-white border border-slate-100 rounded-3xl shadow-2xl z-[120] max-h-60 overflow-y-auto p-2 space-y-1 no-scrollbar"
+              >
+                {citySuggestions.map((city, idx) => (
+                  <button 
+                    key={idx}
+                    onClick={() => {
+                      if (!selectedCities.includes(city)) setSelectedCities([...selectedCities, city]);
+                      setLocationSearchQuery("");
+                      setCitySuggestions([]);
+                    }}
+                    className="w-full text-left px-5 py-4 hover:bg-slate-50 text-sm font-medium text-slate-700 rounded-2xl active:bg-slate-100 flex items-center gap-3"
+                  >
+                    <MapPin size={16} className="text-slate-400" />
+                    {city}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-                <div className="space-y-4">
-                   <label className="text-xs font-semibold text-slate-400 ">Location</label>
-                   <div className="relative">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                      <input 
-                        type="text" 
-                        placeholder="City or Pincode..." 
-                        className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold transition-all focus:border-pd-red outline-none"
-                        value={locationSearchQuery}
-                        onFocus={() => setIsInputFocused(true)}
-                        onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
-                        onChange={(e) => {
-                          setLocationSearchQuery(e.target.value);
-                          if (e.target.value.length < 3) setCitySuggestions([]);
-                        }}
-                      />
-                      {isLoadingCities && (
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                          <div className="w-4 h-4 border-2 border-pd-red border-t-transparent rounded-full animate-spin"></div>
-                        </div>
-                      )}
+        <div className="hidden lg:block w-px h-10 bg-slate-200 shrink-0 self-center mx-2" />
 
-                       <AnimatePresence>
-                        {(isInputFocused && citySuggestions.length > 0) && (
-                          <motion.div 
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 10 }}
-                            className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl z-40 max-h-60 overflow-y-auto no-scrollbar overflow-x-hidden"
-                          >
-                             {citySuggestions.map((city, idx) => (
-                               <button 
-                                 key={idx}
-                                 onClick={() => {
-                                   if (!selectedCities.includes(city)) {
-                                     setSelectedCities([...selectedCities, city]);
-                                   }
-                                   setLocationSearchQuery("");
-                                   setCitySuggestions([]);
-                                 }}
-                                 className="w-full text-left px-5 py-4 hover:bg-slate-50 text-sm font-medium text-slate-700 border-b border-slate-50 last:border-0"
-                               >
-                                 {city}
-                               </button>
-                             ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                   </div>
+        {/* 2. Event Type */}
+        <div 
+          className="flex-1 px-4 lg:px-6 py-3 lg:py-0 flex items-center gap-4 hover:bg-slate-50 rounded-2xl h-full transition-colors relative cursor-pointer"
+          onClick={() => { setIsMobileEventOpen(!isMobileEventOpen); setIsMobileVenueOpen(false); setShowAdvancedFilters(false); }}
+        >
+          <div className="w-10 h-10 rounded-xl bg-pd-red/5 flex items-center justify-center shrink-0">
+            <Calendar size={20} className="text-pd-red" />
+          </div>
+          <div className="flex-1 flex flex-col justify-center">
+            <span className="text-[11px] font-bold text-slate-800 mb-0.5">Event Type</span>
+            <span className="text-sm font-black text-slate-900 truncate">
+              {selectedEvent || "All Events"}
+            </span>
+          </div>
+          <ChevronDown size={14} className="text-slate-400 shrink-0" />
+          
+          <AnimatePresence>
+            {isMobileEventOpen && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute top-full left-0 right-0 lg:-left-12 lg:-right-12 mt-4 bg-white border border-slate-100 rounded-3xl shadow-2xl z-[120] max-h-80 overflow-y-auto p-2 space-y-1 no-scrollbar"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button 
+                  onClick={() => { setSelectedEvent(""); setIsMobileEventOpen(false); }}
+                  className="w-full text-left px-5 py-3.5 hover:bg-slate-50 rounded-2xl text-sm font-medium text-slate-500"
+                >
+                  All Events
+                </button>
+                {FILTER_CONFIG.eventTypes.map(e => (
+                  <button 
+                    key={e}
+                    onClick={() => { setSelectedEvent(e); setIsMobileEventOpen(false); }}
+                    className={`w-full text-left px-5 py-3.5 rounded-2xl text-sm font-medium ${
+                      selectedEvent === e ? 'bg-pd-red/5 text-pd-red' : 'text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    {e}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-                   {/* Selected Cities Chips */}
-                   <div className="flex flex-wrap gap-2 mt-2">
-                      {selectedCities.map((city, i) => (
-                        <div key={i} className="flex items-center gap-1.5 bg-pd-red/5 text-pd-red px-3 py-1.5 rounded-xl border border-pd-red/10">
-                          <span className="text-xs font-semibold">{city}</span>
-                          <button 
-                            onClick={() => setSelectedCities(selectedCities.filter(c => c !== city))}
-                            className="hover:text-slate-900 transition-colors"
-                          >
-                            <X size={12} />
-                          </button>
-                        </div>
-                      ))}
-                   </div>
-                                {/* Event Type Custom Dropdown */}
-                <div className="space-y-4">
-                   <label className="text-xs font-semibold text-slate-400 ">Event Type</label>
-                   <div className="relative">
-                      <button 
-                        onClick={() => setIsEventDropdownOpen(!isEventDropdownOpen)}
-                        className="w-full px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-medium flex items-center justify-between hover:border-pd-red transition-all"
-                      >
-                         <span className={selectedEvent ? "text-slate-900" : "text-slate-400"}>
-                            {selectedEvent || "All Events"}
-                         </span>
-                         <ChevronDown className={`text-slate-400 transition-transform ${isEventDropdownOpen ? 'rotate-180' : ''}`} size={16} />
-                      </button>
+        <div className="hidden lg:block w-px h-10 bg-slate-200 shrink-0 self-center mx-2" />
 
-                      <AnimatePresence>
-                        {isEventDropdownOpen && (
-                          <motion.div 
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 10 }}
-                            className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl z-40 max-h-60 overflow-y-auto p-2 space-y-1 no-scrollbar"
-                          >
-                             <button 
-                               onClick={() => { setSelectedEvent(""); setIsEventDropdownOpen(false); }}
-                               className="w-full text-left px-4 py-3 hover:bg-slate-50 rounded-xl text-xs font-medium text-slate-500 hover:text-pd-red transition-colors"
-                             >
-                               All Events
-                             </button>
-                             {FILTER_CONFIG.eventTypes.map(e => (
-                               <button 
-                                 key={e}
-                                 onClick={() => { setSelectedEvent(e); setIsEventDropdownOpen(false); }}
-                                 className={`w-full text-left px-4 py-3 rounded-xl text-xs font-medium transition-colors ${
-                                   selectedEvent === e ? 'bg-pd-red/5 text-pd-red' : 'hover:bg-slate-50 text-slate-500'
-                                 }`}
-                               >
-                                 {e}
-                               </button>
-                             ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                   </div>
-                </div>  </div>
+        {/* 3. Venue Type */}
+        <div 
+          className="flex-1 px-4 lg:px-6 py-3 lg:py-0 flex items-center gap-4 hover:bg-slate-50 rounded-2xl h-full transition-colors relative cursor-pointer"
+          onClick={() => { setIsMobileVenueOpen(!isMobileVenueOpen); setIsMobileEventOpen(false); setShowAdvancedFilters(false); }}
+        >
+          <div className="w-10 h-10 rounded-xl bg-pd-red/5 flex items-center justify-center shrink-0">
+            <Building2 size={20} className="text-pd-red" />
+          </div>
+          <div className="flex-1 flex flex-col justify-center">
+            <span className="text-[11px] font-bold text-slate-800 mb-0.5">Venue Type</span>
+            <span className="text-sm font-black text-slate-900 truncate">
+              {selectedVenueTypes.length > 1 ? `${selectedVenueTypes.length} Types` : (selectedVenueTypes[0] || "All Venue Types")}
+            </span>
+          </div>
+          <ChevronDown size={14} className="text-slate-400 shrink-0" />
 
-                {/* Venue Types */}
-                <div className="space-y-4">
-                   <label className="text-xs font-semibold text-slate-400 ">Venue Type</label>
-                   <div className="flex flex-wrap gap-2">
-                      {FILTER_CONFIG.venueTypes.map(t => (
-                        <button 
-                          key={t} 
-                          onClick={() => handleToggle(selectedVenueTypes, setSelectedVenueTypes, t)}
-                          className={`px-3 py-2 rounded-xl text-xs font-medium border transition-all ${
-                            selectedVenueTypes.includes(t) ? 'bg-pd-red border-pd-red text-white' : 'bg-white border-slate-100 text-slate-500 hover:border-slate-200'
-                          }`}
-                        >
-                          {t}
-                        </button>
-                      ))}
-                   </div>
-                </div>
+          <AnimatePresence>
+            {isMobileVenueOpen && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute top-full left-0 right-0 lg:-left-12 lg:-right-12 mt-4 bg-white border border-slate-100 rounded-3xl shadow-2xl z-[120] max-h-80 overflow-y-auto p-2 space-y-1 no-scrollbar"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button 
+                  onClick={() => { setSelectedVenueTypes([]); setIsMobileVenueOpen(false); }}
+                  className="w-full text-left px-5 py-3.5 hover:bg-slate-50 rounded-2xl text-sm font-medium text-slate-500"
+                >
+                  All Venue Types
+                </button>
+                {FILTER_CONFIG.venueTypes.map(t => (
+                  <button 
+                    key={t}
+                    onClick={() => handleToggle(selectedVenueTypes, setSelectedVenueTypes, t)}
+                    className={`w-full text-left px-5 py-3.5 rounded-2xl text-sm font-medium flex items-center justify-between ${
+                      selectedVenueTypes.includes(t) ? 'bg-pd-red/5 text-pd-red' : 'text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    {t}
+                    {selectedVenueTypes.includes(t) && <Check size={16} />}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-                {/* Rating Filter */}
-                <div className="space-y-4">
-                   <label className="text-xs font-semibold text-slate-400 ">Venue Rating</label>
-                   <div className="flex flex-col gap-2">
-                      {[4, 3, 2].map(star => (
-                        <button 
-                          key={star}
-                          onClick={() => setMinRating(minRating === star ? 0 : star)}
-                          className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-bold border transition-all flex items-center justify-between ${
-                            minRating === star ? 'bg-yellow-400/5 border-yellow-400 text-yellow-600' : 'bg-slate-50 border-slate-50 text-slate-500'
-                          }`}
-                        >
-                          <span className="flex items-center gap-1">
-                             <Star size={14} className={minRating === star ? "fill-yellow-400" : ""} /> {star} Stars & Above
-                          </span>
-                          {minRating === star && <Check size={14} />}
-                        </button>
-                      ))}
-                   </div>
-                </div>
+        <div className="hidden lg:block w-px h-10 bg-slate-200 shrink-0 self-center mx-4" />
 
+        {/* Action Buttons */}
+        <div className="px-2 py-3 lg:py-0 flex items-center justify-between lg:justify-end gap-2 shrink-0">
+          <button 
+            className="h-12 lg:h-14 px-8 rounded-full bg-pd-red text-white flex items-center justify-center gap-2.5 hover:bg-rose-600 shadow-md hover:shadow-pd-red/30 transition-all font-bold text-[15px]"
+            onClick={() => {
+              setIsMobileEventOpen(false);
+              setIsMobileVenueOpen(false);
+              setShowAdvancedFilters(false);
+            }}
+          >
+            <Search size={18} strokeWidth={2.5} /> 
+            Search Venues
+          </button>
+        </div>
+      </div>
 
-
-
-                {/* Budget Text Inputs */}
-                <div className="space-y-4">
-                   <label className="text-xs font-semibold text-slate-400 ">Price Per Plate</label>
-                   <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                         <span className="text-xs font-medium text-slate-400 pl-1">Min Price</span>
-                         <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">₹</span>
-                            <input 
-                              type="number" 
-                              value={budgetRange.min}
-                              onChange={(e) => setBudgetRange({ ...budgetRange, min: parseInt(e.target.value) || 0 })}
-                              className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-medium outline-none focus:border-pd-red transition-all"
-                              placeholder="0"
-                            />
-                         </div>
+      {/* --- BOTTOM SECONDARY BAR (Popular Filters) --- */}
+      <div className="bg-white rounded-b-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 border-t-0 mx-6 px-6 py-5 relative z-10 -mt-6 pt-10 hidden lg:block">
+         <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-4">Popular Filters</span>
+         <div className="flex flex-wrap items-center gap-3">
+            
+            {/* Price Filter */}
+            <div className="relative">
+              <button 
+                onClick={() => setActiveFilterDropdown(activeFilterDropdown === 'price' ? null : 'price')}
+                className={`h-10 px-4 rounded-xl border text-xs font-bold flex items-center gap-2 transition-colors ${activeFilterDropdown === 'price' ? 'border-pd-red text-pd-red bg-red-50' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+              >
+                <IndianRupee size={16} className={activeFilterDropdown === 'price' ? "text-pd-red" : "text-slate-400"} /> 
+                Price 
+                <ChevronDown size={14} className={`ml-1 transition-transform ${activeFilterDropdown === 'price' ? 'rotate-180 text-pd-red' : 'text-slate-400'}`} />
+              </button>
+              
+              <AnimatePresence>
+                {activeFilterDropdown === 'price' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-full left-0 mt-2 w-80 bg-white border border-slate-100 rounded-3xl shadow-xl z-[120] p-6"
+                  >
+                    <label className="block text-sm font-bold text-slate-800 mb-4">Price Per Plate</label>
+                    <div className="flex items-center gap-4">
+                      <div className="relative flex-1">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₹</span>
+                        <input 
+                          type="number" 
+                          value={budgetRange.min || ''}
+                          onChange={(e) => setBudgetRange({ ...budgetRange, min: parseInt(e.target.value) || 0 })}
+                          className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium outline-none focus:border-slate-400 transition-colors"
+                          placeholder="Min"
+                        />
                       </div>
-                      <div className="space-y-2">
-                         <span className="text-xs font-medium text-slate-400 pl-1">Max Price</span>
-                         <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">₹</span>
-                            <input 
-                              type="number" 
-                              value={budgetRange.max}
-                              onChange={(e) => setBudgetRange({ ...budgetRange, max: parseInt(e.target.value) || 0 })}
-                              className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-medium outline-none focus:border-pd-red transition-all"
-                              placeholder="10000"
-                            />
-                         </div>
+                      <span className="text-slate-300">-</span>
+                      <div className="relative flex-1">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₹</span>
+                        <input 
+                          type="number" 
+                          value={budgetRange.max || ''}
+                          onChange={(e) => setBudgetRange({ ...budgetRange, max: parseInt(e.target.value) || 0 })}
+                          className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium outline-none focus:border-slate-400 transition-colors"
+                          placeholder="Max"
+                        />
                       </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
-                   </div>
-                </div>
-
-                {/* Capacity Slider */}
-                <div className="space-y-4 ">
-                   <div className="flex justify-between items-center">
-                      <label className="text-xs font-semibold text-slate-400 ">Min. Capacity</label>
-                      <span className="text-xs font-medium text-pd-purple">{selectedCapacity}+ Guests</span>
-                   </div>
-                   <input 
+            {/* Guest Capacity Filter */}
+            <div className="relative">
+              <button 
+                onClick={() => setActiveFilterDropdown(activeFilterDropdown === 'capacity' ? null : 'capacity')}
+                className={`h-10 px-4 rounded-xl border text-xs font-bold flex items-center gap-2 transition-colors ${activeFilterDropdown === 'capacity' ? 'border-pd-red text-pd-red bg-red-50' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+              >
+                <Users size={16} className={activeFilterDropdown === 'capacity' ? "text-pd-red" : "text-slate-400"} /> 
+                Guest Capacity 
+                <ChevronDown size={14} className={`ml-1 transition-transform ${activeFilterDropdown === 'capacity' ? 'rotate-180 text-pd-red' : 'text-slate-400'}`} />
+              </button>
+              
+              <AnimatePresence>
+                {activeFilterDropdown === 'capacity' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-full left-0 mt-2 w-80 bg-white border border-slate-100 rounded-3xl shadow-xl z-[120] p-6"
+                  >
+                    <div className="flex justify-between items-center mb-4">
+                      <label className="block text-sm font-bold text-slate-800">Guest Capacity</label>
+                      <span className="text-xs font-bold text-pd-purple bg-pd-purple/10 px-3 py-1 rounded-full">{selectedCapacity}+ Guests</span>
+                    </div>
+                    <input 
                       type="range" min="0" max="10000" step="100" 
                       value={selectedCapacity} 
                       onChange={(e) => setSelectedCapacity(parseInt(e.target.value))}
-                      className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-pd-purple"
-                   />
-                   <div className="flex justify-between text-xs font-medium text-slate-300 pt-1">
-                      <span>Min: 0</span>
-                      <span>Max: 10,000</span>
-                   </div>
-                </div>
+                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-pd-purple mt-4"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
-                {/* Amenities Multi-Select Dropdown */}
-                <div className="space-y-4">
-                   <label className="text-xs font-semibold text-slate-400 ">Amenities</label>
-                   <div className="relative">
-                      <button 
-                        onClick={() => setShowAmenitiesDropdown(!showAmenitiesDropdown)}
-                        className="w-full px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-medium flex items-center justify-between hover:border-pd-red transition-all"
-                      >
-                         <span className={selectedAmenities.length > 0 ? "text-pd-purple" : "text-slate-400"}>
-                            {selectedAmenities.length > 0 ? `${selectedAmenities.length} Selected` : "Select Amenities"}
-                         </span>
-                         <ChevronDown className={`text-slate-400 transition-transform ${showAmenitiesDropdown ? 'rotate-180' : ''}`} size={16} />
-                      </button>
+            {/* Amenities Filter */}
+            <div className="relative">
+              <button 
+                onClick={() => setActiveFilterDropdown(activeFilterDropdown === 'amenities' ? null : 'amenities')}
+                className={`h-10 px-4 rounded-xl border text-xs font-bold flex items-center gap-2 transition-colors ${activeFilterDropdown === 'amenities' ? 'border-pd-red text-pd-red bg-red-50' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+              >
+                <Building2 size={16} className={activeFilterDropdown === 'amenities' ? "text-pd-red" : "text-slate-400"} /> 
+                Amenities 
+                <ChevronDown size={14} className={`ml-1 transition-transform ${activeFilterDropdown === 'amenities' ? 'rotate-180 text-pd-red' : 'text-slate-400'}`} />
+              </button>
 
-                      <AnimatePresence>
-                        {showAmenitiesDropdown && (
-                          <motion.div 
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="relative mt-2 bg-white border border-slate-100 rounded-2xl shadow-xl z-40 max-h-60 overflow-y-auto p-4 space-y-2 no-scrollbar"
-                          >
-                             {FILTER_CONFIG.amenities.map(a => (
-                               <label key={a} className="flex items-center gap-3 cursor-pointer group p-2 hover:bg-slate-50 rounded-xl transition-colors">
-                                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                                    selectedAmenities.includes(a) ? 'bg-pd-purple border-pd-purple' : 'bg-white border-slate-200'
-                                  }`}>
-                                    {selectedAmenities.includes(a) && <Check size={12} className="text-white" />}
-                                  </div>
-                                  <input 
-                                     type="checkbox" className="hidden" 
-                                     checked={selectedAmenities.includes(a)}
-                                     onChange={() => handleToggle(selectedAmenities, setSelectedAmenities, a)}
-                                  />
-                                  <span className={`text-sm font-medium transition-colors ${
-                                    selectedAmenities.includes(a) ? 'text-pd-purple' : 'text-slate-500 group-hover:text-slate-700'
-                                  }`}>{a}</span>
-                               </label>
-                             ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                   </div>
-                </div>
+              <AnimatePresence>
+                {activeFilterDropdown === 'amenities' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-full left-0 mt-2 w-[480px] bg-white border border-slate-100 rounded-3xl shadow-xl z-[120] p-6"
+                  >
+                    <label className="block text-sm font-bold text-slate-800 mb-4">Select Amenities</label>
+                    <div className="flex flex-wrap gap-2">
+                      {FILTER_CONFIG.amenities.map(a => (
+    <button 
+      key={a}
+      onClick={() => handleToggle(selectedAmenities, setSelectedAmenities, a)}
+      className={`px-4 py-2 rounded-full text-xs font-semibold transition-all border flex items-center gap-2 ${
+        selectedAmenities.includes(a) ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-900'
+      }`}
+    >
+      {getAmenityIcon(a, selectedAmenities.includes(a))}
+      <span>{a}</span>
+    </button>
+  ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
-                {/* Food Preference */}
-                <div className="space-y-4">
-                   <label className="text-xs font-semibold text-slate-400 ">Food Preference</label>
-                   <div className="flex gap-2">
-                      {FILTER_CONFIG.foodTypes.map(f => (
-                        <button 
-                          key={f}
-                          onClick={() => setFoodPreference(foodPreference === f ? null : f)}
-                          className={`flex-1 py-3 rounded-2xl text-xs font-semibold border transition-all ${
-                            foodPreference === f ? 'bg-slate-900 border-slate-900 text-white shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-500'
-                          }`}
-                        >
-                          {f}
-                        </button>
-                      ))}
-                   </div>
-                </div>
-             </div>
-          </aside>
+            {/* Parking Toggle */}
+            <button 
+              onClick={() => handleToggle(selectedAmenities, setSelectedAmenities, 'Parking Available')}
+              className={`h-10 px-4 rounded-xl border text-xs font-bold flex items-center gap-2 transition-colors ${selectedAmenities.includes('Parking Available') ? 'bg-slate-900 border-slate-900 text-white' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+            >
+              <Car size={16} className={selectedAmenities.includes('Parking Available') ? 'text-white' : 'text-slate-400'} /> Parking
+            </button>
+            
+            <button 
+               onClick={() => handleToggle(selectedAmenities, setSelectedAmenities, 'Catering Available')}
+               className={`h-10 px-4 rounded-xl border text-xs font-bold flex items-center gap-2 transition-colors ${selectedAmenities.includes('Catering Available') ? 'bg-slate-900 border-slate-900 text-white' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+            >
+              <Utensils size={16} className={selectedAmenities.includes('Catering Available') ? 'text-white' : 'text-slate-400'} /> Catering
+            </button>
+            
+            <div className="ml-auto text-right flex flex-col justify-center pr-2">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Available Venues</span>
+              <span className="text-sm font-black text-slate-900">{allCombinedVenues?.length || 0} Matches Found</span>
+            </div>
+         </div>
+      </div>
+
+
+    </div>
+  );
+
+  return (
+    <main className="min-h-screen bg-slate-50 relative pb-16">
+      <div className="max-w-screen-2xl mx-auto px-4 md:px-8 pt-8 pb-20">
+        <div className="flex flex-col gap-8">
+          
+          <div className="hidden lg:block w-full">
+            {filterFormUI}
+          </div>
 
           {/* MAIN LISTINGS */}
-          <main className="flex-1 min-w-0">
-             <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-10 gap-6 bg-white p-6 md:p-8 rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-                <div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight mb-2">Discover Venues</h2>
-                  <p className="text-[10px] md:text-xs font-bold text-slate-500 bg-slate-50 inline-block px-3 py-1.5 rounded-lg border border-slate-100">
-                    {resultsByLocation.premium.length + resultsByLocation.others.length} Results
-                    {resultsByLocation.premium.length > 0 && <span className="text-amber-500 ml-1">· {resultsByLocation.premium.length} Premium</span>}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-nowrap pb-2 md:pb-0">
-                    {selectedCities.length > 0 && selectedCities.map((city, i) => (
-                      <div key={i} className="shrink-0 px-3 py-1.5 bg-pd-red/10 border border-pd-red/20 rounded-full text-xs font-medium text-pd-red flex items-center gap-2">
-                        {city} <button onClick={() => setSelectedCities(selectedCities.filter(c => c !== city))}><X size={10} /></button>
-                      </div>
-                    ))}
-                    {selectedEvent && (
-                      <div className="shrink-0 px-3 py-1.5 bg-pd-purple/10 border border-pd-purple/20 rounded-full text-xs font-medium text-pd-purple flex items-center gap-2">
-                        {selectedEvent} <button onClick={() => setSelectedEvent("")}><X size={10} /></button>
-                      </div>
-                    )}
-                    {selectedCapacity > 0 && (
-                     <div className="shrink-0 px-3 py-1.5 bg-pd-pink/10 border border-pd-pink/20 rounded-full text-xs font-medium text-pd-pink flex items-center gap-2">
-                       {selectedCapacity}+ Guests <button onClick={() => setSelectedCapacity(0)}><X size={10} /></button>
-                     </div>
-                    )}
-                    {selectedAmenities.length > 0 && selectedAmenities.map(a => (
-                      <div key={a} className="shrink-0 px-3 py-1.5 bg-pd-blue/10 border border-pd-blue/20 rounded-full text-xs font-medium text-pd-blue flex items-center gap-2">
-                        {a} <button onClick={() => handleToggle(selectedAmenities, setSelectedAmenities, a)}><X size={10} /></button>
-                      </div>
-                    ))}
-                </div>
-                
-                <div className="flex items-center gap-3">
-                   <span className="text-xs font-semibold text-slate-400">Sort:</span>
-                   <div className="relative">
-                      <button 
-                        onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                        className="flex items-center gap-2 text-lg font-bold text-slate-900 group"
-                      >
-                         {sortBy}
-                         <ChevronDown className={`text-slate-400 transition-transform ${isSortDropdownOpen ? 'rotate-180' : ''}`} size={16} />
-                      </button>
+          <main className="w-full">
 
-                      <AnimatePresence>
-                        {isSortDropdownOpen && (
-                          <motion.div 
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="absolute top-full right-0 mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl z-40 p-2 space-y-1 w-48"
-                          >
-                             {["Popularity", "Top Rated", "Price: Low to High", "Price: High to Low"].map(opt => (
-                               <button 
-                                 key={opt}
-                                 onClick={() => { setSortBy(opt); setIsSortDropdownOpen(false); }}
-                                 className={`w-full text-left px-4 py-3 rounded-xl text-xs font-medium transition-colors ${
-                                   sortBy === opt ? 'bg-pd-red/5 text-pd-red' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-                                 }`}
-                               >
-                                 {opt}
-                               </button>
-                             ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                   </div>
-                </div>
-             </div>
 
-             {/* ── VENUE SECTIONS ── */}
+{/* ── VENUE SECTIONS ── */}
              <div className="space-y-14">
 
-               {/* ── PREMIUM VENUES ── */}
-               {resultsByLocation.premium.length > 0 && (
-                 <div className="mb-16">
-                   <div className="flex items-center gap-4 mb-8">
-                     <div className="flex items-center gap-3 bg-linear-to-r from-amber-500/10 to-transparent p-2 pr-6 rounded-2xl border border-amber-500/20">
-                       <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20">
-                         <Star size={20} className="fill-white" />
-                       </div>
-                       <div>
-                         <h2 className="text-lg font-bold text-slate-900">Premium Venues</h2>
-                         <p className="text-xs font-semibold text-amber-600">Handpicked & Verified</p>
-                       </div>
-                     </div>
-                     <div className="h-px bg-linear-to-r from-amber-200 to-transparent flex-1" />
-                   </div>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                     {resultsByLocation.premium.map((v, i) => (
-                       <VenueCard key={v.id} venue={v} index={i} isPremium />
-                     ))}
-                   </div>
-                 </div>
-               )}
-
-               {/* ── DIVIDER ── */}
-               {resultsByLocation.premium.length > 0 && resultsByLocation.others.length > 0 && (
-                 <div className="flex items-center gap-4 py-8">
-                   <div className="h-px bg-slate-200 flex-1" />
-                   <span className="text-xs font-semibold text-slate-400 px-4 py-2 bg-slate-50 rounded-full border border-slate-200">Other Available Venues</span>
-                   <div className="h-px bg-slate-200 flex-1" />
-                 </div>
-               )}
-
-               {/* ── FREE / OTHER VENUES ── */}
-               {resultsByLocation.others.length > 0 && (
+               {/* ── COMBINED VENUES ── */}
+               {!isLoadingVenues && allCombinedVenues.length > 0 && (
                  <div>
-                   {resultsByLocation.premium.length === 0 && (
-                     <div className="flex items-center gap-4 mb-8">
-                       <div className="flex items-center gap-3 bg-slate-100/80 p-2 pr-6 rounded-2xl border border-slate-200">
-                         <div className="w-10 h-10 rounded-xl bg-slate-800 text-white flex items-center justify-center shadow-lg shadow-slate-900/10">
-                           <MapPin size={20} />
-                         </div>
-                         <div>
-                           <h2 className="text-lg font-bold text-slate-900">Available Venues</h2>
-                           <p className="text-xs font-semibold text-slate-500">{resultsByLocation.others.length} Matches Found</p>
-                         </div>
-                       </div>
-                       <div className="h-px bg-slate-200 flex-1" />
-                     </div>
-                   )}
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                     {paginatedOthers.map((v, i) => (
-                       <VenueCard key={v.id} venue={v} index={i} />
+                   
+                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                     {paginatedVenues.map((v, i) => (
+                       <MinimalVenueCard key={v.id} venue={v} index={i} isPremium={v.isPremium} />
                      ))}
                    </div>
 
                    {/* Pagination Controls */}
                    {totalPages > 1 && (
-                     <div className="mt-16 flex items-center justify-center gap-2">
-                       <button 
-                         disabled={currentPage === 1}
-                         onClick={() => {
-                           setCurrentPage(prev => Math.max(1, prev - 1));
-                           window.scrollTo({ top: 0, behavior: 'smooth' });
-                         }}
-                         className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-100 text-slate-400 hover:text-pd-red hover:border-pd-red transition-all disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-100"
-                       >
-                         <ArrowRight size={20} className="rotate-180" />
-                       </button>
-                       
-                       <div className="flex items-center gap-2 bg-white p-2 rounded-3xl border border-slate-100 shadow-sm">
-                         {[...Array(totalPages)].map((_, i) => {
-                           const pageNum = i + 1;
-                           if (
-                             pageNum === 1 || 
-                             pageNum === totalPages || 
-                             (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                           ) {
-                             return (
-                               <button
-                                 key={pageNum}
-                                 onClick={() => {
-                                   setCurrentPage(pageNum);
-                                   window.scrollTo({ top: 0, behavior: 'smooth' });
-                                 }}
-                                 className={`w-10 h-10 rounded-xl text-xs font-medium transition-all ${
-                                   currentPage === pageNum 
-                                     ? 'bg-slate-900 text-white shadow-lg' 
-                                     : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
-                                 }`}
-                                >
-                                 {pageNum}
-                               </button>
-                             );
-                           } else if (
-                             pageNum === currentPage - 2 || 
-                             pageNum === currentPage + 2
-                           ) {
-                             return <span key={pageNum} className="px-1 text-slate-300">...</span>;
-                           }
-                           return null;
-                         })}
-                       </div>
+                     <div className="mt-16 flex items-center justify-center">
+                       <div className="flex flex-wrap justify-center md:flex-nowrap items-center bg-white px-2 py-2 md:px-4 md:py-3 rounded-[2rem] md:rounded-full shadow-[0_4px_24px_rgb(0,0,0,0.06)] border border-slate-50 gap-2 md:gap-4">
+                         
+                         {/* Previous Button */}
+                         <button 
+                           disabled={currentPage === 1}
+                           onClick={() => {
+                             setCurrentPage(prev => Math.max(1, prev - 1));
+                             window.scrollTo({ top: 0, behavior: 'smooth' });
+                           }}
+                           className="flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors disabled:opacity-40 disabled:hover:text-slate-500"
+                         >
+                           <ChevronLeft size={18} strokeWidth={2.5} />
+                           Previous
+                         </button>
+                         
+                         {/* Page Numbers */}
+                         <div className="flex items-center gap-1 mx-1 md:mx-2">
+                           {[...Array(totalPages)].map((_, i) => {
+                             const pageNum = i + 1;
+                             if (
+                               pageNum === 1 || 
+                               pageNum === totalPages || 
+                               (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                             ) {
+                               return (
+                                 <button
+                                   key={pageNum}
+                                   onClick={() => {
+                                     setCurrentPage(pageNum);
+                                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                                   }}
+                                   className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all ${
+                                     currentPage === pageNum 
+                                       ? 'bg-[#F43F5E] text-white ring-[4px] ring-[#F43F5E]/20' 
+                                       : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 bg-transparent'
+                                   }`}
+                                  >
+                                   {pageNum}
+                                 </button>
+                               );
+                             } else if (
+                               pageNum === currentPage - 2 || 
+                               pageNum === currentPage + 2
+                             ) {
+                               return <span key={pageNum} className="px-1 text-slate-400 font-bold tracking-widest">...</span>;
+                             }
+                             return null;
+                           })}
+                         </div>
 
-                       <button 
-                         disabled={currentPage === totalPages}
-                         onClick={() => {
-                           setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                           window.scrollTo({ top: 0, behavior: 'smooth' });
-                         }}
-                         className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-100 text-slate-400 hover:text-pd-red hover:border-pd-red transition-all disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-100"
-                       >
-                         <ArrowRight size={20} />
-                       </button>
-                     </div>
-                   )}
+                         {/* Next Button */}
+                         <button 
+                           disabled={currentPage === totalPages}
+                           onClick={() => {
+                             setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                             window.scrollTo({ top: 0, behavior: 'smooth' });
+                           }}
+                           className="flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors disabled:opacity-40 disabled:hover:text-slate-500"
+                         >
+                           Next
+                           <ChevronRight size={18} strokeWidth={2.5} />
+                         </button>
+
+                         {/* Results Count */}
+                         <div className="hidden xl:block pl-6 border-l border-slate-200 text-sm font-medium text-slate-500 mr-2">
+                           Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, allCombinedVenues.length)} of {allCombinedVenues.length} results
+                         </div>
+                       </div>
+                    </div>
+                    )}
+                  </div>
+                )}
+
+               {/* ── EMPTY STATE ── */}
+               
+               {/* ── LOADING STATE ── */}
+               {isLoadingVenues && (
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                   {[1,2,3,4,5,6,7,8].map(i => (
+                     <div key={i} className="w-full aspect-[4/3] bg-slate-100 animate-pulse rounded-3xl" />
+                   ))}
                  </div>
                )}
 
                {/* ── EMPTY STATE ── */}
-               {resultsByLocation.premium.length === 0 && resultsByLocation.others.length === 0 && (
+               {!isLoadingVenues && allCombinedVenues.length === 0 && (
                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-24 text-center bg-white rounded-[3rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] mt-8">
                     <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
                        <Filter size={40} />
@@ -971,221 +1016,8 @@ function VenuesContent() {
                   </div>
                   
                   <div className="flex-1 overflow-y-auto no-scrollbar pb-10 space-y-8">
-                     {/* Mobile Location Search */}
-                     <div className="space-y-4">
-                        <label className="text-xs font-semibold text-slate-400">Location</label>
-                        <div className="relative">
-                           <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                           <input 
-                             type="text" 
-                             placeholder="City or Pincode..." 
-                             className="w-full pl-14 pr-12 py-5 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-medium outline-none focus:border-pd-red transition-all"
-                             value={locationSearchQuery}
-                             onFocus={() => setIsInputFocused(true)}
-                             onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
-                             onChange={(e) => {
-                               setLocationSearchQuery(e.target.value);
-                               if (e.target.value.length < 3) setCitySuggestions([]);
-                             }}
-                           />
-                           {isLoadingCities && (
-                             <div className="absolute right-6 top-1/2 -translate-y-1/2">
-                               <div className="w-5 h-5 border-2 border-pd-red border-t-transparent rounded-full animate-spin"></div>
-                             </div>
-                           )}
-
-                           <AnimatePresence>
-                             {(isInputFocused && citySuggestions.length > 0) && (
-                               <motion.div 
-                                 initial={{ opacity: 0, scale: 0.95 }}
-                                 animate={{ opacity: 1, scale: 1 }}
-                                 exit={{ opacity: 0, scale: 0.95 }}
-                                 className="absolute top-full left-0 right-0 mt-3 bg-white border border-slate-100 rounded-3xl shadow-2xl z-[120] max-h-60 overflow-y-auto p-2 space-y-1 no-scrollbar"
-                               >
-                                  {citySuggestions.map((city, idx) => (
-                                    <button 
-                                      key={idx}
-                                      onClick={() => {
-                                        if (!selectedCities.includes(city)) {
-                                          setSelectedCities([...selectedCities, city]);
-                                        }
-                                        setLocationSearchQuery("");
-                                        setCitySuggestions([]);
-                                      }}
-                                      className="w-full text-left px-5 py-4 hover:bg-slate-50 text-xs font-semibold text-slate-700 rounded-2xl active:bg-slate-100"
-                                    >
-                                      {city}
-                                    </button>
-                                  ))}
-                               </motion.div>
-                             )}
-                           </AnimatePresence>
-
-                           {/* Mobile Selected Cities Chips */}
-                           <div className="flex flex-wrap gap-2 mt-3">
-                              {selectedCities.map((city, i) => (
-                                <div key={i} className="flex items-center gap-2 bg-pd-red text-white px-4 py-2 rounded-2xl shadow-lg shadow-pd-red/20 border border-pd-red/10">
-                                  <span className="text-xs font-semibold">{city}</span>
-                                  <button 
-                                    onClick={() => setSelectedCities(selectedCities.filter(c => c !== city))}
-                                    className="hover:scale-110 transition-transform"
-                                  >
-                                    <X size={14} />
-                                  </button>
-                                </div>
-                              ))}
-                           </div>
-                        </div>
-                     </div>
-
-                     {/* Custom Mobile Event Dropdown */}
-                     <div className="space-y-4">
-                        <label className="text-xs font-semibold text-slate-400">Event Type</label>
-                        <div className="relative">
-                           <button 
-                             onClick={() => setIsMobileEventOpen(!isMobileEventOpen)}
-                             className="w-full px-6 py-5 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-medium flex items-center justify-between"
-                           >
-                             <span className={selectedEvent ? "text-slate-900" : "text-slate-400"}>
-                               {selectedEvent || "All Events"}
-                             </span>
-                             <ChevronDown className={`text-slate-400 transition-transform ${isMobileEventOpen ? 'rotate-180' : ''}`} size={20} />
-                           </button>
-                           <AnimatePresence>
-                             {isMobileEventOpen && (
-                               <motion.div 
-                                 initial={{ opacity: 0, y: -10 }}
-                                 animate={{ opacity: 1, y: 0 }}
-                                 exit={{ opacity: 0, y: -10 }}
-                                 className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-3xl shadow-xl z-[120] max-h-60 overflow-y-auto p-2 space-y-1 no-scrollbar"
-                               >
-                                 <button 
-                                   onClick={() => { setSelectedEvent(""); setIsMobileEventOpen(false); }}
-                                   className="w-full text-left px-5 py-4 hover:bg-slate-50 rounded-2xl text-xs font-semibold text-slate-500"
-                                 >
-                                   All Events
-                                 </button>
-                                 {FILTER_CONFIG.eventTypes.map(e => (
-                                   <button 
-                                     key={e}
-                                     onClick={() => { setSelectedEvent(e); setIsMobileEventOpen(false); }}
-                                     className={`w-full text-left px-5 py-4 rounded-2xl text-xs font-semibold ${
-                                       selectedEvent === e ? 'bg-pd-red/5 text-pd-red' : 'text-slate-500 hover:bg-slate-50'
-                                     }`}
-                                   >
-                                     {e}
-                                   </button>
-                                 ))}
-                               </motion.div>
-                             )}
-                           </AnimatePresence>
-                        </div>
-                     </div>
-                     <div className="space-y-4">
-                        <label className="text-xs font-semibold text-slate-400">Price Per Plate</label>
-                        <div className="grid grid-cols-2 gap-4">
-                           <div className="space-y-2">
-                              <span className="text-xs font-medium text-slate-300">Min Price</span>
-                              <input 
-                                 type="number" 
-                                 value={budgetRange.min}
-                                 onChange={(e) => setBudgetRange({ ...budgetRange, min: parseInt(e.target.value) || 0 })}
-                                 className="w-full px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium outline-none focus:border-pd-red"
-                                 placeholder="Min"
-                              />
-                           </div>
-                           <div className="space-y-2">
-                              <span className="text-xs font-medium text-slate-300">Max Price</span>
-                              <input 
-                                 type="number" 
-                                 value={budgetRange.max}
-                                 onChange={(e) => setBudgetRange({ ...budgetRange, max: parseInt(e.target.value) || 0 })}
-                                 className="w-full px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium outline-none focus:border-pd-red"
-                                 placeholder="Max"
-                              />
-                           </div>
-                        </div>
-                     </div>
-
-                     <div className="space-y-4">
-                        <label className="text-xs font-semibold text-slate-400">Guest Capacity</label>
-                        <div className="">
-                           <div className="flex justify-between items-center mb-4">
-                              <span className="text-xs font-semibold text-pd-purple">{selectedCapacity}+ Guests</span>
-                              <span className="text-xs font-medium text-slate-300">Max: 10,000</span>
-                           </div>
-                           <input 
-                              type="range" min="0" max="10000" step="100" 
-                              value={selectedCapacity} 
-                              onChange={(e) => setSelectedCapacity(parseInt(e.target.value))}
-                              className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-pd-purple"
-                           />
-                        </div>
-                     </div>
-
-                     <div className="space-y-4">
-                        <label className="text-xs font-semibold text-slate-400">Amenities</label>
-                        <div className="grid grid-cols-2 gap-2">
-                           {FILTER_CONFIG.amenities.map(a => (
-                             <button 
-                               key={a}
-                               onClick={() => handleToggle(selectedAmenities, setSelectedAmenities, a)}
-                               className={`px-4 py-3 rounded-2xl text-xs font-medium transition-all border text-left flex items-center justify-between ${
-                                 selectedAmenities.includes(a) ? 'bg-pd-red border-pd-red text-white shadow-lg' : 'bg-slate-50 border-slate-100 text-slate-500'
-                               }`}
-                             >
-                                <span className="truncate">{a}</span>
-                                {selectedAmenities.includes(a) && <Check size={10} />}
-                             </button>
-                           ))}
-                        </div>
-                     </div>
-
-                     {/* Custom Mobile Venue Type Dropdown */}
-                     <div className="space-y-4">
-                        <label className="text-xs font-semibold text-slate-400">Venue Type</label>
-                        <div className="relative">
-                           <button 
-                             onClick={() => setIsMobileVenueOpen(!isMobileVenueOpen)}
-                             className="w-full px-6 py-5 bg-slate-50 border border-slate-100 rounded-3xl text-sm font-medium flex items-center justify-between"
-                           >
-                             <span className={selectedVenueTypes.length > 0 ? "text-slate-900" : "text-slate-400"}>
-                               {selectedVenueTypes.length > 1 ? `${selectedVenueTypes.length} Types` : (selectedVenueTypes[0] || "All Venue Types")}
-                             </span>
-                             <ChevronDown className={`text-slate-400 transition-transform ${isMobileVenueOpen ? 'rotate-180' : ''}`} size={20} />
-                           </button>
-                           <AnimatePresence>
-                             {isMobileVenueOpen && (
-                               <motion.div 
-                                 initial={{ opacity: 0, y: -10 }}
-                                 animate={{ opacity: 1, y: 0 }}
-                                 exit={{ opacity: 0, y: -10 }}
-                                 className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-3xl shadow-xl z-[120] max-h-60 overflow-y-auto p-2 space-y-1 no-scrollbar"
-                               >
-                                 <button 
-                                   onClick={() => { setSelectedVenueTypes([]); setIsMobileVenueOpen(false); }}
-                                   className="w-full text-left px-5 py-4 hover:bg-slate-50 rounded-2xl text-xs font-semibold text-slate-500"
-                                 >
-                                   All Venue Types
-                                 </button>
-                                 {FILTER_CONFIG.venueTypes.map(t => (
-                                   <button 
-                                     key={t}
-                                     onClick={() => { handleToggle(selectedVenueTypes, setSelectedVenueTypes, t); }}
-                                     className={`w-full text-left px-5 py-4 rounded-2xl text-xs font-semibold ${
-                                       selectedVenueTypes.includes(t) ? 'bg-pd-red/5 text-pd-red' : 'text-slate-500 hover:bg-slate-50'
-                                     }`}
-                                   >
-                                     {t}
-                                   </button>
-                                 ))}
-                               </motion.div>
-                             )}
-                           </AnimatePresence>
-                        </div>
-                     </div>
+                     {filterFormUI}
                   </div>
-
                   <div className="pt-8 border-t border-slate-100 grid grid-cols-2 gap-4 shrink-0">
                      <button onClick={clearFilters} className="py-5 bg-slate-50 rounded-3xl text-xs font-semibold text-slate-400">Reset</button>
                      <button onClick={() => setShowMobileFilters(false)} className="pd-btn-primary py-5 text-xs font-semibold ">Show Results</button>
