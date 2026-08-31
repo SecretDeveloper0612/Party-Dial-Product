@@ -31,25 +31,50 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: TrendingUp, label: "Billing Overview", path: "/billing/overview" },
-  { icon: FileText, label: "Quotations", path: "/billing/quotations" },
-  { icon: Receipt, label: "Invoices", path: "/billing/invoices" },
-  { icon: CreditCard, label: "Payment Logs", path: "/billing/payments" },
-  { icon: PieChart, label: "Financial Reports", path: "/billing/reports" },
-  { icon: Zap, label: "Coupon System", path: "/billing/coupons" },
-  { icon: ShieldCheck, label: "Manual Access", path: "/billing/access" },
-  { icon: Building2, label: "Venue Management", path: "/venues" },
-  { icon: CheckSquare, label: "Approve Listings", path: "/approvals" },
-  { icon: Target, label: "Lead Distribution", path: "/lead-distribution" },
-  { icon: Target, label: "Lead Dist. (Venues)", path: "/lead-distribution-venues" },
-  { icon: Table, label: "Lead Matrix", path: "/crm/leads" },
-  { icon: FileText, label: "Price Leads", path: "/price-leads" },
-  { icon: CheckCircle, label: "Venue Leads Check", path: "/venue-leads" },
-  { icon: FolderOpen, label: "Plan Management", path: "/plans" },
-  { icon: Users, label: "User & Role Management", path: "/users" },
-  { icon: GitGraph, label: "Team Structure", path: "/team-tree" },
+const menuGroups = [
+  {
+    category: "Main",
+    items: [
+      { icon: LayoutDashboard, label: "Dashboard", path: "/" },
+    ]
+  },
+  {
+    category: "Venue & Listings",
+    items: [
+      { icon: Building2, label: "Venue Management", path: "/venues" },
+      { icon: CheckSquare, label: "Approve Listings", path: "/approvals" },
+    ]
+  },
+  {
+    category: "Lead Management",
+    items: [
+      { icon: Target, label: "Lead Distribution", path: "/lead-distribution" },
+      { icon: Target, label: "Lead Dist. (Venues)", path: "/lead-distribution-venues" },
+      { icon: Table, label: "Lead Matrix", path: "/crm/leads" },
+      { icon: FileText, label: "Price Leads", path: "/price-leads" },
+      { icon: CheckCircle, label: "Venue Leads Check", path: "/venue-leads" },
+    ]
+  },
+  {
+    category: "Finance & Billing",
+    items: [
+      { icon: TrendingUp, label: "Billing Overview", path: "/billing/overview" },
+      { icon: FileText, label: "Quotations", path: "/billing/quotations" },
+      { icon: Receipt, label: "Invoices", path: "/billing/invoices" },
+      { icon: CreditCard, label: "Payment Logs", path: "/billing/payments" },
+      { icon: PieChart, label: "Financial Reports", path: "/billing/reports" },
+      { icon: Zap, label: "Coupon System", path: "/billing/coupons" },
+      { icon: ShieldCheck, label: "Manual Access", path: "/billing/access" },
+    ]
+  },
+  {
+    category: "System Administration",
+    items: [
+      { icon: FolderOpen, label: "Plan Management", path: "/plans" },
+      { icon: Users, label: "User & Role Management", path: "/users" },
+      { icon: GitGraph, label: "Team Structure", path: "/team-tree" },
+    ]
+  }
 ];
 
 interface SidebarProps {
@@ -86,35 +111,39 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     moduleAccess = JSON.parse(user?.prefs?.moduleAccess || "[]");
   } catch {}
 
-  const filteredMenuItems = menuItems.filter(item => {
-    const role = user?.prefs?.role;
-    if (role === "Super Admin") return true;
-    if (item.label === "Dashboard") return true;
-    if (role === "BDE" && item.label === "Lead Distribution") return false;
+  const filteredMenuGroups = menuGroups.map(group => {
+    const filteredItems = group.items.filter(item => {
+      const role = user?.prefs?.role;
+      if (role === "Super Admin") return true;
+      if (item.label === "Dashboard") return true;
+      if (role === "BDE" && item.label === "Lead Distribution") return false;
 
-    const moduleMap: Record<string, string> = {
-       "Billing Overview": "Billing",
-       "Quotations": "Billing",
-       "Invoices": "Billing",
-       "Payment Logs": "Billing",
-       "Financial Reports": "Billing",
-       "Coupon System": "Billing",
-       "Manual Access": "Billing",
-       "Venue Management": "Venues",
-       "Approve Listings": "Approvals",
-       "Lead Distribution": "Leads",
-       "Lead Dist. (Venues)": "Leads",
-       "Lead Matrix": "Leads",
-       "Price Leads": "Leads",
-       "Venue Leads Check": "Leads",
-       "Plan Management": "Settings",
-       "User & Role Management": "Users",
-       "Team Structure": "Users"
-    };
+      const moduleMap: Record<string, string> = {
+         "Billing Overview": "Billing",
+         "Quotations": "Billing",
+         "Invoices": "Billing",
+         "Payment Logs": "Billing",
+         "Financial Reports": "Billing",
+         "Coupon System": "Billing",
+         "Manual Access": "Billing",
+         "Venue Management": "Venues",
+         "Approve Listings": "Approvals",
+         "Lead Distribution": "Leads",
+         "Lead Dist. (Venues)": "Leads",
+         "Lead Matrix": "Leads",
+         "Price Leads": "Leads",
+         "Venue Leads Check": "Leads",
+         "Plan Management": "Settings",
+         "User & Role Management": "Users",
+         "Team Structure": "Users"
+      };
+      
+      const requiredModule = moduleMap[item.label];
+      return moduleAccess.includes(requiredModule);
+    });
     
-    const requiredModule = moduleMap[item.label];
-    return moduleAccess.includes(requiredModule);
-  });
+    return { ...group, items: filteredItems };
+  }).filter(group => group.items.length > 0);
 
   const initials = user?.name 
     ? user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase() 
@@ -177,33 +206,44 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
 
           {/* Nav Items */}
-          <nav className="space-y-0.5">
-            {filteredMenuItems.map((item, idx) => {
-              const isActive = item.path === "/" 
-                ? pathname === "/" 
-                : pathname.startsWith(item.path);
-              return (
-                <div key={idx}>
-                  <Link
-                    href={item.path}
-                     className={cn(
-                      "sidebar-nav-link",
-                      isActive && "active bg-slate-50 border-l-4 border-[#b66dff] pl-[20px]"
-                    )}
-                  >
-                    <span className={cn(
-                      "flex-1 flex items-center gap-4",
-                      isActive ? "text-[#b66dff]" : "text-slate-500"
-                    )}>
-                      <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
-                      <span className="font-semibold text-sm">{item.label}</span>
-                    </span>
-                    
-                    {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#b66dff]" />}
-                  </Link>
+          <nav className="space-y-6">
+            {filteredMenuGroups.map((group, groupIdx) => (
+              <div key={groupIdx}>
+                {group.category !== "Main" && (
+                  <h3 className="px-6 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+                    {group.category}
+                  </h3>
+                )}
+                <div className="space-y-0.5">
+                  {group.items.map((item, idx) => {
+                    const isActive = item.path === "/" 
+                      ? pathname === "/" 
+                      : pathname === item.path || pathname.startsWith(item.path + "/");
+                    return (
+                      <div key={idx}>
+                        <Link
+                          href={item.path}
+                           className={cn(
+                            "sidebar-nav-link",
+                            isActive && "active bg-slate-50 border-l-4 border-[#b66dff] pl-[20px]"
+                          )}
+                        >
+                          <span className={cn(
+                            "flex-1 flex items-center gap-4",
+                            isActive ? "text-[#b66dff]" : "text-slate-500"
+                          )}>
+                            <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                            <span className="font-semibold text-sm">{item.label}</span>
+                          </span>
+                          
+                          {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#b66dff]" />}
+                        </Link>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </nav>
         </div>
         

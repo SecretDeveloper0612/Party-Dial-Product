@@ -50,14 +50,29 @@ interface LiveVenue {
   description: string;
   amenities: string[];
   eventTypes: string[];
+  photos: any[];
   raw: any;
+}
+
+function getAppwriteImageUrl(fileId: any) {
+  if (!fileId) return null;
+  const id = typeof fileId === 'string' ? fileId : (fileId.id || fileId.$id);
+  const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
+  const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '69ae84bc001ca4edf8c2';
+  const bucketId = process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID || 'venues_photos';
+  
+  if (id.startsWith('http')) return id;
+  return `${endpoint}/storage/buckets/${bucketId}/files/${id}/view?project=${projectId}`;
 }
 
 function mapDoc(doc: any): LiveVenue {
   let amenities: string[] = [];
   let eventTypes: string[] = [];
+  let photos: any[] = [];
   try { amenities = doc.amenities ? (typeof doc.amenities === 'string' ? JSON.parse(doc.amenities) : doc.amenities) : []; } catch {}
   try { eventTypes = doc.eventTypes ? (typeof doc.eventTypes === 'string' ? JSON.parse(doc.eventTypes) : doc.eventTypes) : []; } catch {}
+  try { photos = doc.photos ? (typeof doc.photos === 'string' ? JSON.parse(doc.photos) : doc.photos) : []; } catch {}
+  if (!Array.isArray(photos)) photos = [photos].filter(Boolean);
 
   return {
     id: doc.$id,
@@ -79,6 +94,7 @@ function mapDoc(doc: any): LiveVenue {
     description: doc.description || "",
     amenities,
     eventTypes,
+    photos,
     raw: doc,
   };
 }
@@ -144,10 +160,10 @@ export default function ApprovalsQueue() {
   useEffect(() => { fetchVenues(); }, [fetchVenues]);
 
   // Derived stats
-  const pendingVenues = allVenues.filter(v => !v.isVerified && v.status !== 'rejected' && v.onboardingComplete);
-  const approvedVenues = allVenues.filter(v => v.isVerified);
+  const approvedVenues = allVenues.filter(v => v.isVerified && v.status !== 'rejected');
   const rejectedVenues = allVenues.filter(v => v.status === 'rejected');
-  const incompleteVenues = allVenues.filter(v => !v.onboardingComplete);
+  const pendingVenues = allVenues.filter(v => !v.isVerified && v.status !== 'rejected' && v.onboardingComplete);
+  const incompleteVenues = allVenues.filter(v => !v.isVerified && v.status !== 'rejected' && !v.onboardingComplete);
 
   const displayVenues = (() => {
     let list = activeTab === "pending" ? pendingVenues
@@ -260,16 +276,7 @@ export default function ApprovalsQueue() {
       </AnimatePresence>
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl grad-purple flex items-center justify-center text-white shadow-xl shadow-purple-500/20">
-            <ShieldCheck size={28} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-black text-slate-800 m-0 tracking-tight">Listing Approvals</h1>
-            <p className="text-sm text-slate-400 font-medium mt-1">Verify and activate new partner venue listings</p>
-          </div>
-        </div>
+      <div className="flex flex-col md:flex-row md:items-center justify-end gap-6">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm">
             <div className={cn("w-2 h-2 rounded-full ", pendingVenues.length > 0 ? "bg-amber-500" : "bg-emerald-400")} />
@@ -384,9 +391,19 @@ export default function ApprovalsQueue() {
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
                 {/* Identity */}
                 <div className="flex items-center gap-5 flex-1 min-w-0">
-                  <div className="w-16 h-16 rounded-2xl grad-brand text-white flex items-center justify-center font-black text-2xl shadow-lg shrink-0">
-                    {venue.name.charAt(0).toUpperCase()}
-                  </div>
+                  {(() => {
+                    const profilePhoto = venue.photos?.find((p: any) => p.category === 'Profile') || venue.photos?.[0];
+                    const photoUrl = profilePhoto ? getAppwriteImageUrl(profilePhoto) : null;
+                    return photoUrl ? (
+                      <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-lg shrink-0 border border-slate-100">
+                        <img src={photoUrl} alt={venue.name} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-2xl grad-brand text-white flex items-center justify-center font-black text-2xl shadow-lg shrink-0">
+                        {venue.name.charAt(0).toUpperCase()}
+                      </div>
+                    );
+                  })()}
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="text-base font-bold text-slate-800 m-0 truncate">{venue.name}</h3>
@@ -499,9 +516,13 @@ export default function ApprovalsQueue() {
               onClick={() => setSelectedVenue(null)}
               className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100]"
             />
-            <motion.div initial={{ opacity: 0, x: 200 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 200 }}
-              className="fixed right-0 top-0 h-screen w-full max-w-lg bg-white z-[101] shadow-2xl flex flex-col overflow-y-auto"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
+              animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
+              exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
+              className="fixed top-1/2 left-1/2 w-[90vw] max-w-3xl h-[85vh] bg-white rounded-3xl z-[101] shadow-2xl flex flex-col overflow-hidden"
             >
+              <div className="flex-1 overflow-y-auto flex flex-col">
               <div className="p-6 border-b border-slate-50 flex items-center justify-between sticky top-0 bg-white z-10">
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-xl grad-brand text-white flex items-center justify-center font-black text-lg">
@@ -603,6 +624,7 @@ export default function ApprovalsQueue() {
                     </button>
                   </div>
                 )}
+              </div>
               </div>
             </motion.div>
           </>

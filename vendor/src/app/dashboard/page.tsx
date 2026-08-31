@@ -72,7 +72,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-import OnboardingPopup from '@/vendor/components/OnboardingPopup';
+
 import QuotationManager from '@/vendor/components/dashboard/QuotationManager';
 import DashboardOverview from '@/vendor/components/dashboard/DashboardOverview';
 import LeadInbox from '@/vendor/components/dashboard/LeadInbox';
@@ -792,7 +792,8 @@ export default function VendorDashboard() {
           const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 1024;
 
           if (!profile.onboardingComplete) {
-            setShowOnboarding(true);
+            router.push('/onboarding');
+            return;
           } else if (needsPaymentPrompt && !alreadyDismissed && !isMobileDevice) {
             // Use localStorage for precise timing, fallback to $updatedAt for cross-device
             const storedTime = localStorage.getItem('onboardingCompletedAt');
@@ -817,13 +818,13 @@ export default function VendorDashboard() {
         } else {
           // If no venue document found, we check if they are actually a vendor
           // This prevents Clients (from port 3000) from seeing the onboarding screen
+          // Allow any authenticated user without a profile to proceed to onboarding.
+          // This allows new accounts to complete their profile setup.
           if (!isVendor && !isMasterAdmin) {
-            console.warn('Unauthorized access: User is not a vendor');
-            handleLogout();
-            return;
+            console.log('User is new or client, proceeding to onboarding.');
           }
-          setShowOnboarding(true);
-          setIsLoadingLeads(false);
+          router.push('/onboarding');
+          return;
         }
       } catch (err) {
         if (isMounted) router.push('/login');
@@ -891,7 +892,10 @@ export default function VendorDashboard() {
                  state: billing_data.state || payload.state || ''
               });
 
-              setShowOnboarding(!payload.onboardingComplete);
+              if (!payload.onboardingComplete) {
+                router.push('/onboarding');
+                return;
+              }
               // Auto-hide payment reminder if payment is now complete
               if (payload.subscriptionPlan && payload.subscriptionPlan !== 'free') {
                 setShowPaymentReminder(false);
@@ -1618,11 +1622,7 @@ export default function VendorDashboard() {
         )}
       </AnimatePresence>
 
-      {/* Optimized Onboarding Popup */}
-      <OnboardingPopup 
-        isOpen={showOnboarding} 
-        onClose={completeOnboarding} 
-      />
+
 
       <PartnerInquiryPopup 
         isOpen={showInquiryPopup}
@@ -1700,3 +1700,4 @@ export default function VendorDashboard() {
     </div>
   );
 }
+// trigger rebuild

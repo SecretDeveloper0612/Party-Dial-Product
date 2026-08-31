@@ -162,11 +162,14 @@ exports.updateVenue = async (req, res) => {
             'venueType',
             'gstNumber',
             'billingDetails',
-            'onboardingComplete'
+            'onboardingComplete',
+            'perPlateVeg',
+            'perPlateNonVeg',
+            'foodTypes'
         ];
 
         // These fields are stored as JSON strings in Appwrite (string attribute type)
-        const stringArrayFields = ['amenities', 'eventTypes', 'photos'];
+        const stringArrayFields = ['amenities', 'eventTypes', 'photos', 'foodTypes'];
 
         const payload = {};
         allowedFields.forEach(field => {

@@ -5,6 +5,7 @@ import "./main.css";
 import Header from "@/shared/components/Header";
 import Footer from "@/shared/components/Footer";
 import PopupInquiry from "@/shared/components/PopupInquiry";
+import ComingSoonPopup from "@/shared/components/ComingSoonPopup";
 
 export const metadata: Metadata = {
   title: "PartyDial | Dial Up Your Next Event",
@@ -85,6 +86,7 @@ export default function RootLayout({
         {children}
         <Suspense fallback={null}>
           <PopupInquiry />
+          <ComingSoonPopup />
         </Suspense>
         <Footer />
       </body>

@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   Instagram, 
   Linkedin, 
-  Youtube,
   Facebook,
   MapPin,
   Phone,
@@ -24,7 +24,7 @@ export default function Footer() {
     () => false
   );
 
-  if (pathname?.startsWith('/venues/') && pathname !== '/venues') return null;
+  if (pathname?.startsWith('/venues')) return null;
   if (pathname === '/ai-search' || isApp) return null;
 
   return (
@@ -113,9 +113,11 @@ export default function Footer() {
           {/* Brand Column (Col Span 4) */}
           <div className="lg:col-span-4 flex flex-col items-start">
             <div className="flex items-center gap-1 mb-6">
-              <img 
+              <Image 
                 src="/logo-nav.png" 
-                alt="PartyDial" 
+                alt="PartyDial"
+                width={160}
+                height={50}
                 className="w-[140px] sm:w-[160px] h-auto object-contain drop-shadow-sm" 
               />
             </div>

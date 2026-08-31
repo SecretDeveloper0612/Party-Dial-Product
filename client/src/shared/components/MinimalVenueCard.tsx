@@ -40,8 +40,8 @@ export default function MinimalVenueCard({ venue: v, isPremium }: VenueCardProps
   const extraAmenitiesCount = v.amenities ? Math.max(0, v.amenities.length - 3) : 0;
 
   // Determine veg/non-veg status based on foodTypes
-  const isVeg = v.foodTypes?.includes("Veg") ?? true;
-  const isNonVeg = v.foodTypes?.includes("Non-Veg") ?? true;
+  const isVeg = v.foodTypes?.includes("Veg") ?? false;
+  const isNonVeg = v.foodTypes?.includes("Non-Veg") ?? false;
   const hasTopReviews = v.rating >= 4.5 && v.reviews > 0;
 
   return (
@@ -116,10 +116,12 @@ export default function MinimalVenueCard({ venue: v, isPremium }: VenueCardProps
             </h3>
           </Link>
           <div className="flex items-center gap-2 shrink-0">
-            <div className="flex items-center gap-1 bg-white border border-slate-200 px-1.5 py-0.5 rounded-full shadow-sm">
-              {isVeg && <div className="w-2 h-2 rounded-full bg-green-500" />}
-              {isNonVeg && <div className="w-2 h-2 rounded-full bg-red-500" />}
-            </div>
+            {(isVeg || isNonVeg) && (
+              <div className="flex items-center gap-1 bg-white border border-slate-200 px-1.5 py-0.5 rounded-full shadow-sm">
+                {isVeg && <div className="w-2 h-2 rounded-full bg-green-500" />}
+                {isNonVeg && <div className="w-2 h-2 rounded-full bg-red-500" />}
+              </div>
+            )}
             {v.isNew && (
               <div className="bg-amber-500 text-white text-[10px] uppercase font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
                 <Star size={10} className="fill-white" /> New

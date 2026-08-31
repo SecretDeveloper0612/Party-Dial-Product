@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element, react-hooks/exhaustive-deps, react/no-unescaped-entities */
+/* eslint-disable @next/next/no-img-element, react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 'use client';
 
@@ -680,7 +680,14 @@ export default function Home() {
                       />
                    </div>
                    <div className="w-full md:w-auto p-1 shrink-0">
-                     <button className="w-full md:w-auto px-8 h-[52px] bg-linear-to-r from-pd-purple to-pd-blue text-white rounded-[16px] font-black text-sm uppercase tracking-wider hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-pd-purple/30 hover:-translate-y-0.5">
+                     <button 
+                       onClick={() => {
+                         if (aiQuery) {
+                           window.location.href = `/venues?aiQuery=${encodeURIComponent(aiQuery)}`;
+                         }
+                       }}
+                       className="w-full md:w-auto px-8 h-[52px] bg-linear-to-r from-pd-purple to-pd-blue text-white rounded-[16px] font-black text-sm uppercase tracking-wider hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-pd-purple/30 hover:-translate-y-0.5"
+                     >
                        Ask AI
                      </button>
                    </div>
@@ -783,13 +790,11 @@ export default function Home() {
             </h2>
             <p className="text-slate-500 font-medium text-base md:text-lg">Discover top-rated decorators, caterers, and other premium vendors.</p>
           </div>
-          <Link href="/services" className="hidden sm:block">
-            <button className="group relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-800 transition-all hover:shadow-lg hover:shadow-pd-pink/10 border border-slate-200 hover:border-pd-pink/30">
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                All Services <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </span>
-            </button>
-          </Link>
+          <button onClick={() => window.dispatchEvent(new Event('open-coming-soon'))} className="hidden sm:block group relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-800 transition-all hover:shadow-lg hover:shadow-pd-pink/10 border border-slate-200 hover:border-pd-pink/30">
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              All Services <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            </span>
+          </button>
         </div>
 
         <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -799,7 +804,7 @@ export default function Home() {
             { title: "Top Photographers", desc: "Capture every precious moment perfectly.", img: "/categories/birthday.png" },
             { title: "Makeup Artists", desc: "Look your absolute best for your special day.", img: "/categories/bachelor.png" },
           ].map((service, i) => (
-            <div key={i} className="group bg-white rounded-[2rem] p-4 md:p-6 border border-slate-100 hover:border-pd-pink/30 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col">
+            <div key={i} onClick={() => window.dispatchEvent(new Event('open-coming-soon'))} className="group bg-white rounded-[2rem] p-4 md:p-6 border border-slate-100 hover:border-pd-pink/30 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col">
               <div className="w-full h-48 md:h-56 rounded-2xl overflow-hidden mb-6 bg-slate-100 relative">
                 <img src={service.img} alt={service.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />

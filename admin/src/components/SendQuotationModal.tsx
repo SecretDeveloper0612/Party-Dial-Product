@@ -7,6 +7,8 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { PDFDocument, rgb, StandardFonts, PDFName, PDFString, PDFArray } from 'pdf-lib';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface SendQuotationModalProps {
   isOpen: boolean;
@@ -161,113 +163,220 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
   };
 
   const generatePDFBytes = async () => {
-    const existingPdfBytes = await fetch('/template.pdf').then(res => res.arrayBuffer());
-    const pdfDoc = await PDFDocument.load(existingPdfBytes);
-    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    const normalFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const pages = pdfDoc.getPages();
+    const doc = new jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
 
-    if (pages.length >= 1) {
-      const firstPage = pages[0];
-      const { width, height } = firstPage.getSize();
-      let venueFontSize = 45;
-      const maxVenueWidth = width * 0.45;
-      const currentWidth = font.widthOfTextAtSize(currentEntityName, venueFontSize);
-      if (currentWidth > maxVenueWidth) {
-        venueFontSize = Math.floor(venueFontSize * (maxVenueWidth / currentWidth));
-      }
-      firstPage.drawText(currentEntityName, { x: 60, y: height * 0.21, size: venueFontSize, font, color: rgb(0, 0, 0) });
-      const dateStr = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-      firstPage.drawText(dateStr, { x: 185, y: 72, size: 14, font: normalFont, color: rgb(0, 0, 0) });
+    // 1. Fetch and add Logo
+    try {
+      const res = await fetch('/logo-nav.png');
+      const blob = await res.blob();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      doc.addImage(base64, 'PNG', 40, 30, 80, 80); // Square 1:1 aspect ratio
+    } catch (e) {
+      console.log("Could not load logo", e);
+      // Fallback text if logo fails
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(24);
+      doc.setTextColor(236, 72, 153); // Pink
+      doc.text("PartyDial", 40, 65);
     }
 
-    if (pages.length >= 7) {
-      const p7 = pages[6];
-      const { width, height } = p7.getSize();
-      const startY = height * 0.72; 
-      const rowHeight = 35;
-      
-      const durationMap = { quarterly: '3 Months', halfYearly: '6 Months', annually: '12 Months' };
-      const durationLabel = billingDuration === 'quarterly' ? 'Quarterly' : billingDuration === 'halfYearly' ? 'Half-Yearly' : 'Annually';
-      const subPeriod = durationMap[billingDuration];
+    // 2. Quotation Title & Meta Box
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(30, 41, 59);
+    doc.text("QUOTATION", 40, 120);
 
-      const stdRateStr = `Rs. ${baseMrp.toLocaleString() || '0'}`;
-      p7.drawText(`${activePlan?.name || 'Standard Membership'} (Standard Rate)`, { x: width * 0.12, y: startY + 45, size: 16, font: normalFont, color: rgb(1, 1, 1) });
-      p7.drawText(stdRateStr, { x: width * 0.88 - normalFont.widthOfTextAtSize(stdRateStr, 16), y: startY + 45, size: 16, font: normalFont, color: rgb(1, 1, 1) });
-      
-      p7.drawText(`Billing: ${durationLabel} (Valid for ${subPeriod})`, { x: width * 0.12, y: startY + 25, size: 12, font: normalFont, color: rgb(0.8, 0.8, 0.8) });
+    // Light blue box for meta
+    doc.setFillColor(241, 245, 249); // slate-100
+    doc.roundedRect(pageWidth - 220, 40, 180, 70, 5, 5, "F");
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(71, 85, 105);
+    const quoteNo = `PD/${new Date().getFullYear()}/${Math.floor(1000 + Math.random() * 9000)}`;
+    const dateStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    
+    doc.text("Quotation No :", pageWidth - 210, 60);
+    doc.setFont("helvetica", "bold");
+    doc.text(quoteNo, pageWidth - 130, 60);
+    
+    doc.setFont("helvetica", "normal");
+    doc.text("Date :", pageWidth - 210, 80);
+    doc.setFont("helvetica", "bold");
+    doc.text(dateStr, pageWidth - 130, 80);
 
-      p7.drawText(`Exclusive Partner Offer`, { x: width * 0.12, y: startY, size: 25, font, color: rgb(1, 1, 1) });
-      const baseRateStr = `Rs. ${baseValue.toLocaleString()}`;
-      p7.drawText(baseRateStr, { x: width * 0.88 - font.widthOfTextAtSize(baseRateStr, 25), y: startY, size: 25, font, color: rgb(1, 1, 1) });
-      let currentY = startY - rowHeight - 20;
-      selectedAddons.forEach((id) => {
-        const a = addons.find(x => x.id === id);
-        if (a) {
-          p7.drawText(`+ ${a.name}`, { x: width * 0.12, y: currentY, size: 20, font: normalFont, color: rgb(1, 1, 1) });
-          const addRateStr = `Rs. ${a.price.toLocaleString()}`;
-          p7.drawText(addRateStr, { x: width * 0.88 - font.widthOfTextAtSize(addRateStr, 20), y: currentY, size: 20, font: normalFont, color: rgb(1, 1, 1) });
-          currentY -= rowHeight;
-        }
-      });
-      if (discountAmount > 0) {
-        currentY -= 10;
-        p7.drawText(`- Special Discount`, { x: width * 0.12, y: currentY, size: 20, font: normalFont, color: rgb(1, 1, 1) });
-        const discStr = `- Rs. ${discountAmount.toLocaleString()}`;
-        p7.drawText(discStr, { x: width * 0.88 - font.widthOfTextAtSize(discStr, 20), y: currentY, size: 20, font: normalFont, color: rgb(1, 1, 1) });
-        currentY -= rowHeight;
-      }
-      currentY -= 30;
-      p7.drawText(`GRAND TOTAL INVESTMENT`, { x: width * 0.12, y: currentY, size: 32, font, color: rgb(1, 1, 1) });
-      const totalStr = `Rs. ${grandTotal.toLocaleString()}`;
-      p7.drawText(totalStr, { x: width * 0.88 - font.widthOfTextAtSize(totalStr, 32), y: currentY, size: 32, font, color: rgb(1, 1, 1) });
-      
-      currentY -= 80;
-      const btnX = width * 0.12;
-      const btnY = currentY - 15;
-      const btnWidth = 180;
-      const btnHeight = 45;
+    doc.setFont("helvetica", "normal");
+    doc.text("Valid For :", pageWidth - 210, 100);
+    doc.setFont("helvetica", "bold");
+    doc.text("15 Days", pageWidth - 130, 100);
 
-      // Draw ENROLL NOW Button
-      p7.drawRectangle({
-        x: btnX,
-        y: btnY,
-        width: btnWidth,
-        height: btnHeight,
-        color: rgb(1, 1, 1),
-        opacity: 0.9
-      });
-      p7.drawText(`ENROLL NOW`, {
-        x: btnX + 40,
-        y: currentY,
-        size: 15,
-        font,
-        color: rgb(0, 0, 0)
-      });
+    // 3. To Section (Left)
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(30, 41, 59);
+    doc.text("To,", 40, 160);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    let leftY = 180;
+    doc.text(`Venue Name : ${currentEntityName}`, 40, leftY); leftY += 15;
+    doc.text(`Contact Person : ${manualData.ownerName || "-"}`, 40, leftY); leftY += 15;
+    doc.text(`Phone : ${manualData.phone || emailTo || "-"}`, 40, leftY); leftY += 15;
+    doc.text(`Email : ${emailTo || "-"}`, 40, leftY); leftY += 15;
+    if (manualData.address) { doc.text(`Address : ${manualData.address}`, 40, leftY); }
 
-      // Add clickable link to the button area
-      const linkAnnotation = pdfDoc.context.obj({
-        Type: 'Annot',
-        Subtype: 'Link',
-        Rect: [btnX, btnY, btnX + btnWidth, btnY + btnHeight],
-        Border: [0, 0, 0],
-        A: {
-          Type: 'Action',
-          S: 'URI',
-          URI: PDFString.of(checkoutLink),
-        },
-      });
+    // 4. Project Details (Right)
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("Project / Service Details", pageWidth - 220, 160);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    let rightY = 180;
+    doc.text(`Purpose : Membership Plan`, pageWidth - 220, rightY); rightY += 15;
+    doc.text(`Type : Subscription`, pageWidth - 220, rightY); rightY += 15;
+    doc.text(`Expected Date : Immediate`, pageWidth - 220, rightY); rightY += 15;
 
-      const annots = p7.node.get(PDFName.of('Annots')) as PDFArray | undefined;
-      if (annots) {
-        annots.push(linkAnnotation);
-      } else {
-        p7.node.set(PDFName.of('Annots'), pdfDoc.context.obj([linkAnnotation]));
-      }
+    // 5. Table Data
+    const durationMap: any = { quarterly: '3 Months', halfYearly: '6 Months', annually: '12 Months' };
+    
+    const tableData = [];
+    let srNo = 1;
 
-
+    if (activePlan) {
+      tableData.push([
+        srNo++, 
+        activePlan.name, 
+        durationMap[billingDuration], 
+        `Rs. ${baseValue.toLocaleString()}`, 
+        `Rs. ${baseValue.toLocaleString()}`
+      ]);
     }
-    return await pdfDoc.save();
+
+    selectedAddons.forEach((id) => {
+      const a = addons.find(x => x.id === id);
+      if (a) {
+        tableData.push([
+          srNo++, 
+          `+ ${a.name}`, 
+          durationMap[billingDuration], 
+          `Rs. ${a.price.toLocaleString()}`, 
+          `Rs. ${a.price.toLocaleString()}`
+        ]);
+      }
+    });
+
+    if (discountAmount > 0) {
+      const discountDescription = discountType === 'percent' 
+        ? `Special Discount (${discountValue}%)` 
+        : `Special Discount (Flat Rs. ${discountValue.toLocaleString()})`;
+        
+      tableData.push([
+        srNo++, 
+        discountDescription, 
+        "-", 
+        "-", 
+        `- Rs. ${discountAmount.toLocaleString()}`
+      ]);
+    }
+
+    // @ts-ignore - autotable extends jsPDF
+    autoTable(doc, {
+      startY: Math.max(leftY, rightY) + 20,
+      head: [['Sr No.', 'Description', 'Duration', 'Rate (INR)', 'Amount (INR)']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { 
+        fillColor: [168, 85, 247], // purple-500
+        textColor: 255, 
+        fontStyle: 'bold',
+        halign: 'center'
+      },
+      styles: { 
+        fontSize: 10,
+        cellPadding: 8,
+        lineColor: [226, 232, 240], // slate-200
+        lineWidth: 1,
+      },
+      columnStyles: {
+        0: { halign: 'center', cellWidth: 50 },
+        1: { halign: 'left' },
+        2: { halign: 'center' },
+        3: { halign: 'center' },
+        4: { halign: 'center', fontStyle: 'bold' }
+      }
+    });
+
+    // @ts-ignore
+    const finalY = doc.lastAutoTable.finalY;
+
+    // 6. Totals Box
+    const totalsBoxY = finalY + 20;
+    doc.setFillColor(248, 250, 252); // slate-50
+    doc.setDrawColor(226, 232, 240); // slate-200
+    doc.rect(pageWidth - 220, totalsBoxY, 180, 75, "FD");
+
+    doc.setFont("helvetica", "normal");
+    doc.text("Sub Total:", pageWidth - 200, totalsBoxY + 20);
+    doc.text(`Rs. ${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageWidth - 50, totalsBoxY + 20, { align: "right" });
+
+    const gstAmount = grandTotal * 0.18;
+    const finalTotalWithGst = grandTotal + gstAmount;
+
+    doc.text("GST (18%):", pageWidth - 200, totalsBoxY + 40);
+    doc.text(`Rs. ${gstAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageWidth - 50, totalsBoxY + 40, { align: "right" });
+
+    doc.line(pageWidth - 210, totalsBoxY + 50, pageWidth - 50, totalsBoxY + 50);
+
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(168, 85, 247); // purple-500
+    doc.text("Total Amount:", pageWidth - 200, totalsBoxY + 65);
+    doc.text(`Rs. ${finalTotalWithGst.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageWidth - 50, totalsBoxY + 65, { align: "right" });
+
+    // 7. Terms & Conditions
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Terms & Conditions:", 40, totalsBoxY + 20);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    const terms = [
+      "1. The above prices are exclusive of applicable GST.",
+      "2. Payment terms: 100% Advance.",
+      "3. This quotation is valid for 15 days.",
+      "4. Any changes in requirements may lead to a revised quote."
+    ];
+    let termY = totalsBoxY + 40;
+    terms.forEach(t => {
+      doc.text(t, 40, termY);
+      termY += 15;
+    });
+
+    // 8. Signature Area
+    const sigY = pageHeight - 120;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("For Preet Tech (OPC) Private Limited", pageWidth - 250, sigY);
+    doc.setFont("helvetica", "normal");
+    doc.text("(Authorized Signatory)", pageWidth - 210, sigY + 60);
+
+    // 9. Footer
+    doc.setFillColor(168, 85, 247); // purple-500
+    doc.rect(0, pageHeight - 40, pageWidth, 40, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.text("support@partydial.com  |  www.partydial.com", pageWidth / 2, pageHeight - 15, { align: "center" });
+
+    const pdfArrayBuffer = doc.output('arraybuffer');
+    return new Uint8Array(pdfArrayBuffer);
   };
 
   const downloadPDF = async () => {

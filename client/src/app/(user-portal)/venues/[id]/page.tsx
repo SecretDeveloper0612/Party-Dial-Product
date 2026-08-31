@@ -46,7 +46,7 @@ import {
   PartyPopper
 } from 'lucide-react';
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { Camera, Trash2, Edit3, Filter as FilterIcon } from 'lucide-react';
+import { Camera, Trash2, Edit3, Filter as FilterIcon, IndianRupee, Search } from 'lucide-react';
 
 import { MOCK_VENUES } from '@/data/venues';
 import { STORAGE_BUCKET_ID } from '@/lib/appwrite';
@@ -219,7 +219,7 @@ export default function VenueDetailPage() {
           const photoIds = parsePhotos(doc.photos);
           
           // Unified storage parsing
-          let p_data: any = { packages: [], halls: [] };
+          let p_data: any = { packages: [], halls: [], videos: [] };
           try {
              if (doc.packages) {
                 const parsed = JSON.parse(doc.packages);
@@ -270,6 +270,7 @@ export default function VenueDetailPage() {
             reviews: [],
             similarVenues: [],
             packages: p_data.packages || [],
+            videos: p_data.videos || [],
             isPaid: (() => {
               const plan = doc.subscriptionPlan;
               if (!plan || plan === 'free' || plan === 'None') return false;
@@ -369,8 +370,9 @@ export default function VenueDetailPage() {
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isAmenitiesModalOpen, setIsAmenitiesModalOpen] = useState(false);
   const [isAllReviewsModalOpen, setIsAllReviewsModalOpen] = useState(false);
+  const [isSpaceGalleryOpen, setIsSpaceGalleryOpen] = useState(false);
+  const [activeSpaceImageIndex, setActiveSpaceImageIndex] = useState(0);
   const [reviewSort, setReviewSort] = useState("Most Recent");
-  const [hoverRating, setHoverRating] = useState(0);
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -566,173 +568,168 @@ export default function VenueDetailPage() {
   return (
     <div className="min-h-screen bg-slate-50 font-['Poppins']">
       
-      {/* 1. IMAGE GALLERY HERO */}
-      <section className="relative h-[45vh] md:h-[65vh] bg-slate-900 overflow-hidden">
-        <AnimatePresence mode="wait">
-          {venue.images.length > 0 ? (
-            <motion.div 
-              key={activeImage}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
-              className="absolute inset-0"
-            >
-              <img 
-                src={venue.images[activeImage]} 
-                alt={venue.name} 
-                className="absolute inset-0 w-full h-full object-cover opacity-80"
-                loading="lazy"
-              />
-            </motion.div>
-          ) : (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-slate-900"
-            >
-              <img src="/logo.jpg" alt="PartyDial" className="w-32 md:w-48 grayscale opacity-20" />
-              <p className="text-white/20 font-pd font-normal uppercase tracking-[0.3em] text-[10px] md:text-sm">No Photos Available</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      {/* 1. IMAGE GALLERY HERO (REDESIGNED) */}
+      <section className="px-4 pt-6 md:px-8 bg-white relative">
+        <div className="w-full h-[60vh] md:h-[70vh] bg-slate-900 rounded-[40px] relative overflow-hidden shadow-sm">
+           
+           {/* FULL WIDTH IMAGE PANEL */}
+           <div className="absolute inset-0 z-0">
+             <AnimatePresence mode="wait">
+               {venue.images.length > 0 ? (
+                 <motion.div 
+                   key={activeImage}
+                   initial={{ opacity: 0 }}
+                   animate={{ opacity: 1 }}
+                   exit={{ opacity: 0 }}
+                   transition={{ duration: 0.8 }}
+                   className="absolute inset-0"
+                 >
+                   <img 
+                     src={venue.images[activeImage]} 
+                     alt="" 
+                     className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-60 scale-110"
+                     loading="lazy"
+                   />
+                   <img 
+                     src={venue.images[activeImage]} 
+                     alt={venue.name} 
+                     className="absolute inset-0 w-full h-full object-contain z-10 drop-shadow-2xl"
+                     loading="lazy"
+                   />
+                 </motion.div>
+               ) : (
+                 <motion.div 
+                   initial={{ opacity: 0 }}
+                   animate={{ opacity: 1 }}
+                   className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-slate-100 lg:rounded-l-[40px]"
+                 >
+                   <img src="/logo.jpg" alt="PartyDial" className="w-32 md:w-48 grayscale opacity-20" />
+                   <p className="text-slate-900/40 font-pd font-normal uppercase tracking-[0.3em] text-[10px] md:text-sm">No Photos Available</p>
+                 </motion.div>
+               )}
+             </AnimatePresence>
+           </div>
+           
+           {/* ARROWS */}
+           {venue.images.length > 1 && (
+             <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 flex items-center justify-between pointer-events-none z-20">
+               <button onClick={prevImage} className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 bg-white rounded-full shadow-lg border border-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:scale-105 transition-all">
+                 <ChevronLeft size={20} />
+               </button>
+               <button onClick={nextImage} className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 bg-white rounded-full shadow-lg border border-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:scale-105 transition-all">
+                 <ChevronRight size={20} />
+               </button>
+             </div>
+           )}
 
-        <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-transparent to-black/40"></div>
-        
-        {venue.images.length > 1 && (
-          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center justify-between px-4 md:px-6 pointer-events-none z-20">
-            <button onClick={prevImage} className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-slate-900 transition-all active:scale-90">
-              <ChevronLeft size={20} className="md:w-6 md:h-6" />
-            </button>
-            <button onClick={nextImage} className="pointer-events-auto w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-slate-900 transition-all active:scale-90">
-              <ChevronRight size={20} className="md:w-6 md:h-6" />
-            </button>
-          </div>
-        )}
-
-        {/* Top Actions */}
-        <div className="absolute top-4 md:top-8 left-4 md:left-8 right-4 md:right-8 flex items-center justify-between z-30">
-           <Link href="/venues" className="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white text-[10px] md:text-xs font-pd font-normal uppercase tracking-widest hover:bg-white/20 transition-all">
-             <ChevronLeft size={14} className="md:w-4 md:h-4" /> <span className="hidden sm:inline">Back to Listings</span>
-           </Link>
-           <div className="flex gap-2 md:gap-3">
-             <button 
-               onClick={handleShare}
-               className="p-2.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white hover:bg-white/20 transition-all active:scale-95 group"
-               title="Share Venue"
-             >
-                <Share2 size={18} className="group-hover:rotate-12 transition-transform" />
-             </button>
+           {/* Top Actions (Back Button / Share) */}
+           <div className="absolute top-4 md:top-8 left-4 md:left-8 right-4 md:right-8 flex items-center justify-between z-30">
+              <Link href="/venues" className="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-white/80 backdrop-blur-md rounded-full border border-slate-200 text-slate-700 text-[10px] md:text-xs font-pd font-semibold uppercase tracking-widest hover:bg-white transition-all shadow-sm">
+                <ChevronLeft size={14} className="md:w-4 md:h-4" /> <span className="hidden sm:inline">Back</span>
+              </Link>
+              <div className="flex gap-2 md:gap-3">
+                <button 
+                  onClick={handleShare}
+                  className="p-2.5 bg-white/80 backdrop-blur-md rounded-full border border-slate-200 text-slate-700 hover:bg-white transition-all active:scale-95 group shadow-sm"
+                  title="Share Venue"
+                >
+                   <Share2 size={18} className="group-hover:rotate-12 transition-transform" />
+                </button>
+              </div>
            </div>
         </div>
+        
 
-        {venue.images.length > 0 && (
-          <Link href={`/venues/${id}/gallery`} className="absolute bottom-28 md:bottom-12 right-6 md:right-12 z-30">
-            <button className="px-5 py-3 md:px-8 md:py-4 bg-black/50 backdrop-blur-xl rounded-xl border border-white/20 text-white flex items-center gap-2 md:gap-3 hover:bg-pd-red transition-all group active:scale-95 shadow-2xl">
-               <ImageIcon size={16} className="md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
-               <div className="text-left">
-                  <span className="block text-[8px] md:text-[10px] font-pd font-normal uppercase tracking-[0.2em] leading-none mb-1">View Venue</span>
-                  <span className="block text-[8px] md:text-[9px] font-pd font-normal text-white/50 uppercase tracking-widest leading-none">{venue.images.length} Photos</span>
-               </div>
-            </button>
-          </Link>
-        )}
       </section>
 
       {/* 2. VENUE TITLE & HIGHLIGHTS */}
-      <section className="px-4 md:px-6 -mt-24 md:-mt-32 relative z-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white p-4 md:p-6 rounded-[28px] md:rounded-[32px] shadow-[0_30px_80px_rgba(0,0,0,0.08)] flex flex-col lg:flex-row gap-8 lg:gap-10 items-center justify-between border border-white/50 backdrop-blur-3xl relative overflow-hidden">
-            {/* Subtle premium background glow inside the card */}
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-pd-pink/10 rounded-full blur-3xl pointer-events-none" />
+      <section className="px-4 md:px-6 relative z-20">
+        <div className="max-w-7xl mx-auto -mt-20 md:-mt-28">
+          <div className="bg-white/95 p-4 md:p-6 rounded-[28px] md:rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.06)] flex flex-col lg:flex-row gap-6 lg:gap-10 items-center justify-between border border-slate-100 backdrop-blur-xl">
             
             {/* LEFT SIDE: Image + Details */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 w-full lg:w-auto relative z-10">
-               {/* Image Box (hidden on mobile to save space, but matches screenshot) */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 md:gap-6 w-full lg:w-auto">
+               {/* Image Box */}
                {venue.images && venue.images.length > 0 && (
-                  <div className="relative w-full sm:w-[140px] h-[140px] rounded-[24px] overflow-hidden shrink-0 shadow-lg hidden sm:block">
-                     <Image src={venue.images[0]} alt={venue.name} fill className="object-cover" />
-                     <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg flex items-center gap-1.5 border border-white/10">
-                        <MapPin size={10} className="text-white" />
-                        <span className="text-[10px] font-pd font-medium text-white">{venue.location}</span>
+                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-[120px] md:h-[120px] rounded-3xl overflow-hidden shrink-0 shadow-sm border border-slate-100/50 p-2 bg-white">
+                     <div className="relative w-full h-full rounded-2xl overflow-hidden">
+                       <Image src={venue.images[0]} alt={venue.name} fill className="object-cover" />
                      </div>
                   </div>
                )}
                
-               <div className="flex flex-col justify-center h-full py-1">
+               <div className="flex flex-col justify-center py-2 text-center sm:text-left">
                   {/* Pills */}
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
-                     <div className="bg-green-50 text-green-600 px-3 py-1.5 rounded-full flex items-center gap-1.5 uppercase text-[9px] font-pd font-semibold tracking-widest border border-green-100/50">
-                        <CheckCircle2 size={12} /> VERIFIED
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
+                     <div className="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full flex items-center gap-1 uppercase text-[8px] md:text-[9px] font-pd font-bold tracking-widest border border-emerald-100">
+                        <CheckCircle2 size={10} /> VERIFIED
                      </div>
                      {venue.popular && (
-                        <div className="bg-pd-pink/10 text-pd-pink px-3 py-1.5 rounded-full flex items-center gap-1.5 uppercase text-[9px] font-pd font-semibold tracking-widest border border-pd-pink/10">
-                           <Star size={12} className="fill-pd-pink" /> POPULAR
+                        <div className="bg-rose-50 text-rose-500 px-2.5 py-1 rounded-full flex items-center gap-1 uppercase text-[8px] md:text-[9px] font-pd font-bold tracking-widest border border-rose-100">
+                           <Star size={10} className="fill-rose-500" /> POPULAR
                         </div>
                      )}
-                     <div className="bg-slate-900 text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 text-[10px] font-pd font-semibold">
-                        <Star size={12} className="text-yellow-400 fill-yellow-400" /> {ratingStats.avg} <span className="text-white/60 font-pd font-normal">({ratingStats.total})</span>
+                     <div className="bg-slate-900 text-white px-2.5 py-1 rounded-full flex items-center gap-1 text-[9px] md:text-[10px] font-pd font-bold">
+                        <Star size={10} className="text-yellow-400 fill-yellow-400" /> {ratingStats.avg} <span className="text-white/60 font-pd font-normal">({ratingStats.total})</span>
                      </div>
                   </div>
                   
                   {/* Title & Location */}
-                  <h1 className="text-3xl md:text-[40px] font-pd font-semibold text-slate-900 mb-2 tracking-tight leading-none">{venue.name}</h1>
-                  <div className="flex items-center gap-2 text-slate-500 font-pd font-normal text-xs md:text-sm">
-                     <MapPin className="text-pd-pink shrink-0" size={16} />
+                  <h1 className="text-2xl sm:text-3xl md:text-[38px] font-pd font-bold text-slate-900 mb-1 tracking-tight leading-tight">{venue.name}</h1>
+                  <div className="flex items-center justify-center sm:justify-start gap-1.5 text-slate-500 font-pd font-medium text-xs md:text-sm">
+                     <MapPin className="text-rose-400 shrink-0" size={14} />
                      <span className="leading-relaxed">{venue.location}</span>
                   </div>
                </div>
             </div>
             
             {/* RIGHT SIDE: Stats + Buttons */}
-            <div className="flex flex-col gap-6 w-full lg:w-auto relative z-10 lg:pl-10 lg:border-l border-slate-100 pt-6 lg:pt-0 border-t lg:border-t-0">
+            <div className="flex flex-col gap-4 w-full lg:w-auto relative z-10 lg:pl-10">
                {/* Stats Row */}
-               <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-10">
-                   <div className="flex flex-col gap-1.5">
-                       <div className="flex items-center gap-2">
-                          <Users size={14} className="text-pd-purple" />
-                          <span className="text-[9px] font-pd font-semibold uppercase text-slate-400 tracking-widest">Guest Capacity</span>
+               <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-8 lg:gap-12 pb-4 lg:pb-0 border-b border-slate-100 lg:border-b-0">
+                   <div className="flex flex-col gap-1 items-center sm:items-start">
+                       <div className="flex items-center gap-1.5">
+                          <Users size={12} className="text-indigo-400" />
+                          <span className="text-[8px] md:text-[9px] font-pd font-bold uppercase text-slate-400 tracking-widest">Guest Capacity</span>
                        </div>
-                       <span className="text-[15px] font-pd font-semibold text-slate-900">{venue.capacity}</span>
-                   </div>
-                   
-                   <div className="w-px h-10 bg-slate-100 hidden sm:block"></div>
-                   
-                   <div className="flex flex-col gap-1.5">
-                       <div className="flex items-center gap-2">
-                          <Utensils size={14} className="text-emerald-500" />
-                          <span className="text-[9px] font-pd font-semibold uppercase text-slate-400 tracking-widest">Veg Plate</span>
-                       </div>
-                       <span className="text-[15px] font-pd font-semibold text-slate-900">
-                         {venue.pricePerPlate !== "N/A" ? `₹${venue.pricePerPlate}` : "N/A"}
+                       <span className="text-xs sm:text-sm md:text-[15px] font-black text-slate-800">
+                          {venue.capacity_min ? `Up to ${venue.capacity_max}` : venue.capacity}
                        </span>
                    </div>
                    
-                   <div className="w-px h-10 bg-slate-100 hidden sm:block"></div>
-                   
-                   <div className="flex flex-col gap-1.5">
-                       <div className="flex items-center gap-2">
-                          <Utensils size={14} className="text-pd-red" />
-                          <span className="text-[9px] font-pd font-semibold uppercase text-slate-400 tracking-widest">Non-Veg Plate</span>
+                   <div className="flex flex-col gap-1 items-center sm:items-start">
+                       <div className="flex items-center gap-1.5">
+                          <Utensils size={12} className="text-emerald-400" />
+                          <span className="text-[8px] md:text-[9px] font-pd font-bold uppercase text-slate-400 tracking-widest">Veg Plate</span>
                        </div>
-                       <span className="text-[15px] font-pd font-semibold text-slate-900">
-                         {venue.pricePerPlateNonVeg !== "N/A" ? `₹${venue.pricePerPlateNonVeg}` : "N/A"}
+                       <span className="text-xs sm:text-sm md:text-[15px] font-black text-slate-800">
+                         {venue.price_per_plate_veg ? `₹${venue.price_per_plate_veg}` : (venue.pricePerPlate !== "N/A" ? `₹${venue.pricePerPlate}` : "N/A")}
+                       </span>
+                   </div>
+                   
+                   <div className="flex flex-col gap-1 items-center sm:items-start">
+                       <div className="flex items-center gap-1.5">
+                          <Utensils size={12} className="text-rose-400" />
+                          <span className="text-[8px] md:text-[9px] font-pd font-bold uppercase text-slate-400 tracking-widest">Non-Veg Plate</span>
+                       </div>
+                       <span className="text-xs sm:text-sm md:text-[15px] font-black text-slate-800">
+                         {venue.price_per_plate_nonveg ? `₹${venue.price_per_plate_nonveg}` : (venue.pricePerPlateNonVeg !== "N/A" ? `₹${venue.pricePerPlateNonVeg}` : "N/A")}
                        </span>
                    </div>
                </div>
                
                {/* Buttons Row */}
                {venue.isPaid && (
-                   <div className="flex flex-col sm:flex-row items-center gap-3">
+                   <div className="flex flex-row items-center gap-2 md:gap-3">
                       <button 
                          onClick={() => window.dispatchEvent(new CustomEvent('open-inquiry-popup', { detail: { venueId: id } }))}
-                         className="w-full sm:w-auto flex-1 lg:flex-none px-6 py-3 bg-[#f43f5e] text-white text-[10px] md:text-xs font-pd font-semibold uppercase tracking-widest rounded-xl hover:shadow-lg hover:shadow-[#f43f5e]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
+                         className="flex-1 lg:w-[140px] px-3 py-2.5 sm:py-3 bg-[#f43f5e] text-white text-[9px] sm:text-[10px] md:text-xs font-pd font-bold uppercase tracking-widest rounded-xl hover:bg-rose-600 transition-all flex items-center justify-center gap-1.5 md:gap-2 active:scale-95 shadow-sm"
                       >
                          <MessageSquare size={14} fill="white" /> <span>Get Quote</span>
                       </button>
                       <a 
                          href={`tel:${venue.contactNumber}`}
-                         className="w-full sm:w-auto flex-1 lg:flex-none px-6 py-3 bg-white border border-slate-200 text-slate-900 text-[10px] md:text-xs font-pd font-semibold uppercase tracking-widest rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2 active:scale-95"
+                         className="flex-1 lg:w-[110px] px-3 py-2.5 sm:py-3 bg-white border border-slate-200 text-slate-700 text-[9px] sm:text-[10px] md:text-xs font-pd font-bold uppercase tracking-widest rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5 md:gap-2 active:scale-95 shadow-sm"
                       >
                          <Phone size={14} className="shrink-0" /> <span>Call</span>
                       </a>
@@ -740,7 +737,7 @@ export default function VenueDetailPage() {
                          href={`https://wa.me/${venue.contactNumber}?text=Hi, I am interested in ${venue.name} from PartyDial.`}
                          target="_blank"
                          rel="noopener noreferrer"
-                         className="w-full sm:w-auto flex-1 lg:flex-none px-6 py-3 bg-[#25D366] text-white text-[10px] md:text-xs font-pd font-semibold uppercase tracking-widest rounded-xl hover:bg-[#20b858] transition-all flex items-center justify-center gap-2 active:scale-95 shadow-sm"
+                         className="flex-1 lg:w-[140px] px-3 py-2.5 sm:py-3 bg-[#25D366] text-white text-[9px] sm:text-[10px] md:text-xs font-pd font-bold uppercase tracking-widest rounded-xl hover:bg-[#20b858] transition-all flex items-center justify-center gap-1.5 md:gap-2 active:scale-95 shadow-sm"
                       >
                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" className="shrink-0"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg> <span>WhatsApp</span>
                       </a>
@@ -756,7 +753,7 @@ export default function VenueDetailPage() {
         <div className="flex flex-col lg:flex-row gap-10">
           
           {/* LEFT CONTENT */}
-          <div className="flex-1 space-y-16">
+          <div className="flex-1 min-w-0 space-y-16">
             
             {/* About Section */}
             <div>
@@ -800,17 +797,46 @@ export default function VenueDetailPage() {
             </div>
 
             {/* Hall / Capacity Details */}
-            <div className="bg-slate-900 rounded-xl p-5 md:p-8 text-white">
-               <h2 className="text-xl md:text-2xl font-pd font-semibold mb-4 md:mb-6 ">Available Spaces</h2>
+            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 md:p-8">
+               <div className="flex items-center justify-between mb-4 md:mb-6">
+                 <h2 className="text-xl md:text-2xl font-pd font-semibold text-slate-900">Available Spaces</h2>
+                 {venue.halls?.filter((h: any) => h.image).length > 0 && (
+                   <button 
+                     onClick={() => {
+                       setActiveSpaceImageIndex(0);
+                       setIsSpaceGalleryOpen(true);
+                     }} 
+                     className="text-xs md:text-sm text-pd-pink font-pd font-semibold hover:underline flex items-center gap-1 bg-pd-pink/10 px-3 py-1.5 rounded-full"
+                   >
+                     <ImageIcon size={14} /> View All Images
+                   </button>
+                 )}
+               </div>
                <div className="space-y-3">
                  {venue.halls.map((hall: any, i: number) => (
-                   <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 px-5 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all">
-                      <div className="mb-2 sm:mb-0">
-                        <h4 className="text-base font-pd font-semibold mb-0.5 leading-tight">{hall.name}</h4>
-                        <p className="text-white/60 text-[10px] font-pd font-normal uppercase tracking-widest">{hall.area}</p>
+                   <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between py-4 px-5 bg-white rounded-2xl border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md transition-all">
+                      <div className="flex flex-1 items-start gap-4 mb-3 sm:mb-0">
+                        {hall.image ? (
+                          <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200 shadow-sm">
+                             <img src={hall.image} alt={hall.name} className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className="w-16 h-16 rounded-xl shrink-0 bg-slate-50 border border-slate-200 flex items-center justify-center shadow-sm">
+                             <ImageIcon size={24} className="text-slate-300" />
+                          </div>
+                        )}
+                        <div className="flex-1 pr-4">
+                          <h4 className="text-[17px] font-pd font-bold text-slate-900 mb-0.5 leading-tight">{hall.name}</h4>
+                          <p className="text-slate-500 text-[10px] font-pd font-bold uppercase tracking-widest mb-1.5">{hall.area}</p>
+                          {hall.description && (
+                            <p className="text-slate-500 text-xs leading-relaxed max-w-md line-clamp-2">
+                               {hall.description}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-pd-pink font-pd font-normal text-sm border-t sm:border-t-0 border-white/10 pt-2 sm:pt-0 mt-1 sm:mt-0">
-                        <Users size={16} /> <span>Up to {hall.capacity} Guests</span>
+                      <div className="flex items-center gap-2 text-pd-pink font-pd font-bold text-sm border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0 mt-2 sm:mt-0 shrink-0">
+                        <Users size={18} /> <span>{hall.capacity}</span>
                       </div>
                    </div>
                  ))}
@@ -879,6 +905,45 @@ export default function VenueDetailPage() {
                 </div>
              </div>
 
+             {/* Venue Videos Section */}
+             {venue.videos && venue.videos.length > 0 && (
+               <div className="py-8 border-t border-slate-100 overflow-hidden">
+                  <div className="flex items-center justify-between mb-8 pr-4">
+                     <h2 className="text-xl font-pd font-semibold text-slate-900 border-l-4 border-slate-900 pl-4 uppercase tracking-widest">Venue Videos</h2>
+                     <Link href={`/venues/${id}/videos`} className="group flex items-center gap-2 text-[10px] font-pd font-normal text-pd-purple uppercase tracking-widest hover:text-pd-red transition-all">
+                        Explore All Videos <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                     </Link>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                     {venue.videos.slice(0, 2).map((vid: string, i: number) => {
+                        let videoId = "";
+                        try {
+                          const url = new URL(vid);
+                          if (url.hostname.includes('youtube.com')) {
+                            videoId = url.searchParams.get('v') || "";
+                          } else if (url.hostname.includes('youtu.be')) {
+                            videoId = url.pathname.slice(1);
+                          }
+                        } catch(e) {}
+                        
+                        if (!videoId) return null;
+
+                        return (
+                          <div key={i} className="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-100 shadow-sm bg-slate-900">
+                            <iframe 
+                              src={`https://www.youtube.com/embed/${videoId}?rel=0`}
+                              className="absolute top-0 left-0 w-full h-full border-0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            ></iframe>
+                          </div>
+                        )
+                     })}
+                  </div>
+               </div>
+             )}
+
+
              {/* Small Location Map Placeholder */}
             <div>
               <h2 className="text-xl font-pd font-semibold text-slate-900 mb-8 border-l-4 border-slate-900 pl-4">Location & Map</h2>
@@ -942,92 +1007,64 @@ export default function VenueDetailPage() {
                </div>
 
                <div className="flex items-center justify-between mb-8">
-                 <h2 className="text-2xl font-pd font-semibold text-slate-900">Guest Experiences</h2>
+                 <h2 className="text-[22px] font-pd font-semibold text-slate-900 flex items-center gap-2">
+                   <Star className="fill-slate-900 text-slate-900" size={20} />
+                   {ratingStats.avg} · {ratingStats.total} reviews
+                 </h2>
                </div>
 
-                <div className="relative mb-12">
-                   <AnimatePresence mode="wait">
-                     {sortedReviews.length > 0 && (
-                       <motion.div 
-                        key={currentReviewIndex}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.5 }}
-                        className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10"
-                       >
-                          {[currentReviewIndex, (currentReviewIndex + 1) % sortedReviews.length].map((idx, i) => (
-                             <div key={`${idx}-${i}`} className={`flex flex-col h-full bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-[0_2px_10px_rgba(0,0,0,0.02)] ${i === 1 ? 'hidden md:flex' : 'flex'}`}>
-                                <div className="flex items-center gap-4 mb-5">
-                                   <div className="w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center text-white text-lg font-pd font-semibold uppercase shrink-0 shadow-sm">
-                                      {(sortedReviews[idx].userName || 'A').charAt(0)}
-                                   </div>
-                                   <div className="flex flex-col">
-                                      <span className="text-base font-pd font-semibold text-slate-900 leading-tight">{sortedReviews[idx].userName}</span>
-                                      <span className="text-sm font-pd font-normal text-slate-500">{new Date(sortedReviews[idx].$createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
-                                   </div>
-                                </div>
-                                
-                                <div className="flex items-center gap-1 mb-4">
-                                   {[...Array(5)].map((_, j) => (
-                                     <Star key={j} size={14} className={j < sortedReviews[idx].rating ? "text-slate-900 fill-slate-900" : "text-slate-200"} />
-                                   ))}
-                                </div>
-                                
-                                <p className="text-[15px] font-pd font-normal text-slate-700 leading-relaxed line-clamp-4 flex-1">
-                                  &quot;{sortedReviews[idx].comment}&quot;
-                                </p>
-       
-                                {sortedReviews[idx].vendorReply && (
-                                  <div className="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-1.5 relative overflow-hidden">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <span className="text-[11px] font-pd font-semibold text-slate-900 uppercase tracking-widest">Host&apos;s reply</span>
-                                    </div>
-                                    <p className="text-[13px] font-pd font-medium text-slate-600 leading-relaxed italic relative z-10">
-                                      &quot;{sortedReviews[idx].vendorReply}&quot;
-                                    </p>
-                                  </div>
-                                )}
-                             </div>
-                          ))}
-                       </motion.div>
-                     )}
-                   </AnimatePresence>
-  
-                   {/* Slider Navigation */}
-                   {sortedReviews.length > 2 && (
-                     <div className="absolute -bottom-8 left-0 right-0 flex justify-center gap-2">
-                        {sortedReviews.map((_, i) => (
-                          <button 
-                            key={i} 
-                            onClick={() => setCurrentReviewIndex(i)}
-                            className={`h-1.5 rounded-full transition-all duration-500 ${currentReviewIndex === i ? 'w-8 bg-slate-900' : 'w-1.5 bg-slate-200 hover:bg-slate-300'}`}
-                          />
-                        ))}
-                     </div>
-                   )}
+                <div className="mb-8">
+                   {sortedReviews.length > 0 && (
+                     <div className="flex overflow-x-auto gap-4 md:gap-6 pb-6 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                        {sortedReviews.slice(0, 6).map((review, i) => (
+                           <div key={i} className="flex flex-col shrink-0 w-[85vw] md:w-[400px] border border-slate-200 rounded-[24px] p-6 snap-start shadow-sm bg-white">
+                              <div className="flex items-center gap-4 mb-3">
+                                 <div className="w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center text-white text-lg font-pd font-semibold uppercase shrink-0 shadow-sm">
+                                    {(review.userName || 'A').charAt(0)}
+                                 </div>
+                                 <div className="flex flex-col">
+                                    <span className="text-base font-pd font-semibold text-slate-900 leading-tight">{review.userName}</span>
+                                    <span className="text-sm font-pd font-normal text-slate-500">{new Date(review.$createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                                 </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-1 mb-3">
+                                 {[...Array(5)].map((_, j) => (
+                                   <Star key={j} size={10} className={j < review.rating ? "text-slate-900 fill-slate-900" : "text-slate-200"} />
+                                 ))}
+                              </div>
+                              
+                              <p className="text-base font-pd font-normal text-slate-700 leading-relaxed line-clamp-3">
+                                &quot;{review.comment}&quot;
+                              </p>
 
-                   {/* Side Controls */}
-                   {sortedReviews.length > 2 && (
-                     <div className="hidden md:block">
-                        <button 
-                          onClick={() => setCurrentReviewIndex((prev) => (prev - 1 + sortedReviews.length) % sortedReviews.length)}
-                          className="absolute top-1/2 -left-6 -translate-y-1/2 w-10 h-10 bg-white rounded-full border border-slate-200 shadow-sm flex items-center justify-center text-slate-400 hover:text-slate-900 hover:scale-110 transition-all"
-                        >
-                           <ChevronLeft size={20} />
-                        </button>
-                        <button 
-                          onClick={() => setCurrentReviewIndex((prev) => (prev + 1) % sortedReviews.length)}
-                          className="absolute top-1/2 -right-6 -translate-y-1/2 w-10 h-10 bg-white rounded-full border border-slate-200 shadow-sm flex items-center justify-center text-slate-400 hover:text-slate-900 hover:scale-110 transition-all"
-                        >
-                           <ChevronRight size={20} />
-                        </button>
+                              {review.comment && review.comment.length > 120 && (
+                                <button 
+                                  onClick={() => setIsAllReviewsModalOpen(true)}
+                                  className="text-slate-900 font-pd font-semibold text-sm underline mt-2 self-start hover:text-slate-600 transition-colors"
+                                >
+                                  Show more
+                                </button>
+                              )}
+                              
+                              {review.vendorReply && (
+                                <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-1.5 relative overflow-hidden">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-[11px] font-pd font-semibold text-slate-900 uppercase tracking-widest">Host&apos;s reply</span>
+                                  </div>
+                                  <p className="text-[13px] font-pd font-medium text-slate-600 leading-relaxed italic relative z-10">
+                                    &quot;{review.vendorReply}&quot;
+                                  </p>
+                                </div>
+                              )}
+                           </div>
+                        ))}
                      </div>
                    )}
                 </div>
                 
-                {sortedReviews.length > 4 && (
-                   <div className="mt-10">
+                {sortedReviews.length > 0 && (
+                   <div className="mt-4">
                       <button 
                         onClick={() => setIsAllReviewsModalOpen(true)}
                         className="px-6 py-3 bg-white border border-slate-900 hover:bg-slate-50 rounded-xl text-[15px] font-pd font-semibold text-slate-900 transition-colors inline-block"
@@ -1533,7 +1570,7 @@ export default function VenueDetailPage() {
           animate={{ opacity: 1, y: 0, x: '-50%', scale: 1 }}
           exit={{ opacity: 0, y: 20, x: '-50%', scale: 0.9 }}
           style={{ willChange: 'transform, opacity', transform: 'translateZ(0)' }}
-          className={`fixed bottom-12 left-1/2 -translate-x-1/2 z-300 px-8 py-5 rounded-[28px] shadow-2xl flex items-center gap-4 border border-white/5 backdrop-blur-xl ${
+          className={`fixed bottom-12 left-1/2 -translate-x-1/2 z-[300] px-8 py-5 rounded-[28px] shadow-2xl flex items-center gap-4 border border-white/5 backdrop-blur-xl ${
             toast.type === 'success' ? 'bg-slate-900/90 text-white' : 'bg-red-950/90 text-white'
           }`}
         >
@@ -1548,6 +1585,80 @@ export default function VenueDetailPage() {
         </motion.div>
       )}
     </AnimatePresence>
+
+      {/* SPACE IMAGES GALLERY MODAL */}
+      <AnimatePresence>
+        {isSpaceGalleryOpen && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-slate-900/95 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-black w-full max-w-5xl h-[80vh] sm:h-[90vh] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 bg-black/50 absolute top-0 inset-x-0 z-20 backdrop-blur-md border-b border-white/10">
+                <h3 className="text-white font-pd font-semibold text-lg md:text-xl">
+                  {venue.halls.filter((h: any) => h.image)[activeSpaceImageIndex]?.name} Space
+                </h3>
+                <button 
+                  onClick={() => setIsSpaceGalleryOpen(false)}
+                  className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Main Image View */}
+              <div className="flex-1 relative flex items-center justify-center p-4 pt-20 pb-24 bg-black">
+                 {venue.halls.filter((h: any) => h.image).length > 0 ? (
+                    <img 
+                      src={venue.halls.filter((h: any) => h.image)[activeSpaceImageIndex].image} 
+                      alt="Space" 
+                      className="max-w-full max-h-full object-contain rounded-xl"
+                    />
+                 ) : null}
+                 
+                 {/* Arrows */}
+                 {venue.halls.filter((h: any) => h.image).length > 1 && (
+                   <>
+                     <button 
+                       onClick={() => setActiveSpaceImageIndex((prev) => prev === 0 ? venue.halls.filter((h: any) => h.image).length - 1 : prev - 1)}
+                       className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-lg border border-white/10"
+                     >
+                       <ChevronLeft size={24} />
+                     </button>
+                     <button 
+                       onClick={() => setActiveSpaceImageIndex((prev) => prev === venue.halls.filter((h: any) => h.image).length - 1 ? 0 : prev + 1)}
+                       className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-lg border border-white/10"
+                     >
+                       <ChevronRight size={24} />
+                     </button>
+                   </>
+                 )}
+              </div>
+
+              {/* Thumbnails Row */}
+              <div className="absolute bottom-0 inset-x-0 bg-black/50 backdrop-blur-md border-t border-white/10 p-4 overflow-x-auto whitespace-nowrap hidden-scrollbar">
+                 <div className="flex gap-3 justify-center min-w-max mx-auto">
+                    {venue.halls.filter((h: any) => h.image).map((hall: any, idx: number) => (
+                      <button 
+                        key={idx}
+                        onClick={() => setActiveSpaceImageIndex(idx)}
+                        className={`relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${activeSpaceImageIndex === idx ? 'border-pd-pink scale-105' : 'border-transparent opacity-50 hover:opacity-100'}`}
+                      >
+                         <img src={hall.image} alt={hall.name} className="w-full h-full object-cover" />
+                         <div className="absolute inset-x-0 bottom-0 bg-black/60 p-1">
+                            <p className="text-white text-[8px] font-pd font-semibold text-center truncate">{hall.name}</p>
+                         </div>
+                      </button>
+                    ))}
+                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

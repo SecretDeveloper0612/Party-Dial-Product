@@ -107,7 +107,11 @@ const LeadInbox = ({
 
         <div className="divide-y divide-slate-100">
           <AnimatePresence>
-            {filteredAdvancedLeads.length > 0 ? filteredAdvancedLeads.map((lead, i) => (
+            {filteredAdvancedLeads.length > 0 ? filteredAdvancedLeads.map((lead, i) => {
+              const isExpired = lead.eventDate && new Date(lead.eventDate) < new Date(new Date().setHours(0, 0, 0, 0)) && lead.status !== 'Booked';
+              const displayStatus = isExpired ? 'Expired' : lead.status;
+              
+              return (
               <motion.div 
                 key={lead.id} 
                 initial={{ opacity: 0, y: 10 }}
@@ -127,8 +131,8 @@ const LeadInbox = ({
                          <span className="truncate">{lead.email || 'No email provided'}</span>
                        </div>
                        <div className="md:hidden mt-2 flex items-center gap-2">
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${lead.color} border border-current/10`}>
-                            {lead.status}
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isExpired ? 'bg-slate-100 text-slate-500' : lead.color} border border-current/10`}>
+                            {displayStatus}
                           </span>
                        </div>
                     </div>
@@ -178,23 +182,29 @@ const LeadInbox = ({
 
                  {/* Status & Action */}
                  <div className="col-span-2 flex items-center justify-between md:justify-end gap-3 w-full md:w-auto mt-4 md:mt-0 md:pr-2">
-                    <div className="relative hidden md:block group/select w-full max-w-[140px]">
+                    <div className="relative hidden md:block group/select w-full max-w-35">
                        <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none text-slate-400 group-hover/select:text-slate-600">
                          <ChevronDown size={14} />
                        </div>
                        <select 
-                          className={`w-full appearance-none pr-8 pl-3 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-900/10 ${
-                            lead.status === 'New' ? 'bg-blue-50 text-blue-700 border-blue-200/50' :
-                            lead.status === 'Booked' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50' :
-                            lead.status === 'Lost' ? 'bg-rose-50 text-rose-700 border-rose-200/50' :
-                            'bg-slate-50 text-slate-700 border-slate-200/60'
+                          className={`w-full appearance-none pr-8 pl-3 py-1.5 rounded-lg text-xs font-bold border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-900/10 ${
+                            isExpired ? 'bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed' :
+                            lead.status === 'New' ? 'bg-blue-50 text-blue-700 border-blue-200/50 cursor-pointer' :
+                            lead.status === 'Booked' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50 cursor-pointer' :
+                            lead.status === 'Lost' ? 'bg-rose-50 text-rose-700 border-rose-200/50 cursor-pointer' :
+                            'bg-slate-50 text-slate-700 border-slate-200/60 cursor-pointer'
                           }`}
-                          value={lead.status}
+                          value={displayStatus}
                           onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
+                          disabled={isExpired}
                        >
-                          {['New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost'].map(s => (
-                             <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
-                          ))}
+                          {isExpired ? (
+                             <option value="Expired">Expired</option>
+                          ) : (
+                             ['New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost'].map(s => (
+                                <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
+                             ))
+                          )}
                        </select>
                     </div>
 
@@ -210,7 +220,8 @@ const LeadInbox = ({
                  {/* Mobile divider */}
                  <div className="md:hidden w-full h-px bg-slate-100 mt-2"></div>
               </motion.div>
-            )) : (
+              );
+            }) : (
               <div className="p-12 flex flex-col items-center justify-center text-center bg-slate-50/30">
                  <div className="w-16 h-16 rounded-full bg-white border border-slate-200/60 flex items-center justify-center text-slate-300 mb-4 shadow-sm">
                    <Users size={24} />

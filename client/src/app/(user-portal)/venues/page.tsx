@@ -3,7 +3,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import MinimalVenueCard from '@/shared/components/MinimalVenueCard';
 import { 
-  Search, 
+  Search,
+  Settings2,
+  RotateCcw, 
   MapPin,
   Calendar,
   Building2, 
@@ -33,7 +35,7 @@ import {
   Wifi,
   Shield
 } from 'lucide-react';
-import { useState, useMemo, useEffect, Suspense } from 'react';
+import { useState, useMemo, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 
@@ -53,6 +55,10 @@ const getAmenityIcon = (amenity: string, active: boolean) => {
   if (lower.includes('lawn') || lower.includes('outdoor')) return <Tent size={16} className={cl} />;
   if (lower.includes('decor')) return <PartyPopper size={16} className={cl} />;
   return <CheckCircle size={16} className={cl} />;
+};
+
+const NEARBY_CITIES: Record<string, string[]> = {
+  'haldwani': ['kathgodam', 'rudrapur', 'nainital', 'lalkuan', 'bhimtal', 'pantnagar'],
 };
 
 const DEFAULT_UK_CITIES = [
@@ -109,11 +115,56 @@ const FILTER_CONFIG = {
 
 function VenuesContent() {
   const searchParams = useSearchParams();
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  // Click outside listener for advanced filters
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        // If the user clicks outside, close the inner filter dropdowns
+        setActiveFilterDropdown(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [locationSearchQuery, setLocationSearchQuery] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<string>("");
 
   useEffect(() => {
+    const aiQuery = searchParams.get('aiQuery');
+    if (aiQuery) {
+      const q = aiQuery.toLowerCase();
+      
+      const matchedCities: string[] = [];
+      DEFAULT_UK_CITIES.forEach(city => {
+        if (q.includes(city.split('-')[0].toLowerCase())) {
+          matchedCities.push(city);
+        }
+      });
+      if (matchedCities.length > 0) setSelectedCities(matchedCities);
+
+      const matchedEvent = FILTER_CONFIG.eventTypes.find(e => {
+        const parts = e.toLowerCase().split(' ');
+        return parts.length > 0 && q.includes(parts[0]);
+      });
+      if (matchedEvent) setSelectedEvent(matchedEvent);
+
+      const capacityMatch = q.match(/(\d+)\s*(pax|guest|people)/);
+      if (capacityMatch) {
+        setSelectedCapacity(parseInt(capacityMatch[1]));
+      }
+
+      const matchedVenueTypes: string[] = [];
+      FILTER_CONFIG.venueTypes.forEach(vType => {
+        if (q.includes(vType.toLowerCase())) {
+          matchedVenueTypes.push(vType);
+        }
+      });
+      if (matchedVenueTypes.length > 0) setSelectedVenueTypes(matchedVenueTypes);
+    }
+
     const typeParam = searchParams.get('type');
     if (typeParam) {
       // Find the event type that matches the URL slug
@@ -165,6 +216,7 @@ function VenuesContent() {
   useEffect(() => {
     const fetchCities = async () => {
       if (locationSearchQuery.length < 3) {
+        setIsLoadingCities(false);
         return;
       }
 
@@ -356,6 +408,20 @@ function VenuesContent() {
       // 0. Only show verified (approved) venues to visitors
       if (!venue.verified) return false;
       
+      // 0.5 Free-text search (Venue Name or City)
+      if (locationSearchQuery.trim()) {
+        const query = locationSearchQuery.toLowerCase().trim();
+        const venueName = (venue.name || venue.title || venue.venueName || "").toLowerCase();
+        const venueCity = (venue.city || "").toLowerCase();
+        
+        // Simple fuzzy match: all words in query must be present in either venue name or city
+        const queryWords = query.split(/\\s+/);
+        const hasMatch = queryWords.every(word => venueName.includes(word) || venueCity.includes(word));
+        
+        if (!hasMatch) {
+           return false;
+        }
+      }
       
       // 1. Pincode/Location Filtering
       if (selectedCities.length > 0) {
@@ -366,10 +432,15 @@ function VenuesContent() {
           const query = searchQuery.toLowerCase();
           const parts = query.split('-');
           const pincodeInQuery = parts.length > 1 ? parts[1] : (/\d{6}/.test(query) ? query : null);
-          const cityInQuery = parts[0];
+          const cityInQuery = parts[0].trim();
 
           if (pincodeInQuery && venuePincode === pincodeInQuery) return true;
           if (venueCity.includes(cityInQuery) || venuePincode.includes(query)) return true;
+          
+          // Also show nearby cities if defined in the mapping
+          const nearby = NEARBY_CITIES[cityInQuery];
+          if (nearby && nearby.some(nc => venueCity.includes(nc))) return true;
+
           return false;
         });
         
@@ -415,7 +486,7 @@ function VenuesContent() {
       if (sortBy === "Top Rated") return b.rating - a.rating;
       return (b.popular ? 1 : 0) - (a.popular ? 1 : 0);
     });
-  }, [allVenues, selectedCities, selectedEvent, selectedVenueTypes, budgetRange, selectedCapacity, selectedAmenities, foodPreference, minRating, quickFilters, sortBy]);
+  }, [allVenues, locationSearchQuery, selectedCities, selectedEvent, selectedVenueTypes, budgetRange, selectedCapacity, selectedAmenities, foodPreference, minRating, quickFilters, sortBy]);
 
   // ── Smart Ranking: Paid → Free ──
   const rankedVenues = useMemo(() => {
@@ -511,337 +582,247 @@ function VenuesContent() {
   const [activeFilterDropdown, setActiveFilterDropdown] = useState<string | null>(null);
 
   const filterFormUI = (
-    <div className="w-full max-w-7xl mx-auto mb-12 z-20 relative px-4">
+    <div ref={filterRef} className="w-full max-w-7xl mx-auto mb-12 z-20 relative px-4">
       {/* --- TOP MAIN SEARCH BAR --- */}
-      <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col lg:flex-row items-stretch p-3 lg:h-[88px] relative z-20">
+      <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 flex flex-col lg:flex-row items-center p-3 lg:p-4 gap-4 relative z-20">
         
-        {/* 1. Where */}
-        <div className="flex-1 px-4 lg:px-6 py-3 lg:py-0 flex items-center gap-4 hover:bg-slate-50 rounded-2xl h-full transition-colors relative cursor-text group">
-          <div className="w-10 h-10 rounded-xl bg-pd-red/5 flex items-center justify-center shrink-0">
-            <MapPin size={20} className="text-pd-red" />
-          </div>
-          <div className="flex-1 flex flex-col justify-center">
-            <label className="text-[11px] font-bold text-slate-800 mb-0.5 cursor-text">Where</label>
-            <input 
-              type="text" 
-              placeholder="City or Pincode" 
-              className="w-full bg-transparent text-sm font-black text-slate-900 outline-none truncate placeholder:text-slate-400 placeholder:font-medium"
-              value={locationSearchQuery}
-              onFocus={() => {
-                setIsInputFocused(true);
-                if (locationSearchQuery.length === 0) setCitySuggestions(DEFAULT_UK_CITIES);
-                else if (locationSearchQuery.length < 3) setCitySuggestions(DEFAULT_UK_CITIES.filter(c => c.toLowerCase().includes(locationSearchQuery.toLowerCase())));
-              }}
-              onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
-              onChange={(e) => {
-                const val = e.target.value;
-                setLocationSearchQuery(val);
-                if (val.length === 0) setCitySuggestions(DEFAULT_UK_CITIES);
-                else if (val.length < 3) setCitySuggestions(DEFAULT_UK_CITIES.filter(c => c.toLowerCase().includes(val.toLowerCase())));
-              }}
-            />
-          </div>
-          <ChevronDown size={14} className="text-slate-400 shrink-0" />
-          
-          {isLoadingCities && (
-            <div className="absolute right-12 top-1/2 -translate-y-1/2">
-              <div className="w-4 h-4 border-2 border-pd-red border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
-          
-          <AnimatePresence>
-            {(isInputFocused && citySuggestions.length > 0) && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="absolute top-full left-0 right-0 mt-4 bg-white border border-slate-100 rounded-3xl shadow-2xl z-[120] max-h-60 overflow-y-auto p-2 space-y-1 no-scrollbar"
-              >
-                {citySuggestions.map((city, idx) => (
-                  <button 
-                    key={idx}
-                    onClick={() => {
-                      if (!selectedCities.includes(city)) setSelectedCities([...selectedCities, city]);
-                      setLocationSearchQuery("");
-                      setCitySuggestions([]);
-                    }}
-                    className="w-full text-left px-5 py-4 hover:bg-slate-50 text-sm font-medium text-slate-700 rounded-2xl active:bg-slate-100 flex items-center gap-3"
-                  >
-                    <MapPin size={16} className="text-slate-400" />
-                    {city}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+        {/* Left Side: Text */}
+        <div className="flex-col flex-1 pl-4 shrink-0 hidden lg:flex">
+           <h2 className="text-xl font-bold text-slate-900">Find the Perfect Venue</h2>
+           <p className="text-sm font-medium text-slate-500">Search and filter by your preferences</p>
         </div>
 
-        <div className="hidden lg:block w-px h-10 bg-slate-200 shrink-0 self-center mx-2" />
-
-        {/* 2. Event Type */}
-        <div 
-          className="flex-1 px-4 lg:px-6 py-3 lg:py-0 flex items-center gap-4 hover:bg-slate-50 rounded-2xl h-full transition-colors relative cursor-pointer"
-          onClick={() => { setIsMobileEventOpen(!isMobileEventOpen); setIsMobileVenueOpen(false); setShowAdvancedFilters(false); }}
-        >
-          <div className="w-10 h-10 rounded-xl bg-pd-red/5 flex items-center justify-center shrink-0">
-            <Calendar size={20} className="text-pd-red" />
-          </div>
-          <div className="flex-1 flex flex-col justify-center">
-            <span className="text-[11px] font-bold text-slate-800 mb-0.5">Event Type</span>
-            <span className="text-sm font-black text-slate-900 truncate">
-              {selectedEvent || "All Events"}
-            </span>
-          </div>
-          <ChevronDown size={14} className="text-slate-400 shrink-0" />
-          
-          <AnimatePresence>
-            {isMobileEventOpen && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="absolute top-full left-0 right-0 lg:-left-12 lg:-right-12 mt-4 bg-white border border-slate-100 rounded-3xl shadow-2xl z-[120] max-h-80 overflow-y-auto p-2 space-y-1 no-scrollbar"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button 
-                  onClick={() => { setSelectedEvent(""); setIsMobileEventOpen(false); }}
-                  className="w-full text-left px-5 py-3.5 hover:bg-slate-50 rounded-2xl text-sm font-medium text-slate-500"
-                >
-                  All Events
-                </button>
-                {FILTER_CONFIG.eventTypes.map(e => (
-                  <button 
-                    key={e}
-                    onClick={() => { setSelectedEvent(e); setIsMobileEventOpen(false); }}
-                    className={`w-full text-left px-5 py-3.5 rounded-2xl text-sm font-medium ${
-                      selectedEvent === e ? 'bg-pd-red/5 text-pd-red' : 'text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    {e}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+        {/* Center Side: Search Input */}
+        <div className="flex-[2] w-full relative">
+           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-pd-red">
+             <Search size={20} />
+           </div>
+           <input 
+             type="text"
+             value={locationSearchQuery}
+             onChange={(e) => setLocationSearchQuery(e.target.value)}
+             placeholder="Search venues, locations, or events..."
+             className="w-full h-12 bg-white border border-slate-200 rounded-full pl-12 pr-6 text-sm font-medium text-slate-700 outline-none focus:border-pd-red focus:ring-4 focus:ring-pd-red/10 transition-all shadow-sm placeholder:text-slate-400"
+           />
         </div>
 
-        <div className="hidden lg:block w-px h-10 bg-slate-200 shrink-0 self-center mx-2" />
-
-        {/* 3. Venue Type */}
-        <div 
-          className="flex-1 px-4 lg:px-6 py-3 lg:py-0 flex items-center gap-4 hover:bg-slate-50 rounded-2xl h-full transition-colors relative cursor-pointer"
-          onClick={() => { setIsMobileVenueOpen(!isMobileVenueOpen); setIsMobileEventOpen(false); setShowAdvancedFilters(false); }}
-        >
-          <div className="w-10 h-10 rounded-xl bg-pd-red/5 flex items-center justify-center shrink-0">
-            <Building2 size={20} className="text-pd-red" />
-          </div>
-          <div className="flex-1 flex flex-col justify-center">
-            <span className="text-[11px] font-bold text-slate-800 mb-0.5">Venue Type</span>
-            <span className="text-sm font-black text-slate-900 truncate">
-              {selectedVenueTypes.length > 1 ? `${selectedVenueTypes.length} Types` : (selectedVenueTypes[0] || "All Venue Types")}
-            </span>
-          </div>
-          <ChevronDown size={14} className="text-slate-400 shrink-0" />
-
-          <AnimatePresence>
-            {isMobileVenueOpen && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="absolute top-full left-0 right-0 lg:-left-12 lg:-right-12 mt-4 bg-white border border-slate-100 rounded-3xl shadow-2xl z-[120] max-h-80 overflow-y-auto p-2 space-y-1 no-scrollbar"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button 
-                  onClick={() => { setSelectedVenueTypes([]); setIsMobileVenueOpen(false); }}
-                  className="w-full text-left px-5 py-3.5 hover:bg-slate-50 rounded-2xl text-sm font-medium text-slate-500"
-                >
-                  All Venue Types
-                </button>
-                {FILTER_CONFIG.venueTypes.map(t => (
-                  <button 
-                    key={t}
-                    onClick={() => handleToggle(selectedVenueTypes, setSelectedVenueTypes, t)}
-                    className={`w-full text-left px-5 py-3.5 rounded-2xl text-sm font-medium flex items-center justify-between ${
-                      selectedVenueTypes.includes(t) ? 'bg-pd-red/5 text-pd-red' : 'text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    {t}
-                    {selectedVenueTypes.includes(t) && <Check size={16} />}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+        {/* Right Side: Actions */}
+        <div className="flex flex-col lg:flex-row w-full lg:w-auto items-center justify-end gap-2 shrink-0 pr-2">
+           <button 
+             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+             className="bg-pd-red/10 text-pd-red px-6 py-3 rounded-full text-sm font-bold flex items-center justify-center gap-2 hover:bg-pd-red/20 transition-colors w-full lg:w-auto"
+           >
+             <Settings2 size={18} />
+             Filters
+             <ChevronDown size={16} className={`ml-1 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
+           </button>
         </div>
+      </div>
 
-        <div className="hidden lg:block w-px h-10 bg-slate-200 shrink-0 self-center mx-4" />
-
-        {/* Action Buttons */}
-        <div className="px-2 py-3 lg:py-0 flex items-center justify-between lg:justify-end gap-2 shrink-0">
-          <button 
-            className="h-12 lg:h-14 px-8 rounded-full bg-pd-red text-white flex items-center justify-center gap-2.5 hover:bg-rose-600 shadow-md hover:shadow-pd-red/30 transition-all font-bold text-[15px]"
-            onClick={() => {
-              setIsMobileEventOpen(false);
-              setIsMobileVenueOpen(false);
-              setShowAdvancedFilters(false);
-            }}
+      {/* --- BOTTOM DROPDOWN FILTERS --- */}
+      <AnimatePresence>
+        {showAdvancedFilters && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="bg-white rounded-3xl shadow-xl border border-slate-100 p-6 relative z-10 hidden lg:block overflow-visible"
           >
-            <Search size={18} strokeWidth={2.5} /> 
-            Search Venues
-          </button>
-        </div>
-      </div>
+             {/* Header */}
+             <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
+               <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 bg-pd-red/10 text-pd-red rounded-xl flex items-center justify-center">
+                   <Settings2 size={20} />
+                 </div>
+                 <div>
+                   <h3 className="text-lg font-bold text-slate-900">Filter Venues</h3>
+                   <p className="text-xs text-slate-500 font-medium">Refine your search to find the perfect venue</p>
+                 </div>
+               </div>
+               <button 
+                 onClick={clearFilters}
+                 className="text-pd-red text-sm font-bold flex items-center gap-2 hover:opacity-80 transition-opacity"
+               >
+                 Clear All <RotateCcw size={16} />
+               </button>
+             </div>
 
-      {/* --- BOTTOM SECONDARY BAR (Popular Filters) --- */}
-      <div className="bg-white rounded-b-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 border-t-0 mx-6 px-6 py-5 relative z-10 -mt-6 pt-10 hidden lg:block">
-         <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-4">Popular Filters</span>
-         <div className="flex flex-wrap items-center gap-3">
-            
-            {/* Price Filter */}
-            <div className="relative">
-              <button 
-                onClick={() => setActiveFilterDropdown(activeFilterDropdown === 'price' ? null : 'price')}
-                className={`h-10 px-4 rounded-xl border text-xs font-bold flex items-center gap-2 transition-colors ${activeFilterDropdown === 'price' ? 'border-pd-red text-pd-red bg-red-50' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
-              >
-                <IndianRupee size={16} className={activeFilterDropdown === 'price' ? "text-pd-red" : "text-slate-400"} /> 
-                Price 
-                <ChevronDown size={14} className={`ml-1 transition-transform ${activeFilterDropdown === 'price' ? 'rotate-180 text-pd-red' : 'text-slate-400'}`} />
-              </button>
-              
-              <AnimatePresence>
-                {activeFilterDropdown === 'price' && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full left-0 mt-2 w-80 bg-white border border-slate-100 rounded-3xl shadow-xl z-[120] p-6"
-                  >
-                    <label className="block text-sm font-bold text-slate-800 mb-4">Price Per Plate</label>
-                    <div className="flex items-center gap-4">
-                      <div className="relative flex-1">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₹</span>
-                        <input 
-                          type="number" 
-                          value={budgetRange.min || ''}
-                          onChange={(e) => setBudgetRange({ ...budgetRange, min: parseInt(e.target.value) || 0 })}
-                          className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium outline-none focus:border-slate-400 transition-colors"
-                          placeholder="Min"
-                        />
-                      </div>
-                      <span className="text-slate-300">-</span>
-                      <div className="relative flex-1">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">₹</span>
-                        <input 
-                          type="number" 
-                          value={budgetRange.max || ''}
-                          onChange={(e) => setBudgetRange({ ...budgetRange, max: parseInt(e.target.value) || 0 })}
-                          className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium outline-none focus:border-slate-400 transition-colors"
-                          placeholder="Max"
-                        />
-                      </div>
+             {/* Grid */}
+             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+               
+               {/* 1. Location */}
+               <div className="space-y-2 relative">
+                 <label className="text-[11px] font-bold text-slate-900 pl-2">Location</label>
+                 <div 
+                   className="h-12 border border-slate-200 rounded-full px-4 flex items-center justify-between cursor-pointer hover:border-pd-red transition-colors"
+                   onClick={() => setActiveFilterDropdown(activeFilterDropdown === 'location' ? null : 'location')}
+                 >
+                   <div className="flex items-center gap-2 text-slate-700 font-semibold text-[13px]">
+                     <MapPin size={16} className="text-pd-red shrink-0" />
+                     <span className="truncate max-w-[80px]">{selectedCities[0] || 'Any Location'}</span>
+                   </div>
+                   <ChevronDown size={14} className="text-slate-400 shrink-0" />
+                 </div>
+                 
+                 {activeFilterDropdown === 'location' && (
+                    <div className="absolute top-full mt-2 left-0 w-64 bg-white border border-slate-100 rounded-3xl shadow-xl z-50 p-4 max-h-60 overflow-y-auto no-scrollbar">
+                       <div onClick={() => { setSelectedCities([]); setActiveFilterDropdown(null); }} className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-sm font-medium rounded-xl">Any Location</div>
+                       {DEFAULT_UK_CITIES.map(c => (
+                         <div key={c} onClick={() => { handleToggle(selectedCities, setSelectedCities, c); setActiveFilterDropdown(null); }} className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-sm font-medium rounded-xl flex items-center justify-between">
+                           {c}
+                           {selectedCities.includes(c) && <Check size={14} className="text-pd-red" />}
+                         </div>
+                       ))}
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                 )}
+               </div>
 
-            {/* Guest Capacity Filter */}
-            <div className="relative">
-              <button 
-                onClick={() => setActiveFilterDropdown(activeFilterDropdown === 'capacity' ? null : 'capacity')}
-                className={`h-10 px-4 rounded-xl border text-xs font-bold flex items-center gap-2 transition-colors ${activeFilterDropdown === 'capacity' ? 'border-pd-red text-pd-red bg-red-50' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
-              >
-                <Users size={16} className={activeFilterDropdown === 'capacity' ? "text-pd-red" : "text-slate-400"} /> 
-                Guest Capacity 
-                <ChevronDown size={14} className={`ml-1 transition-transform ${activeFilterDropdown === 'capacity' ? 'rotate-180 text-pd-red' : 'text-slate-400'}`} />
-              </button>
-              
-              <AnimatePresence>
-                {activeFilterDropdown === 'capacity' && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full left-0 mt-2 w-80 bg-white border border-slate-100 rounded-3xl shadow-xl z-[120] p-6"
-                  >
-                    <div className="flex justify-between items-center mb-4">
-                      <label className="block text-sm font-bold text-slate-800">Guest Capacity</label>
-                      <span className="text-xs font-bold text-pd-purple bg-pd-purple/10 px-3 py-1 rounded-full">{selectedCapacity}+ Guests</span>
+               {/* 2. Event Type */}
+               <div className="space-y-2 relative">
+                 <label className="text-[11px] font-bold text-slate-900 pl-2">Event Type</label>
+                 <div 
+                   className="h-12 border border-slate-200 rounded-full px-4 flex items-center justify-between cursor-pointer hover:border-pd-red transition-colors"
+                   onClick={() => setActiveFilterDropdown(activeFilterDropdown === 'event' ? null : 'event')}
+                 >
+                   <div className="flex items-center gap-2 text-slate-700 font-semibold text-[13px]">
+                     <Calendar size={16} className="text-pd-red shrink-0" />
+                     <span className="truncate max-w-[80px]">{selectedEvent || 'All Events'}</span>
+                   </div>
+                   <ChevronDown size={14} className="text-slate-400 shrink-0" />
+                 </div>
+                 
+                 {activeFilterDropdown === 'event' && (
+                    <div className="absolute top-full mt-2 left-0 w-64 bg-white border border-slate-100 rounded-3xl shadow-xl z-50 p-4 max-h-60 overflow-y-auto no-scrollbar">
+                       <div onClick={() => { setSelectedEvent(''); setActiveFilterDropdown(null); }} className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-sm font-medium rounded-xl">All Events</div>
+                       {FILTER_CONFIG.eventTypes.map(c => (
+                         <div key={c} onClick={() => { setSelectedEvent(c); setActiveFilterDropdown(null); }} className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-sm font-medium rounded-xl flex items-center justify-between">
+                           {c}
+                           {selectedEvent === c && <Check size={14} className="text-pd-red" />}
+                         </div>
+                       ))}
                     </div>
-                    <input 
-                      type="range" min="0" max="10000" step="100" 
-                      value={selectedCapacity} 
-                      onChange={(e) => setSelectedCapacity(parseInt(e.target.value))}
-                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-pd-purple mt-4"
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                 )}
+               </div>
 
-            {/* Amenities Filter */}
-            <div className="relative">
-              <button 
-                onClick={() => setActiveFilterDropdown(activeFilterDropdown === 'amenities' ? null : 'amenities')}
-                className={`h-10 px-4 rounded-xl border text-xs font-bold flex items-center gap-2 transition-colors ${activeFilterDropdown === 'amenities' ? 'border-pd-red text-pd-red bg-red-50' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
-              >
-                <Building2 size={16} className={activeFilterDropdown === 'amenities' ? "text-pd-red" : "text-slate-400"} /> 
-                Amenities 
-                <ChevronDown size={14} className={`ml-1 transition-transform ${activeFilterDropdown === 'amenities' ? 'rotate-180 text-pd-red' : 'text-slate-400'}`} />
-              </button>
-
-              <AnimatePresence>
-                {activeFilterDropdown === 'amenities' && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-full left-0 mt-2 w-[480px] bg-white border border-slate-100 rounded-3xl shadow-xl z-[120] p-6"
-                  >
-                    <label className="block text-sm font-bold text-slate-800 mb-4">Select Amenities</label>
-                    <div className="flex flex-wrap gap-2">
-                      {FILTER_CONFIG.amenities.map(a => (
-    <button 
-      key={a}
-      onClick={() => handleToggle(selectedAmenities, setSelectedAmenities, a)}
-      className={`px-4 py-2 rounded-full text-xs font-semibold transition-all border flex items-center gap-2 ${
-        selectedAmenities.includes(a) ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-900'
-      }`}
-    >
-      {getAmenityIcon(a, selectedAmenities.includes(a))}
-      <span>{a}</span>
-    </button>
-  ))}
+               {/* 3. Venue Type */}
+               <div className="space-y-2 relative">
+                 <label className="text-[11px] font-bold text-slate-900 pl-2">Venue Type</label>
+                 <div 
+                   className="h-12 border border-slate-200 rounded-full px-4 flex items-center justify-between cursor-pointer hover:border-pd-red transition-colors"
+                   onClick={() => setActiveFilterDropdown(activeFilterDropdown === 'venue' ? null : 'venue')}
+                 >
+                   <div className="flex items-center gap-2 text-slate-700 font-semibold text-[13px]">
+                     <Building2 size={16} className="text-pd-red shrink-0" />
+                     <span className="truncate max-w-[80px]">{selectedVenueTypes.length > 0 ? `${selectedVenueTypes.length} Types` : 'All Types'}</span>
+                   </div>
+                   <ChevronDown size={14} className="text-slate-400 shrink-0" />
+                 </div>
+                 {activeFilterDropdown === 'venue' && (
+                    <div className="absolute top-full mt-2 left-0 w-64 bg-white border border-slate-100 rounded-3xl shadow-xl z-50 p-4 max-h-60 overflow-y-auto no-scrollbar">
+                       {FILTER_CONFIG.venueTypes.map(c => (
+                         <div key={c} onClick={() => { handleToggle(selectedVenueTypes, setSelectedVenueTypes, c); }} className="px-4 py-2 hover:bg-slate-50 cursor-pointer text-sm font-medium rounded-xl flex items-center justify-between">
+                           {c} 
+                           {selectedVenueTypes.includes(c) && <Check size={14} className="text-pd-red" />}
+                         </div>
+                       ))}
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                 )}
+               </div>
 
-            {/* Parking Toggle */}
-            <button 
-              onClick={() => handleToggle(selectedAmenities, setSelectedAmenities, 'Parking Available')}
-              className={`h-10 px-4 rounded-xl border text-xs font-bold flex items-center gap-2 transition-colors ${selectedAmenities.includes('Parking Available') ? 'bg-slate-900 border-slate-900 text-white' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
-            >
-              <Car size={16} className={selectedAmenities.includes('Parking Available') ? 'text-white' : 'text-slate-400'} /> Parking
-            </button>
-            
-            <button 
-               onClick={() => handleToggle(selectedAmenities, setSelectedAmenities, 'Catering Available')}
-               className={`h-10 px-4 rounded-xl border text-xs font-bold flex items-center gap-2 transition-colors ${selectedAmenities.includes('Catering Available') ? 'bg-slate-900 border-slate-900 text-white' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
-            >
-              <Utensils size={16} className={selectedAmenities.includes('Catering Available') ? 'text-white' : 'text-slate-400'} /> Catering
-            </button>
-            
-            <div className="ml-auto text-right flex flex-col justify-center pr-2">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Available Venues</span>
-              <span className="text-sm font-black text-slate-900">{allCombinedVenues?.length || 0} Matches Found</span>
-            </div>
-         </div>
-      </div>
+               {/* 4. Price Range */}
+               <div className="space-y-2 relative">
+                 <label className="text-[11px] font-bold text-slate-900 pl-2">Price Range</label>
+                 <div 
+                   className="h-12 border border-slate-200 rounded-full px-4 flex items-center justify-between cursor-pointer hover:border-pd-red transition-colors"
+                   onClick={() => setActiveFilterDropdown(activeFilterDropdown === 'price' ? null : 'price')}
+                 >
+                   <div className="flex items-center gap-2 text-slate-700 font-semibold text-[13px]">
+                     <IndianRupee size={16} className="text-pd-red shrink-0" />
+                     <span className="truncate max-w-[80px]">{budgetRange.max < 10000 ? `₹${budgetRange.min} - ₹${budgetRange.max}` : 'Any Budget'}</span>
+                   </div>
+                   <ChevronDown size={14} className="text-slate-400 shrink-0" />
+                 </div>
+                 {activeFilterDropdown === 'price' && (
+                    <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-64 bg-white border border-slate-100 rounded-3xl shadow-xl z-50 p-6">
+                       <input 
+                         type="range" min="0" max="10000" step="500" 
+                         value={budgetRange.max} 
+                         onChange={(e) => setBudgetRange({ min: 0, max: parseInt(e.target.value) })}
+                         className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-pd-red mb-4"
+                       />
+                       <div className="flex justify-between text-xs font-bold text-slate-500">
+                          <span>₹0</span>
+                          <span>{budgetRange.max === 10000 ? 'Any' : `₹${budgetRange.max}`}</span>
+                       </div>
+                    </div>
+                 )}
+               </div>
 
+               {/* 5. Guest Capacity */}
+               <div className="space-y-2 relative">
+                 <label className="text-[11px] font-bold text-slate-900 pl-2">Guest Capacity</label>
+                 <div 
+                   className="h-12 border border-slate-200 rounded-full px-4 flex items-center justify-between cursor-pointer hover:border-pd-red transition-colors"
+                   onClick={() => setActiveFilterDropdown(activeFilterDropdown === 'capacity' ? null : 'capacity')}
+                 >
+                   <div className="flex items-center gap-2 text-slate-700 font-semibold text-[13px]">
+                     <Users size={16} className="text-pd-red shrink-0" />
+                     <span className="truncate max-w-[80px]">{selectedCapacity > 0 ? `${selectedCapacity}+ Guests` : 'Any Capacity'}</span>
+                   </div>
+                   <ChevronDown size={14} className="text-slate-400 shrink-0" />
+                 </div>
+                 {activeFilterDropdown === 'capacity' && (
+                    <div className="absolute top-full mt-2 right-0 w-64 bg-white border border-slate-100 rounded-3xl shadow-xl z-50 p-6">
+                       <input 
+                         type="range" min="0" max="5000" step="100" 
+                         value={selectedCapacity} 
+                         onChange={(e) => setSelectedCapacity(parseInt(e.target.value))}
+                         className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-pd-red mb-4"
+                       />
+                       <div className="flex justify-between text-xs font-bold text-slate-500">
+                          <span>0</span>
+                          <span>{selectedCapacity > 0 ? `${selectedCapacity}+` : 'Any'}</span>
+                       </div>
+                    </div>
+                 )}
+               </div>
 
+               {/* 6. Amenities */}
+               <div className="space-y-2 relative">
+                 <label className="text-[11px] font-bold text-slate-900 pl-2">Amenities</label>
+                 <div 
+                   className="h-12 border border-slate-200 rounded-full px-4 flex items-center justify-between cursor-pointer hover:border-pd-red transition-colors"
+                   onClick={() => setActiveFilterDropdown(activeFilterDropdown === 'amenities' ? null : 'amenities')}
+                 >
+                   <div className="flex items-center gap-2 text-slate-700 font-semibold text-[13px]">
+                     <Star size={16} className="text-pd-red shrink-0" />
+                     <span className="truncate max-w-[80px]">{selectedAmenities.length > 0 ? `${selectedAmenities.length} Amenities` : 'Select Amenities'}</span>
+                   </div>
+                   <ChevronDown size={14} className="text-slate-400 shrink-0" />
+                 </div>
+                 {activeFilterDropdown === 'amenities' && (
+                    <div className="absolute top-full mt-2 right-0 w-72 bg-white border border-slate-100 rounded-3xl shadow-xl z-50 p-4 max-h-80 overflow-y-auto no-scrollbar">
+                       <div className="flex flex-wrap gap-2">
+                         {FILTER_CONFIG.amenities.map(a => (
+                            <button 
+                              key={a}
+                              onClick={() => handleToggle(selectedAmenities, setSelectedAmenities, a)}
+                              className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all border ${
+                                selectedAmenities.includes(a) ? 'border-pd-red bg-pd-red text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-900'
+                              }`}
+                            >
+                              {a}
+                            </button>
+                         ))}
+                       </div>
+                    </div>
+                 )}
+               </div>
+             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 
@@ -865,11 +846,31 @@ function VenuesContent() {
                {!isLoadingVenues && allCombinedVenues.length > 0 && (
                  <div>
                    
-                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                   <motion.div 
+                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+                     initial="hidden"
+                     animate="show"
+                     key={paginatedVenues.map(v => v.id).join('-')} // Re-trigger animation on list change
+                     variants={{
+                       hidden: { opacity: 0 },
+                       show: {
+                         opacity: 1,
+                         transition: { staggerChildren: 0.05 }
+                       }
+                     }}
+                   >
                      {paginatedVenues.map((v, i) => (
-                       <MinimalVenueCard key={v.id} venue={v} index={i} isPremium={v.isPremium} />
+                       <motion.div
+                         key={v.id}
+                         variants={{
+                           hidden: { opacity: 0, y: 15 },
+                           show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] } }
+                         }}
+                       >
+                         <MinimalVenueCard venue={v} index={i} isPremium={v.isPremium} />
+                       </motion.div>
                      ))}
-                   </div>
+                   </motion.div>
 
                    {/* Pagination Controls */}
                    {totalPages > 1 && (

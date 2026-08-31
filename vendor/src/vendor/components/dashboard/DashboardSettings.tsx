@@ -1,16 +1,18 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  User, Shield, Bell, CreditCard, ChevronRight, ChevronDown, MapPin,
+  User, ChevronRight, MapPin,
   Sparkles, Building2, Users, Wind, Car, Wifi, Utensils, Music, 
-  Image as ImageIcon, CheckCircle2, IndianRupee, Smartphone,
-  Key, Mail, FileText, Plus, Minus, Zap, Trees, ChefHat,
-  Palette, Heart, ShieldCheck, Building, Trash2, Target, Camera
+  Image as ImageIcon, CheckCircle2, IndianRupee,
+  Plus, Zap, Trees, ChefHat,
+  Palette, Heart, ShieldCheck, Building, Trash2, Target, Camera, Video, PlayCircle
 } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 
 interface DashboardSettingsProps {
   settingsSection: string;
@@ -123,6 +125,7 @@ const DashboardSettings = ({
   };
 
   const [isUploadingAvatar, setIsUploadingAvatar] = React.useState(false);
+  const [uploadingHallId, setUploadingHallId] = React.useState<string | null>(null);
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -258,6 +261,7 @@ const DashboardSettings = ({
                 { id: 'photos', label: 'Media Gallery', icon: <ImageIcon size={16} />, color: 'bg-purple-500' },
                 { id: 'halls_section', label: 'Venue Spaces', icon: <Building size={16} />, color: 'bg-emerald-500' },
                 { id: 'pricing_section', label: 'Event Pricing', icon: <IndianRupee size={16} />, color: 'bg-rose-500' },
+                { id: 'videos_section', label: 'Venue Videos', icon: <Video size={16} />, color: 'bg-indigo-500' },
              ].map(section => (
                 <button 
                   key={section.id}
@@ -276,7 +280,7 @@ const DashboardSettings = ({
           </aside>
 
           {/* Content Area */}
-          <div className="flex-1 bg-white rounded-3xl border border-slate-200/60 shadow-sm p-6 md:p-8 relative min-h-[600px] overflow-hidden">
+          <div className="flex-1 bg-white rounded-3xl border border-slate-200/60 shadow-sm p-6 md:p-8 relative min-h-150 overflow-hidden">
              <AnimatePresence mode="wait">
                 {settingsSection === 'profile' && (
                    <motion.div 
@@ -317,7 +321,7 @@ const DashboardSettings = ({
                                   </div>
                                   <div>
                                      <p className="text-sm font-extrabold text-slate-900 mb-1">Display Logo</p>
-                                     <p className="text-xs font-medium text-slate-500 leading-relaxed max-w-[200px]">Update your primary profile picture that appears in search results.</p>
+                                     <p className="text-xs font-medium text-slate-500 leading-relaxed max-w-50">Update your primary profile picture that appears in search results.</p>
                                   </div>
                                </div>
                             </section>
@@ -366,7 +370,7 @@ const DashboardSettings = ({
                                              if (cap >= 201)  return '200-500 Guests';
                                              if (cap >= 101)  return '100-200 Guests';
                                              if (cap >= 51)   return '50-100 Guests';
-                                             if (cap >= 1)    return '0-50 Guests';
+                                             if (cap >= 1)    return '2-50 Guests';
                                              return 'Not Specified';
                                           })()} 
                                           className="w-full bg-slate-100 border border-slate-200/60 rounded-xl py-3 pl-11 pr-4 text-sm font-medium text-slate-500 outline-none cursor-not-allowed"
@@ -534,7 +538,7 @@ const DashboardSettings = ({
                          <button 
                            onClick={() => {
                               const current = Array.isArray(venueProfile?.halls) ? venueProfile.halls : [];
-                              const updated = [...current, { id: Date.now(), name: 'New Space', capacity: venueProfile.capacity || '500', area: '5000 SQ FT' }];
+                              const updated = [...current, { id: Date.now(), name: 'New Space', capacity: venueProfile.capacity || '500', area: '5000 SQ FT', image: '' }];
                               handleProfileUpdate('halls', updated);
                            }}
                            className="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-sm"
@@ -559,45 +563,113 @@ const DashboardSettings = ({
  
                             return halls.map((hall: any) => (
                                <div key={hall.id} className="p-6 bg-slate-50 border border-slate-200/60 rounded-2xl flex flex-col md:flex-row md:items-end justify-between gap-6 group hover:border-slate-300 transition-all">
-                                  <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
-                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-700">Space Name</label>
-                                        <input 
-                                           value={hall.name}
-                                           onChange={(e) => {
-                                              const updated = halls.map((h: any) => h.id === hall.id ? { ...h, name: e.target.value } : h);
-                                              handleProfileUpdate('halls', updated);
-                                           }}
-                                           className="w-full bg-white border border-slate-200/60 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10"
-                                           placeholder="e.g. Royal Ballroom"
-                                        />
-                                     </div>
-                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-700">Capacity (Guests)</label>
-                                        <div className="relative">
-                                           <Users size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                  <div className="flex-1 flex flex-col gap-4">
+                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="space-y-1.5">
+                                           <label className="text-xs font-bold text-slate-700">Space Name</label>
                                            <input 
-                                              value={hall.capacity}
+                                              value={hall.name}
                                               onChange={(e) => {
-                                                 const updated = halls.map((h: any) => h.id === hall.id ? { ...h, capacity: e.target.value } : h);
+                                                 const updated = halls.map((h: any) => h.id === hall.id ? { ...h, name: e.target.value } : h);
                                                  handleProfileUpdate('halls', updated);
                                               }}
-                                              className="w-full bg-white border border-slate-200/60 rounded-xl pl-10 pr-4 py-2.5 text-sm font-bold outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10"
-                                              placeholder="500"
+                                              className="w-full bg-white border border-slate-200/60 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10"
+                                              placeholder="e.g. Royal Ballroom"
+                                           />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                           <label className="text-xs font-bold text-slate-700">Capacity (Guests)</label>
+                                           <div className="relative">
+                                              <Users size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                              <input 
+                                                 value={hall.capacity}
+                                                 onChange={(e) => {
+                                                    const updated = halls.map((h: any) => h.id === hall.id ? { ...h, capacity: e.target.value } : h);
+                                                    handleProfileUpdate('halls', updated);
+                                                 }}
+                                                 className="w-full bg-white border border-slate-200/60 rounded-xl pl-10 pr-4 py-2.5 text-sm font-bold outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10"
+                                                 placeholder="500"
+                                              />
+                                           </div>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                           <label className="text-xs font-bold text-slate-700">Area (Size)</label>
+                                           <input 
+                                              value={hall.area}
+                                              onChange={(e) => {
+                                                 const updated = halls.map((h: any) => h.id === hall.id ? { ...h, area: e.target.value } : h);
+                                                 handleProfileUpdate('halls', updated);
+                                              }}
+                                              className="w-full bg-white border border-slate-200/60 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10"
+                                              placeholder="12,000 SQ FT"
                                            />
                                         </div>
                                      </div>
-                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-700">Area (Size)</label>
-                                        <input 
-                                           value={hall.area}
-                                           onChange={(e) => {
-                                              const updated = halls.map((h: any) => h.id === hall.id ? { ...h, area: e.target.value } : h);
-                                              handleProfileUpdate('halls', updated);
-                                           }}
-                                           className="w-full bg-white border border-slate-200/60 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10"
-                                           placeholder="12,000 SQ FT"
-                                        />
+                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                           <label className="text-xs font-bold text-slate-700">Short Description (Optional)</label>
+                                           <input 
+                                              value={hall.description || ''}
+                                              onChange={(e) => {
+                                                 const updated = halls.map((h: any) => h.id === hall.id ? { ...h, description: e.target.value } : h);
+                                                 handleProfileUpdate('halls', updated);
+                                              }}
+                                              className="w-full bg-white border border-slate-200/60 rounded-xl px-4 py-2.5 text-sm font-medium outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10"
+                                              placeholder="e.g. Perfect for intimate gatherings"
+                                           />
+                                        </div>
+                                        <div className="space-y-1.5 flex flex-col">
+                                           <label className="text-xs font-bold text-slate-700">Space Image</label>
+                                           <div className="flex-1 flex items-center gap-3">
+                                              {hall.image && (
+                                                 <img src={hall.image} alt="" className="w-11 h-11 rounded-lg object-cover border border-slate-200" />
+                                              )}
+                                              <label className={`flex-1 h-11 border border-slate-200/60 rounded-xl flex items-center justify-center gap-2 text-sm font-bold cursor-pointer transition-all ${uploadingHallId === hall.id ? 'bg-slate-100 text-slate-400' : 'bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900'}`}>
+                                                 {uploadingHallId === hall.id ? (
+                                                    <><div className="w-4 h-4 border-2 border-slate-300 border-t-slate-500 rounded-full animate-spin" /> Uploading...</>
+                                                 ) : (
+                                                    <><Camera size={16} /> {hall.image ? 'Change Photo' : 'Upload Photo'}</>
+                                                 )}
+                                                 <input 
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    disabled={uploadingHallId === hall.id}
+                                                    onChange={async (e) => {
+                                                       const file = e.target.files?.[0];
+                                                       if (!file) return;
+                                                       setUploadingHallId(hall.id);
+                                                       try {
+                                                          const { storage, STORAGE_BUCKET_ID, ID, ENDPOINT, PROJECT_ID } = await import('@/lib/appwrite');
+                                                          const uploadedFile = await storage.createFile(STORAGE_BUCKET_ID, ID.unique(), file);
+                                                          const imageUrl = `${ENDPOINT}/storage/buckets/${STORAGE_BUCKET_ID}/files/${uploadedFile.$id}/view?project=${PROJECT_ID}`;
+                                                          const updated = halls.map((h: any) => h.id === hall.id ? { ...h, image: imageUrl } : h);
+                                                          handleProfileUpdate('halls', updated);
+                                                          showToast('Space image uploaded successfully!', 'success');
+                                                       } catch (err) {
+                                                          console.error(err);
+                                                          showToast('Failed to upload space image.', 'error');
+                                                       } finally {
+                                                          setUploadingHallId(null);
+                                                          e.target.value = '';
+                                                       }
+                                                    }}
+                                                 />
+                                              </label>
+                                              {hall.image && (
+                                                 <button 
+                                                   onClick={() => {
+                                                      const updated = halls.map((h: any) => h.id === hall.id ? { ...h, image: '' } : h);
+                                                      handleProfileUpdate('halls', updated);
+                                                   }}
+                                                   className="w-11 h-11 rounded-xl bg-white border border-slate-200/60 text-slate-400 flex items-center justify-center hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all shrink-0"
+                                                   title="Remove Image"
+                                                 >
+                                                    <Trash2 size={16} />
+                                                 </button>
+                                              )}
+                                           </div>
+                                        </div>
                                      </div>
                                   </div>
                                   <button 
@@ -704,7 +776,7 @@ const DashboardSettings = ({
                             <div className="col-span-full py-20 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
                                <ImageIcon className="mx-auto text-slate-300 mb-3" size={40} />
                                <h4 className="text-base font-extrabold text-slate-900">No photos in {activeGalleryCategory}</h4>
-                               <p className="text-sm font-medium text-slate-500 mt-1 mb-5">Upload photos here to showcase your venue's aesthetic.</p>
+                               <p className="text-sm font-medium text-slate-500 mt-1 mb-5">Upload photos here to showcase your venue&apos;s aesthetic.</p>
                                <button 
                                  onClick={() => fileInputRef.current?.click()}
                                  className="px-6 py-2.5 bg-white border border-slate-200/60 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm"
@@ -739,43 +811,61 @@ const DashboardSettings = ({
                           
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                              <div className="space-y-2">
-                                <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                                   <div className="w-4 h-4 rounded-sm border border-emerald-500 flex items-center justify-center">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                <button 
+                                   onClick={() => {
+                                      let current = [];
+                                      try { current = typeof venueProfile?.foodTypes === 'string' ? JSON.parse(venueProfile.foodTypes) : (Array.isArray(venueProfile?.foodTypes) ? venueProfile.foodTypes : []); } catch(e){}
+                                      handleProfileUpdate('foodTypes', current.includes('Veg') ? current.filter((t:string) => t !== 'Veg') : [...current, 'Veg']);
+                                   }}
+                                   className="text-sm font-bold text-slate-700 flex items-center gap-2 hover:opacity-80 transition-opacity"
+                                >
+                                   <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all ${venueProfile?.foodTypes?.includes('Veg') ? 'border-emerald-500 bg-white' : 'border-slate-300 bg-slate-50'}`}>
+                                      {venueProfile?.foodTypes?.includes('Veg') && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
                                    </div>
                                    Vegetarian Rate
-                                </label>
-                                <div className="relative">
-                                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
-                                   <input 
-                                     type="number" 
-                                     value={venueProfile?.perPlateVeg || ""} 
-                                     onChange={(e) => handleProfileUpdate('perPlateVeg', e.target.value)}
-                                     placeholder="0"
-                                     className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-10 pr-16 text-lg font-bold outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all" 
-                                   />
-                                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">/ Plate</span>
-                                </div>
+                                </button>
+                                {venueProfile?.foodTypes?.includes('Veg') && (
+                                   <div className="relative">
+                                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                                      <input 
+                                        type="number" 
+                                        value={venueProfile?.perPlateVeg || ""} 
+                                        onChange={(e) => handleProfileUpdate('perPlateVeg', e.target.value)}
+                                        placeholder="0"
+                                        className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-10 pr-16 text-lg font-bold outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all" 
+                                      />
+                                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">/ Plate</span>
+                                   </div>
+                                )}
                              </div>
 
                              <div className="space-y-2">
-                                <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                                   <div className="w-4 h-4 rounded-sm border border-red-500 flex items-center justify-center">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                <button 
+                                   onClick={() => {
+                                      let current = [];
+                                      try { current = typeof venueProfile?.foodTypes === 'string' ? JSON.parse(venueProfile.foodTypes) : (Array.isArray(venueProfile?.foodTypes) ? venueProfile.foodTypes : []); } catch(e){}
+                                      handleProfileUpdate('foodTypes', current.includes('Non-Veg') ? current.filter((t:string) => t !== 'Non-Veg') : [...current, 'Non-Veg']);
+                                   }}
+                                   className="text-sm font-bold text-slate-700 flex items-center gap-2 hover:opacity-80 transition-opacity"
+                                >
+                                   <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all ${venueProfile?.foodTypes?.includes('Non-Veg') ? 'border-red-500 bg-white' : 'border-slate-300 bg-slate-50'}`}>
+                                      {venueProfile?.foodTypes?.includes('Non-Veg') && <div className="w-1.5 h-1.5 rounded-full bg-red-500" />}
                                    </div>
                                    Non-Vegetarian Rate
-                                </label>
-                                <div className="relative">
-                                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
-                                   <input 
-                                     type="number" 
-                                     value={venueProfile?.perPlateNonVeg || ""} 
-                                     onChange={(e) => handleProfileUpdate('perPlateNonVeg', e.target.value)}
-                                     placeholder="0"
-                                     className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-10 pr-16 text-lg font-bold outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all" 
-                                   />
-                                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">/ Plate</span>
-                                </div>
+                                </button>
+                                {venueProfile?.foodTypes?.includes('Non-Veg') && (
+                                   <div className="relative">
+                                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                                      <input 
+                                        type="number" 
+                                        value={venueProfile?.perPlateNonVeg || ""} 
+                                        onChange={(e) => handleProfileUpdate('perPlateNonVeg', e.target.value)}
+                                        placeholder="0"
+                                        className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-10 pr-16 text-lg font-bold outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all" 
+                                      />
+                                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">/ Plate</span>
+                                   </div>
+                                )}
                              </div>
                           </div>
 
@@ -807,6 +897,87 @@ const DashboardSettings = ({
                              {isUpdatingProfile ? 'Saving...' : 'Save Pricing'}
                           </button>
                        </div>
+                    </motion.div>
+                 )}
+                 
+                 {settingsSection === 'videos_section' && (
+                    <motion.div 
+                      key="videos_section"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-8"
+                    >
+                       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div>
+                             <h3 className="text-xl font-extrabold text-slate-900">Venue Videos</h3>
+                             <p className="text-sm font-medium text-slate-500">Showcase your venue with YouTube video links.</p>
+                          </div>
+                          <button 
+                            onClick={() => {
+                               const current = Array.isArray(venueProfile?.videos) ? venueProfile.videos : [];
+                               handleProfileUpdate('videos', [...current, '']);
+                            }}
+                            className="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-sm"
+                          >
+                             <Plus size={16} /> Add Video Link
+                          </button>
+                       </header>
+                       
+                       <div className="space-y-4">
+                          {(() => {
+                             const videos = Array.isArray(venueProfile?.videos) ? venueProfile.videos : [];
+                             if (videos.length === 0) {
+                                return (
+                                   <div className="py-20 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                      <PlayCircle className="mx-auto text-slate-300 mb-3" size={40} />
+                                      <h4 className="text-base font-extrabold text-slate-900">No videos added</h4>
+                                      <p className="text-sm font-medium text-slate-500 mt-1 mb-6 max-w-sm mx-auto">Add YouTube links to give customers a virtual tour of your venue.</p>
+                                   </div>
+                                );
+                             }
+                             return videos.map((video: string, i: number) => (
+                                <div key={i} className="flex gap-3">
+                                   <div className="flex-1 relative">
+                                      <Video className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                      <input 
+                                         value={video}
+                                         onChange={(e) => {
+                                            const updated = [...videos];
+                                            updated[i] = e.target.value;
+                                            handleProfileUpdate('videos', updated);
+                                         }}
+                                         placeholder="https://www.youtube.com/watch?v=..."
+                                         className="w-full bg-white border border-slate-200/60 rounded-xl py-3 pl-11 pr-4 text-sm font-medium outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                                      />
+                                   </div>
+                                   <button 
+                                      onClick={() => {
+                                         const updated = [...videos];
+                                         updated.splice(i, 1);
+                                         handleProfileUpdate('videos', updated);
+                                      }}
+                                      className="w-12 h-11.5 flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-colors border border-red-100"
+                                   >
+                                      <Trash2 size={16} />
+                                   </button>
+                                </div>
+                             ));
+                          })()}
+                       </div>
+                       
+                       {Array.isArray(venueProfile?.videos) && venueProfile.videos.length > 0 && (
+                          <div className="pt-6 border-t border-slate-100 flex items-center justify-end">
+                             <button 
+                               onClick={saveProfileSettings}
+                               disabled={isUpdatingProfile}
+                               className="px-8 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-md hover:bg-slate-800 transition-all disabled:opacity-50"
+                             >
+                                {isUpdatingProfile ? 'Saving...' : 'Save Videos'}
+                             </button>
+                          </div>
+                       )}
                     </motion.div>
                  )}
               </AnimatePresence>

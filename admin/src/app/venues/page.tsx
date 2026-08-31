@@ -21,7 +21,8 @@ import {
   CheckCircle2,
   Clock,
   Mail,
-  Save
+  Save,
+  Snowflake, Car, Zap, Home, Sun, Utensils, ChefHat, Music, Sparkles, UserCircle, Shield, Wifi, Cake, Heart, Camera, Gift, Briefcase, Coffee, Users, PartyPopper, Smile, GlassWater, Baby, Gem, Ticket
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +43,7 @@ interface LiveVenue {
   onboardingComplete: boolean;
   venueType: string;
   capacity: number;
+  logo?: string | null;
   raw: any;
 }
 
@@ -64,19 +66,48 @@ const eventTypesList = [
 ];
 
 const amenitiesList = [
-  { id: 'ac', name: 'Air Conditioning' },
-  { id: 'parking', name: 'Parking Available' },
-  { id: 'power', name: 'Power Backup' },
-  { id: 'indoor', name: 'Indoor Hall' },
-  { id: 'outdoor', name: 'Outdoor Lawn' },
-  { id: 'catering_in', name: 'In-House Catering' },
-  { id: 'catering_out', name: 'Outside Catering Allowed' },
-  { id: 'dj', name: 'DJ Allowed' },
-  { id: 'decoration', name: 'Decoration Available' },
-  { id: 'bridal', name: 'Bridal Room' },
-  { id: 'security', name: 'Security Available' },
-  { id: 'wifi', name: 'Wi-Fi Available' },
+  { id: 'ac', name: 'Air Conditioning', icon: Snowflake },
+  { id: 'parking', name: 'Parking Available', icon: Car },
+  { id: 'power', name: 'Power Backup', icon: Zap },
+  { id: 'indoor', name: 'Indoor Hall', icon: Home },
+  { id: 'outdoor', name: 'Outdoor Lawn', icon: Sun },
+  { id: 'catering_in', name: 'In-House Catering', icon: Utensils },
+  { id: 'catering_out', name: 'Outside Catering Allowed', icon: ChefHat },
+  { id: 'dj', name: 'DJ Allowed', icon: Music },
+  { id: 'decoration', name: 'Decoration Available', icon: Sparkles },
+  { id: 'bridal', name: 'Bridal Room', icon: UserCircle },
+  { id: 'security', name: 'Security Available', icon: Shield },
+  { id: 'wifi', name: 'Wi-Fi Available', icon: Wifi },
 ];
+
+const getEventIcon = (event: string) => {
+  const e = event.toLowerCase();
+  if (e.includes('birthday')) return <Cake size={12} />;
+  if (e.includes('wedding')) return <Heart size={12} />;
+  if (e.includes('anniversary')) return <Gift size={12} />;
+  if (e.includes('corporate')) return <Briefcase size={12} />;
+  if (e.includes('kitty')) return <Coffee size={12} />;
+  if (e.includes('family')) return <Users size={12} />;
+  if (e.includes('festival')) return <PartyPopper size={12} />;
+  if (e.includes('kids')) return <Smile size={12} />;
+  if (e.includes('bachelor')) return <GlassWater size={12} />;
+  if (e.includes('housewarming')) return <Home size={12} />;
+  if (e.includes('baby')) return <Baby size={12} />;
+  if (e.includes('engagement')) return <Gem size={12} />;
+  if (e.includes('theme') || e.includes('entertainment')) return <Ticket size={12} />;
+  return <PartyPopper size={12} />;
+};
+
+function getAppwriteImageUrl(fileId: any) {
+  if (!fileId) return null;
+  const id = typeof fileId === 'string' ? fileId : (fileId.id || fileId.$id);
+  if (!id) return null;
+  if (id.startsWith('http') || id.startsWith('/') || id.startsWith('file:')) return id;
+  const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
+  const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '69ae84bc001ca4edf8c2';
+  const bucketId = process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID || 'venues_photos';
+  return `${endpoint}/storage/buckets/${bucketId}/files/${id}/view?project=${projectId}`;
+}
 
 // Map raw Appwrite doc → LiveVenue
 function mapDoc(doc: any): LiveVenue {
@@ -87,6 +118,15 @@ function mapDoc(doc: any): LiveVenue {
       sub = 'None';
     }
   }
+
+  let logoUrl = null;
+  try {
+     const rawPhotos = typeof doc.photos === 'string' ? JSON.parse(doc.photos) : doc.photos;
+     if (Array.isArray(rawPhotos) && rawPhotos.length > 0) {
+        const logoObj = rawPhotos.find((p: any) => p.category === 'Profile') || rawPhotos[0];
+        logoUrl = getAppwriteImageUrl(logoObj);
+     }
+  } catch(e) {}
 
   return {
     id: doc.$id,
@@ -104,6 +144,7 @@ function mapDoc(doc: any): LiveVenue {
     onboardingComplete: doc.onboardingComplete === true,
     venueType: doc.venueType || "Venue",
     capacity: parseInt(doc.capacity) || 0,
+    logo: logoUrl,
     raw: doc,
   };
 }
@@ -436,8 +477,12 @@ function VenueManagementContent() {
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
                 {/* Avatar + Info */}
                 <div className="flex items-center gap-5">
-                  <div className="w-16 h-16 rounded-2xl grad-brand text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-purple-500/10 shrink-0">
-                    {venue.name.charAt(0).toUpperCase()}
+                  <div className="w-16 h-16 rounded-2xl grad-brand text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-purple-500/10 shrink-0 overflow-hidden relative">
+                    {venue.logo ? (
+                      <img src={venue.logo} alt={venue.name} className="absolute inset-0 w-full h-full object-cover" />
+                    ) : (
+                      venue.name.charAt(0).toUpperCase()
+                    )}
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
@@ -568,11 +613,12 @@ function VenueManagementContent() {
               className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100]"
             />
             <motion.div
-              initial={{ opacity: 0, x: 200 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 200 }}
-              className="fixed right-0 top-0 h-screen w-full max-w-xl bg-white z-[101] shadow-2xl flex flex-col overflow-y-auto"
+              initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
+              animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
+              exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
+              className="fixed top-1/2 left-1/2 w-[90vw] max-w-3xl h-[85vh] bg-white rounded-3xl z-[101] shadow-2xl flex flex-col overflow-hidden"
             >
+              <div className="flex-1 overflow-y-auto flex flex-col">
               {/* Drawer Header */}
               <div className="p-8 border-b border-slate-50 flex items-center justify-between sticky top-0 bg-white z-10">
                 <div className="flex items-center gap-4">
@@ -732,12 +778,13 @@ function VenueManagementContent() {
                                   setEditForm({ ...editForm, amenities: newAmenities });
                                 }}
                                 className={cn(
-                                  "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all",
+                                  "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5",
                                   isSelected 
                                     ? "bg-slate-900 border-slate-900 text-white shadow-md" 
                                     : "bg-white border-slate-100 text-slate-500 hover:border-purple-300"
                                 )}
                               >
+                                {amenity.icon && <amenity.icon size={12} />}
                                 {amenity.name}
                               </button>
                             );
@@ -761,12 +808,13 @@ function VenueManagementContent() {
                                   setEditForm({ ...editForm, eventTypes: newTypes });
                                 }}
                                 className={cn(
-                                  "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all",
+                                  "px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5",
                                   isSelected 
                                     ? "bg-[#b66dff] border-[#b66dff] text-white shadow-md" 
                                     : "bg-white border-slate-100 text-slate-400 hover:border-purple-300"
                                 )}
                               >
+                                {getEventIcon(type)}
                                 {type}
                               </button>
                             );
@@ -777,9 +825,11 @@ function VenueManagementContent() {
                       <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Image Gallery</label>
                         <div className="grid grid-cols-2 gap-3 mb-3">
-                          {(editForm.photos || []).map((url: string, idx: number) => (
+                          {(editForm.photos || []).map((photoObj: any, idx: number) => {
+                            const photoUrl = typeof photoObj === 'string' ? getAppwriteImageUrl(photoObj) : getAppwriteImageUrl(photoObj.id || photoObj.$id || photoObj);
+                            return (
                             <div key={idx} className="relative group/img aspect-video rounded-xl overflow-hidden border border-slate-100 shadow-sm">
-                              <img src={url} alt={`Venue ${idx}`} className="w-full h-full object-cover" />
+                              <img src={photoUrl || ''} alt={`Venue ${idx}`} className="w-full h-full object-cover" />
                               <button 
                                 type="button"
                                 onClick={() => {
@@ -791,38 +841,37 @@ function VenueManagementContent() {
                                 <Trash2 size={12} />
                               </button>
                             </div>
-                          ))}
+                          );
+                          })}
                         </div>
                         <div className="flex gap-2">
                           <input 
-                            type="text" 
-                            id="new_image_url"
-                            placeholder="Paste image URL here..."
-                            className="flex-1 bg-slate-50 border border-slate-100 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#b66dff]"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                const input = e.target as HTMLInputElement;
-                                if (input.value) {
-                                  setEditForm({ ...editForm, photos: [...(editForm.photos || []), input.value] });
-                                  input.value = "";
+                            type="file" 
+                            accept="image/*"
+                            multiple
+                            disabled={updating}
+                            onChange={async (e) => {
+                              const files = e.target.files;
+                              if (!files || files.length === 0) return;
+                              setUpdating(true);
+                              try {
+                                const { storage, STORAGE_BUCKET_ID, ID } = await import('@/lib/appwrite');
+                                const newPhotos = [...(editForm.photos || [])];
+                                for (let i = 0; i < files.length; i++) {
+                                  const uploaded = await storage.createFile(STORAGE_BUCKET_ID, ID.unique(), files[i]);
+                                  newPhotos.push({ id: uploaded.$id, category: 'All Photos' });
                                 }
+                                setEditForm({ ...editForm, photos: newPhotos });
+                              } catch (err) {
+                                console.error('Upload failed', err);
+                                alert('Failed to upload image(s)');
+                              } finally {
+                                setUpdating(false);
+                                e.target.value = '';
                               }
                             }}
+                            className="flex-1 bg-slate-50 border border-slate-100 rounded-xl p-2 text-sm font-bold outline-none focus:border-[#b66dff] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-[#b66dff] hover:file:bg-purple-100 transition-all cursor-pointer disabled:opacity-50"
                           />
-                          <button 
-                            type="button"
-                            onClick={() => {
-                              const input = document.getElementById('new_image_url') as HTMLInputElement;
-                              if (input?.value) {
-                                setEditForm({ ...editForm, photos: [...(editForm.photos || []), input.value] });
-                                input.value = "";
-                              }
-                            }}
-                            className="p-3 bg-purple-50 text-[#b66dff] rounded-xl font-black text-xs uppercase"
-                          >
-                            Add
-                          </button>
                         </div>
                       </div>
                     </div>
@@ -956,11 +1005,15 @@ function VenueManagementContent() {
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {parseField(selectedVenue.raw.amenities).length > 0 ? (
-                      parseField(selectedVenue.raw.amenities).map((a: string) => (
-                        <span key={a} className="px-2 py-1 bg-white border border-slate-100 rounded-lg text-[10px] font-bold text-slate-500">
-                          {amenitiesList.find(al => al.id === a)?.name || a}
-                        </span>
-                      ))
+                      parseField(selectedVenue.raw.amenities).map((a: string) => {
+                        const amenityObj = amenitiesList.find(al => al.id === a);
+                        return (
+                          <span key={a} className="px-2 py-1 bg-white border border-slate-100 rounded-lg text-[10px] font-bold text-slate-500 flex items-center gap-1.5">
+                            {amenityObj?.icon && <amenityObj.icon size={12} />}
+                            {amenityObj?.name || a}
+                          </span>
+                        );
+                      })
                     ) : (
                       <span className="text-xs  text-slate-300">None specified</span>
                     )}
@@ -974,7 +1027,8 @@ function VenueManagementContent() {
                   <div className="flex flex-wrap gap-2">
                     {parseField(selectedVenue.raw.eventTypes).length > 0 ? (
                       parseField(selectedVenue.raw.eventTypes).map((e: string) => (
-                        <span key={e} className="px-2 py-1 bg-purple-50 text-[#b66dff] border border-purple-100 rounded-lg text-[10px] font-bold">
+                        <span key={e} className="px-2 py-1 bg-purple-50 text-[#b66dff] border border-purple-100 rounded-lg text-[10px] font-bold flex items-center gap-1.5">
+                          {getEventIcon(e)}
                           {e}
                         </span>
                       ))
@@ -995,6 +1049,7 @@ function VenueManagementContent() {
                 </details>
               </>
             )}
+            </div>
           </div>
         </motion.div>
       </>

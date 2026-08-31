@@ -23,9 +23,7 @@ PopupBackdrop.displayName = 'PopupBackdrop';
 // Step Indicator Component
 const StepIndicator = memo(({ currentStep }: { currentStep: Step }) => {
   const steps = [
-    { id: 'inquiry', label: 'Details' },
-    { id: 'auth', label: 'Account' },
-    { id: 'otp', label: 'Verify' }
+    { id: 'inquiry', label: 'Details' }
   ];
 
   const getStepIndex = (s: Step) => {
@@ -68,27 +66,25 @@ StepIndicator.displayName = 'StepIndicator';
 
 // Memoized Header Decoration
 const PopupHeader = memo(({ onClose, step, onBack }: { onClose: () => void, step: Step, onBack?: () => void }) => (
-  <div className="bg-slate-900 h-24 relative flex items-center px-6 lg:px-10 border-b border-white/5 rounded-t-[2.5rem] overflow-hidden shrink-0">
-    {/* Performance: Removed heavy blur filters that caused typing lag */}
-
+  <div className="bg-white h-24 relative flex items-center px-6 lg:px-10 border-b border-slate-100 shrink-0">
     <div className="relative z-10 flex items-center gap-5 w-full">
       {step !== 'inquiry' && onBack && (
-        <button onClick={onBack} className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all group shrink-0">
+        <button onClick={onBack} className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all group shrink-0">
           <ChevronDown className="rotate-90 group-hover:-translate-x-1 transition-transform" size={20} />
         </button>
       )}
 
-      <div className="w-12 h-12 rounded-2xl pd-gradient flex items-center justify-center text-white shadow-xl shadow-pd-red/20 rotate-3 shrink-0">
+      <div className="w-12 h-12 rounded-2xl bg-pd-red/10 flex items-center justify-center text-pd-red shrink-0">
         <Building2 size={24} />
       </div>
 
       <div className="flex-1 overflow-hidden">
-        <h3 className="text-white font-black text-lg lg:text-xl leading-none uppercase  tracking-tight truncate">
+        <h3 className="text-slate-900 font-black text-lg lg:text-xl leading-none uppercase tracking-tight truncate">
           {step === 'signup' ? 'Create Account' : step === 'login' ? 'Welcome Back' : step === 'otp' ? 'Verify Mobile' : 'Get Free Quotes'}
         </h3>
         <div className="flex items-center gap-2 mt-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-          <p className="text-white/40 text-[9px] uppercase font-black tracking-[0.2em] truncate">
+          <p className="text-slate-500 text-[10px] uppercase font-bold tracking-[0.1em] truncate">
             {step === 'inquiry' ? 'Direct Venue Prices In Minutes' : 'Secure & Verified Access'}
           </p>
         </div>
@@ -96,7 +92,7 @@ const PopupHeader = memo(({ onClose, step, onBack }: { onClose: () => void, step
 
       <button
         onClick={onClose}
-        className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all shadow-lg active:scale-95 shrink-0"
+        className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all active:scale-95 shrink-0"
         aria-label="Close"
       >
         <X size={20} />
@@ -353,6 +349,7 @@ OtpForm.displayName = 'OtpForm';
 // Memoized Form Component
 const InquiryForm = memo(({
   formData,
+  isAuthenticated,
   onChange,
   onSubmit,
   isSubmitted,
@@ -363,6 +360,7 @@ const InquiryForm = memo(({
   onRemoveLocation
 }: {
   formData: any;
+  isAuthenticated: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   isSubmitted: boolean;
@@ -489,54 +487,58 @@ const InquiryForm = memo(({
       </div>
 
       <form onSubmit={onSubmit} className="space-y-4 lg:space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Full Name</label>
-            <input
-              type="text"
-              name="name"
-              required
-              readOnly={!!formData.name}
-              value={formData.name}
-              onChange={onChange}
-              placeholder="Your Name"
-              className={`w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all ${formData.name ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : ''}`}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              required
-              readOnly={!!formData.email}
-              value={formData.email}
-              onChange={onChange}
-              placeholder="Your Email"
-              className={`w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all ${formData.email ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : ''}`}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Phone Number</label>
-            <div className="relative group">
-              <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10">
-                <span className="text-sm font-bold text-slate-400 tracking-tighter shrink-0">+91</span>
+        {!isAuthenticated && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Full Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  readOnly={!!formData.name}
+                  value={formData.name}
+                  onChange={onChange}
+                  placeholder="Your Name"
+                  className={`w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all ${formData.name ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : ''}`}
+                />
               </div>
-              <input
-                type="tel"
-                name="phone"
-                required
-                readOnly={!!formData.phone}
-                value={formData.phone}
-                onChange={onChange}
-                className={`w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl pl-16 pr-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all tracking-[0.1em] ${formData.phone ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : ''}`}
-              />
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Email Address</label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  readOnly={!!formData.email}
+                  value={formData.email}
+                  onChange={onChange}
+                  placeholder="Your Email"
+                  className={`w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all ${formData.email ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : ''}`}
+                />
+              </div>
             </div>
-          </div>
-        </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Phone Number</label>
+                <div className="relative group">
+                  <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10">
+                    <span className="text-sm font-bold text-slate-400 tracking-tighter shrink-0">+91</span>
+                  </div>
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    readOnly={!!formData.phone}
+                    value={formData.phone}
+                    onChange={onChange}
+                    className={`w-full h-16 bg-slate-50 border border-slate-200 rounded-2xl pl-16 pr-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-pd-red/5 focus:bg-white focus:border-pd-red transition-all tracking-[0.1em] ${formData.phone ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : ''}`}
+                  />
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -706,13 +708,14 @@ const InquiryForm = memo(({
 InquiryForm.displayName = 'InquiryForm';
 
 export default function PopupInquiry() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // New Step and Auth state
   const [step, setStep] = useState<Step>('inquiry');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [signupData, setSignupData] = useState({ name: '', email: '', phone: '', password: '' });
   const [loginData, setLoginData] = useState({ email: '', password: '', phone: '' });
@@ -734,19 +737,7 @@ export default function PopupInquiry() {
     selectedLocations: [] as any[]
   });
 
-  // Check local rate limit on mount
-  useEffect(() => {
-    const lastSubmission = localStorage.getItem('last_inquiry_submission');
-    if (lastSubmission) {
-      const lastTime = new Date(lastSubmission).getTime();
-      const currentTime = new Date().getTime();
-      const hoursPassed = (currentTime - lastTime) / (1000 * 60 * 60);
 
-      if (hoursPassed < 24) {
-        setError('You have already submitted an inquiry. Please wait 24 hours before sending another inquiry.');
-      }
-    }
-  }, []);
 
   // Auth Check on Mount & Trigger
   const checkAuth = async () => {
@@ -766,9 +757,11 @@ export default function PopupInquiry() {
         email: user.email || prev.email,
         phone: user.phone?.replace('+91', '') || prev.phone || ''
       }));
+      setIsAuthenticated(true);
       setStep('inquiry');
     } catch (e) {
-      setStep('signup');
+      setIsAuthenticated(false);
+      setStep('inquiry');
     }
   };
 
@@ -866,6 +859,7 @@ export default function PopupInquiry() {
         email: signupData.email,
         phone: signupData.phone
       }));
+      setIsAuthenticated(true);
       setStep('inquiry');
       window.dispatchEvent(new Event('auth-change'));
     } catch (err: any) {
@@ -879,13 +873,29 @@ export default function PopupInquiry() {
     e.preventDefault();
     if (isSubmitting) return;
 
+    if (!isAuthenticated) {
+      setSignupData(prev => ({
+        ...prev,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone
+      }));
+      setLoginData(prev => ({
+        ...prev,
+        email: formData.email,
+        phone: formData.phone
+      }));
+      setStep('signup');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
 
       try {
         await account.get();
       } catch (e) {
-        await account.createAnonymousSession();
+        // User should be authenticated here, but just in case
       }
 
       const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
@@ -919,8 +929,6 @@ export default function PopupInquiry() {
       if (result.status !== 'success') {
         throw new Error(result.message || 'Failed to submit inquiry');
       }
-
-      localStorage.setItem('last_inquiry_submission', new Date().toISOString());
 
       setIsSubmitted(true);
       setError(null);
@@ -972,12 +980,11 @@ export default function PopupInquiry() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: "100%", scale: 1 }}
             transition={{ type: "tween", duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-            className="relative w-full max-w-lg bg-white rounded-t-[2.5rem] sm:rounded-[2rem] shadow-2xl border border-slate-100 max-h-[92vh] sm:max-h-[95vh] flex flex-col overflow-hidden"
+            className="relative w-full max-w-lg bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl border border-slate-100 max-h-[92vh] sm:max-h-[95vh] flex flex-col overflow-hidden"
           >
             <div className="sm:hidden w-12 h-1.5 bg-slate-200 rounded-full mx-auto mt-4 mb-1 shrink-0" />
 
             <PopupHeader onClose={closePopup} step={step} onBack={step === 'otp' ? handleBackToSignup : undefined} />
-            <StepIndicator currentStep={step} />
 
             <div className="p-5 sm:p-10 overflow-y-auto no-scrollbar flex-1 pb-10 sm:pb-10 bg-white relative">
               <AnimatePresence mode="wait">
@@ -1037,6 +1044,7 @@ export default function PopupInquiry() {
                             email: user.email,
                             phone: user.phone?.replace('+91', '') || ''
                           }));
+                          setIsAuthenticated(true);
                           setStep('inquiry');
                           window.dispatchEvent(new Event('auth-change'));
                         } catch (err: any) {
@@ -1065,6 +1073,7 @@ export default function PopupInquiry() {
                   {step === 'inquiry' && (
                     <InquiryForm
                       formData={formData}
+                      isAuthenticated={isAuthenticated}
                       onChange={handleChange}
                       onSubmit={handleSubmit}
                       isSubmitted={isSubmitted}
