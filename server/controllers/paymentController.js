@@ -337,3 +337,32 @@ exports.getAllPayments = async (req, res) => {
     return res.status(500).json({ status: 'error', message: error.message });
   }
 };
+
+exports.updateStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const docId = req.params.id;
+    if (!status || !docId) {
+      return res.status(400).json({ status: 'error', message: 'Missing parameters' });
+    }
+    const updated = await databases.updateDocument(DATABASE_ID, PAYMENTS_COLLECTION_ID, docId, { status });
+    return res.status(200).json({ status: 'success', data: updated });
+  } catch (error) {
+    console.error('Update status error:', error);
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};
+
+exports.deletePayment = async (req, res) => {
+  try {
+    const docId = req.params.id;
+    if (!docId) {
+      return res.status(400).json({ status: 'error', message: 'Missing ID' });
+    }
+    await databases.deleteDocument(DATABASE_ID, PAYMENTS_COLLECTION_ID, docId);
+    return res.status(200).json({ status: 'success', message: 'Deleted successfully' });
+  } catch (error) {
+    console.error('Delete payment error:', error);
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+};

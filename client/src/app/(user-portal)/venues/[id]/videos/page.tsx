@@ -12,7 +12,7 @@ import { useState, useEffect } from 'react';
 export default function VenueVideosPage() {
   const params = useParams();
   const id = params.id as string;
-  const [venue, setVenue] = useState<any>(null);
+  const [venue, setVenue] = useState<{name: string, videos: string[]} | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch venue data for videos
@@ -42,7 +42,9 @@ export default function VenueVideosPage() {
                    videos = parsed.videos || [];
                 }
              }
-          } catch(e) {}
+          } catch (e) {
+             console.error('Error parsing packages:', e);
+          }
           
           const mappedVenue = {
             name: doc.venueName || "Unnamed Venue",
@@ -117,7 +119,9 @@ export default function VenueVideosPage() {
                 } else if (url.hostname.includes('youtu.be')) {
                   videoId = url.pathname.slice(1);
                 }
-              } catch(e) {}
+              } catch(e) {
+                 console.error('Error parsing video URL:', e);
+              }
               
               if (!videoId) return null;
 

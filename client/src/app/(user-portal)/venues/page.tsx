@@ -13,14 +13,14 @@ import {
   Filter, 
   ChevronDown, 
   X, 
-  ArrowRight,
+  
   Check,
-  SlidersHorizontal,
+  
   ChevronLeft,
   ChevronRight,
   IndianRupee,
   Users,
-  LayoutGrid,
+  
   Car,
   Utensils,
   PartyPopper,

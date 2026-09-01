@@ -9,11 +9,9 @@ import {
   Users, 
   Sparkles, 
   Phone, 
-  MessageCircle, 
-  FileText,
+  MessageCircle,
   Search,
-  MoreVertical,
-  Mail
+  MoreVertical
 } from 'lucide-react';
 
 interface Lead {
@@ -36,7 +34,6 @@ interface LeadInboxProps {
   setLeadFilter: (filter: string) => void;
   updateLeadStatus: (leadId: string, newStatus: string) => void;
   setActiveTab: (tab: string) => void;
-  setQuoteData: React.Dispatch<React.SetStateAction<any>>;
 }
 
 const LeadInbox = ({
@@ -44,8 +41,7 @@ const LeadInbox = ({
   leadFilter,
   setLeadFilter,
   updateLeadStatus,
-  setActiveTab,
-  setQuoteData
+  setActiveTab
 }: LeadInboxProps) => {
 
   const filters = ['All', 'New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost'];

@@ -15,6 +15,7 @@ interface SendQuotationModalProps {
   onClose: () => void;
   entityName: string;
   entityId: string;
+  onSuccess?: () => void;
 }
 
 // Optimization: Global cache to prevent redundant fetching on every modal open
@@ -41,7 +42,7 @@ const addons = [
   { id: 'a2000', name: '2000 PAX Membership', price: 14999, pax: 2000 },
 ];
 
-export default function SendQuotationModal({ isOpen, onClose, entityName, entityId }: SendQuotationModalProps) {
+export default function SendQuotationModal({ isOpen, onClose, entityName, entityId, onSuccess }: SendQuotationModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [discountValue, setDiscountValue] = useState<number>(0);
@@ -226,11 +227,16 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     let leftY = 180;
+    const activeData = manualMode || inlineEditing ? manualData : (venueDetails || {});
+    const pOwnerName = activeData.ownerName || "-";
+    const pPhone = activeData.phone || activeData.contactNumber || activeData.phoneNumber || "-";
+    const pAddress = activeData.address || activeData.fullAddress || "";
+
     doc.text(`Venue Name : ${currentEntityName}`, 40, leftY); leftY += 15;
-    doc.text(`Contact Person : ${manualData.ownerName || "-"}`, 40, leftY); leftY += 15;
-    doc.text(`Phone : ${manualData.phone || emailTo || "-"}`, 40, leftY); leftY += 15;
+    doc.text(`Contact Person : ${pOwnerName}`, 40, leftY); leftY += 15;
+    doc.text(`Phone : ${pPhone}`, 40, leftY); leftY += 15;
     doc.text(`Email : ${emailTo || "-"}`, 40, leftY); leftY += 15;
-    if (manualData.address) { doc.text(`Address : ${manualData.address}`, 40, leftY); }
+    if (pAddress) { doc.text(`Address : ${pAddress}`, 40, leftY); }
 
     // 4. Project Details (Right)
     doc.setFont("helvetica", "bold");
@@ -361,12 +367,11 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
     });
 
     // 8. Signature Area
-    const sigY = pageHeight - 120;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("For Preet Tech (OPC) Private Limited", pageWidth - 250, sigY);
-    doc.setFont("helvetica", "normal");
-    doc.text("(Authorized Signatory)", pageWidth - 210, sigY + 60);
+    const sigY = pageHeight - 70;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(148, 163, 184); // slate-400
+    doc.text("This is a computer-generated quotation and does not require a physical signature.", pageWidth / 2, sigY, { align: "center" });
 
     // 9. Footer
     doc.setFillColor(168, 85, 247); // purple-500
@@ -493,6 +498,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
       const result = await res.json();
       if (result.status === 'success') {
         alert("Success! Proposal has been delivered to " + emailTo);
+        onSuccess?.();
       } else {
         alert(result.message || "Email delivery failed.");
       }

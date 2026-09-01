@@ -561,3 +561,23 @@ exports.sendClientQuotationEmail = (to, data, attachments = []) => {
 
     return sendEmail(to, `Event Proposal from ${venueName} 🎊`, html, `Dear ${clientName}, please find your event quotation from ${venueName} attached.`, attachments);
 };
+
+exports.sendSubscriptionActivatedEmail = (to, name, planName, expiryDate) => {
+    const html = getBaseTemplate(`
+        <div style="text-align: center; margin-bottom: 30px;">
+           <h2 style="margin: 0;">Subscription Activated! 🎉</h2>
+           <p style="color: #64748b; font-size: 14px;">Congratulations, ${name}!</p>
+        </div>
+        <p>Your venue has been successfully granted a subscription on PartyDial.</p>
+        <div class="card">
+           <p style="margin: 0; font-size: 14px;"><strong>Plan:</strong> ${planName}</p>
+           <p style="margin: 5px 0 0; font-size: 14px;"><strong>Valid Until:</strong> ${expiryDate}</p>
+        </div>
+        <p>You can now log in to your partner dashboard to view and manage leads corresponding to your new access level.</p>
+        <div style="text-align: center;">
+            <a href="${process.env.FRONTEND_URL || 'https://partydial.com'}/vendor" class="button">Go to Dashboard</a>
+        </div>
+    `, 'Your PartyDial subscription has been activated!');
+    
+    return sendEmail(to, 'Your Subscription is Active!', html);
+};

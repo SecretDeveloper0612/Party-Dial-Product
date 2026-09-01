@@ -77,6 +77,23 @@ exports.grantAccess = async (req, res) => {
       }
     }
 
+    // Try to send email to the venue
+    try {
+      const { sendSubscriptionActivatedEmail } = require('../utils/emailService');
+      const emailTo = currentVenue.contactEmail || currentVenue.ownerEmail || currentVenue.email;
+      if (emailTo) {
+        await sendSubscriptionActivatedEmail(
+          emailTo, 
+          currentVenue.venueName || 'Partner', 
+          planName, 
+          expiry.toLocaleDateString()
+        );
+        console.log(`Subscription activated email sent to ${emailTo}`);
+      }
+    } catch (emailErr) {
+      console.warn("Failed to send subscription activation email:", emailErr.message);
+    }
+
     res.json({ 
       status: 'success', 
       message: `Access granted for ${days} days until ${expiry.toLocaleDateString()}`,

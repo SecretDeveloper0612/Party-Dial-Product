@@ -50,6 +50,7 @@ const menuGroups = [
     items: [
       { icon: Target, label: "Lead Distribution", path: "/lead-distribution" },
       { icon: Target, label: "Lead Dist. (Venues)", path: "/lead-distribution-venues" },
+      { icon: Target, label: "Manual Dist. (Venues)", path: "/manual-leads-distribution" },
       { icon: Table, label: "Lead Matrix", path: "/crm/leads" },
       { icon: FileText, label: "Price Leads", path: "/price-leads" },
       { icon: CheckCircle, label: "Venue Leads Check", path: "/venue-leads" },
@@ -130,6 +131,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
          "Approve Listings": "Approvals",
          "Lead Distribution": "Leads",
          "Lead Dist. (Venues)": "Leads",
+         "Manual Dist. (Venues)": "Leads",
          "Lead Matrix": "Leads",
          "Price Leads": "Leads",
          "Venue Leads Check": "Leads",

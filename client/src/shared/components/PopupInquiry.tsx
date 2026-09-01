@@ -941,7 +941,7 @@ export default function PopupInquiry() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, venueId, isSubmitting]);
+  }, [formData, venueId, isSubmitting, isAuthenticated]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

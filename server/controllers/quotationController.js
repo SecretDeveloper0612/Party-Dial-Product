@@ -45,8 +45,7 @@ exports.sendQuotationEmail = async (req, res) => {
           paidAt: new Date().toISOString(), // Using as sent date for UI compatibility
           invoiceNumber: '',
           billingDetails: JSON.stringify({ email, name: venueName }),
-          couponUsed: '',
-          invoiceFileId: ''
+          couponUsed: ''
         }
       );
     } catch (dbErr) {

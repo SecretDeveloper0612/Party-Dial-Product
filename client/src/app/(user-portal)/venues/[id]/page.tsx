@@ -212,8 +212,31 @@ export default function VenueDetailPage() {
           try {
              const rawPhotos = typeof doc.photos === 'string' ? JSON.parse(doc.photos) : doc.photos;
              if (Array.isArray(rawPhotos)) {
-                const logoObj = rawPhotos.find((p: any) => p.category === 'Profile');
-                if (logoObj) logoUrl = getAppwriteImageUrl(logoObj.id || logoObj.$id);
+                let firstPhoto = null;
+                for (const p of rawPhotos) {
+                   if (typeof p === 'object' && p !== null) {
+                      if (!firstPhoto) firstPhoto = p;
+                      if (p.category === 'Profile') {
+                         logoUrl = getAppwriteImageUrl(p.id || p.$id);
+                         break;
+                      }
+                   }
+                   if (typeof p === 'string') {
+                      try {
+                         const obj = JSON.parse(p);
+                         if (!firstPhoto && obj) firstPhoto = obj;
+                         if (obj && obj.category === 'Profile') {
+                            logoUrl = getAppwriteImageUrl(obj.id || obj.$id);
+                            break;
+                         }
+                      } catch(e) {
+                         if (!firstPhoto) firstPhoto = { id: p };
+                      }
+                   }
+                }
+                if (!logoUrl && firstPhoto) {
+                    logoUrl = getAppwriteImageUrl(firstPhoto.id || firstPhoto.$id);
+                }
              }
           } catch(e) {}
           const photoIds = parsePhotos(doc.photos);

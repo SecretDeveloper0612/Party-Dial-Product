@@ -33,7 +33,15 @@ export const parsePhotos = (photosData: any): GalleryPhoto[] => {
     const parsed = typeof photosData === 'string' ? JSON.parse(photosData) : photosData;
     if (Array.isArray(parsed)) {
       return parsed.map(p => {
-         if (typeof p === 'string') return { id: p, category: 'All Photos' };
+         if (typeof p === 'string') {
+            try {
+               const obj = JSON.parse(p);
+               if (obj && typeof obj === 'object') {
+                   return { id: obj.id || obj.$id || '', category: obj.category || 'All Photos' };
+               }
+            } catch(e) {}
+            return { id: p, category: 'All Photos' };
+         }
          return { 
            id: p.id || p.$id || '', 
            category: p.category || 'All Photos' 

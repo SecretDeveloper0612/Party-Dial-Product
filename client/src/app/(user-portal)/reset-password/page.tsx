@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { account } from '@/lib/appwrite';
 import Link from 'next/link';
+import Image from 'next/image';
 
 import { Suspense } from 'react';
 
@@ -15,14 +16,8 @@ function ResetPasswordContent() {
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(!userId || !secret ? 'Invalid or expired password reset link.' : '');
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (!userId || !secret) {
-      setError('Invalid or expired password reset link.');
-    }
-  }, [userId, secret]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,8 +40,8 @@ function ResetPasswordContent() {
       await account.updateRecovery(userId, secret, password);
       // Success! Redirect to home with a flag to open the login modal
       router.push('/?login=true');
-    } catch (err: any) {
-      setError(err.message || 'Failed to reset password. Please try again.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to reset password. Please try again.');
       setIsLoading(false);
     }
   };
@@ -56,7 +51,7 @@ function ResetPasswordContent() {
       <div className="bg-white max-w-md w-full rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
         <div className="text-center mb-8">
           <Link href="/">
-            <img src="/logo-nav.png" alt="PartyDial" className="w-[140px] mx-auto mb-8 object-contain" />
+            <Image src="/logo-nav.png" alt="PartyDial" width={140} height={40} className="mx-auto mb-8 object-contain" />
           </Link>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Set new password</h1>
           <p className="text-sm font-medium text-slate-500 mt-2">

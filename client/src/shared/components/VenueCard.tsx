@@ -45,7 +45,7 @@ const getAmenityIcon = (amenity: string) => {
   return <CheckCircle size={14} className="text-slate-700" />;
 };
 
-export default function VenueCard({ venue: v, isPremium }: VenueCardProps) {
+export default function VenueCard({ venue: v }: VenueCardProps) {
   return (
     <div 
       key={v.id}

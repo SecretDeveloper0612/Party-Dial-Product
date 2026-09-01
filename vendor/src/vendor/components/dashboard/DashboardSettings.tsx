@@ -63,7 +63,16 @@ const DashboardSettings = ({
      try { 
         if (!venueProfile?.photos) return []; 
         const parsed = typeof venueProfile.photos === 'string' ? JSON.parse(venueProfile.photos) : (Array.isArray(venueProfile?.photos) ? venueProfile.photos : []); 
-        return parsed.map((p: any) => typeof p === 'string' ? { id: p, category: 'All Photos' } : p);
+        return parsed.map((p: any) => {
+           if (typeof p === 'string') {
+               try {
+                   const obj = JSON.parse(p);
+                   if (obj && typeof obj === 'object') return obj;
+               } catch (e) {}
+               return { id: p, category: 'All Photos' };
+           }
+           return p;
+        });
      } catch (e) { return []; } 
   }, [venueProfile?.photos]);
 

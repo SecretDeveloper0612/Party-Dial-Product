@@ -963,11 +963,20 @@ const QuotationManager = ({
                            <div className="w-16 h-16 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-center overflow-hidden">
                               {(() => {
                                  const rawPhotos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
-                                 const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => typeof p === 'string' ? { id: p, category: 'All Photos' } : p) : [];
-                                 const avatar = photos.find((p: any) => p.category === 'Profile');
+                                 const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => {
+                                     if (typeof p === 'string') {
+                                         try {
+                                             const obj = JSON.parse(p);
+                                             if (obj && typeof obj === 'object') return obj;
+                                         } catch(e) {}
+                                         return { id: p, category: 'All Photos' };
+                                     }
+                                     return p;
+                                 }) : [];
+                                 const avatar = photos.find((p: any) => p.category === 'Profile') || (photos.length > 0 ? photos[0] : null);
                                  if (avatar) {
                                     return (
-                                       /* eslint-disable-next-line @next/next/no-img-element */
+                                        
                                        <img
                                           crossOrigin="anonymous"
                                           src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${avatar.id}/view?project=69ae84bc001ca4edf8c2`}
@@ -976,7 +985,7 @@ const QuotationManager = ({
                                        />
                                     );
                                  }
-                                 return /* eslint-disable-next-line @next/next/no-img-element */
+                                 return  
                                  <img crossOrigin="anonymous" src={typeof logo === 'string' ? logo : logo.src} alt="Logo" className="object-contain w-10 h-10 opacity-50" />;
                               })()}
                            </div>
@@ -1050,7 +1059,16 @@ const QuotationManager = ({
                         {/* Venue Gallery */}
                         {(() => {
                            const rawPhotos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
-                           const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => typeof p === 'string' ? { id: p, category: 'All Photos' } : p) : [];
+                           const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => {
+                               if (typeof p === 'string') {
+                                   try {
+                                       const obj = JSON.parse(p);
+                                       if (obj && typeof obj === 'object') return obj;
+                                   } catch(e) {}
+                                   return { id: p, category: 'All Photos' };
+                               }
+                               return p;
+                           }) : [];
                            const gallery = photos.filter((p: any) => quoteData.selectedImages?.includes(p.id));
 
                            if (gallery.length === 0) return null;

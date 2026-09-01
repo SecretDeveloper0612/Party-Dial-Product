@@ -170,7 +170,7 @@ exports.getDistributionLogs = async (req, res) => {
             );
             return res.status(200).json({
                 status: 'success',
-                data: result.documents.filter(d => d.isBulk || d.notes?.includes('Bulk Lead') || d.notes?.includes('GSheet Sync'))
+                data: result.documents.filter(d => d.notes?.includes('Bulk Lead') || d.notes?.includes('GSheet Sync') || d.notes?.includes('MANUAL DISTRIBUTION'))
             });
         }
 
@@ -369,6 +369,110 @@ exports.distributeLeadsToVenues = async (req, res) => {
     }
 };
 
+/**
+ * Manual distribution logic to specific selected venues
+ * Bypasses pincode matching and free plan blocks.
+ */
+exports.distributeLeadsManualVenues = async (req, res) => {
+    try {
+        const { leads, venueIds } = req.body;
+
+        if (!leads || !Array.isArray(leads) || leads.length === 0) {
+            return res.status(400).json({ status: 'error', message: 'No leads provided' });
+        }
+        if (!venueIds || !Array.isArray(venueIds) || venueIds.length === 0) {
+            return res.status(400).json({ status: 'error', message: 'No venues selected' });
+        }
+
+        const stats = { distributed: 0, skipped: 0 };
+        const results = [];
+
+        // Fetch details for the selected venues
+        const targetVenues = [];
+        for (const vId of venueIds) {
+            try {
+                const venueDoc = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, vId);
+                if (venueDoc) targetVenues.push(venueDoc);
+            } catch (err) {
+                console.error(`Failed to fetch venue ${vId}:`, err.message);
+            }
+        }
+
+        if (targetVenues.length === 0) {
+            return res.status(404).json({ status: 'error', message: 'None of the selected venues could be found' });
+        }
+
+        for (const leadData of leads) {
+            const cleanPhone = leadData.phone?.toString().trim();
+            if (!cleanPhone) {
+                stats.skipped++;
+                continue;
+            }
+
+            for (const targetVenue of targetVenues) {
+                try {
+                    // Check for duplicates (Last 24 hours) for this specific venue
+                    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+                    const existing = await databases.listDocuments(DATABASE_ID, LEADS_COLLECTION_ID, [
+                        Query.equal('venueId', targetVenue.$id),
+                        Query.equal('phone', cleanPhone),
+                        Query.greaterThan('$createdAt', yesterday),
+                        Query.limit(1)
+                    ]);
+
+                    if (existing.total > 0) continue;
+
+                    const leadDoc = {
+                        venueId: targetVenue.$id,
+                        name: leadData.name || '',
+                        phone: cleanPhone,
+                        email: leadData.email || '',
+                        eventType: leadData.eventType || '',
+                        guests: parseInt(String(leadData.pax || '0').replace(/\D/g, ''), 10) || 0,
+                        eventDate: leadData.eventDate || '',
+                        pincode: leadData.pincode || '',
+                        notes: `MANUAL DISTRIBUTION | Distributed to ${targetVenue.venueName} | ${leadData.notes || ''}`,
+                        status: 'New',
+                        createdAt: new Date().toISOString()
+                    };
+
+                    const doc = await databases.createDocument(
+                        DATABASE_ID,
+                        LEADS_COLLECTION_ID,
+                        ID.unique(),
+                        leadDoc
+                    );
+
+                    stats.distributed++;
+                    results.push({ lead: leadData.name, venue: targetVenue.venueName });
+
+                    // Push Notification
+                    if (targetVenue.expoPushToken) {
+                        const { sendPushNotification } = require('../utils/notifications');
+                        sendPushNotification(
+                            targetVenue.expoPushToken, 
+                            'New Manual Lead Assigned! 🎯', 
+                            `${leadData.name} needs a ${leadData.eventType || 'venue'} for ${leadData.pax || '0'} guests.`,
+                            { leadId: doc.$id }
+                        ).catch(() => {});
+                    }
+                } catch (err) {
+                    console.error(`Failed to manually assign lead ${leadData.name} to ${targetVenue.venueName}:`, err);
+                }
+            }
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            message: `Distributed ${leads.length} leads to ${targetVenues.length} venues. (Total assignments: ${stats.distributed}, Skipped: ${stats.skipped})`,
+            data: results
+        });
+
+    } catch (error) {
+        console.error('Error in distributeLeadsManualVenues:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
+    }
+};
 /**
  * Internal helper for GSheet sync
  */

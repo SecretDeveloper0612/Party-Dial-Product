@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MapPin, Star, Heart, IndianRupee, Users, Eye, ArrowRight, Car, Wind, Zap, Utensils, Music, Wine, Accessibility, Wifi, Shield, Bed, Tent, PartyPopper, CheckCircle } from 'lucide-react';
 import { Venue } from '@/data/venues';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -32,7 +33,7 @@ const getAmenityIcon = (amenity: string) => {
   return <CheckCircle size={14} className="text-slate-700" />;
 };
 
-export default function MinimalVenueCard({ venue: v, isPremium }: VenueCardProps) {
+export default function MinimalVenueCard({ venue: v }: VenueCardProps) {
   const venueSlug = `/venues/${v.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${v.id}`;
   
   // Format amenities for pills
@@ -69,12 +70,12 @@ export default function MinimalVenueCard({ venue: v, isPremium }: VenueCardProps
             } as React.CSSProperties}
           >
             {((v.images && v.images.length > 0) ? v.images : (v.img ? [v.img] : [])).map((imgUrl, i) => (
-              <SwiperSlide key={i} className="w-full h-full">
-                <img 
+              <SwiperSlide key={i} className="relative w-full h-full">
+                <Image 
                   src={imgUrl} 
                   alt={`${v.name} - ${i + 1}`} 
-                  className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105" 
-                  loading="lazy" 
+                  fill
+                  className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-105" 
                 />
               </SwiperSlide>
             ))}
