@@ -575,7 +575,7 @@ exports.sendSubscriptionActivatedEmail = (to, name, planName, expiryDate) => {
         </div>
         <p>You can now log in to your partner dashboard to view and manage leads corresponding to your new access level.</p>
         <div style="text-align: center;">
-            <a href="${process.env.FRONTEND_URL || 'https://partydial.com'}/vendor" class="button">Go to Dashboard</a>
+            <a href="https://partner.partydial.com/login" class="button">Go to Dashboard</a>
         </div>
     `, 'Your PartyDial subscription has been activated!');
     
