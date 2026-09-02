@@ -88,12 +88,7 @@ export default function MinimalVenueCard({ venue: v }: VenueCardProps) {
           </div>
         )}
         
-        {/* Featured Badge */}
-        {hasTopReviews && (
-          <div className="absolute top-3 left-3 z-10 bg-amber-500 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-md">
-            Featured
-          </div>
-        )}
+
 
         {/* Favorite Button */}
         <button className="absolute top-3 right-3 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-105 transition-transform">
@@ -117,15 +112,16 @@ export default function MinimalVenueCard({ venue: v }: VenueCardProps) {
             </h3>
           </Link>
           <div className="flex items-center gap-2 shrink-0">
+            {v.rating > 0 && (
+              <div className="flex items-center gap-1 bg-white border border-slate-200 px-1.5 py-0.5 rounded-full shadow-sm text-[10px] font-bold text-slate-700">
+                <Star size={10} className="fill-amber-400 text-amber-400" />
+                {v.rating.toFixed(1)}
+              </div>
+            )}
             {(isVeg || isNonVeg) && (
               <div className="flex items-center gap-1 bg-white border border-slate-200 px-1.5 py-0.5 rounded-full shadow-sm">
                 {isVeg && <div className="w-2 h-2 rounded-full bg-green-500" />}
                 {isNonVeg && <div className="w-2 h-2 rounded-full bg-red-500" />}
-              </div>
-            )}
-            {v.isNew && (
-              <div className="bg-amber-500 text-white text-[10px] uppercase font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                <Star size={10} className="fill-white" /> New
               </div>
             )}
           </div>

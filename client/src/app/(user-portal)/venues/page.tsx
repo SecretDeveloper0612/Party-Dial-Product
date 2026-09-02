@@ -138,12 +138,24 @@ function VenuesContent() {
       const q = aiQuery.toLowerCase();
       
       const matchedCities: string[] = [];
-      DEFAULT_UK_CITIES.forEach(city => {
+      const ALL_CITIES = [...DEFAULT_UK_CITIES, 'Delhi', 'Mumbai', 'Bangalore', 'Pune', 'Hyderabad', 'Chennai', 'Kolkata', 'Ahmedabad', 'Jaipur', 'Chandigarh', 'Lucknow', 'Noida', 'Gurugram', 'Dehradun', 'Agra', 'Goa'];
+      
+      ALL_CITIES.forEach(city => {
         if (q.includes(city.split('-')[0].toLowerCase())) {
           matchedCities.push(city);
         }
       });
-      if (matchedCities.length > 0) setSelectedCities(matchedCities);
+      
+      if (matchedCities.length > 0) {
+        setSelectedCities(matchedCities);
+      } else {
+        // Fallback: extract location from "in X", "at X", or "near X"
+        const locationMatch = q.match(/(?:in|at|near)\s+([a-z]+)/);
+        if (locationMatch && locationMatch[1]) {
+           const extractedCity = locationMatch[1].charAt(0).toUpperCase() + locationMatch[1].slice(1);
+           setSelectedCities([extractedCity]);
+        }
+      }
 
       const matchedEvent = FILTER_CONFIG.eventTypes.find(e => {
         const parts = e.toLowerCase().split(' ');
@@ -298,11 +310,21 @@ function VenuesContent() {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const mapped = result.data.map((doc: any) => {
                 const photos = parsePhotos(doc.photos);
+                let sub = doc.subscriptionPlan || 'free';
+                
+                // Expire 30-day trial automatically
+                if (sub === 'trial_30') {
+                  const createdAt = doc.$createdAt ? new Date(doc.$createdAt).getTime() : Date.now();
+                  if ((Date.now() - createdAt) > (30 * 24 * 60 * 60 * 1000)) {
+                    sub = 'free';
+                  }
+                }
+
                 // Is venue on a paid subscription plan?
-                const hasPaidPlan = doc.subscriptionPlan &&
-                  doc.subscriptionPlan !== 'free' &&
-                  doc.subscriptionPlan !== 'None' &&
-                  doc.subscriptionPlan !== '';
+                const hasPaidPlan = sub &&
+                  sub !== 'free' &&
+                  sub !== 'None' &&
+                  sub !== '';
 
                 // Verify the subscription hasn't expired
                 const isSubscriptionActive = hasPaidPlan && (!doc.subscriptionExpiry || new Date(doc.subscriptionExpiry) > new Date());
@@ -358,7 +380,7 @@ function VenuesContent() {
                   // Smart ranking fields
                   isPaid: !!isSubscriptionActive,
                   profileComplete,
-                  subscriptionPlan: doc.subscriptionPlan || 'free',
+                  subscriptionPlan: sub,
                   createdAt: doc.$createdAt || '',
                 };
               });
@@ -410,13 +432,11 @@ function VenuesContent() {
       
       // 0.5 Free-text search (Venue Name or City)
       if (locationSearchQuery.trim()) {
-        const query = locationSearchQuery.toLowerCase().trim();
+        const queryTokens = locationSearchQuery.toLowerCase().trim().split(/\s+/);
         const venueName = (venue.name || venue.title || venue.venueName || "").toLowerCase();
         const venueCity = (venue.city || "").toLowerCase();
         
-        // Simple fuzzy match: all words in query must be present in either venue name or city
-        const queryWords = query.split(/\\s+/);
-        const hasMatch = queryWords.every(word => venueName.includes(word) || venueCity.includes(word));
+        const hasMatch = queryTokens.every(token => venueName.includes(token) || venueCity.includes(token));
         
         if (!hasMatch) {
            return false;
@@ -513,10 +533,17 @@ function VenuesContent() {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sortGroup = (venues: any[]) => {
-      if (sortBy === 'Price: Low to High') return [...venues].sort((a, b) => (a.price || 0) - (b.price || 0));
-      if (sortBy === 'Price: High to Low') return [...venues].sort((a, b) => (b.price || 0) - (a.price || 0));
-      if (sortBy === 'Top Rated') return [...venues].sort((a, b) => b.rating - a.rating);
-      return weightedShuffle(venues);
+      const withImage = venues.filter(v => v.img || (v.images && v.images.length > 0));
+      const withoutImage = venues.filter(v => !(v.img || (v.images && v.images.length > 0)));
+
+      const applySort = (arr: any[]) => {
+        if (sortBy === 'Price: Low to High') return [...arr].sort((a, b) => (a.price || 0) - (b.price || 0));
+        if (sortBy === 'Price: High to Low') return [...arr].sort((a, b) => (b.price || 0) - (a.price || 0));
+        if (sortBy === 'Top Rated') return [...arr].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        return weightedShuffle(arr);
+      };
+
+      return [...applySort(withImage), ...applySort(withoutImage)];
     };
 
     return {
@@ -618,7 +645,7 @@ function VenuesContent() {
         </div>
 
         {/* Right Side: Actions */}
-        <div className={`flex flex-col lg:flex-row w-full lg:w-auto items-center justify-end gap-2 shrink-0 pr-2 ${showMobileFilters ? 'hidden' : ''}`}>
+        <div className={`hidden lg:flex flex-col lg:flex-row w-full lg:w-auto items-center justify-end gap-2 shrink-0 pr-2 ${showMobileFilters ? 'hidden' : ''}`}>
            <button 
              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
              className="bg-pd-red/10 text-pd-red px-6 py-3 rounded-full text-sm font-bold flex items-center justify-center gap-2 hover:bg-pd-red/20 transition-colors w-full lg:w-auto"
@@ -842,7 +869,7 @@ function VenuesContent() {
       <div className="max-w-screen-2xl mx-auto px-4 md:px-8 pt-8 pb-20">
         <div className="flex flex-col gap-8">
           
-          <div className="hidden lg:block w-full">
+          <div className="w-full">
             {filterFormUI}
           </div>
 
@@ -861,7 +888,6 @@ function VenuesContent() {
                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
                      initial="hidden"
                      animate="show"
-                     key={paginatedVenues.map(v => v.id).join('-')} // Re-trigger animation on list change
                      variants={{
                        hidden: { opacity: 0 },
                        show: {

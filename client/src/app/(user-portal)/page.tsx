@@ -310,7 +310,7 @@ export default function Home() {
             type: doc.venueType || "Banquet Hall",
             capacity: getCapacityLabel(doc.capacity),
             price: doc.perPlateVeg ? `₹${doc.perPlateVeg}` : "N/A",
-            rating: parseFloat(doc.rating) || 4.5,
+            rating: parseFloat(doc.rating) || 0,
             reviews: doc.totalReviews || 0,
             verified: doc.isVerified || false,
             popular: doc.status === 'active',
@@ -746,7 +746,7 @@ export default function Home() {
                   <ChevronRight size={20} />
                 </button>
               </div>
-              <Link href="/venues" className="hidden sm:block">
+              <Link href="/venues">
                 <button className="group w-full sm:w-auto relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-800 transition-all hover:shadow-lg hover:shadow-pd-pink/10 border border-slate-200 hover:border-pd-pink/30">
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     View All
@@ -849,7 +849,7 @@ export default function Home() {
                     <ChevronRight size={20} />
                   </button>
                 </div>
-                <Link href="/venues?location=Haldwani" className="hidden sm:block">
+                <Link href="/venues?location=Haldwani">
                   <button className="group w-full sm:w-auto relative overflow-hidden rounded-2xl bg-slate-50 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-800 transition-all hover:shadow-lg hover:shadow-pd-pink/10 border border-slate-200 hover:border-pd-pink/30">
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       View All
@@ -911,7 +911,7 @@ export default function Home() {
                   <ChevronRight size={20} />
                 </button>
               </div>
-              <Link href="/venues?location=Ramnagar" className="hidden sm:block">
+              <Link href="/venues?location=Ramnagar">
                 <button className="group w-full sm:w-auto relative overflow-hidden rounded-2xl bg-white px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-800 transition-all hover:shadow-lg hover:shadow-pd-pink/10 border border-slate-200 hover:border-pd-pink/30">
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     View All
@@ -1053,11 +1053,26 @@ export default function Home() {
           </motion.div>
         </div>
 
-        {/* Style to force linear smooth scrolling for Swiper */}
+        {/* Style to force linear smooth scrolling for CSS Marquee */}
         <style dangerouslySetInnerHTML={{
           __html: `
-          .testimonials-swiper .swiper-wrapper {
-            transition-timing-function: linear !important;
+          @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          @keyframes marquee-reverse {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+          }
+          .animate-marquee {
+            animation: marquee 30s linear infinite;
+          }
+          .animate-marquee-reverse {
+            animation: marquee-reverse 30s linear infinite;
+          }
+          .testimonials-row:hover .animate-marquee,
+          .testimonials-row:hover .animate-marquee-reverse {
+            animation-play-state: paused;
           }
         `}} />
 
@@ -1065,28 +1080,16 @@ export default function Home() {
         <div className="relative flex flex-col overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] pb-10 gap-6 md:gap-8">
 
           {/* Row 1 - Scrolling Left */}
-          <div className="w-full">
-            <Swiper
-              modules={[Autoplay]}
-              spaceBetween={32}
-              slidesPerView="auto"
-              loop={true}
-              speed={6000}
-              allowTouchMove={false}
-              autoplay={{
-                delay: 0,
-                disableOnInteraction: false,
-              }}
-              className="testimonials-swiper"
-            >
-              {[
+          <div className="w-full testimonials-row overflow-hidden flex">
+            <div className="flex animate-marquee min-w-max gap-6 md:gap-8 pr-6 md:pr-8">
+              {[...Array(2)].map((_, arrayIndex) => [
                 { name: "Rahul Malhotra", text: "PartyDial made our wedding planning so much easier! We received 5 quotes within 2 hours and booked a beautiful palace.", avatar: "https://randomuser.me/api/portraits/men/18.jpg" },
                 { name: "Sneha Kapoor", text: "As a corporate event planner, I need quick responses. PartyDial delivered! Found an amazing rooftop venue for our team's meet.", avatar: "https://randomuser.me/api/portraits/women/20.jpg" },
                 { name: "Amit Verma", text: "Found the perfect banquet hall for my son's 1st birthday. The zero brokerage promise is real – we saved a lot!", avatar: "https://randomuser.me/api/portraits/men/24.jpg" },
                 { name: "Priya Sharma", text: "The aesthetic of the venues I found through PartyDial was incredible. Perfect for my content and within budget!", avatar: "https://randomuser.me/api/portraits/women/45.jpg" },
                 { name: "Vikram Singh", text: "Professional service and transparent pricing. No hidden costs. Best platform for premium venue discovery.", avatar: "https://randomuser.me/api/portraits/men/63.jpg" }
               ].map((t, i) => (
-                <SwiperSlide key={i} className="!w-[320px] md:!w-[420px]">
+                <div key={`${arrayIndex}-${i}`} className="w-[320px] md:w-[420px] shrink-0">
                   <div className="w-full h-[300px] bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative group hover:-translate-y-2 transition-all duration-500 hover:shadow-xl hover:shadow-pd-pink/10 hover:border-pd-pink/20 whitespace-normal flex flex-col cursor-grab active:cursor-grabbing">
                     <div className="absolute top-6 right-8 opacity-20 group-hover:opacity-100 group-hover:text-pd-pink transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 pointer-events-none">
                       <Quote size={48} fill="currentColor" className="text-slate-300 group-hover:text-pd-pink" />
@@ -1104,35 +1107,22 @@ export default function Home() {
                       &quot;{t.text}&quot;
                     </p>
                   </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                </div>
+              )))}
+            </div>
           </div>
 
           {/* Row 2 - Scrolling Right */}
-          <div className="w-full">
-            <Swiper
-              modules={[Autoplay]}
-              spaceBetween={32}
-              slidesPerView="auto"
-              loop={true}
-              speed={6000}
-              allowTouchMove={false}
-              autoplay={{
-                delay: 0,
-                disableOnInteraction: false,
-                reverseDirection: true
-              }}
-              className="testimonials-swiper"
-            >
-              {[
+          <div className="w-full testimonials-row overflow-hidden flex">
+            <div className="flex animate-marquee-reverse min-w-max gap-6 md:gap-8 pr-6 md:pr-8">
+              {[...Array(2)].map((_, arrayIndex) => [
                 { name: "Neha Gupta", role: "Anniversary Celebration", text: "Booked a resort for our 10th anniversary. The options provided were exactly what we had in mind. Flawless experience!", avatar: "6" },
                 { name: "Karan Desai", role: "Event Organizer", text: "I regularly use PartyDial for my clients. The interface is smooth, and the venues listed are verified. It saves me days of research.", avatar: "7" },
                 { name: "Anjali Rao", role: "Pre-Wedding Shoot", text: "Finding an aesthetic venue for our shoot was tough until we used PartyDial. Directly connected with the owner and booked it!", avatar: "8" },
                 { name: "Sameer Khan", role: "Startup Founder", text: "Hosted our product launch party at a venue found here. The direct pricing feature helped us stay well within our bootstrap budget.", avatar: "9" },
                 { name: "Pooja Mehta", role: "Baby Shower", text: "Everything from finding the venue to booking was completely hassle-free. Absolutely highly recommend PartyDial to anyone!", avatar: "10" }
               ].map((t, i) => (
-                <SwiperSlide key={i} className="!w-[320px] md:!w-[420px]">
+                <div key={`${arrayIndex}-${i}`} className="w-[320px] md:w-[420px] shrink-0">
                   <div className="w-full h-[300px] bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative group hover:-translate-y-2 transition-all duration-500 hover:shadow-xl hover:shadow-pd-blue/10 hover:border-pd-blue/20 whitespace-normal flex flex-col cursor-grab active:cursor-grabbing">
                     <div className="absolute top-6 right-8 opacity-20 group-hover:opacity-100 group-hover:text-pd-blue transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 pointer-events-none">
                       <Quote size={48} fill="currentColor" className="text-slate-300 group-hover:text-pd-blue" />
@@ -1151,9 +1141,9 @@ export default function Home() {
                       &quot;{t.text}&quot;
                     </p>
                   </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+                </div>
+              )))}
+            </div>
           </div>
         </div>
       </section>

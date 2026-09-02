@@ -155,10 +155,14 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <h4 className="font-bold text-slate-900 mb-6">Quick Links</h4>
             <ul className="space-y-4">
-              {['About Us', 'Venues', 'Categories', 'Contact'].map((link) => (
-                <li key={link}>
-                  <Link href="#" className="text-sm font-medium text-slate-600 hover:text-pd-pink transition-colors">
-                    {link}
+              {[
+                { name: 'About Us', href: '/about' },
+                { name: 'Venues', href: '/venues' },
+                { name: 'Contact', href: '/contact' }
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="text-sm font-medium text-slate-600 hover:text-pd-pink transition-colors">
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -169,10 +173,14 @@ export default function Footer() {
           <div className="lg:col-span-3">
             <h4 className="font-bold text-slate-900 mb-6">Support</h4>
             <ul className="space-y-4">
-              {['FAQs', 'Terms of Service', 'Privacy Policy', 'Refund Policy'].map((link) => (
-                <li key={link}>
-                  <Link href="#" className="text-sm font-medium text-slate-600 hover:text-pd-pink transition-colors">
-                    {link}
+              {[
+                { name: 'FAQs', href: '#' },
+                { name: 'Terms of Service', href: '/terms' },
+                { name: 'Privacy Policy', href: '/privacy' }
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="text-sm font-medium text-slate-600 hover:text-pd-pink transition-colors">
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -185,15 +193,15 @@ export default function Footer() {
             <ul className="space-y-5">
               <li className="flex gap-3 text-slate-600">
                  <MapPin size={18} className="text-pd-pink shrink-0" />
-                 <span className="text-sm font-medium">123 Event Street, Suite 100<br/>New Delhi, IN 110001</span>
+                 <span className="text-sm font-medium">Near Krishna Hospital, Subhash Nagar,<br/>Bhotia Parao, Haldwani, Uttarakhand 263139</span>
               </li>
               <li className="flex gap-3 text-slate-600 items-center">
                  <Phone size={18} className="text-pd-pink shrink-0" />
-                 <span className="text-sm font-medium">+91 (555) 123-4567</span>
+                 <span className="text-sm font-medium">+91 8679933302</span>
               </li>
               <li className="flex gap-3 text-slate-600 items-center">
                  <Mail size={18} className="text-pd-pink shrink-0" />
-                 <span className="text-sm font-medium">hello@partydial.com</span>
+                 <span className="text-sm font-medium">support@partydial.com</span>
               </li>
             </ul>
           </div>

@@ -17,16 +17,16 @@ interface VenueCardProps {
 
 const getCapacityLabel = (capacity: string | number) => {
   const cap = typeof capacity === 'string' ? parseInt(capacity) : capacity;
-  if (isNaN(cap)) return "0";
+  if (isNaN(cap)) return "Upto 0";
   if (cap >= 5001) return "5000+";
-  if (cap >= 2001) return "2000-5000";
-  if (cap >= 1001) return "1000-2000";
-  if (cap >= 501)  return "500-1000";
-  if (cap >= 201)  return "200-500";
-  if (cap >= 101)  return "100-200";
-  if (cap >= 51)   return "50-100";
-  if (cap >= 1)    return "0-50";
-  return "0-50";
+  if (cap >= 2001) return "Upto 5000";
+  if (cap >= 1001) return "Upto 2000";
+  if (cap >= 501)  return "Upto 1000";
+  if (cap >= 201)  return "Upto 500";
+  if (cap >= 101)  return "Upto 200";
+  if (cap >= 51)   return "Upto 100";
+  if (cap >= 1)    return "Upto 50";
+  return "Upto 50";
 };
 const getAmenityIcon = (amenity: string) => {
   const lower = amenity.toLowerCase();
