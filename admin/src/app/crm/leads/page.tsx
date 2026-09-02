@@ -64,8 +64,9 @@ export default function CRMLeads() {
     attachments: []
   });
 
-  const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
-  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
+  const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+  const base = rawBase.replace(/\/+$/, "");
+  const serverUrl = base.endsWith("/api") ? base : \`\$\{base\}/api\`;
 
   useEffect(() => {
     const fetchLeads = async () => {

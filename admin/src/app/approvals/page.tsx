@@ -127,8 +127,9 @@ export default function ApprovalsQueue() {
   const [rejectReason, setRejectReason] = useState("");
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
-  const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
-  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
+  const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+  const base = rawBase.replace(/\/+$/, "");
+  const serverUrl = base.endsWith("/api") ? base : \`\$\{base\}/api\`;
 
   const showToast = (msg: string, type: "success" | "error") => {
     setToast({ msg, type });
