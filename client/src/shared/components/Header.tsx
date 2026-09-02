@@ -66,6 +66,14 @@ export default function Header() {
   
   // Auth Modal State
   const [authModal, setAuthModal] = useState<{ isOpen: boolean, type: 'signin' | 'signup' | 'otp' | 'forgot_password' }>({ isOpen: false, type: 'signin' });
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).isAuthModalOpen = authModal.isOpen;
+      window.dispatchEvent(new CustomEvent('auth-modal-change', { detail: authModal.isOpen }));
+    }
+  }, [authModal.isOpen]);
+
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -90,6 +98,8 @@ export default function Header() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [signinData, setSigninData] = useState({ email: '', password: '' });
 
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+
   const checkSession = async () => {
     try {
       const session = await account.get();
@@ -98,12 +108,19 @@ export default function Header() {
       const isMasterAdmin = session.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@partydial.com");
       
       if (isVendor || isMasterAdmin) {
+        await account.deleteSession('current').catch(() => {});
         setUser(null);
+        setAuthError('Venue Partners and Admins cannot login to the user portal.');
+        if (!authModal.isOpen) {
+          setAuthModal({ isOpen: true, type: 'signin' });
+        }
       } else {
         setUser(session);
       }
     } catch (error) {
       setUser(null);
+    } finally {
+      setIsCheckingSession(false);
     }
   };
 
@@ -132,6 +149,24 @@ export default function Header() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, []);
+
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { account } = await import('@/lib/appwrite');
+      const { OAuthProvider } = await import('appwrite');
+      
+      const currentUrl = window.location.origin;
+      await account.createOAuth2Session(
+        OAuthProvider.Google,
+        `${currentUrl}/`, 
+        `${currentUrl}/login` 
+      );
+    } catch (error) {
+      console.error('Google login failed:', error);
+      alert('Google login failed. Please try again.');
+    }
+  };
 
   const handleDownloadApp = async () => {
     if (deferredPrompt) {
@@ -261,7 +296,7 @@ export default function Header() {
 
 
 
-  if (pathname?.startsWith('/venues/') && pathname !== '/venues') return null;
+  // Removed the line that hides Header on venue pages
 
   return (
     <>
@@ -277,7 +312,7 @@ export default function Header() {
               <Ticker />
             </div>
             <div className="flex items-center shrink-0">
-              <Link href="https://partner.partydial.com/signup">
+              <Link href="https://partner.partydial.com/login">
                 <button className="text-white/90 hover:text-white transition-colors flex items-center gap-1.5 text-[10px] md:text-xs font-semibold">
                   <Building2 size={14} className="text-white" />
                   <span>Register Your Venue</span>
@@ -298,8 +333,9 @@ export default function Header() {
           </Link>
 
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
-
-              {user ? (
+              {isCheckingSession ? (
+                <div className="hidden md:flex w-24 h-10 bg-slate-100 animate-pulse rounded-full" />
+              ) : user ? (
                 <div className="hidden md:flex items-center gap-4">
                   <Link href="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                     <div className="flex flex-col items-end">
@@ -317,7 +353,7 @@ export default function Header() {
                 </div>
               ) : (
                 <button 
-                  onClick={() => setAuthModal({ isOpen: true, type: 'signup' })}
+                  onClick={() => setAuthModal({ isOpen: true, type: 'signin' })}
                   className="hidden md:flex items-center gap-2 text-sm font-bold bg-pd-pink text-white hover:bg-pd-red transition-all px-6 py-2.5 rounded-full shadow-md"
                 >
                     <User size={18} /> <span>Sign in</span>
@@ -370,9 +406,7 @@ export default function Header() {
                     <Link href="/venues" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:text-pd-red transition-all">
                        <Building2 size={18} className="text-slate-400 group-hover:text-pd-red transition-colors" /> Venues
                     </Link>
-                    <Link href="/categories" onClick={() => setIsMobileMenuOpen(false)} className="group flex items-center gap-3 p-4 bg-slate-50 rounded-xl text-sm font-bold text-slate-700 hover:text-pd-red transition-all">
-                       <LayoutGrid size={18} className="text-slate-400 group-hover:text-pd-red transition-colors" /> Categories
-                    </Link>
+
                   </div>
                   
                   {user ? (
@@ -851,6 +885,7 @@ export default function Header() {
 
                             <button 
                              type="button" 
+                             onClick={handleGoogleLogin}
                              className="w-full h-14 md:h-16 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-[0.1em] shadow-sm flex items-center justify-center gap-3 transition-all hover:bg-slate-50 active:scale-95"
                             >
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

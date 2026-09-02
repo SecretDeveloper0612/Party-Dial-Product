@@ -713,6 +713,7 @@ export default function PopupInquiry() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const hasInitialTimerFired = useRef(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // New Step and Auth state
   const [step, setStep] = useState<Step>('inquiry');
@@ -773,16 +774,35 @@ export default function PopupInquiry() {
   }, [isOpen]);
 
   useEffect(() => {
+    const handleAuthModalChange = (e: any) => setIsAuthModalOpen(e.detail);
+    window.addEventListener('auth-modal-change', handleAuthModalChange);
+    return () => window.removeEventListener('auth-modal-change', handleAuthModalChange);
+  }, []);
+
+  useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (!isOpen && !isSubmitted) {
+    if (!isOpen && !isSubmitted && !isAuthModalOpen) {
       const delay = hasInitialTimerFired.current ? 60000 : 10000;
-      timer = setTimeout(() => {
+      timer = setTimeout(async () => {
+        // Prevent opening if the user is trying to log in (fallback check) or if another modal is open
+        if (typeof window !== 'undefined' && ((window as any).isAuthModalOpen || (window as any).isOtherModalOpen)) {
+          return;
+        }
+        
+        // Prevent opening if the user is already logged in
+        try {
+          const session = await account.get();
+          if (session) return;
+        } catch (e) {
+          // not logged in, proceed to open
+        }
+
         setIsOpen(true);
         hasInitialTimerFired.current = true;
       }, delay);
     }
     return () => clearTimeout(timer);
-  }, [isOpen, isSubmitted]);
+  }, [isOpen, isSubmitted, isAuthModalOpen]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -806,7 +826,7 @@ export default function PopupInquiry() {
       window.removeEventListener('open-inquiry-popup', handleOpen);
       window.removeEventListener('auth-change', handleAuthChange);
     };
-  }, [isOpen, isSubmitted]);
+  }, [isOpen]);
 
   // Auth Actions
   const handleSendOtp = async () => {

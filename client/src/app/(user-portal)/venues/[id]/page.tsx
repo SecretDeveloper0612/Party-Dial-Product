@@ -4,7 +4,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MapPin, 
@@ -47,7 +47,7 @@ import {
 } from 'lucide-react';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { Camera, Trash2, Edit3, Filter as FilterIcon, IndianRupee, Search } from 'lucide-react';
-import Header from '@/shared/components/Header';
+
 import Footer from '@/shared/components/Footer';
 
 import { MOCK_VENUES } from '@/data/venues';
@@ -86,6 +86,7 @@ const getCapacityLabel = (capacity: any) => {
 
 export default function VenueDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const paramId = params.id as string;
   const id = paramId.includes('-') ? paramId.split('-').pop() as string : paramId;
   const [venue, setVenue] = useState<any>(null);
@@ -102,6 +103,7 @@ export default function VenueDetailPage() {
     requirements: ''
   });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
 
   // Sync user details if logged in
   useEffect(() => {
@@ -115,6 +117,7 @@ export default function VenueDetailPage() {
 
         if (user && !isVendor && !isMasterAdmin) {
           setIsLoggedIn(true);
+          setCurrentUserEmail(user.email || '');
           setFormData(prev => ({
             ...prev,
             name: user.name || prev.name,
@@ -129,6 +132,7 @@ export default function VenueDetailPage() {
         }
       } catch (err) {
         setIsLoggedIn(false);
+        setCurrentUserEmail('');
       }
     };
 
@@ -400,6 +404,12 @@ export default function VenueDetailPage() {
   const [reviewSort, setReviewSort] = useState("Most Recent");
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).isOtherModalOpen = isReviewModalOpen || isAboutModalOpen || isAmenitiesModalOpen || isAllReviewsModalOpen || isSpaceGalleryOpen;
+    }
+  }, [isReviewModalOpen, isAboutModalOpen, isAmenitiesModalOpen, isAllReviewsModalOpen, isSpaceGalleryOpen]);
+
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
@@ -497,7 +507,15 @@ export default function VenueDetailPage() {
       const result = await response.json();
       if (result.status === 'success') {
         showToast('Review submitted successfully!', 'success');
-        setReviews(prev => [result.data, ...prev]);
+        setReviews(prev => {
+          const index = prev.findIndex(r => r.$id === result.data.$id);
+          if (index !== -1) {
+            const newReviews = [...prev];
+            newReviews[index] = result.data;
+            return newReviews;
+          }
+          return [result.data, ...prev];
+        });
         setIsReviewModalOpen(false);
         setNewReview({ name: '', email: '', rating: 0, comment: '' });
       } else {
@@ -532,7 +550,7 @@ export default function VenueDetailPage() {
   if (isLoading) {
      return (
         <div className="min-h-screen bg-slate-50 font-['Poppins'] overflow-hidden">
-          <Header />
+
           {/* SKELETON: Hero Image */}
           <div className="h-[45vh] md:h-[65vh] bg-slate-200 animate-pulse w-full"></div>
           
@@ -584,7 +602,7 @@ export default function VenueDetailPage() {
   if (!venue) {
      return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
-            <Header />
+
             <div className="text-center mt-20">
                 <h1 className="text-2xl font-pd font-semibold text-slate-900 mb-4">Venue Not Found</h1>
                 <Link href="/venues" className="text-pd-red font-pd font-normal hover:underline">Back to Listings</Link>
@@ -595,11 +613,11 @@ export default function VenueDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-['Poppins']">
-      <Header />
+
       
       {/* 1. IMAGE GALLERY HERO (REDESIGNED) */}
       <section className="px-4 pt-6 md:px-8 bg-white relative">
-        <div className="w-full h-[60vh] md:h-[70vh] bg-slate-900 rounded-[40px] relative overflow-hidden shadow-sm">
+        <div className="w-full h-[45vh] md:h-[55vh] bg-slate-900 rounded-[40px] relative overflow-hidden shadow-sm">
            
            {/* FULL WIDTH IMAGE PANEL */}
            <div className="absolute inset-0 z-0">
@@ -673,7 +691,7 @@ export default function VenueDetailPage() {
 
       {/* 2. VENUE TITLE & HIGHLIGHTS */}
       <section className="px-4 md:px-6 relative z-20">
-        <div className="max-w-7xl mx-auto -mt-20 md:-mt-28">
+        <div className="max-w-7xl mx-auto -mt-2 md:-mt-4">
           <div className="bg-white/95 p-4 md:p-6 rounded-[28px] md:rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.06)] flex flex-col lg:flex-row gap-6 lg:gap-10 items-center justify-between border border-slate-100 backdrop-blur-xl">
             
             {/* LEFT SIDE: Image + Details */}
@@ -1026,10 +1044,27 @@ export default function VenueDetailPage() {
                     {/* Right: Write Review Button */}
                     <div className="flex items-center justify-center md:pl-4">
                        <button 
-                         onClick={() => setIsReviewModalOpen(true)}
+                         type="button"
+                         onClick={(e) => {
+                            e.preventDefault();
+                            if (!isLoggedIn) {
+                               router.push('?login=true', { scroll: false });
+                            } else {
+                               const existingReview = reviews.find((r: any) => r.userEmail === currentUserEmail);
+                               if (existingReview) {
+                                  setNewReview({
+                                    name: existingReview.userName,
+                                    email: existingReview.userEmail,
+                                    rating: existingReview.rating,
+                                    comment: existingReview.comment
+                                  });
+                               }
+                               setIsReviewModalOpen(true);
+                            }
+                         }}
                          className="px-8 py-4 bg-[#f43f5e] text-white text-[10px] font-pd font-normal uppercase tracking-[0.2em]  rounded-[20px] shadow-xl shadow-[#f43f5e]/30 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                        >
-                         Write a Review
+                         {reviews.some((r: any) => r.userEmail === currentUserEmail) ? 'Edit Review' : 'Write a Review'}
                        </button>
                     </div>
                   </div>
@@ -1486,7 +1521,7 @@ export default function VenueDetailPage() {
       {/* 5. REVIEW MODAL */}
       <AnimatePresence>
         {isReviewModalOpen && (
-          <div className="fixed inset-0 z-200 flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-6">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1504,43 +1539,17 @@ export default function VenueDetailPage() {
               style={{ willChange: "transform, opacity", transform: 'translateZ(0)' }}
               className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
             >
-              <div className="p-8 md:p-12">
+              <div className="p-8 md:p-10">
                  <div className="flex items-center justify-between mb-8">
-                    <h3 className="text-2xl font-pd font-semibold text-slate-900  uppercase tracking-tight">Rate Your <span className="text-pd-red">Experience</span></h3>
-                    <button onClick={() => setIsReviewModalOpen(false)} className="p-3 bg-slate-50 hover:bg-slate-900 hover:text-white rounded-2xl transition-all shadow-sm"><X size={20} /></button>
+                    <h3 className="text-2xl md:text-3xl font-pd font-bold text-slate-900 tracking-tight">Rate Your <span className="pd-gradient-text">Experience</span></h3>
+                    <button onClick={() => setIsReviewModalOpen(false)} className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-900 rounded-full transition-all shadow-sm"><X size={20} /></button>
                  </div>
 
-                 <form onSubmit={handleReviewSubmit} className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                       <div className="space-y-2">
-                          <label className="text-[10px] font-pd font-normal text-slate-400 uppercase tracking-widest ml-2">Full Name</label>
-                          <input 
-                             required
-                             type="text" 
-                             placeholder="Enter your name" 
-                              value={newReview.name}
-                              readOnly={isLoggedIn && !!newReview.name}
-                              onChange={(e) => setNewReview({...newReview, name: e.target.value})}
-                              className={`w-full p-5 bg-slate-50 border border-slate-100 rounded-[28px] text-sm font-pd font-normal outline-none focus:border-pd-red transition-all shadow-pd-soft-inner ${isLoggedIn && newReview.name ? 'opacity-60 cursor-not-allowed' : ''}`}
-                          />
-                       </div>
-                       <div className="space-y-2">
-                          <label className="text-[10px] font-pd font-normal text-slate-400 uppercase tracking-widest ml-2">Email Address</label>
-                          <input 
-                             type="email" 
-                             placeholder="your@email.com (Optional)" 
-                             value={newReview.email}
-                             readOnly={isLoggedIn && !!newReview.email}
-                             onChange={(e) => setNewReview({...newReview, email: e.target.value})}
-                             className={`w-full p-5 bg-slate-50 border border-slate-100 rounded-[28px] text-sm font-pd font-normal outline-none focus:border-pd-red transition-all shadow-pd-soft-inner ${isLoggedIn && newReview.email ? 'opacity-60 cursor-not-allowed' : ''}`}
-                          />
-                       </div>
-                    </div>
-
-                    <div className="text-center bg-slate-900 p-8 rounded-[40px] border border-white/10 shadow-2xl relative overflow-hidden">
-                       <div className="absolute top-0 right-0 w-32 h-32 bg-pd-red/10 rounded-full blur-3xl -mr-10 -mt-10" />
-                       <p className="text-[10px] font-pd font-normal uppercase text-slate-400 tracking-[0.3em] mb-4 relative z-10 ">How was the venue?</p>
-                       <div className="flex justify-center gap-4 relative z-10">
+                 <form onSubmit={handleReviewSubmit} className="space-y-6">
+                    {/* Rating Section - Light & Airy */}
+                    <div className="text-center bg-gradient-to-b from-pd-pink/5 to-transparent p-6 rounded-3xl border border-pd-pink/10 relative overflow-hidden">
+                       <p className="text-xs font-pd font-semibold uppercase text-slate-500 tracking-[0.2em] mb-4">How was the venue?</p>
+                       <div className="flex justify-center gap-3">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <button
                               key={star}
@@ -1548,44 +1557,70 @@ export default function VenueDetailPage() {
                               onMouseEnter={() => setHoverRating(star)}
                               onMouseLeave={() => setHoverRating(0)}
                               onClick={() => setNewReview({ ...newReview, rating: star })}
-                              className="transition-transform active:scale-90"
+                              className="transition-transform active:scale-90 hover:scale-110"
                             >
                               <Star 
-                                size={48} 
-                                className={`transition-all duration-500 ${(hoverRating || newReview.rating) >= star ? "text-yellow-400 fill-yellow-400 scale-110" : "text-white/10"}`}
+                                size={40} 
+                                className={`transition-all duration-300 ${(hoverRating || newReview.rating) >= star ? "text-yellow-400 fill-yellow-400" : "text-slate-200 fill-slate-100"}`}
                               />
                             </button>
                           ))}
                        </div>
-                       <p className="text-[9px] font-pd font-normal uppercase text-white/30 tracking-widest mt-4">Tap to rate</p>
+                       <p className="text-[10px] font-pd font-medium uppercase text-slate-400 tracking-widest mt-4">Select a star rating</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                       <div className="space-y-2">
+                          <label className="text-[11px] font-pd font-semibold text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
+                          <input 
+                             required
+                             type="text" 
+                             placeholder="Enter your name" 
+                              value={newReview.name}
+                              readOnly={isLoggedIn && !!newReview.name}
+                              onChange={(e) => setNewReview({...newReview, name: e.target.value})}
+                              className={`w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-pd outline-none focus:bg-white focus:ring-4 focus:ring-pd-pink/10 focus:border-pd-pink transition-all placeholder:text-slate-300 ${isLoggedIn && newReview.name ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          />
+                       </div>
+                       <div className="space-y-2">
+                          <label className="text-[11px] font-pd font-semibold text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
+                          <input 
+                             type="email" 
+                             placeholder="your@email.com (Optional)" 
+                             value={newReview.email}
+                             readOnly={isLoggedIn && !!newReview.email}
+                             onChange={(e) => setNewReview({...newReview, email: e.target.value})}
+                             className={`w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-pd outline-none focus:bg-white focus:ring-4 focus:ring-pd-pink/10 focus:border-pd-pink transition-all placeholder:text-slate-300 ${isLoggedIn && newReview.email ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          />
+                       </div>
                     </div>
 
                     <div className="space-y-2">
-                       <label className="text-[10px] font-pd font-normal text-slate-400 uppercase tracking-widest ml-2">Detailed Feedback</label>
+                       <label className="text-[11px] font-pd font-semibold text-slate-500 uppercase tracking-widest ml-1">Detailed Feedback</label>
                        <textarea 
                           required
                           placeholder="Tell us about the food, staff, and overall ambiance..." 
                           rows={4} 
                           value={newReview.comment}
                           onChange={(e) => setNewReview({...newReview, comment: e.target.value})}
-                          className="w-full p-8 bg-slate-50 border border-slate-100 rounded-[40px] text-sm font-pd font-normal  outline-none focus:border-pd-red transition-all shadow-pd-soft-inner"
+                          className="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-pd outline-none focus:bg-white focus:ring-4 focus:ring-pd-pink/10 focus:border-pd-pink transition-all resize-none placeholder:text-slate-300"
                        ></textarea>
                     </div>
 
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 pt-4">
                        <button 
                          type="button"
                          onClick={() => setIsReviewModalOpen(false)}
-                         className="flex-1 py-5 text-[11px] font-pd font-normal uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all "
+                         className="flex-1 py-4 text-xs font-pd font-semibold uppercase tracking-widest text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-2xl transition-all"
                        >
                          Cancel
                        </button>
                        <button 
                           type="submit"
                           disabled={isSubmittingReview}
-                          className="flex-1 pd-btn-primary py-5 rounded-2xl uppercase text-[11px] font-pd font-normal  shadow-xl shadow-pd-pink/20 flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50"
+                          className="flex-1 pd-btn-primary py-4 rounded-2xl uppercase text-xs font-pd font-semibold tracking-widest shadow-xl shadow-pd-pink/20 flex items-center justify-center gap-2 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50"
                        >
-                          {isSubmittingReview ? 'Syncing...' : 'Post Review'} <Send size={16} className="rotate-45" />
+                          {isSubmittingReview ? 'Syncing...' : 'Post Review'} <Send size={16} />
                        </button>
                     </div>
                  </form>

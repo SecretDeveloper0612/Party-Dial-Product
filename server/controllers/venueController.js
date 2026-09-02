@@ -561,19 +561,68 @@ exports.submitReview = async (req, res) => {
             });
         }
 
-        const review = await databases.createDocument(
-            DATABASE_ID,
-            REVIEWS_COLLECTION_ID,
-            ID.unique(),
-            {
-                venueId,
-                userName,
-                userEmail: userEmail || '',
-                rating: parseInt(rating),
-                comment,
-                vendorReply: ''
+        let review;
+        if (userEmail) {
+            const existingReviews = await databases.listDocuments(
+                DATABASE_ID,
+                REVIEWS_COLLECTION_ID,
+                [Query.equal('venueId', venueId), Query.equal('userEmail', userEmail)]
+            );
+            
+            if (existingReviews.documents.length > 0) {
+                review = await databases.updateDocument(
+                    DATABASE_ID,
+                    REVIEWS_COLLECTION_ID,
+                    existingReviews.documents[0].$id,
+                    { rating: parseInt(rating), comment }
+                );
             }
-        );
+        }
+
+        if (!review) {
+            review = await databases.createDocument(
+                DATABASE_ID,
+                REVIEWS_COLLECTION_ID,
+                ID.unique(),
+                {
+                    venueId,
+                    userName,
+                    userEmail: userEmail || '',
+                    rating: parseInt(rating),
+                    comment,
+                    vendorReply: ''
+                }
+            );
+        }
+
+        // --- UPDATE VENUE RATING ---
+        try {
+            // Fetch all reviews for this venue
+            const allReviews = await databases.listDocuments(
+                DATABASE_ID,
+                REVIEWS_COLLECTION_ID,
+                [Query.equal('venueId', venueId), Query.limit(1000)]
+            );
+            
+            const totalReviews = allReviews.documents.length;
+            const avgRating = totalReviews > 0 
+                ? allReviews.documents.reduce((acc, r) => acc + (Number(r.rating) || 0), 0) / totalReviews 
+                : 0;
+
+            // Update venue document
+            await databases.updateDocument(
+                DATABASE_ID,
+                VENUES_COLLECTION_ID,
+                venueId,
+                {
+                    rating: parseFloat(avgRating.toFixed(1)),
+                    totalReviews: totalReviews
+                }
+            );
+        } catch (updateErr) {
+            console.error('Failed to update venue rating:', updateErr);
+            // Non-blocking error, so we continue to return success for the review
+        }
 
         return res.status(201).json({
             status: 'success',
@@ -656,11 +705,46 @@ exports.deleteReview = async (req, res) => {
     try {
         const { reviewId } = req.params;
 
+        // Fetch review first to get the venueId
+        const review = await databases.getDocument(
+            DATABASE_ID,
+            REVIEWS_COLLECTION_ID,
+            reviewId
+        );
+        const venueId = review.venueId;
+
+        // Delete the review
         await databases.deleteDocument(
             DATABASE_ID,
             REVIEWS_COLLECTION_ID,
             reviewId
         );
+
+        // --- UPDATE VENUE RATING ---
+        try {
+            const allReviews = await databases.listDocuments(
+                DATABASE_ID,
+                REVIEWS_COLLECTION_ID,
+                [Query.equal('venueId', venueId), Query.limit(1000)]
+            );
+            
+            const totalReviews = allReviews.documents.length;
+            const avgRating = totalReviews > 0 
+                ? allReviews.documents.reduce((acc, r) => acc + (Number(r.rating) || 0), 0) / totalReviews 
+                : 0;
+
+            await databases.updateDocument(
+                DATABASE_ID,
+                VENUES_COLLECTION_ID,
+                venueId,
+                {
+                    rating: parseFloat(avgRating.toFixed(1)),
+                    totalReviews: totalReviews
+                }
+            );
+        } catch (updateErr) {
+            console.error('Failed to update venue rating after deletion:', updateErr);
+        }
 
         return res.status(200).json({
             status: 'success',

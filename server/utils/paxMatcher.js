@@ -108,17 +108,7 @@ function isVenueEligible(venueCapacity, leadGuestCapacity) {
     // Rule: Venue bucket index must be >= Lead bucket index
     const isLargeEnough = venueBucketIdx >= leadBucketIdx;
 
-    // 2. Venue must not be "excessively large" for the lead
-    // Rule: We allow a maximum gap of 2 buckets.
-    // Example: A 2000-5000 venue (Bucket 6) can take leads from:
-    //   - 2000-5000 (Bucket 6)
-    //   - 1000-2000 (Bucket 5)
-    //   - 500-1000  (Bucket 4)
-    // It will REJECT 200-500 (Bucket 3) and below.
-    // This prevents 5000-capacity venues from being spammed with 50-guest leads.
-    const isNotTooLarge = (venueBucketIdx - leadBucketIdx) <= 2;
-
-    return isLargeEnough && isNotTooLarge;
+    return isLargeEnough;
 }
 
 /**
