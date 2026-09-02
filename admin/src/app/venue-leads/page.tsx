@@ -97,7 +97,7 @@ export default function VenueLeadsCheckPage() {
 
   const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const base = rawBase.replace(/\/+$/, "");
-  const serverUrl = base.endsWith("/api") ? base : \`\$\{base\}/api\`;
+  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
 
   const fetchLeads = async () => {
     setLoading(true);

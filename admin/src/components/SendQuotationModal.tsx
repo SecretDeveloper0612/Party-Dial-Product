@@ -79,7 +79,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
       try {
         const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const base = rawBase.replace(/\/+$/, "");
-  const serverUrl = base.endsWith("/api") ? base : \`\$\{base\}/api\`;
+  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
         const res = await fetch(`${serverUrl}/venues`);
         const result = await res.json();
         if (result.status === 'success') {
@@ -484,7 +484,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
 
       const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const base = rawBase.replace(/\/+$/, "");
-  const serverUrl = base.endsWith("/api") ? base : \`\$\{base\}/api\`;
+  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
       const res = await fetch(`${serverUrl}/quotations/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

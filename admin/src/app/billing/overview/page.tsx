@@ -24,7 +24,7 @@ export default function BillingOverview() {
       try {
         const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const base = rawBase.replace(/\/+$/, "");
-  const serverUrl = base.endsWith("/api") ? base : \`\$\{base\}/api\`;
+  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
         const res = await fetch(`${serverUrl}/payments`);
         const result = await res.json();
         if (result.status === "success" && result.data) {

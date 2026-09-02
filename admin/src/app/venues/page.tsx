@@ -178,7 +178,7 @@ function VenueManagementContent() {
       const session = JSON.parse(sessionStr);
       const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const base = rawBase.replace(/\/+$/, "");
-  const serverUrl = base.endsWith("/api") ? base : \`\$\{base\}/api\`;
+  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
       
       const res = await fetch(`${serverUrl}/users/${session.user.$id}`);
       const result = await res.json();
@@ -211,7 +211,7 @@ function VenueManagementContent() {
     try {
       const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const base = rawBase.replace(/\/+$/, "");
-  const serverUrl = base.endsWith("/api") ? base : \`\$\{base\}/api\`;
+  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
       const res = await fetch(`${serverUrl}/venues`, { cache: "no-store" });
       const result = await res.json();
 
@@ -243,7 +243,7 @@ function VenueManagementContent() {
     try {
       const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const base = rawBase.replace(/\/+$/, "");
-  const serverUrl = base.endsWith("/api") ? base : \`\$\{base\}/api\`;
+  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
 
       // Send arrays as real arrays — DO NOT JSON.stringify them.
       // Appwrite expects native array attributes, not JSON strings.
@@ -570,7 +570,7 @@ function VenueManagementContent() {
                       try {
                         const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const base = rawBase.replace(/\/+$/, "");
-  const serverUrl = base.endsWith("/api") ? base : \`\$\{base\}/api\`;
+  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
                         const res = await fetch(`${serverUrl}/venues/${venue.id}/${endpoint}`, { method: 'PATCH' });
                         if (res.ok) fetchVenues();
                       } catch (err) { console.error("Toggle failed", err); }
@@ -942,7 +942,7 @@ function VenueManagementContent() {
                       try {
                         const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const base = rawBase.replace(/\/+$/, "");
-  const serverUrl = base.endsWith("/api") ? base : \`\$\{base\}/api\`;
+  const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
                         const res = await fetch(`${serverUrl}/venues/${selectedVenue.id}/${endpoint}`, { method: 'PATCH' });
                         if (res.ok) {
                           const result = await res.json();
