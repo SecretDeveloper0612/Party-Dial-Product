@@ -66,36 +66,36 @@ StepIndicator.displayName = 'StepIndicator';
 
 // Memoized Header Decoration
 const PopupHeader = memo(({ onClose, step, onBack }: { onClose: () => void, step: Step, onBack?: () => void }) => (
-  <div className="bg-white h-24 relative flex items-center px-6 lg:px-10 border-b border-slate-100 shrink-0">
-    <div className="relative z-10 flex items-center gap-5 w-full">
+  <div className="bg-white py-4 sm:py-0 sm:h-24 relative flex items-center px-4 sm:px-6 lg:px-10 border-b border-slate-100 shrink-0">
+    <div className="relative z-10 flex items-center gap-3 sm:gap-5 w-full">
       {step !== 'inquiry' && onBack && (
-        <button onClick={onBack} className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all group shrink-0">
-          <ChevronDown className="rotate-90 group-hover:-translate-x-1 transition-transform" size={20} />
+        <button onClick={onBack} className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all group shrink-0">
+          <ChevronDown className="rotate-90 group-hover:-translate-x-1 transition-transform w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       )}
 
-      <div className="w-12 h-12 rounded-2xl bg-pd-red/10 flex items-center justify-center text-pd-red shrink-0">
-        <Building2 size={24} />
+      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-pd-red/10 flex items-center justify-center text-pd-red shrink-0">
+        <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
       </div>
 
       <div className="flex-1 overflow-hidden">
-        <h3 className="text-slate-900 font-black text-lg lg:text-xl leading-none uppercase tracking-tight truncate">
+        <h3 className="text-slate-900 font-black text-base sm:text-lg lg:text-xl leading-none uppercase tracking-tight truncate">
           {step === 'signup' ? 'Create Account' : step === 'login' ? 'Welcome Back' : step === 'otp' ? 'Verify Mobile' : 'Get Free Quotes'}
         </h3>
-        <div className="flex items-center gap-2 mt-1.5">
+        <div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-          <p className="text-slate-500 text-[10px] uppercase font-bold tracking-[0.1em] truncate">
-            {step === 'inquiry' ? 'Direct Venue Prices In Minutes' : 'Secure & Verified Access'}
+          <p className="text-slate-500 text-[8px] sm:text-[10px] uppercase font-bold tracking-[0.1em] truncate">
+            {step === 'inquiry' ? 'Direct Venue Prices' : 'Secure Access'}
           </p>
         </div>
       </div>
 
       <button
         onClick={onClose}
-        className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all active:scale-95 shrink-0"
+        className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-all active:scale-95 shrink-0"
         aria-label="Close"
       >
-        <X size={20} />
+        <X className="w-4 h-4 sm:w-5 sm:h-5" />
       </button>
     </div>
   </div>
@@ -708,10 +708,11 @@ const InquiryForm = memo(({
 InquiryForm.displayName = 'InquiryForm';
 
 export default function PopupInquiry() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasInitialTimerFired = useRef(false);
 
   // New Step and Auth state
   const [step, setStep] = useState<Step>('inquiry');
@@ -770,6 +771,18 @@ export default function PopupInquiry() {
       checkAuth();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (!isOpen && !isSubmitted) {
+      const delay = hasInitialTimerFired.current ? 60000 : 10000;
+      timer = setTimeout(() => {
+        setIsOpen(true);
+        hasInitialTimerFired.current = true;
+      }, delay);
+    }
+    return () => clearTimeout(timer);
+  }, [isOpen, isSubmitted]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -986,7 +999,7 @@ export default function PopupInquiry() {
 
             <PopupHeader onClose={closePopup} step={step} onBack={step === 'otp' ? handleBackToSignup : undefined} />
 
-            <div className="p-5 sm:p-10 overflow-y-auto no-scrollbar flex-1 pb-10 sm:pb-10 bg-white relative">
+            <div className="p-5 pt-8 sm:p-10 overflow-y-auto no-scrollbar flex-1 pb-10 sm:pb-10 bg-white relative">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={step}

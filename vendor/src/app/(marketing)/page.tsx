@@ -42,7 +42,10 @@ import {
    UsersRound,
    Search,
    Facebook,
-   Instagram
+   Instagram,
+   ImageIcon,
+   Gift,
+   Filter
 } from 'lucide-react';
 
 // --- DATA ---
@@ -430,7 +433,7 @@ export default function PartnerLandingPage() {
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center">
-                     <Link href="/signup">
+                     <Link href="/login">
                         <motion.button
                            whileHover={{ scale: 1.02, boxShadow: "0 20px 40px -10px rgba(233,30,140,0.3)" }}
                            whileTap={{ scale: 0.98 }}
@@ -620,198 +623,207 @@ export default function PartnerLandingPage() {
             </div>
          </section>
 
-         {/* 5. EVENT CATEGORIES - INFINITE MOSAIC CAROUSEL */}
-         <section id="categories" className="relative py-12 md:py-16 px-6 bg-slate-50 overflow-hidden">
-            {/* Abstract Background Accents */}
-            <div className="absolute top-0 right-0 w-100 h-100 opacity-20 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-active-blue/30 to-transparent"></div>
-            <div className="absolute bottom-0 left-0 w-100 h-100 opacity-20 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/30 to-transparent"></div>
-
-            <div className="max-w-360 mx-auto lg:px-12 relative z-10">
-               <div className="text-center mb-16">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white shadow-sm border border-slate-100 text-pd-pink text-[11px] font-black uppercase tracking-[0.4em] mb-6">
-                     <Target size={12} className="fill-pd-pink/10" /> Market Segments
-                  </div>
-                  <h3 className="text-3xl md:text-5xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-6">
-                     Most Popular <span className="pd-gradient-text ">Searches</span>
-                  </h3>
-                  <p className="text-slate-500 text-sm md:text-base max-w-xl mx-auto font-medium leading-relaxed">
-                     Connect with thousands of customers actively searching for these high-demand event types in your city every month.
-                  </p>
-               </div>
-            </div>
-
-            {/* Swiper Carousel Container */}
-            <div 
-               className="relative w-full max-w-360 mx-auto px-4 lg:px-12 py-10"
-               style={{ WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)', maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)' }}
-            >
-               <style jsx global>{`
-            .swiper-pagination-bullet {
-              background: #cbd5e1;
-              opacity: 1;
-            }
-            .swiper-pagination-bullet-active {
-              background: #0f172a;
-              width: 24px;
-              border-radius: 12px;
-              transition: width 0.3s ease;
-            }
-          `}</style>
-               <Swiper
-                  effect={'coverflow'}
-                  grabCursor={true}
-                  centeredSlides={true}
-                  slidesPerView={'auto'}
-                  loop={true}
-                  autoplay={{
-                     delay: 2500,
-                     disableOnInteraction: false,
-                  }}
-                  coverflowEffect={{
-                     rotate: 0,
-                     stretch: 0,
-                     depth: 100,
-                     modifier: 2.5,
-                     slideShadows: false,
-                  }}
-                  pagination={{ clickable: true }}
-                  modules={[EffectCoverflow, Pagination, Autoplay]}
-                  className="w-full pb-16!"
-               >
-                  {eventCategories.map((evt, i) => (
-                     <SwiperSlide key={i} className="w-70! md:w-85!">
-                        <motion.div
-                           whileHover={{ y: -10, scale: 1.02, boxShadow: `0 20px 40px -10px ${evt.accent}40` }}
-                           className="relative p-8 rounded-[40px] bg-white border border-slate-100 shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden cursor-pointer flex flex-col items-center justify-center text-center group h-full mx-2"
-                        >
-                           {/* Background Gradient Flash */}
-                           <div
-                              className="absolute inset-x-0 bottom-0 h-1.5 group-hover:h-full transition-all duration-500 opacity-10 group-hover:opacity-100"
-                              style={{ background: `linear-gradient(to top, ${evt.accent}20, transparent)` }}
-                           ></div>
-
-                           <div
-                              className="w-20 h-20 rounded-4xl flex items-center justify-center mb-6 transition-transform duration-500 group-hover:rotate-10 shadow-lg border-2 border-slate-50 group-hover:bg-white"
-                              style={{ color: evt.accent, backgroundColor: `${evt.accent}08` }}
-                           >
-                              {evt.icon}
-                           </div>
-
-                           <h4 className="text-xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-2">
-                              {evt.name}
-                           </h4>
-
-                           <div className="flex flex-col items-center gap-2">
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{evt.demand}</span>
-                              <div className="px-4 py-1.5 bg-slate-50 rounded-full border border-slate-100 text-[9px] font-black text-emerald-500 uppercase tracking-widest group-hover:bg-pd-pink group-hover:text-white group-hover:border-pd-pink transition-colors shadow-sm">
-                                 Trending Hot
-                              </div>
-                           </div>
-
-                           {/* Corner Accent */}
-                           <div className="absolute top-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <ArrowUpRight size={20} style={{ color: evt.accent }} />
-                           </div>
-                        </motion.div>
-                     </SwiperSlide>
-                  ))}
-               </Swiper>
-            </div>
-         </section>
-
-         {/* 5.5 BENEFITS - WHY PARTNER WITH US */}
-         <section className="py-20 md:py-32 px-6 bg-white relative overflow-hidden border-t border-slate-100">
-            {/* Background Effects */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-pd-blue/5 via-white to-white pointer-events-none"></div>
+         {/* BENEFITS OF PARTYDIAL SECTION */}
+         <section id="benefits" className="relative py-12 md:py-16 px-6 bg-slate-50 overflow-hidden">
+            {/* Background Accents */}
+            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-pd-pink/10 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/4"></div>
+            <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-pd-blue/10 rounded-full blur-[120px] pointer-events-none translate-y-1/2 -translate-x-1/4"></div>
             
             <div className="max-w-360 mx-auto lg:px-12 relative z-10">
-               <div className="flex flex-col md:flex-row gap-12 lg:gap-20 items-end mb-20">
-                  <div className="flex-1">
-                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pd-blue/5 text-pd-blue text-xs font-black uppercase tracking-[0.4em] mb-6 border border-pd-blue/10">
-                        <Sparkles size={14} className="animate-pulse" /> Partner Benefits
-                     </div>
-                     <h3 className="text-4xl md:text-6xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1]">
-                        Unfair <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-blue to-pd-pink ">Advantage</span>
-                     </h3>
-                  </div>
-                  <div className="flex-1 md:pb-4">
-                     <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed max-w-lg">
-                        We don&apos;t just list your venue. We equip you with a high-performance growth engine designed to dominate your local market.
-                     </p>
-                  </div>
+               <div className="text-center mb-10 md:mb-14">
+                  <motion.div 
+                     initial={{ opacity: 0, y: 20 }}
+                     whileInView={{ opacity: 1, y: 0 }}
+                     viewport={{ once: true }}
+                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-md border border-slate-100 text-pd-pink text-xs font-semibold uppercase tracking-widest mb-6"
+                  >
+                     Why Choose Us
+                  </motion.div>
+                  <motion.h2 
+                     initial={{ opacity: 0, y: 20 }}
+                     whileInView={{ opacity: 1, y: 0 }}
+                     viewport={{ once: true }}
+                     transition={{ delay: 0.1 }}
+                     className="text-4xl md:text-5xl lg:text-7xl font-semibold text-[#0F172A] tracking-tight mb-6"
+                  >
+                     Benefits of <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue">PartyDial</span>
+                  </motion.h2>
+                  <motion.p 
+                     initial={{ opacity: 0, y: 20 }}
+                     whileInView={{ opacity: 1, y: 0 }}
+                     viewport={{ once: true }}
+                     transition={{ delay: 0.2 }}
+                     className="text-slate-500 text-base md:text-lg lg:text-xl font-normal max-w-2xl mx-auto leading-relaxed"
+                  >
+                     We equip you with a high-performance growth engine designed to dominate your local market and skyrocket your venue&apos;s revenue.
+                  </motion.p>
                </div>
 
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {[
                      {
-                        title: "Zero Setup Cost",
-                        desc: "Launch your verified profile instantly without any upfront investment. We only succeed when you close bookings.",
-                        icon: <Building2 size={28} />,
-                        iconColor: "text-blue-500",
-                        gradient: "from-blue-500/5 to-cyan-500/5",
-                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(59,130,246,0.15)]"
+                        title: "10x More Exposure",
+                        desc: "Get discovered by thousands of customers actively searching for event venues in your city every single day.",
+                        icon: <Target size={32} />,
+                        color: "text-pd-pink",
+                        bg: "bg-pd-pink/10",
+                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(244,63,94,0.3)]"
                      },
                      {
                         title: "Verified High-Intent Leads",
-                        desc: "Say goodbye to window shoppers. Every inquiry is strictly phone-verified and actively looking for a venue.",
-                        icon: <ShieldCheck size={28} />,
-                        iconColor: "text-emerald-500",
-                        gradient: "from-emerald-500/5 to-teal-500/5",
-                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.15)]"
+                        desc: "Say goodbye to window shoppers. Every inquiry is strictly phone-verified and actively looking to book.",
+                        icon: <ShieldCheck size={32} />,
+                        color: "text-emerald-500",
+                        bg: "bg-emerald-500/10",
+                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)]"
+                     },
+                     {
+                        title: "Zero Setup Cost",
+                        desc: "Launch your verified profile instantly without any upfront investment. We only succeed when you close bookings.",
+                        icon: <Building2 size={32} />,
+                        color: "text-blue-500",
+                        bg: "bg-blue-500/10",
+                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(59,130,246,0.3)]"
+                     },
+                     {
+                        title: "Smart Dashboard",
+                        desc: "Manage all your leads, track revenue, and monitor your venue's performance in one intuitive interface.",
+                        icon: <LayoutDashboard size={32} />,
+                        color: "text-pd-blue",
+                        bg: "bg-pd-blue/10",
+                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.3)]"
+                     },
+                     {
+                        title: "Real-Time Alerts",
+                        desc: "Never miss a booking. Get instant app and email notifications the second a new lead is generated.",
+                        icon: <Zap size={32} />,
+                        color: "text-amber-500",
+                        bg: "bg-amber-500/10",
+                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.3)]"
                      },
                      {
                         title: "Dedicated Success Manager",
-                        desc: "Get 1-on-1 strategic support from industry experts who help optimize your listing and pricing strategy for maximum ROI.",
-                        icon: <Users size={28} />,
-                        iconColor: "text-purple-500",
-                        gradient: "from-purple-500/5 to-pink-500/5",
-                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(168,85,247,0.15)]"
+                        desc: "Get 1-on-1 strategic support from industry experts to help optimize your listing and pricing strategy.",
+                        icon: <Users size={32} />,
+                        color: "text-purple-500",
+                        bg: "bg-purple-500/10",
+                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(168,85,247,0.3)]"
                      }
                   ].map((benefit, i) => (
                      <motion.div
                         key={i}
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.1, duration: 0.5 }}
                         whileHover={{ y: -10 }}
-                        className={`group relative p-8 lg:p-10 rounded-4xl bg-slate-50 border border-slate-100 overflow-hidden transition-all duration-500 ${benefit.glow} hover:bg-white`}
+                        className={`group relative p-6 lg:p-8 rounded-4xl bg-white border border-slate-100 transition-all duration-500 ${benefit.glow} hover:border-transparent cursor-default`}
                      >
-                        {/* Hover Gradient Background */}
-                        <div className={`absolute inset-0 bg-linear-to-br ${benefit.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10`}></div>
+                        <div className="absolute inset-0 bg-linear-to-br from-white to-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 rounded-4xl"></div>
                         
-                        <div className="relative z-10">
-                           <div className={`w-16 h-16 rounded-2xl bg-white border border-slate-100 flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-500 ${benefit.iconColor}`}>
+                        <div className="relative z-10 flex flex-col h-full">
+                           <div className={`w-16 h-16 rounded-2xl ${benefit.bg} flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-500 ${benefit.color}`}>
                               {benefit.icon}
                            </div>
                            
-                           <h4 className="text-2xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-4">{benefit.title}</h4>
-                           <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed transition-colors">
+                           <h4 className="text-2xl font-semibold text-[#0F172A] tracking-tight mb-4">{benefit.title}</h4>
+                           <p className="text-slate-500 text-base font-normal leading-relaxed mt-auto">
                               {benefit.desc}
                            </p>
                         </div>
-
-                        {/* Decorative top right icon removed for a cleaner look */}
                      </motion.div>
                   ))}
                </div>
             </div>
          </section>
 
-         {/* 6. MERCHANT FEATURES - COMPACT INTERACTIVE HUB */}
-         <section id="features" className="relative py-12 md:py-16 px-6 bg-slate-50 overflow-hidden">
+         {/* FEATURES OF PARTYDIAL SECTION */}
+         <section id="features" className="relative py-20 md:py-24 px-6 bg-white overflow-hidden font-pd">
             <div className="max-w-360 mx-auto lg:px-12 relative z-10">
-
-               <div className="text-center mb-10">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white shadow-sm border border-slate-100 text-pd-pink text-[10px] font-black uppercase tracking-[0.4em] mb-4">
-                     <ShieldCheck size={12} className="fill-pd-pink/10" /> Venue Operating System
-                  </div>
-                  <h3 className="text-3xl md:text-5xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] py-2 mb-4">
-                     Elite Partner <span className="pd-gradient-text ">Success Hub</span>
-                  </h3>
+               <div className="text-center mb-16 md:mb-20">
+                  <motion.div 
+                     initial={{ opacity: 0, y: 20 }}
+                     whileInView={{ opacity: 1, y: 0 }}
+                     viewport={{ once: true }}
+                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 shadow-sm border border-slate-100 text-pd-blue text-xs font-semibold uppercase tracking-widest mb-6"
+                  >
+                     Powerful Tools
+                  </motion.div>
+                  <motion.h2 
+                     initial={{ opacity: 0, y: 20 }}
+                     whileInView={{ opacity: 1, y: 0 }}
+                     viewport={{ once: true }}
+                     transition={{ delay: 0.1 }}
+                     className="text-4xl md:text-5xl lg:text-7xl font-semibold text-[#0F172A] tracking-tight mb-6"
+                  >
+                     Features of <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-blue to-pd-pink">PartyDial</span>
+                  </motion.h2>
+                  <motion.p 
+                     initial={{ opacity: 0, y: 20 }}
+                     whileInView={{ opacity: 1, y: 0 }}
+                     viewport={{ once: true }}
+                     transition={{ delay: 0.2 }}
+                     className="text-slate-500 text-base md:text-lg lg:text-xl font-normal max-w-2xl mx-auto leading-relaxed"
+                  >
+                     Everything you need to manage your venue, capture leads, and close more bookings seamlessly.
+                  </motion.p>
                </div>
 
-               {/* Interactive Feature Hub */}
-               <div className="bg-white rounded-[48px] p-3 shadow-xl border border-slate-100/50">
-                  <FeatureHub />
-               </div>
+               <div className="relative w-full overflow-hidden py-8 mt-8">
+                  {/* Fade edges for smooth entry/exit */}
+                  <div className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+                  <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
 
+                  {(() => {
+                     const featuresList = [
+                        { id: "01", title: "Venue profile page", desc: "Your own branded page with photos, videos, capacity, amenities, location, and pricing information.", icon: <LayoutDashboard size={40} className="text-pd-pink" strokeWidth={1.5} /> },
+                        { id: "02", title: "Smart search filters", desc: "Customers can find you by city, locality, event type, guest count, budget, food preference, and venue category.", icon: <Filter size={40} className="text-pd-pink" strokeWidth={1.5} /> },
+                        { id: "03", title: "Enquiry management", desc: "Receive customer booking enquiries in an organised way.", icon: <MessageSquare size={40} className="text-pd-pink" strokeWidth={1.5} /> },
+                        { id: "04", title: "Photo and video gallery", desc: "Showcase your ambience, décor possibilities, food presentation, and real events.", icon: <ImageIcon size={40} className="text-pd-pink" strokeWidth={1.5} /> },
+                        { id: "05", title: "Venue categories", desc: "List for weddings, receptions, birthdays, anniversaries, corporate events, kitty parties, and more.", icon: <UsersRound size={40} className="text-pd-pink" strokeWidth={1.5} /> },
+                        { id: "06", title: "Availability support", desc: "Help customers enquire for their preferred event date.", icon: <Calendar size={40} className="text-pd-pink" strokeWidth={1.5} /> },
+                        { id: "07", title: "Location & map", desc: "Make it easier for customers to find and visit your venue.", icon: <MapPin size={40} className="text-pd-pink" strokeWidth={1.5} /> },
+                        { id: "08", title: "Customer reviews", desc: "Build trust through authentic feedback and venue experience.", icon: <Star size={40} className="text-pd-pink" strokeWidth={1.5} /> },
+                        { id: "09", title: "Offers and packages", desc: "Promote special packages, seasonal offers, weekday deals, or wedding packages.", icon: <Gift size={40} className="text-pd-pink" strokeWidth={1.5} /> },
+                        { id: "10", title: "Dashboard & analytics", desc: "Understand profile views, enquiries, customer interest, and lead activity.", icon: <TrendingUp size={40} className="text-pd-pink" strokeWidth={1.5} /> },
+                        { id: "11", title: "Mobile accessibility", desc: "Manage and review leads from mobile, wherever you are.", icon: <Smartphone size={40} className="text-pd-pink" strokeWidth={1.5} /> }
+                     ];
+                     return (
+                        <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
+                           <div className="flex gap-6 pr-6">
+                              {featuresList.map((feature, i) => (
+                                 <div
+                                    key={i}
+                                    className="relative p-6 pt-8 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center w-[280px] shrink-0 group"
+                                 >
+                                    <div className="w-20 h-20 rounded-full bg-pd-pink/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
+                                       {feature.icon}
+                                    </div>
+                                    <div className="w-6 h-0.5 bg-pd-pink/30 mb-4 rounded-full group-hover:bg-pd-pink transition-colors"></div>
+                                    <h4 className="text-[15px] font-semibold text-slate-900 mb-2 leading-tight">{feature.title}</h4>
+                                    <p className="text-[13px] text-slate-500 font-normal leading-relaxed">{feature.desc}</p>
+                                 </div>
+                              ))}
+                           </div>
+                           <div className="flex gap-6 pr-6" aria-hidden="true">
+                              {featuresList.map((feature, i) => (
+                                 <div
+                                    key={`dup-${i}`}
+                                    className="relative p-6 pt-8 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center w-[280px] shrink-0 group"
+                                 >
+                                    <div className="w-20 h-20 rounded-full bg-pd-pink/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
+                                       {feature.icon}
+                                    </div>
+                                    <div className="w-6 h-0.5 bg-pd-pink/30 mb-4 rounded-full group-hover:bg-pd-pink transition-colors"></div>
+                                    <h4 className="text-[15px] font-semibold text-slate-900 mb-2 leading-tight">{feature.title}</h4>
+                                    <p className="text-[13px] text-slate-500 font-normal leading-relaxed">{feature.desc}</p>
+                                 </div>
+                              ))}
+                           </div>
+                        </div>
+                     );
+                  })()}
+               </div>
             </div>
          </section>
 
@@ -1401,7 +1413,7 @@ export default function PartnerLandingPage() {
                         India&apos;s most powerful venue growth engine. Stop waiting for leads and start <span className="text-white font-bold  border-b border-pd-pink">commanding them.</span>
                      </p>
                      <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-                        <Link href="/signup" className="px-14 py-5 bg-white text-slate-900 rounded-[20px] text-xs font-black uppercase tracking-[0.3em]  hover:bg-pd-pink hover:text-white transition-all duration-500 shadow-2xl shadow-white/5 hover:shadow-pd-pink/30 hover:-translate-y-1 w-full sm:w-auto text-center">
+                        <Link href="/login" className="px-14 py-5 bg-white text-slate-900 rounded-[20px] text-xs font-black uppercase tracking-[0.3em]  hover:bg-pd-pink hover:text-white transition-all duration-500 shadow-2xl shadow-white/5 hover:shadow-pd-pink/30 hover:-translate-y-1 w-full sm:w-auto text-center">
                            List Your Venue
                         </Link>
                         <div className="flex flex-col gap-1">

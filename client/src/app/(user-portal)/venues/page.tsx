@@ -573,11 +573,22 @@ function VenuesContent() {
 
   const totalPages = Math.ceil(allCombinedVenues.length / ITEMS_PER_PAGE);
   const paginatedVenues = allCombinedVenues.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
+    0,
     currentPage * ITEMS_PER_PAGE
   );
 
-  
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!loadMoreRef.current) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && currentPage < totalPages) {
+         setCurrentPage(prev => prev + 1);
+      }
+    }, { rootMargin: '200px' });
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [currentPage, totalPages]);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [activeFilterDropdown, setActiveFilterDropdown] = useState<string | null>(null);
 
@@ -607,7 +618,7 @@ function VenuesContent() {
         </div>
 
         {/* Right Side: Actions */}
-        <div className="flex flex-col lg:flex-row w-full lg:w-auto items-center justify-end gap-2 shrink-0 pr-2">
+        <div className={`flex flex-col lg:flex-row w-full lg:w-auto items-center justify-end gap-2 shrink-0 pr-2 ${showMobileFilters ? 'hidden' : ''}`}>
            <button 
              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
              className="bg-pd-red/10 text-pd-red px-6 py-3 rounded-full text-sm font-bold flex items-center justify-center gap-2 hover:bg-pd-red/20 transition-colors w-full lg:w-auto"
@@ -621,16 +632,16 @@ function VenuesContent() {
 
       {/* --- BOTTOM DROPDOWN FILTERS --- */}
       <AnimatePresence>
-        {showAdvancedFilters && (
+        {(showAdvancedFilters || showMobileFilters) && (
           <motion.div 
-            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            initial={showMobileFilters ? { opacity: 1, height: 'auto', marginTop: 16 } : { opacity: 0, height: 0, marginTop: 0 }}
             animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
-            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            exit={showMobileFilters ? { opacity: 1, height: 'auto', marginTop: 16 } : { opacity: 0, height: 0, marginTop: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="bg-white rounded-3xl shadow-xl border border-slate-100 p-6 relative z-10 hidden lg:block overflow-visible"
+            className={`bg-white rounded-3xl relative z-10 overflow-visible ${showMobileFilters ? 'pt-2' : 'shadow-xl border border-slate-100 p-6'}`}
           >
              {/* Header */}
-             <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
+             <div className={`flex items-center justify-between mb-8 pb-4 border-b border-slate-100 ${showMobileFilters ? 'hidden' : ''}`}>
                <div className="flex items-center gap-3">
                  <div className="w-10 h-10 bg-pd-red/10 text-pd-red rounded-xl flex items-center justify-center">
                    <Settings2 size={20} />
@@ -872,79 +883,12 @@ function VenuesContent() {
                      ))}
                    </motion.div>
 
-                   {/* Pagination Controls */}
-                   {totalPages > 1 && (
-                     <div className="mt-16 flex items-center justify-center">
-                       <div className="flex flex-wrap justify-center md:flex-nowrap items-center bg-white px-2 py-2 md:px-4 md:py-3 rounded-[2rem] md:rounded-full shadow-[0_4px_24px_rgb(0,0,0,0.06)] border border-slate-50 gap-2 md:gap-4">
-                         
-                         {/* Previous Button */}
-                         <button 
-                           disabled={currentPage === 1}
-                           onClick={() => {
-                             setCurrentPage(prev => Math.max(1, prev - 1));
-                             window.scrollTo({ top: 0, behavior: 'smooth' });
-                           }}
-                           className="flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors disabled:opacity-40 disabled:hover:text-slate-500"
-                         >
-                           <ChevronLeft size={18} strokeWidth={2.5} />
-                           Previous
-                         </button>
-                         
-                         {/* Page Numbers */}
-                         <div className="flex items-center gap-1 mx-1 md:mx-2">
-                           {[...Array(totalPages)].map((_, i) => {
-                             const pageNum = i + 1;
-                             if (
-                               pageNum === 1 || 
-                               pageNum === totalPages || 
-                               (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                             ) {
-                               return (
-                                 <button
-                                   key={pageNum}
-                                   onClick={() => {
-                                     setCurrentPage(pageNum);
-                                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                                   }}
-                                   className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full text-sm font-bold transition-all ${
-                                     currentPage === pageNum 
-                                       ? 'bg-[#F43F5E] text-white ring-[4px] ring-[#F43F5E]/20' 
-                                       : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 bg-transparent'
-                                   }`}
-                                  >
-                                   {pageNum}
-                                 </button>
-                               );
-                             } else if (
-                               pageNum === currentPage - 2 || 
-                               pageNum === currentPage + 2
-                             ) {
-                               return <span key={pageNum} className="px-1 text-slate-400 font-bold tracking-widest">...</span>;
-                             }
-                             return null;
-                           })}
-                         </div>
-
-                         {/* Next Button */}
-                         <button 
-                           disabled={currentPage === totalPages}
-                           onClick={() => {
-                             setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                             window.scrollTo({ top: 0, behavior: 'smooth' });
-                           }}
-                           className="flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors disabled:opacity-40 disabled:hover:text-slate-500"
-                         >
-                           Next
-                           <ChevronRight size={18} strokeWidth={2.5} />
-                         </button>
-
-                         {/* Results Count */}
-                         <div className="hidden xl:block pl-6 border-l border-slate-200 text-sm font-medium text-slate-500 mr-2">
-                           Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, allCombinedVenues.length)} of {allCombinedVenues.length} results
-                         </div>
-                       </div>
-                    </div>
-                    )}
+                   {/* Infinite Scroll Trigger */}
+                   {currentPage < totalPages && (
+                     <div ref={loadMoreRef} className="w-full h-20 flex items-center justify-center mt-12">
+                       <div className="w-8 h-8 border-4 border-slate-200 border-t-pd-red rounded-full animate-spin"></div>
+                     </div>
+                   )}
                   </div>
                 )}
 
@@ -954,7 +898,23 @@ function VenuesContent() {
                {isLoadingVenues && (
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                    {[1,2,3,4,5,6,7,8].map(i => (
-                     <div key={i} className="w-full aspect-[4/3] bg-slate-100 animate-pulse rounded-3xl" />
+                     <div key={i} className="flex flex-col gap-3 w-full">
+                       {/* Image Skeleton */}
+                       <div className="w-full aspect-[4/3] bg-slate-100 animate-pulse rounded-3xl" />
+                       {/* Content Skeleton */}
+                       <div className="px-2 space-y-3 mt-1">
+                         <div className="flex justify-between items-start gap-4">
+                           <div className="h-5 bg-slate-100 animate-pulse rounded-full w-3/4" />
+                           <div className="h-5 bg-slate-100 animate-pulse rounded-full w-12 shrink-0" />
+                         </div>
+                         <div className="h-3 bg-slate-100 animate-pulse rounded-full w-1/2" />
+                         <div className="flex gap-2 pt-1">
+                           <div className="h-4 bg-slate-100 animate-pulse rounded-full w-16" />
+                           <div className="h-4 bg-slate-100 animate-pulse rounded-full w-16" />
+                         </div>
+                         <div className="h-4 bg-slate-100 animate-pulse rounded-full w-1/3 mt-2" />
+                       </div>
+                     </div>
                    ))}
                  </div>
                )}

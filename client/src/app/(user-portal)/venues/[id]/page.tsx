@@ -47,6 +47,8 @@ import {
 } from 'lucide-react';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { Camera, Trash2, Edit3, Filter as FilterIcon, IndianRupee, Search } from 'lucide-react';
+import Header from '@/shared/components/Header';
+import Footer from '@/shared/components/Footer';
 
 import { MOCK_VENUES } from '@/data/venues';
 import { STORAGE_BUCKET_ID } from '@/lib/appwrite';
@@ -530,6 +532,7 @@ export default function VenueDetailPage() {
   if (isLoading) {
      return (
         <div className="min-h-screen bg-slate-50 font-['Poppins'] overflow-hidden">
+          <Header />
           {/* SKELETON: Hero Image */}
           <div className="h-[45vh] md:h-[65vh] bg-slate-200 animate-pulse w-full"></div>
           
@@ -580,8 +583,9 @@ export default function VenueDetailPage() {
 
   if (!venue) {
      return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-            <div className="text-center">
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
+            <Header />
+            <div className="text-center mt-20">
                 <h1 className="text-2xl font-pd font-semibold text-slate-900 mb-4">Venue Not Found</h1>
                 <Link href="/venues" className="text-pd-red font-pd font-normal hover:underline">Back to Listings</Link>
             </div>
@@ -591,6 +595,7 @@ export default function VenueDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-['Poppins']">
+      <Header />
       
       {/* 1. IMAGE GALLERY HERO (REDESIGNED) */}
       <section className="px-4 pt-6 md:px-8 bg-white relative">
@@ -1366,6 +1371,9 @@ export default function VenueDetailPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Amenities Modal */}
       <AnimatePresence>
