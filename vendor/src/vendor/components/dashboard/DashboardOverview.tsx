@@ -76,7 +76,7 @@ const DashboardOverview = ({
   };
 
   // Compute stats locally based on timeFilter
-  const filteredStats = useMemo(() => {
+  const filteredData = useMemo(() => {
     const now = new Date();
     
     // Helper to check if a date string is within the current filter range
@@ -117,7 +117,7 @@ const DashboardOverview = ({
     const bookedLeads = filteredLeads.filter(l => l.status === 'Booked').length;
     const lostLeads = filteredLeads.filter(l => l.status === 'Lost').length;
     
-    return [
+    const statsArray = [
       { 
         label: 'Total Leads', 
         value: totalLeads.toString(), 
@@ -151,6 +151,7 @@ const DashboardOverview = ({
         isUp: true 
       },
     ];
+    return { statsArray, filteredLeads };
   }, [recentLeads, timeFilter, averageRating]);
 
   return (
@@ -212,7 +213,7 @@ const DashboardOverview = ({
              </div>
            </div>
            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-             {filteredStats.map((stat, i) => (
+             {filteredData.statsArray.map((stat, i) => (
              <motion.div
                initial={{ opacity: 0, y: 15 }}
                animate={{ opacity: 1, y: 0 }}
@@ -260,9 +261,9 @@ const DashboardOverview = ({
              
              {/* Data Table / List */}
              <div className="flex-1 bg-slate-50/30 p-2 lg:p-4">
-                {recentLeads.length > 0 ? (
+                {filteredData.filteredLeads.length > 0 ? (
                   <div className="space-y-2">
-                    {[...recentLeads].slice(0, 5).map((lead, i) => (
+                    {[...filteredData.filteredLeads].slice(0, 5).map((lead, i) => (
                       <motion.div 
                         key={lead.id}
                         initial={{ opacity: 0, y: 10 }}
@@ -300,8 +301,8 @@ const DashboardOverview = ({
                      <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-300 mb-4 shadow-sm border border-slate-100">
                         <Zap size={24} />
                      </div>
-                     <h3 className="text-sm font-bold text-slate-900 mb-1">No Leads Yet</h3>
-                     <p className="text-xs text-slate-500 mb-6 text-center max-w-xs">When customers inquire about your venue, they will appear here in real-time.</p>
+                     <h3 className="text-sm font-bold text-slate-900 mb-1">No Leads Found</h3>
+                     <p className="text-xs text-slate-500 mb-6 text-center max-w-xs">There are no leads matching your selected timeframe.</p>
                      
                      {venueProfile?.subscriptionPlan === 'free' || !venueProfile?.subscriptionPlan ? (
                         <button 
