@@ -4,7 +4,7 @@ const dns = require('dns').promises;
 
 
 
-const { ID, Query, Account } = require('node-appwrite');
+const { ID, Query, Account, Permission, Role } = require('node-appwrite');
 
 
 // Check if phone number already exists
@@ -111,7 +111,7 @@ exports.register = async (req, res) => {
         // --- Added: Create Venue Profile in Database ---
         try {
             if (DATABASE_ID && VENUES_COLLECTION_ID) {
-                        // Create the document with required defaults per schema
+                        // Create the document with required defaults per schema and user permissions
                         await databases.createDocument(
                             DATABASE_ID, 
                             VENUES_COLLECTION_ID, 
@@ -141,7 +141,13 @@ exports.register = async (req, res) => {
                                 isVerified: false,
                                 status: 'active',
                                 subscriptionPlan: req.body.subscriptionPlan || 'None'
-                            }
+                            },
+                            [
+                                Permission.read(Role.user(newUser.$id)),
+                                Permission.update(Role.user(newUser.$id)),
+                                Permission.delete(Role.user(newUser.$id)),
+                                Permission.read(Role.any())
+                            ]
                         );
             }
         } catch (dbError) {
@@ -425,8 +431,9 @@ exports.forgotPassword = async (req, res) => {
 
         // 4. Send Custom Email
         const { sendPasswordResetEmail } = require('../utils/emailService');
-        // fallback to live domain if localhost is found in production environment
-        let baseUrl = process.env.FRONTEND_URL || 'https://partner.partydial.com';
+        // Dynamically use the origin or referer that initiated the request (handles live domains perfectly)
+        let requestOrigin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : null);
+        let baseUrl = requestOrigin || process.env.FRONTEND_VENDOR_URL || 'https://partner.partydial.com';
         if (process.env.NODE_ENV === 'production' && baseUrl.includes('localhost')) {
             baseUrl = 'https://partner.partydial.com';
         }

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ChevronRight, Upload, User, ShieldCheck, IndianRupee } from 'lucide-react';
+import { Check, ChevronRight, Upload, User, ShieldCheck, IndianRupee, LogOut } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
@@ -54,13 +54,11 @@ export default function OnboardingWizard() {
     // Load initial venue data
     const loadData = async () => {
       try {
-        const { account, databases, Query } = await import('@/lib/appwrite');
+        const { account, databases, Query, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
         const user = await account.get();
-        const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
-        const VENUES_COL = process.env.NEXT_PUBLIC_APPWRITE_VENUES_COLLECTION_ID;
         
-        if (DATABASE_ID && VENUES_COL) {
-          const res = await databases.listDocuments(DATABASE_ID, VENUES_COL, [Query.equal('userId', user.$id)]);
+        if (DATABASE_ID && VENUES_COLLECTION_ID) {
+          const res = await databases.listDocuments(DATABASE_ID, VENUES_COLLECTION_ID, [Query.equal('userId', user.$id)]);
           if (res.documents.length > 0) {
             const profile = res.documents[0];
             setVenueProfile(profile);
@@ -77,13 +75,13 @@ export default function OnboardingWizard() {
               email: profile.contactEmail || user.email || '',
               firstName: profile.ownerName?.split(' ')[0] || '',
               lastName: profile.ownerName?.split(' ').slice(1).join(' ') || '',
-              businessName: profile.venueName !== 'Unnamed Venue' ? profile.venueName : '',
+              businessName: (profile.venueName && profile.venueName !== 'Unnamed Venue') ? profile.venueName : '',
               city: profile.city || '',
               state: profile.state || '',
               pincode: profile.pincode || '',
               phone: profile.contactNumber || '',
               venueType: profile.venueType || 'Banquet Hall',
-              capacity: profile.capacity || '100-200',
+              capacity: profile.capacity ? String(profile.capacity) : '100-200',
               photos: typeof profile.photos === 'string' ? JSON.parse(profile.photos || '[]') : (profile.photos || []),
               amenities: typeof profile.amenities === 'string' ? JSON.parse(profile.amenities || '[]') : (profile.amenities || []),
               perPlateVeg: profile.perPlateVeg || '',
@@ -109,7 +107,98 @@ export default function OnboardingWizard() {
     loadData();
   }, [router]);
 
-  const handleNext = () => {
+  const handleLogout = async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+      const serverUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+      await fetch(`${serverUrl}/auth/logout`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        mode: 'cors'
+      }).catch(() => {});
+    } catch (err) {
+      console.warn('Backend logout call failed:', err);
+    } finally {
+      try {
+        const { account } = await import('@/lib/appwrite');
+        await account.deleteSession('current');
+      } catch { }
+      localStorage.removeItem('auth_session');
+      localStorage.removeItem('user');
+      localStorage.removeItem('onboardingComplete');
+      router.push('/login');
+    }
+  };
+
+  const saveProgressToDatabase = async (isFinal = false) => {
+    try {
+      const { databases, DATABASE_ID, VENUES_COLLECTION_ID, ID } = await import('@/lib/appwrite');
+      const { Permission, Role } = await import('appwrite');
+      
+      if (!DATABASE_ID || !VENUES_COLLECTION_ID) return;
+
+      const rawCap = String(formData.capacity || '100');
+      let parsedCap = 100;
+      if (rawCap.includes('-')) {
+        parsedCap = parseInt(rawCap.split('-').pop() || '100') || 100;
+      } else if (rawCap.includes('+')) {
+        parsedCap = parseInt(rawCap.replace('+', '')) || 1000;
+      } else {
+        parsedCap = parseInt(rawCap) || 100;
+      }
+
+      const payload = {
+        ownerName: `${formData.firstName} ${formData.lastName}`.trim() || 'Vendor Owner',
+        contactEmail: formData.email || '',
+        contactNumber: formData.phone || '',
+        venueName: formData.businessName.trim() || 'My Venue',
+        city: formData.city || '',
+        state: formData.state.trim() || 'State',
+        pincode: formData.pincode.trim() || '000000',
+        venueType: formData.venueType || 'Banquet Hall',
+        capacity: parsedCap,
+        perPlateVeg: String(formData.perPlateVeg ? parseFloat(formData.perPlateVeg) : '0'),
+        perPlateNonVeg: String(formData.perPlateNonVeg ? parseFloat(formData.perPlateNonVeg) : '0'),
+        amenities: JSON.stringify(formData.amenities),
+        photos: JSON.stringify(formData.photos),
+        onboardingComplete: isFinal
+      };
+
+      if (!venueProfile?.$id) {
+        const { account } = await import('@/lib/appwrite');
+        const user = await account.get();
+        const createdDoc = await databases.createDocument(
+          DATABASE_ID, 
+          VENUES_COLLECTION_ID, 
+          ID.unique(), 
+          {
+            userId: user.$id,
+            ...payload,
+            isVerified: false,
+            status: 'active',
+            subscriptionPlan: 'None'
+          },
+          [
+            Permission.read(Role.user(user.$id)),
+            Permission.update(Role.user(user.$id)),
+            Permission.delete(Role.user(user.$id)),
+            Permission.read(Role.any())
+          ]
+        );
+        setVenueProfile(createdDoc);
+      } else {
+        const updatedDoc = await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueProfile.$id, payload);
+        setVenueProfile(updatedDoc);
+      }
+    } catch (err) {
+      console.error('Failed to save progress to database:', err);
+    }
+  };
+
+  const handleNext = async () => {
+    setIsSubmitting(true);
+    await saveProgressToDatabase(false);
+    setIsSubmitting(false);
     if (currentStep < STEPS.length) setCurrentStep(s => s + 1);
   };
 
@@ -153,8 +242,19 @@ export default function OnboardingWizard() {
     setIsSubmitting(true);
     try {
       const { databases, DATABASE_ID, VENUES_COLLECTION_ID, ID } = await import('@/lib/appwrite');
+      const { Permission, Role } = await import('appwrite');
       
       if (!DATABASE_ID || !VENUES_COLLECTION_ID) return;
+
+      const rawCap = String(formData.capacity || '100');
+      let parsedCap = 100;
+      if (rawCap.includes('-')) {
+        parsedCap = parseInt(rawCap.split('-').pop() || '100') || 100;
+      } else if (rawCap.includes('+')) {
+        parsedCap = parseInt(rawCap.replace('+', '')) || 1000;
+      } else {
+        parsedCap = parseInt(rawCap) || 100;
+      }
 
       const payload = {
         ownerName: `${formData.firstName} ${formData.lastName}`.trim(),
@@ -164,9 +264,9 @@ export default function OnboardingWizard() {
         state: formData.state,
         pincode: formData.pincode,
         venueType: formData.venueType,
-        capacity: formData.capacity.toString(),
-        perPlateVeg: parseFloat(formData.perPlateVeg || '0'),
-        perPlateNonVeg: parseFloat(formData.perPlateNonVeg || '0'),
+        capacity: parsedCap,
+        perPlateVeg: String(formData.perPlateVeg ? parseFloat(formData.perPlateVeg) : '0'),
+        perPlateNonVeg: String(formData.perPlateNonVeg ? parseFloat(formData.perPlateNonVeg) : '0'),
         amenities: JSON.stringify(formData.amenities),
         // Assume photos are handled by a separate uploader that uploads directly to storage and updates state
         photos: JSON.stringify(formData.photos),
@@ -176,13 +276,24 @@ export default function OnboardingWizard() {
       if (!venueProfile?.$id) {
         const { account } = await import('@/lib/appwrite');
         const user = await account.get();
-        await databases.createDocument(DATABASE_ID, VENUES_COLLECTION_ID, ID.unique(), {
-          userId: user.$id,
-          ...payload,
-          isVerified: false,
-          status: 'active',
-          subscriptionPlan: 'None'
-        });
+        await databases.createDocument(
+          DATABASE_ID, 
+          VENUES_COLLECTION_ID, 
+          ID.unique(), 
+          {
+            userId: user.$id,
+            ...payload,
+            isVerified: false,
+            status: 'active',
+            subscriptionPlan: 'None'
+          },
+          [
+            Permission.read(Role.user(user.$id)),
+            Permission.update(Role.user(user.$id)),
+            Permission.delete(Role.user(user.$id)),
+            Permission.read(Role.any())
+          ]
+        );
       } else {
         await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueProfile.$id, payload);
       }
@@ -266,12 +377,22 @@ export default function OnboardingWizard() {
           })}
         </div>
 
-        <div className="mt-auto pt-10 flex items-center gap-3 text-emerald-600">
-          <ShieldCheck size={20} />
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest">Bank-level Security</p>
-            <p className="text-[9px] font-medium text-slate-500">Your data is encrypted & secure</p>
+        <div className="mt-auto pt-6 flex flex-col gap-4">
+          <div className="flex items-center gap-3 text-emerald-600">
+            <ShieldCheck size={20} />
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest">Bank-level Security</p>
+              <p className="text-[9px] font-medium text-slate-500">Your data is encrypted & secure</p>
+            </div>
           </div>
+          <button
+            onClick={handleLogout}
+            type="button"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-slate-500 hover:text-red-600 hover:bg-red-50 border border-slate-200 hover:border-red-100 transition-all cursor-pointer"
+          >
+            <LogOut size={14} />
+            <span>Log Out</span>
+          </button>
         </div>
       </div>
 
@@ -280,14 +401,26 @@ export default function OnboardingWizard() {
         <div className="max-w-2xl mx-auto py-12 px-6 lg:px-12">
           
           {/* Header */}
-          <div className="mb-12">
-            <div className="w-12 h-12 bg-pink-50 rounded-2xl flex items-center justify-center text-pd-pink mb-6">
-              <User size={20} strokeWidth={2.5} />
+          <div className="mb-12 flex items-start justify-between">
+            <div>
+              <div className="w-12 h-12 bg-pink-50 rounded-2xl flex items-center justify-center text-pd-pink mb-6">
+                <User size={20} strokeWidth={2.5} />
+              </div>
+              <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-3">
+                {STEPS[currentStep - 1]?.label}
+              </h1>
+              <p className="text-slate-500 font-medium">{STEPS[currentStep - 1]?.desc}</p>
             </div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-3">
-              {STEPS[currentStep - 1]?.label}
-            </h1>
-            <p className="text-slate-500 font-medium">{STEPS[currentStep - 1]?.desc}</p>
+
+            <button
+              onClick={handleLogout}
+              type="button"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-red-600 hover:bg-red-50 border border-slate-200 hover:border-red-100 transition-all cursor-pointer shadow-xs"
+              title="Log out of account"
+            >
+              <LogOut size={15} />
+              <span>Log Out</span>
+            </button>
           </div>
 
           {/* Form Content */}

@@ -43,7 +43,6 @@ export default function MinimalVenueCard({ venue: v }: VenueCardProps) {
   // Determine veg/non-veg status based on foodTypes
   const isVeg = v.foodTypes?.includes("Veg") ?? false;
   const isNonVeg = v.foodTypes?.includes("Non-Veg") ?? false;
-  const hasTopReviews = v.rating >= 4.5 && v.reviews > 0;
 
   return (
     <div 

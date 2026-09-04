@@ -206,11 +206,18 @@ export default function CompleteProfilePage() {
           payload
         );
       } else {
+        const { Permission, Role } = await import('appwrite');
         const newDoc = await databases.createDocument(
           DATABASE_ID,
           VENUES_COLLECTION_ID,
           ID.unique(),
-          payload
+          payload,
+          [
+            Permission.read(Role.user(userData.$id)),
+            Permission.update(Role.user(userData.$id)),
+            Permission.delete(Role.user(userData.$id)),
+            Permission.read(Role.any())
+          ]
         );
         setDocId(newDoc.$id);
       }
@@ -390,7 +397,7 @@ export default function CompleteProfilePage() {
              <button 
                 onClick={handleSave}
                 disabled={isSaving}
-                className="pd-btn-primary flex items-center gap-2 min-w-[160px] justify-center"
+                className="pd-btn-primary flex items-center gap-2 min-w-40 justify-center"
              >
                 {isSaving ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

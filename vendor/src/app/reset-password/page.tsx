@@ -1,21 +1,18 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Lock,
   Eye,
   EyeOff,
-  ArrowRight,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  Key
 } from 'lucide-react';
 
 function ResetPasswordForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get('userId');
   const secret = searchParams.get('secret') || searchParams.get('token');
@@ -66,7 +63,7 @@ function ResetPasswordForm() {
       } else {
         setError(result.message || 'Failed to reset password. The link might be expired.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Reset error:', err);
       setError('Connection error. Please try again later.');
     } finally {
@@ -76,21 +73,21 @@ function ResetPasswordForm() {
 
   if (isSuccess) {
     return (
-      <div className="text-center space-y-6">
-        <div className="bg-emerald-50 border border-emerald-100 p-8 rounded-4xl flex flex-col items-center gap-4 text-emerald-600">
-          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-2">
-            <CheckCircle2 size={32} className="text-emerald-600" />
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-lg font-black uppercase tracking-tight">Password Reset Successful</h3>
-            <p className="text-sm font-medium opacity-80">Your password has been updated. You can now login with your new credentials.</p>
-          </div>
+      <div className="text-center py-4 space-y-4">
+        <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+          <CheckCircle2 size={32} />
         </div>
-        
-        <Link href="/login" className="block">
-          <button className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm  tracking-normal lowercase shadow-lg shadow-pd-pink/10">
+        <div>
+          <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">
+            Password Reset Successful
+          </h3>
+          <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-xs mx-auto">
+            Your password has been securely updated. You can now login with your new credentials.
+          </p>
+        </div>
+        <Link href="/login" className="block mt-6">
+          <button className="w-full h-11 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-bold transition-all shadow-sm cursor-pointer">
             Go to Login
-            <ArrowRight size={18} />
           </button>
         </Link>
       </div>
@@ -98,31 +95,36 @@ function ResetPasswordForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="bg-red-50 border border-red-100 p-3 rounded-xl flex items-center gap-2 text-red-600 text-[11px] font-bold">
-          <ShieldCheck size={16} className="text-red-500" /> {error}
-        </div>
-      )}
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <AnimatePresence mode="wait">
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, y: -5 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0, y: -5 }}
+            className="bg-red-50 border border-red-100 p-3 rounded-xl flex items-center gap-2 text-red-600 text-xs font-bold"
+          >
+            <ShieldCheck size={16} className="text-red-500 shrink-0" /> 
+            <span>{error}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="space-y-1.5">
-        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">New Password</label>
+        <label className="text-xs font-bold text-slate-700 ml-1">New Password</label>
         <div className="relative group">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors">
-            <Lock size={16} />
-          </div>
           <input
             required
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full h-12 bg-slate-50 border border-slate-100 rounded-2xl pl-11 pr-11 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
+            className="w-full h-11 bg-white border border-slate-200 rounded-xl px-4 pr-11 text-sm font-medium text-slate-900 focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all outline-none shadow-sm placeholder:text-slate-400"
             placeholder="••••••••"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
           >
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
@@ -130,17 +132,14 @@ function ResetPasswordForm() {
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Confirm New Password</label>
+        <label className="text-xs font-bold text-slate-700 ml-1">Confirm New Password</label>
         <div className="relative group">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors">
-            <Lock size={16} />
-          </div>
           <input
             required
             type={showPassword ? 'text' : 'password'}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full h-12 bg-slate-50 border border-slate-100 rounded-2xl pl-11 pr-11 text-xs font-bold text-slate-900 focus:bg-white focus:border-pd-pink transition-all outline-none"
+            className="w-full h-11 bg-white border border-slate-200 rounded-xl px-4 pr-11 text-sm font-medium text-slate-900 focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all outline-none shadow-sm placeholder:text-slate-400"
             placeholder="••••••••"
           />
         </div>
@@ -149,15 +148,14 @@ function ResetPasswordForm() {
       <button
         type="submit"
         disabled={isSubmitting || !userId || !secret}
-        className="w-full h-14 pd-btn-primary rounded-2xl! flex items-center justify-center gap-3 text-sm  tracking-normal lowercase group shadow-lg shadow-pd-pink/10 disabled:opacity-50"
+        className="w-full h-11 rounded-xl bg-slate-900 text-white hover:bg-slate-800 flex items-center justify-center gap-2 text-sm font-bold transition-all mt-6 shadow-sm disabled:opacity-50"
       >
         {isSubmitting ? 'Updating Password...' : 'Reset Password'}
-        {!isSubmitting && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
       </button>
 
       {(!userId || !secret) && (
-        <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest pt-2">
-          Expired link? <Link href="/forgot-password" className="text-pd-pink hover:underline">Request new link</Link>
+        <p className="text-center text-[11px] font-medium text-slate-400 mt-4 leading-relaxed">
+          Expired link? <Link href="/login" className="text-pd-pink hover:underline">Go to Login</Link>
         </p>
       )}
     </form>
@@ -166,40 +164,75 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-pd selection:bg-pd-pink selection:text-white relative">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-[480px]"
-      >
-        <div className="bg-white rounded-[40px] p-8 lg:p-12 shadow-pd-strong border border-slate-100 mb-8 relative overflow-hidden">
-          <div className="mb-10 text-center">
-            <div className="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center text-white mx-auto mb-6 shadow-xl relative overflow-hidden">
-              <Image
-                src="/partner-icon.jpg"
-                alt="Venue Partner"
-                width={80}
-                height={80}
-                className="w-full h-full object-cover opacity-50"
-              />
-              <div className="absolute inset-0 flex items-center justify-center text-pd-pink">
-                <ShieldCheck size={32} />
+    <div className="min-h-screen flex font-pd selection:bg-pd-pink selection:text-white bg-white">
+      {/* Left Section - Marketing */}
+      <div className="hidden lg:flex w-[55%] bg-[#0f1218] relative overflow-hidden flex-col justify-center p-16 xl:p-24">
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+        <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-[0%] right-[0%] w-[50%] h-[50%] bg-pink-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div className="relative z-10 w-full max-w-135">
+          <h2 className="text-[4rem] xl:text-[4.5rem] font-black text-white leading-[1.05] tracking-tighter mb-6">
+            Secure your<br/>
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-teal-400">account.</span>
+          </h2>
+
+          <p className="text-slate-400 text-lg leading-relaxed mb-14 max-w-105 font-medium">
+            Keep your venue&apos;s data protected with a strong password. We use industry-standard encryption to ensure your peace of mind.
+          </p>
+
+          <div className="grid grid-cols-2 gap-5 mb-16">
+            <div className="bg-white/2 border border-white/5 rounded-3xl p-6 backdrop-blur-xl">
+              <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center mb-5 border border-emerald-500/20">
+                <ShieldCheck size={24} className="text-emerald-400" />
               </div>
+              <h3 className="text-white font-bold mb-1.5 text-base tracking-tight">Encrypted Storage</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">Your data is always encrypted and secure.</p>
             </div>
-            <h2 className="text-3xl font-[900] text-slate-900 uppercase  mb-2 tracking-tight">Set New Password</h2>
-            <p className="text-sm text-slate-500 font-medium font-pd">Secure your account with a strong password.</p>
+
+            <div className="bg-white/2 border border-white/5 rounded-3xl p-6 backdrop-blur-xl">
+              <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center mb-5 border border-blue-500/20">
+                <Key size={24} className="text-blue-400" />
+              </div>
+              <h3 className="text-white font-bold mb-1.5 text-base tracking-tight">Full Control</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">Manage your credentials with ease.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Section - Form */}
+      <div className="flex-1 lg:w-[45%] flex flex-col justify-center px-6 sm:px-12 relative items-center">
+        {/* Logo */}
+        <Link href="/" className="absolute top-8 left-8 flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-linear-to-br from-pd-pink to-rose-400 flex items-center justify-center shadow-md">
+            <span className="text-white font-bold text-sm leading-none">P</span>
+          </div>
+          <span className="text-lg font-black tracking-tight text-slate-900">PartyDial</span>
+        </Link>
+
+        <div className="w-full max-w-90">
+          <div className="mb-8">
+            <div className="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
+              <Key size={24} />
+            </div>
+            <h1 className="text-[2rem] font-black text-slate-900 tracking-tight mb-2 leading-tight">
+              Reset Password
+            </h1>
+            <p className="text-slate-500 text-sm leading-relaxed pr-4">
+              Enter a new password below to regain access to your PartyDial partner account.
+            </p>
           </div>
 
-          <Suspense fallback={<div className="text-center py-10 font-bold text-slate-400 animate-pulse lowercase ">Loading reset form...</div>}>
+          <Suspense fallback={<div className="h-40 flex items-center justify-center text-sm font-medium text-slate-400 animate-pulse">Loading reset form...</div>}>
             <ResetPasswordForm />
           </Suspense>
 
-          <div className="mt-10 flex items-center justify-center gap-2">
-            <ShieldCheck size={14} className="text-emerald-500" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Secure Reset Process</span>
-          </div>
+          <p className="text-center text-[11px] font-medium text-slate-400 mt-8 leading-relaxed">
+            Need help? Contact <a href="#" className="text-slate-500 hover:text-slate-800 transition-colors">Partner Support</a>.
+          </p>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

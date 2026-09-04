@@ -267,7 +267,7 @@ function CheckoutContent() {
         }
 
         const options = {
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_Sb1MDU5xx48aKw",
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
             amount: order.amount,
             currency: order.currency,
             name: "PartyDial",

@@ -242,6 +242,12 @@ export default function VendorDashboard() {
   // Subscription Expiry Calculation
   const expiryInfo = useMemo(() => {
     if (!venueProfile) return null;
+    const plan = venueProfile.subscriptionPlan;
+    // New accounts, unassigned plans, or explicitly free/None plans do not have a paid Live Pack
+    if (!plan || plan === 'None' || plan === 'free' || plan === '') {
+      return null;
+    }
+
     const now = new Date();
     
     // Priority 1: Check for explicit subscriptionExpiry from the database
@@ -258,14 +264,14 @@ export default function VendorDashboard() {
       return { 
         daysLeft: diffDays, 
         percent, 
-        label: (venueProfile.subscriptionPlan === 'trial_30' || venueProfile.subscriptionPlan?.includes('Override')) 
+        label: (plan === 'trial_30' || plan?.includes('Override')) 
           ? 'Trial Access' 
           : 'Live Pack' 
       };
     }
     
     // Fallback: Trial Plan specific logic (Hardcoded Legacy)
-    if (venueProfile.subscriptionPlan === 'trial_30') {
+    if (plan === 'trial_30') {
       const end = new Date('2026-04-30T23:59:59');
       const diffTime = end.getTime() - now.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -274,8 +280,8 @@ export default function VendorDashboard() {
     }
     
     // Fallback: Paid Plans (Assuming 1 Year duration from creation/verification if expiry attribute is missing)
-    if (venueProfile.subscriptionPlan && venueProfile.subscriptionPlan !== 'free') {
-      const start = new Date(venueProfile.$createdAt);
+    if (plan && plan !== 'free' && plan !== 'None') {
+      const start = new Date(venueProfile.$createdAt || Date.now());
       const end = new Date(start);
       end.setFullYear(end.getFullYear() + 1);
       
@@ -290,7 +296,7 @@ export default function VendorDashboard() {
     return null;
   }, [venueProfile]);
  
-  const hasActivePaidPlan = venueProfile?.subscriptionPlan && venueProfile.subscriptionPlan !== 'free' && (!expiryInfo || expiryInfo.daysLeft > 0);
+  const hasActivePaidPlan = !!(venueProfile?.subscriptionPlan && venueProfile.subscriptionPlan !== 'free' && venueProfile.subscriptionPlan !== 'None' && (!expiryInfo || expiryInfo.daysLeft > 0));
 
   // Unified Activity History Generation
   const pastActivities = useMemo(() => {
@@ -1322,10 +1328,12 @@ export default function VendorDashboard() {
                >
                   <div className="text-right hidden md:flex flex-col items-end">
                      <p className="text-[14px] font-black text-slate-900 leading-none mb-1 group-hover:text-pd-pink transition-colors">{venueProfile?.venueName || userData?.name || "Your Venue"}</p>
-                      <div className="flex items-center gap-1.5 bg-emerald-50/50 px-2 py-0.5 rounded border border-emerald-100">
-                        <span className={`w-1.5 h-1.5 rounded-full ${isRealtimeConnected ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500'}`}></span>
-                        <p className={`text-[9px] ${isRealtimeConnected ? 'text-emerald-600' : 'text-rose-600'} font-black uppercase tracking-widest leading-none`}>
-                           {isRealtimeConnected ? (planLabels[venueProfile?.subscriptionPlan] || 'Live') : 'Reconnecting'}
+                      <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded border ${hasActivePaidPlan ? 'bg-emerald-50/50 border-emerald-100' : 'bg-slate-100/70 border-slate-200'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${!isRealtimeConnected ? 'bg-rose-500' : hasActivePaidPlan ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-amber-500'}`}></span>
+                        <p className={`text-[9px] ${!isRealtimeConnected ? 'text-rose-600' : hasActivePaidPlan ? 'text-emerald-600' : 'text-slate-600'} font-black uppercase tracking-widest leading-none`}>
+                            {!isRealtimeConnected 
+                              ? 'Reconnecting' 
+                              : (planLabels[venueProfile?.subscriptionPlan] || (hasActivePaidPlan ? 'Live' : 'Standard'))}
                         </p>
                       </div>
                   </div>
@@ -1492,7 +1500,7 @@ export default function VendorDashboard() {
                   className="flex flex-col items-center justify-center min-h-125 bg-white rounded-[40px] border border-white shadow-pd-soft p-12 text-center"
                 >
                    <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 mb-8 mx-auto">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="animate-pulse"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
                    </div>
                    <h3 className="text-3xl font-black text-slate-900 uppercase  tracking-tighter mb-4">Quotations Locked</h3>
                    <p className="text-slate-500 font-medium  max-w-md mx-auto mb-12 leading-relaxed">
@@ -1561,7 +1569,7 @@ export default function VendorDashboard() {
                   className="flex flex-col items-center justify-center min-h-125 bg-white rounded-[40px] border border-white shadow-pd-soft p-12 text-center"
                 >
                    <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mb-8 mx-auto">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="animate-pulse"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                    </div>
                    <h3 className="text-3xl font-black text-slate-900 uppercase  tracking-tighter mb-4">Reviews Locked</h3>
                    <p className="text-slate-500 font-medium  max-w-md mx-auto mb-12 leading-relaxed">

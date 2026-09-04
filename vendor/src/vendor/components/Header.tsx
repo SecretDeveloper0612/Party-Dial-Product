@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, LogIn, Menu, X, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { LayoutDashboard, LogIn, Menu, X, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Header() {
@@ -12,7 +12,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    setIsLoggedIn(!!localStorage.getItem('auth_session'));
+    setTimeout(() => setIsLoggedIn(!!localStorage.getItem('auth_session')), 0);
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -20,7 +20,7 @@ export default function Header() {
 
   return (
     <header suppressHydrationWarning className={`fixed top-0 inset-x-0 z-50 flex justify-center transition-all duration-500 ${scrolled ? 'py-4 px-4' : 'py-6 px-6'}`}>
-      <nav className={`w-full max-w-[1200px] h-16 flex items-center justify-between transition-all duration-500 ${scrolled ? 'px-6 bg-white/70 backdrop-blur-2xl shadow-[0_20px_80px_-15px_rgba(0,0,0,0.1)] rounded-[2rem]' : 'bg-transparent px-2'}`}>
+      <nav className={`w-full max-w-300 h-16 flex items-center justify-between transition-all duration-500 ${scrolled ? 'px-6 bg-white/70 backdrop-blur-2xl shadow-[0_20px_80px_-15px_rgba(0,0,0,0.1)] rounded-4xl' : 'bg-transparent px-2'}`}>
         
         {/* Logo Area */}
         <Link href="/" className="flex items-center gap-3 group relative">
@@ -31,7 +31,7 @@ export default function Header() {
             height={38} 
             className="h-8 w-auto object-contain transition-transform duration-500 group-hover:scale-105" 
           />
-          <div className="h-5 w-[1px] bg-slate-200 hidden sm:block"></div>
+          <div className="h-5 w-px bg-slate-200 hidden sm:block"></div>
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-pd-blue/5 border border-pd-blue/10 group-hover:bg-pd-blue/10 transition-colors">
             <ShieldCheck size={12} className="text-pd-blue" />
             <span className="text-pd-blue text-[9px] font-black uppercase tracking-widest leading-none">
@@ -53,21 +53,20 @@ export default function Header() {
               className="relative px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-colors group/link"
             >
               {item.label}
-              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-pd-pink rounded-full transition-all duration-300 group-hover/link:w-1/2 opacity-0 group-hover/link:opacity-100"></div>
+              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-pd-pink rounded-full transition-all duration-300 group-hover/link:w-1/2 opacity-0 group-hover/link:opacity-100"></div>
             </Link>
           ))}
           
-          <div className="w-[1px] h-4 bg-slate-200 mx-2"></div>
+          <div className="w-px h-4 bg-slate-200 mx-2"></div>
           
           {!isLoggedIn ? (
             <div className="flex items-center gap-3 ml-2">
               <Link href="/login" className="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-all flex items-center gap-2 group">
                 <LogIn size={14} className="group-hover:-translate-y-0.5 transition-transform" /> Sign In
               </Link>
-              <Link href="/signup" className="relative group/btn overflow-hidden rounded-full">
+              <Link href="/login" className="relative group/btn overflow-hidden rounded-full">
                 <div className="absolute inset-0 bg-slate-900 group-hover/btn:bg-pd-pink transition-colors duration-500"></div>
                 <div className="relative z-10 px-6 py-2.5 text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                  <Sparkles size={12} className="text-amber-300" />
                   List Venue <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                 </div>
               </Link>
@@ -96,7 +95,7 @@ export default function Header() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="md:hidden absolute top-[calc(100%+10px)] left-4 right-4 bg-white/90 backdrop-blur-2xl border border-white shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] rounded-[2rem] overflow-hidden"
+            className="md:hidden absolute top-[calc(100%+10px)] left-4 right-4 bg-white/90 backdrop-blur-2xl border border-white shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] rounded-4xl overflow-hidden"
           >
             <div className="p-6 flex flex-col gap-2">
                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-4">Navigation</div>
@@ -111,7 +110,7 @@ export default function Header() {
                 </Link>
               ))}
               
-              <div className="w-full h-[1px] bg-slate-100 my-4"></div>
+              <div className="w-full h-px bg-slate-100 my-4"></div>
               
               {!isLoggedIn ? (
                 <div className="flex flex-col gap-3">
@@ -119,7 +118,7 @@ export default function Header() {
                   <Link href="/signup" onClick={() => setIsMenuOpen(false)} className="relative group w-full overflow-hidden rounded-2xl">
                      <div className="absolute inset-0 bg-slate-900 group-hover:bg-pd-pink transition-colors duration-500"></div>
                      <div className="relative z-10 py-4 w-full flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest text-white">
-                        <Sparkles size={14} className="text-amber-300" /> List Your Venue
+                        List Your Venue
                      </div>
                   </Link>
                 </div>

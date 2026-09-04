@@ -2,10 +2,9 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, ShieldCheck, Lock, Mail, X, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function AuthPage() {
@@ -15,11 +14,81 @@ export default function AuthPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  
+  // Forgot Password Modal State
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [isSendingForgot, setIsSendingForgot] = useState(false);
+  const [forgotError, setForgotError] = useState('');
+  const [forgotSuccess, setForgotSuccess] = useState(false);
+
+  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSendingForgot(true);
+    setForgotError('');
+
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+      const serverUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+      
+      const response = await fetch(`${serverUrl}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setForgotSuccess(true);
+      } else {
+        setForgotError(result.message || 'Failed to send recovery email. Please try again.');
+      }
+    } catch (err) {
+      console.error('Recovery error:', err);
+      setForgotError('Connection error. Please try again later.');
+    } finally {
+      setIsSendingForgot(false);
+    }
+  };
 
   React.useEffect(() => {
     // Clear any stale errors on mode switch
     setError('');
   }, [mode]);
+
+  React.useEffect(() => {
+    // Check if user is already logged in or returning from OAuth redirect
+    const checkActiveSession = async () => {
+      try {
+        const { account } = await import('@/lib/appwrite');
+        const user = await account.get();
+        if (user) {
+          localStorage.setItem('user', JSON.stringify(user));
+          router.push('/dashboard');
+        }
+      } catch {
+        // Not logged in, stay on login page
+      }
+    };
+    checkActiveSession();
+  }, [router]);
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { account } = await import('@/lib/appwrite');
+      const { OAuthProvider } = await import('appwrite');
+      const currentUrl = window.location.origin;
+      await account.createOAuth2Session(
+        OAuthProvider.Google,
+        `${currentUrl}/dashboard`,
+        `${currentUrl}/login`
+      );
+    } catch (err) {
+      console.error('Google login failed:', err);
+      setError('Google login failed. Please try again.');
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.type === 'email' ? 'email' : 'password']: e.target.value }));
@@ -257,9 +326,18 @@ export default function AuthPage() {
               <div className="flex justify-between items-center ml-1">
                 <label className="text-xs font-bold text-slate-700">Password</label>
                 {mode === 'signin' && (
-                  <Link href="/forgot-password" title="Forgot Password" className="text-[11px] font-bold text-slate-400 hover:text-pd-pink transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForgotEmail(formData.email || '');
+                      setForgotError('');
+                      setForgotSuccess(false);
+                      setShowForgotModal(true);
+                    }}
+                    className="text-[11px] font-bold text-slate-400 hover:text-pd-pink transition-colors cursor-pointer"
+                  >
                     Forgot password?
-                  </Link>
+                  </button>
                 )}
               </div>
               <div className="relative group">
@@ -305,7 +383,8 @@ export default function AuthPage() {
           {/* Social Auth */}
           <button 
             type="button"
-            className="w-full h-11 bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
+            onClick={handleGoogleLogin}
+            className="w-full h-11 bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm cursor-pointer"
           >
             <svg viewBox="0 0 24 24" className="w-4 h-4">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -321,6 +400,109 @@ export default function AuthPage() {
           </p>
         </div>
       </div>
+
+      {/* Inline Forgot Password Modal */}
+      <AnimatePresence>
+        {showForgotModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowForgotModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs cursor-pointer"
+            />
+
+            {/* Modal Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.2 }}
+              className="relative w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 z-10 overflow-hidden"
+            >
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setShowForgotModal(false)}
+                className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+
+              {!forgotSuccess ? (
+                <>
+                  <div className="mb-6 text-center">
+                    <div className="w-14 h-14 bg-pink-50 text-pd-pink rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+                      <Lock size={24} />
+                    </div>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">
+                      Reset Password
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Enter your email address and we&apos;ll send you a recovery link to reset your password.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
+                    {forgotError && (
+                      <div className="bg-red-50 border border-red-100 p-3 rounded-xl flex items-center gap-2 text-red-600 text-xs font-bold">
+                        <ShieldCheck size={16} className="text-red-500 shrink-0" />
+                        <span>{forgotError}</span>
+                      </div>
+                    )}
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 ml-1">Email address</label>
+                      <div className="relative">
+                        <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          required
+                          type="email"
+                          value={forgotEmail}
+                          onChange={(e) => setForgotEmail(e.target.value)}
+                          className="w-full h-11 bg-white border border-slate-200 rounded-xl pl-10 pr-4 text-sm font-medium text-slate-900 focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all outline-none placeholder:text-slate-400 shadow-sm"
+                          placeholder="venue@example.com"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isSendingForgot}
+                      className="w-full h-11 rounded-xl bg-slate-900 text-white hover:bg-slate-800 flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                    >
+                      {isSendingForgot ? 'Sending Link...' : 'Send Recovery Link'}
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <div className="text-center py-4 space-y-4">
+                  <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                    <CheckCircle2 size={32} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">
+                      Email Sent!
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-xs mx-auto">
+                      We have sent a password reset link to <strong className="text-slate-800">{forgotEmail}</strong>. Please check your inbox.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(false)}
+                    className="w-full h-11 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-bold transition-all cursor-pointer"
+                  >
+                    Done
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

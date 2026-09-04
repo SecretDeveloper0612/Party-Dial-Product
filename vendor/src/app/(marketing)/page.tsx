@@ -465,8 +465,8 @@ export default function PartnerLandingPage() {
                   className="w-full max-w-md mx-auto lg:ml-auto lg:mr-0 mt-12 lg:mt-0 relative"
                >
                   {/* Decorative background blobs behind the form */}
-                  <div className="absolute -top-10 -right-10 w-40 h-40 bg-pd-pink/20 rounded-full blur-[40px] pointer-events-none" />
-                  <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-pd-blue/20 rounded-full blur-[40px] pointer-events-none" />
+                  <div className="absolute -top-10 -right-10 w-40 h-40 bg-pd-pink/20 rounded-full blur-2xl pointer-events-none" />
+                  <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-pd-blue/20 rounded-full blur-2xl pointer-events-none" />
 
                   <div className="bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100/60 p-8 relative overflow-hidden backdrop-blur-xl">
                      <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-pd-pink/10 to-pd-blue/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
@@ -535,8 +535,8 @@ export default function PartnerLandingPage() {
          {/* ABOUT PARTYDIAL SECTION (FOR VENDORS) */}
          <section className="py-24 px-6 lg:px-12 bg-white overflow-hidden relative">
             {/* Decorative Background Elements */}
-            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-pd-pink/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-pd-blue/5 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-200 h-200 bg-pd-pink/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-150 h-150 bg-pd-blue/5 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3 pointer-events-none" />
 
             <div className="max-w-[1600px] mx-auto relative z-10">
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -626,8 +626,8 @@ export default function PartnerLandingPage() {
          {/* BENEFITS OF PARTYDIAL SECTION */}
          <section id="benefits" className="relative py-12 md:py-16 px-6 bg-slate-50 overflow-hidden">
             {/* Background Accents */}
-            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-pd-pink/10 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/4"></div>
-            <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-pd-blue/10 rounded-full blur-[120px] pointer-events-none translate-y-1/2 -translate-x-1/4"></div>
+            <div className="absolute top-0 right-0 w-200 h-200 bg-pd-pink/10 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/4"></div>
+            <div className="absolute bottom-0 left-0 w-200 h-200 bg-pd-blue/10 rounded-full blur-[120px] pointer-events-none translate-y-1/2 -translate-x-1/4"></div>
             
             <div className="max-w-360 mx-auto lg:px-12 relative z-10">
                <div className="text-center mb-10 md:mb-14">
@@ -771,8 +771,8 @@ export default function PartnerLandingPage() {
 
                <div className="relative w-full overflow-hidden py-8 mt-8">
                   {/* Fade edges for smooth entry/exit */}
-                  <div className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-                  <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+                  <div className="absolute top-0 left-0 w-32 h-full bg-linear-to-r from-white to-transparent z-10 pointer-events-none"></div>
+                  <div className="absolute top-0 right-0 w-32 h-full bg-linear-to-l from-white to-transparent z-10 pointer-events-none"></div>
 
                   {(() => {
                      const featuresList = [
@@ -794,7 +794,7 @@ export default function PartnerLandingPage() {
                               {featuresList.map((feature, i) => (
                                  <div
                                     key={i}
-                                    className="relative p-6 pt-8 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center w-[280px] shrink-0 group"
+                                    className="relative p-6 pt-8 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center w-72 shrink-0 group"
                                  >
                                     <div className="w-20 h-20 rounded-full bg-pd-pink/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
                                        {feature.icon}
@@ -809,7 +809,7 @@ export default function PartnerLandingPage() {
                               {featuresList.map((feature, i) => (
                                  <div
                                     key={`dup-${i}`}
-                                    className="relative p-6 pt-8 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center w-[280px] shrink-0 group"
+                                    className="relative p-6 pt-8 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center w-70 shrink-0 group"
                                  >
                                     <div className="w-20 h-20 rounded-full bg-pd-pink/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
                                        {feature.icon}

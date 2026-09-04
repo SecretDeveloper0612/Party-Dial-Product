@@ -7,6 +7,6 @@ exports.getPublicConfig = (req, res) => {
         databaseId: process.env.APPWRITE_DATABASE_ID || '69c2305e000ecd6d04c1',
         venuesCollectionId: process.env.APPWRITE_VENUES_COLLECTION_ID || 'party-dial',
         storageBucketId: process.env.APPWRITE_STORAGE_BUCKET_ID || 'venues_photos',
-        razorpayKeyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_Sb1MDU5xx48aKw'
+        razorpayKeyId: process.env.RAZORPAY_KEY_ID || ''
     });
 };

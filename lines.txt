@@ -1,0 +1,162 @@
+      {/* TESTIMONIALS - PREMIUM WHITE EDITION */}
+      <section className="py-32 bg-slate-50 relative overflow-hidden">
+        {/* Soft Background Blurs */}
+        <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(236,72,153,0.05)_0%,transparent_70%)] rounded-full blur-3xl transform-gpu pointer-events-none" />
+        <div className="absolute -bottom-[20%] -left-[10%] w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(59,130,246,0.05)_0%,transparent_70%)] rounded-full blur-3xl transform-gpu pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-6 mb-24 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl md:text-6xl font-semibold text-slate-900 mb-6 tracking-tighter leading-none">
+              Happy <br className="md:hidden" />
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-500 to-pd-blue drop-shadow-sm px-2">
+                Celebrators
+              </span>
+            </h2>
+            <p className="text-slate-400 uppercase tracking-[0.4em] font-black text-[10px] md:text-xs">Real stories from our valued clients</p>
+          </motion.div>
+        </div>
+
+        {/* Style to force linear smooth scrolling for Swiper */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+          .testimonials-swiper .swiper-wrapper {
+            transition-timing-function: linear !important;
+          }
+        `}} />
+
+        {/* Marquee Container with Gradient Mask */}
+        <div className="relative flex flex-col overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] pb-10 gap-6 md:gap-8">
+
+          {/* Row 1 - Scrolling Left */}
+          <div className="w-full">
+            <Swiper
+              modules={[Autoplay]}
+              spaceBetween={32}
+              slidesPerView="auto"
+              loop={true}
+              speed={6000}
+              allowTouchMove={false}
+              autoplay={{
+                delay: 0,
+                disableOnInteraction: false,
+              }}
+              className="testimonials-swiper"
+            >
+              {[
+                { name: "Rahul Malhotra", text: "PartyDial made our wedding planning so much easier! We received 5 quotes within 2 hours and booked a beautiful palace.", avatar: "https://randomuser.me/api/portraits/men/18.jpg" },
+                { name: "Sneha Kapoor", text: "As a corporate event planner, I need quick responses. PartyDial delivered! Found an amazing rooftop venue for our team's meet.", avatar: "https://randomuser.me/api/portraits/women/20.jpg" },
+                { name: "Amit Verma", text: "Found the perfect banquet hall for my son's 1st birthday. The zero brokerage promise is real – we saved a lot!", avatar: "https://randomuser.me/api/portraits/men/24.jpg" },
+                { name: "Priya Sharma", text: "The aesthetic of the venues I found through PartyDial was incredible. Perfect for my content and within budget!", avatar: "https://randomuser.me/api/portraits/women/45.jpg" },
+                { name: "Vikram Singh", text: "Professional service and transparent pricing. No hidden costs. Best platform for premium venue discovery.", avatar: "https://randomuser.me/api/portraits/men/63.jpg" }
+              ].map((t, i) => (
+                <SwiperSlide key={i} className="!w-[320px] md:!w-[420px]">
+                  <div className="w-full h-[300px] bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative group hover:-translate-y-2 transition-all duration-500 hover:shadow-xl hover:shadow-pd-pink/10 hover:border-pd-pink/20 whitespace-normal flex flex-col cursor-grab active:cursor-grabbing">
+                    <div className="absolute top-6 right-8 opacity-20 group-hover:opacity-100 group-hover:text-pd-pink transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 pointer-events-none">
+                      <Quote size={48} fill="currentColor" className="text-slate-300 group-hover:text-pd-pink" />
+                    </div>
+
+                    <div className="flex items-center gap-4 mb-6 relative z-10">
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-md group-hover:border-pd-pink transition-colors duration-500 relative shrink-0">
+                        <img src={t.avatar} alt={t.name} className="w-full h-full object-cover pointer-events-none" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-slate-900 text-lg tracking-tight">{t.name}</h4>
+                      </div>
+                    </div>
+                    <p className="text-slate-500 font-medium leading-relaxed flex-1 text-sm md:text-base select-none relative z-10">
+                      &quot;{t.text}&quot;
+                    </p>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+
+          {/* Row 2 - Scrolling Right */}
+          <div className="w-full">
+            <Swiper
+              modules={[Autoplay]}
+              spaceBetween={32}
+              slidesPerView="auto"
+              loop={true}
+              speed={6000}
+              allowTouchMove={false}
+              autoplay={{
+                delay: 0,
+                disableOnInteraction: false,
+                reverseDirection: true
+              }}
+              className="testimonials-swiper"
+            >
+              {[
+                { name: "Neha Gupta", role: "Anniversary Celebration", text: "Booked a resort for our 10th anniversary. The options provided were exactly what we had in mind. Flawless experience!", avatar: "6" },
+                { name: "Karan Desai", role: "Event Organizer", text: "I regularly use PartyDial for my clients. The interface is smooth, and the venues listed are verified. It saves me days of research.", avatar: "7" },
+                { name: "Anjali Rao", role: "Pre-Wedding Shoot", text: "Finding an aesthetic venue for our shoot was tough until we used PartyDial. Directly connected with the owner and booked it!", avatar: "8" },
+                { name: "Sameer Khan", role: "Startup Founder", text: "Hosted our product launch party at a venue found here. The direct pricing feature helped us stay well within our bootstrap budget.", avatar: "9" },
+                { name: "Pooja Mehta", role: "Baby Shower", text: "Everything from finding the venue to booking was completely hassle-free. Absolutely highly recommend PartyDial to anyone!", avatar: "10" }
+              ].map((t, i) => (
+                <SwiperSlide key={i} className="!w-[320px] md:!w-[420px]">
+                  <div className="w-full h-[300px] bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative group hover:-translate-y-2 transition-all duration-500 hover:shadow-xl hover:shadow-pd-blue/10 hover:border-pd-blue/20 whitespace-normal flex flex-col cursor-grab active:cursor-grabbing">
+                    <div className="absolute top-6 right-8 opacity-20 group-hover:opacity-100 group-hover:text-pd-blue transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 pointer-events-none">
+                      <Quote size={48} fill="currentColor" className="text-slate-300 group-hover:text-pd-blue" />
+                    </div>
+
+                    <div className="flex items-center gap-4 mb-6 relative z-10">
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-md group-hover:border-pd-blue transition-colors duration-500 relative">
+                        <img src={`https://i.pravatar.cc/150?u=user${t.avatar}`} alt={t.name} className="w-full h-full object-cover pointer-events-none" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-slate-900 text-lg tracking-tight">{t.name}</h4>
+                        <p className="text-[10px] font-bold text-pd-blue uppercase tracking-widest">{t.role}</p>
+                      </div>
+                    </div>
+                    <p className="text-slate-500 font-medium leading-relaxed flex-1 text-sm md:text-base select-none relative z-10">
+                      &quot;{t.text}&quot;
+                    </p>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ SECTION */}
+      <section className="py-24 px-6 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-semibold text-slate-900 mb-4">Got <span className="pd-gradient-text px-1">Questions?</span></h2>
+            <div className="w-20 h-1.5 bg-pd-red mx-auto rounded-full mb-6"></div>
+            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Everything you need to know about planning your next event</p>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              { q: "How does PartyDial help me find the right venue?", a: "We match you with the best venues based on your event type, guest count, and budget. You receive real-time quotes and can compare amenities and pricing instantly." },
+              { q: "Is there any charge for using PartyDial services?", a: "No, PartyDial is completely free for event organizers. We connect you directly with venues without any brokerage or hidden convenience fees." },
+              { q: "Are the venues on PartyDial personally verified?", a: "Yes, our team personally visits and verifies each venue for quality standards, amenities, and credibility before listing them on our platform." },
+              { q: "How soon will I receive quotes for my requirement?", a: "Most users receive their first set of personalized quotes within 30-60 minutes of submitting their requirements." },
+              { q: "Can I book a site visit through the platform?", a: "Absolutely! Once you receive a quote you like, you can directly message the venue manager or request a free site visit through our 'Help Desk'." }
+            ].map((faq, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-pd-soft transition-shadow"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full text-left px-8 py-7 flex items-center justify-between group"
+                >
+                  <span className="font-semibold text-slate-700 text-base group-hover:text-pd-red transition-colors pr-8 leading-tight">{faq.q}</span>
+                  <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all ${openFaq === i ? 'bg-pd-red text-white -rotate-180' : 'bg-slate-50 text-slate-400 group-hover:bg-pd-red group-hover:text-white'}`}>
+                    <ChevronDown size={18} />
+                  </div>
+                </button>
+                <AnimatePresence>
