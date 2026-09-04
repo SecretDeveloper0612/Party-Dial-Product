@@ -264,7 +264,7 @@ export default function SetPricingPage() {
                     <button 
                       onClick={handleSave}
                       disabled={isSaving}
-                      className="pd-btn-primary  tracking-normal flex items-center gap-2 min-w-[160px] justify-center"
+                      className="pd-btn-primary  tracking-normal flex items-center gap-2 min-w-40 justify-center"
                     >
                       {isSaving ? (
                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

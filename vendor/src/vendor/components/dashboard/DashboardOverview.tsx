@@ -4,15 +4,11 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Zap, 
-  BarChart3, 
   Star, 
-  IndianRupee, 
   Users, 
   Clock, 
   TrendingUp, 
-  Sparkles,
   ArrowRight,
-  MoreHorizontal,
   Calendar,
   CheckCircle2,
   XCircle
@@ -61,7 +57,6 @@ const DashboardOverview = ({
   userName,
   recentLeads,
   setActiveTab,
-  stats,
   averageRating = 0,
   setShowInquiryPopup
 }: DashboardOverviewProps) => {
@@ -105,10 +100,10 @@ const DashboardOverview = ({
     };
 
     // Filter leads by creation/update date
-    const filteredLeads = recentLeads.filter(l => {
+    const filteredLeads = recentLeads.filter((l: Lead & { updatedAt?: string; rawDate?: string; eventDate?: string }) => {
         // Use the updatedAt field so that when a lead changes status to "Booked" today, it reflects in today's stats.
         // Fall back to rawDate or eventDate if updatedAt isn't available.
-        const relevantDate = (l as any).updatedAt || (l as any).rawDate || (l as any).eventDate;
+        const relevantDate = l.updatedAt || l.rawDate || l.eventDate;
         if (relevantDate) return isWithinRange(relevantDate);
         return isWithinRange(l.date);
     });
@@ -179,7 +174,7 @@ const DashboardOverview = ({
                     initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
                     className="text-slate-500 font-medium text-sm"
                  >
-                    Here's what's happening with your venue today.
+                    Here&apos;s what&apos;s happening with your venue today.
                  </motion.p>
               </div>
               
@@ -201,7 +196,7 @@ const DashboardOverview = ({
                 <Calendar size={14} className="text-slate-400 mx-2" />
                 <select 
                   value={timeFilter}
-                  onChange={(e) => setTimeFilter(e.target.value as any)}
+                  onChange={(e) => setTimeFilter(e.target.value as 'today' | 'weekly' | 'monthly' | 'yearly' | 'all')}
                   className="bg-transparent text-[11px] font-bold text-slate-700 outline-none pr-3 cursor-pointer"
                 >
                    <option value="today">Today</option>
