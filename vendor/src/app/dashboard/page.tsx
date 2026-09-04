@@ -833,8 +833,17 @@ export default function VendorDashboard() {
           router.push('/onboarding');
           return;
         }
-      } catch (err) {
-        if (isMounted) router.push('/login');
+      } catch (err: any) {
+        console.error('Dashboard initialization failed:', err);
+        if (isMounted) {
+          // If the error is explicitly an authentication error, redirect to login
+          if (err?.code === 401) {
+            router.push('/login');
+          } else {
+            // Otherwise, it's a database or permission error. Route to onboarding to allow them to complete profile.
+            router.push('/onboarding');
+          }
+        }
       }
     };
 
