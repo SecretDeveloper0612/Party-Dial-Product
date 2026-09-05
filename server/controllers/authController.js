@@ -482,6 +482,9 @@ exports.resetPassword = async (req, res) => {
 
         // 4. Clear the reset token
         const { resetToken, resetExpires, ...remainingPrefs } = prefs;
+        if (Object.keys(remainingPrefs).length === 0) {
+            remainingPrefs.accountActive = true; // dummy key to prevent Appwrite empty object error
+        }
         await users.updatePrefs(userId, remainingPrefs);
 
         return res.status(200).json({ 

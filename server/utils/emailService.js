@@ -38,7 +38,7 @@ const getBaseTemplate = (content, previewText) => `
         .header h1 { margin: 0; color: white; font-size: 28px; font-weight: 800; letter-spacing: -0.025em; }
         .content { padding: 40px 30px; color: #000000; }
         .footer { padding: 30px 20px; text-align: center; color: #64748b; font-size: 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; }
-        .button { display: inline-block; padding: 12px 24px; background: ${BRAND_COLOR}; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; }
+        .button { display: inline-block; padding: 12px 24px; background: ${BRAND_COLOR}; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; }
         .highlight { color: ${BRAND_COLOR}; font-weight: 700; }
         p { margin-bottom: 20px; color: #334155; }
         .card { background: #f8fafc; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #e2e8f0; color: #000000; }
@@ -426,6 +426,24 @@ exports.sendLeadNotificationEmail = (to, leadData) => {
     `, `New ${leadData.eventType} inquiry from ${leadData.name} (${leadData.guests} guests).`);
 
     return sendEmail(to, `New Lead Alert: ${leadData.eventType} in ${leadData.pincode || 'Location'} 🎊`, html, `New lead from ${leadData.name}`);
+};
+
+/**
+ * 10b. Bulk Lead Notification (For Venues)
+ */
+exports.sendBulkLeadNotificationEmail = (to, venueName, count) => {
+    const html = getBaseTemplate(`
+        <h2>Great News, ${venueName}! 🎊</h2>
+        <p>You have just received <strong>${count} new leads</strong> on PartyDial.</p>
+        <p>These leads have been matched to your venue based on your location and capacity.</p>
+        <div class="card" style="border-left: 4px solid ${BRAND_COLOR}">
+            <p><strong>Action Required:</strong></p>
+            <p>Log in to your partner dashboard immediately to view the contact details and connect with these potential customers before other venues do.</p>
+        </div>
+        <a href="https://partner.partydial.com/dashboard" class="button" style="color: #ffffff !important;">Login in Dashboard</a>
+    `, `You have received ${count} new leads on PartyDial.`);
+
+    return sendEmail(to, `🚀 ${count} New Leads Assigned to ${venueName}!`, html, `You have received ${count} new leads.`);
 };
 
 /**

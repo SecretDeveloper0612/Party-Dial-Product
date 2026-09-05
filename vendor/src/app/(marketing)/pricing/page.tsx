@@ -548,55 +548,59 @@ const PricingCard = React.memo(({ plan, onSelect, billingDuration }: { plan: typ
   
   return (
     <motion.div
-      whileHover={{ y: -10 }}
-      className={`relative h-full ${plan.popular ? 'scale-105 z-10' : ''}`}
+      whileHover={{ y: -8 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className={`relative h-full ${plan.popular ? 'scale-[1.03] z-10' : 'z-0'}`}
     >
-      <div className={`h-full flex flex-col p-8 rounded-4xl bg-white relative ${plan.popular ? 'shadow-2xl shadow-pink-500/20' : 'border border-slate-100 shadow-sm hover:shadow-xl'}`}>
+      <div className={`h-full flex flex-col p-5 md:p-6 rounded-3xl bg-white relative transition-all duration-300 ${plan.popular ? 'shadow-[0_20px_50px_-12px_rgba(236,72,153,0.2)]' : 'border border-slate-200 shadow-xl hover:shadow-2xl hover:border-slate-300'}`}>
         {plan.popular && (
-          <div className={`absolute -inset-[2px] rounded-[34px] -z-10 ${gradientStyle}`}></div>
+          <>
+             <div className={`absolute -inset-[2px] rounded-3xl -z-10 pointer-events-none ${gradientStyle}`}></div>
+             <div className={`absolute -inset-[2px] rounded-3xl -z-20 opacity-30 blur-2xl transition-opacity duration-300 group-hover:opacity-50 pointer-events-none ${gradientStyle}`}></div>
+          </>
         )}
 
-        <div className="absolute top-6 right-6">
-          <span className={`${gradientStyle} text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg`}>
+        <div className="absolute top-5 right-5 pointer-events-none">
+          <span className={`${gradientStyle} text-white px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md shadow-pink-500/20`}>
             Save {discount}%
           </span>
         </div>
 
-        <div className="mb-8 overflow-visible">
+        <div className="mb-5 overflow-visible relative">
           {plan.popular && (
-            <div className="flex items-center gap-1.5 text-pink-600 font-bold text-[10px] uppercase tracking-widest mb-3">
-               <Star size={12} fill="currentColor" /> MOST POPULAR
+            <div className="flex items-center gap-1.5 text-pink-600 font-black text-[9px] uppercase tracking-[0.2em] mb-2 mt-1">
+               <Star size={10} fill="currentColor" className="animate-pulse" /> MOST POPULAR
             </div>
           )}
-            <div className="flex flex-col mb-4">
-               <h3 className="text-xl font-[900] text-slate-900 leading-tight tracking-tight uppercase ">{plan.name}</h3>
-               <span className="text-[10px] font-black text-pd-purple uppercase tracking-[0.2em] mt-1">{plan.packName}</span>
+            <div className="flex flex-col mb-3">
+               <h3 className="text-xl font-[900] text-slate-900 leading-tight tracking-tight uppercase">{plan.name}</h3>
+               <span className="text-[9px] font-black text-pd-purple uppercase tracking-[0.2em] mt-1">{plan.packName}</span>
             </div>
-          <div className="space-y-1">
-            <p className="text-sm text-slate-400 line-through font-medium leading-none">₹{dailyMrp.toLocaleString()}</p>
+          <div className="space-y-1 relative">
+            <p className="text-xs text-slate-400 line-through font-bold leading-none decoration-2 decoration-slate-300">₹{dailyMrp.toLocaleString()}</p>
             <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-extrabold text-slate-900 tracking-tighter">₹{dailyPrice.toLocaleString()}</span>
-              <span className="text-slate-500 text-xs font-medium uppercase tracking-widest">/ day</span>
+              <span className="text-4xl font-black text-slate-900 tracking-tighter drop-shadow-sm">₹{dailyPrice.toLocaleString()}</span>
+              <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">/ day</span>
             </div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{billingLabel}</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 bg-slate-100 inline-block px-1.5 py-0.5 rounded-md">{billingLabel}</p>
           </div>
         </div>
 
-        <div className="mb-8 p-4 bg-slate-50/50 rounded-2xl border border-slate-100 group-hover:bg-white transition-colors">
-          <div className="flex items-center gap-2 mb-1.5">
-            <Zap size={14} className="text-pink-500 fill-pink-500" />
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Lead Capacity</span>
+        <div className={`mb-6 p-4 rounded-xl border transition-all duration-300 ${plan.popular ? 'bg-pink-50/50 border-pink-100 shadow-inner' : 'bg-slate-50/80 border-slate-100 shadow-inner hover:bg-white'}`}>
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Zap size={12} className={`${plan.popular ? 'text-pink-500 fill-pink-500' : 'text-slate-400 fill-slate-400'}`} />
+            <span className={`text-[9px] font-black uppercase tracking-widest leading-none ${plan.popular ? 'text-pink-600' : 'text-slate-500'}`}>Lead Capacity</span>
           </div>
           <p className="text-xl font-black bg-linear-to-r from-red-500 to-purple-600 bg-clip-text text-transparent">{plan.leads}</p>
         </div>
 
-        <div className="grow space-y-4 mb-10">
+        <div className="grow space-y-3 mb-6">
           {plan.features.map((feature, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${plan.popular ? 'bg-pink-50 text-pink-500' : 'bg-slate-50 text-slate-400'}`}>
-                <Check size={12} strokeWidth={3} />
+            <div key={i} className="flex items-start gap-2.5 group/feature">
+              <div className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-colors ${plan.popular ? 'bg-pink-100 text-pink-600 group-hover/feature:bg-pink-500 group-hover/feature:text-white' : 'bg-slate-100 text-slate-500 group-hover/feature:bg-slate-900 group-hover/feature:text-white'}`}>
+                <Check size={10} strokeWidth={4} />
               </div>
-              <span className="text-sm font-medium text-slate-600 leading-tight">{feature}</span>
+              <span className="text-xs font-semibold text-slate-600 leading-tight group-hover/feature:text-slate-900 transition-colors">{feature}</span>
             </div>
           ))}
         </div>
@@ -606,10 +610,10 @@ const PricingCard = React.memo(({ plan, onSelect, billingDuration }: { plan: typ
             localStorage.setItem('billingDuration', billingDuration);
             onSelect(plan);
           }}
-          className={`w-full py-4 rounded-full text-sm font-bold uppercase tracking-widest transition-all ${
+          className={`relative z-20 w-full py-3 rounded-full text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 ${
             plan.popular 
-              ? `${gradientStyle} text-white shadow-lg shadow-pink-500/20 hover:scale-[1.02] hover:shadow-pink-500/40`
-              : 'bg-slate-900 text-white hover:bg-slate-800'
+              ? `${gradientStyle} text-white shadow-xl shadow-pink-500/30 hover:scale-[1.02] hover:shadow-pink-500/50 cursor-pointer`
+              : 'bg-slate-900 text-white shadow-lg hover:bg-pd-pink hover:shadow-xl hover:shadow-pink-500/20 hover:-translate-y-1 cursor-pointer'
           }`}
         >
           {plan.cta}
@@ -684,46 +688,6 @@ export default function PricingPage() {
         )}
       </AnimatePresence>
 
-      {/* 1. BRAND-ALIGNED COMPARE HERO */}
-      <section className="relative pt-32 pb-16 bg-white overflow-hidden border-b border-slate-50">
-        <GridBackground />
-        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="mb-6 flex flex-col items-center justify-center gap-4">
-               <div className="inline-flex items-center gap-2 px-3 py-1 bg-pink-50 rounded-full text-pink-500 text-[10px] font-black uppercase tracking-[0.2em] border border-pink-100">
-                  <Zap size={12} className="fill-current text-pink-500" /> Grow Your Wedding & Event Business
-               </div>
-               
-            </div>
-
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-[900] text-[#0F172A] flex flex-col items-center justify-center gap-2 md:gap-4 mb-8 tracking-tighter uppercase leading-[1.1]">
-               <span className="text-center">Advertise Your Venue</span>
-               <div className="flex items-center justify-center gap-3 md:gap-6 mt-2">
-                  <span className="text-xl md:text-4xl font-black text-slate-300  lowercase tracking-tight">on</span> 
-                  <span className="pd-logo text-3xl md:text-6xl lg:text-8xl">PartyDial</span>
-               </div>
-            </h1>
-            
-            <p className="text-lg md:text-xl text-slate-500 font-bold mb-8 max-w-4xl mx-auto leading-relaxed">
-              India&apos;s No.1 Local Search Engine for Event Venues. Join thousands of partners getting direct leads and high-quality inquiries every day.
-            </p>
-
-            <div className="flex justify-center">
-               <button 
-                 onClick={() => setInquiryPlan(pricingPlans[2])}
-                 className={`${gradientStyle} text-white px-14 py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all shadow-2xl shadow-pink-500/20 hover:scale-[1.05] active:scale-95`}
-               >
-                  Start Getting Enquiries
-               </button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* 2. PRICING SECTION (MAIN) */}
       <section className="py-24 px-6 lg:px-12 relative overflow-hidden bg-slate-50">
         {/* Decorative elements from image */}
@@ -750,7 +714,7 @@ export default function PricingPage() {
                 <button
                   key={duration}
                   onClick={() => setBillingDuration(duration)}
-                  className={`px-6 py-3 rounded-full text-sm font-bold capitalize transition-all duration-300 ${
+                  className={`px-3 sm:px-6 py-1.5 rounded-full text-xs sm:text-sm font-bold capitalize transition-all duration-300 ${
                     billingDuration === duration
                       ? 'bg-slate-900 text-white shadow-md'
                       : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
@@ -775,84 +739,25 @@ export default function PricingPage() {
           </motion.div>
         </div>
 
-        <div className="max-w-[1440px] mx-auto relative px-4">
+        <div className="max-w-[1536px] mx-auto relative px-4 lg:px-8">
           {/* Side Arrows from image */}
-          <div className="absolute -left-8 top-1/2 -translate-y-1/2 hidden xl:block text-slate-200">
+          <div className="absolute -left-4 xl:-left-8 top-1/2 -translate-y-1/2 hidden xl:block text-slate-200">
              <ChevronRight className="rotate-180" size={48} strokeWidth={3} />
              <ChevronRight className="rotate-180 -mt-8" size={48} strokeWidth={3} />
           </div>
-          <div className="absolute -right-8 top-1/2 -translate-y-1/2 hidden xl:block text-slate-200">
+          <div className="absolute -right-4 xl:-right-8 top-1/2 -translate-y-1/2 hidden xl:block text-slate-200">
              <ChevronRight size={48} strokeWidth={3} />
              <ChevronRight className="-mt-8" size={48} strokeWidth={3} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-6">
             {pricingPlans.map((plan) => (
               <PricingCard key={plan.id} plan={plan} onSelect={setInquiryPlan} billingDuration={billingDuration} />
             ))}
           </div>
         </div>
 
-        {/* ADD-ON RATES SECTION */}
-        <div className="max-w-4xl mx-auto mt-24 ">
-            <motion.div 
-               initial={{ opacity: 0, scale: 0.95 }}
-               whileInView={{ opacity: 1, scale: 1 }}
-               viewport={{ once: true }}
-               className="bg-slate-950 rounded-[40px] p-8 md:p-14 text-white relative overflow-hidden shadow-2xl shadow-slate-900/40"
-            >
-               <div className="absolute top-0 right-0 w-64 h-64 bg-pd-pink/10 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
-               <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 blur-[80px] rounded-full -translate-x-1/4 translate-y-1/4"></div>
 
-               <div className="relative z-10 text-center mb-12">
-                  <span className="text-pink-500 text-[10px] font-black tracking-[0.3em] uppercase block mb-4">Extra Coverage</span>
-                  <h2 className="text-3xl md:text-5xl font-black  uppercase tracking-tighter leading-none">Add-On <span className={textGradientStyle}>Rates</span></h2>
-                  <p className="mt-4 text-slate-400 font-bold max-w-lg mx-auto text-sm md:text-base ">Boost your visibility with specialized expansion packs tailored to your pax capacity.</p>
-               </div>
-
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
-                  {addonRates.map((addon, i) => (
-                     <button 
-                        key={i} 
-                        onClick={() => setSelectedAddon(selectedAddon === i ? null : i)}
-                        className={`flex items-center justify-between p-6 rounded-2xl transition-all group text-left relative overflow-hidden ${
-                           selectedAddon === i 
-                              ? 'bg-white/10 border-2 border-pd-pink shadow-[0_0_30px_rgba(255,65,94,0.1)]' 
-                              : 'bg-white/5 border border-white/10 hover:bg-white/10'
-                        }`}
-                     >
-                        {selectedAddon === i && (
-                           <motion.div 
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              className="absolute top-2 right-2 text-pd-pink"
-                           >
-                              <CheckCircle2 size={16} fill="currentColor" className="text-white" />
-                           </motion.div>
-                        )}
-                        <div className="flex flex-col">
-                           <span className={`text-[10px] font-black uppercase tracking-widest mb-1 transition-colors ${selectedAddon === i ? 'text-pd-pink' : 'text-slate-500'}`}>PAX Capacity</span>
-                           <span className="text-base font-black text-white ">{addon.pax} Guests</span>
-                        </div>
-                        <div className="text-right">
-                           <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest mb-1 block">Price</span>
-                           <span className="text-2xl font-black text-white  tracking-tight">₹{addon.price.toLocaleString()}</span>
-                        </div>
-                     </button>
-                  ))}
-               </div>
-               <button className={`w-full mt-10 p-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
-                  selectedAddon !== null 
-                     ? `${gradientStyle} text-white shadow-xl shadow-pink-500/20 hover:scale-[1.02]` 
-                     : 'bg-white text-slate-950 hover:bg-slate-50'
-               }`}>
-                  {selectedAddon !== null 
-                     ? `Activate ${addonRates[selectedAddon].pax} Add-on` 
-                     : 'Select An Add-on Extension'
-                  }
-               </button>
-            </motion.div>
-        </div>
       </section>
 
       {/* 3. GOALS SECTION: HELP YOU ACHIEVE YOUR GOALS */}
@@ -942,94 +847,20 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* 5. VALUE SECTION */}
-      <section className="py-16 md:py-24 px-6 lg:px-12 bg-slate-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12 uppercase flex flex-col md:flex-row items-center justify-center gap-4">
-             <h2 className="text-3xl md:text-6xl font-extrabold text-[#0F172A] tracking-tight leading-none  uppercase">Why Choose</h2>
-             <span className="pd-logo text-4xl md:text-7xl">PartyDial</span>
-             <span className="text-3xl md:text-6xl font-extrabold text-[#0F172A] tracking-tight leading-none  uppercase">?</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
-            {valueProps.map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white p-10 rounded-[40px] shadow-sm border border-slate-100 flex flex-col items-center text-center group hover:shadow-xl transition-all"
-              >
-                <div className={`${gradientStyle} w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-8 shadow-lg shadow-pink-500/20 group-hover:scale-110 transition-transform`}>
-                  {item.icon}
-                </div>
-                <h4 className="text-base font-bold text-slate-900 mb-4">{item.title}</h4>
-                <p className="text-xs text-slate-500 font-medium leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* 6. FAQ SECTION (OPTIMIZED) */}
       <section className="py-24 md:py-40 px-6 bg-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-50/50 -z-10 translate-x-1/2 rounded-full blur-3xl opacity-50"></div>
         
-         <div className="max-w-[1400px] mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1.5fr] gap-16 md:gap-24 items-start">
-               
-               {/* Left Column: Info & CTA */}
-               <div className="lg:sticky lg:top-24">
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                  >
-                    <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-slate-50 rounded-full text-blue-600 text-[10px] font-black uppercase tracking-[0.3em] mb-10 border border-slate-100">
-                       <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.5)]"></span>
-                       Knowledge Base
-                    </div>
-                    
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-[900] text-[#0F172A] leading-[1.0] tracking-[-0.04em] uppercase mb-8">
-                       Curious <br /> About <br /> <span className={textGradientStyle}>Growth?</span>
-                    </h2>
-                    
-                    <p className="text-base md:text-lg text-slate-500 font-bold max-w-sm mb-12 leading-relaxed">
-                       Everything you need to know about the most powerful event engine in the country.
-                    </p>
-
-                    {/* Doubts Card */}
-                    <div className="max-w-md relative group">
-                       <div className="absolute -inset-1 bg-linear-to-r from-slate-900 to-slate-800 rounded-[36px] blur opacity-10 group-hover:opacity-20 transition duration-500"></div>
-                       <div className="relative bg-slate-950 rounded-3xl p-8 overflow-hidden shadow-2xl">
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 blur-[60px] rounded-full -translate-y-12 translate-x-12"></div>
-                          
-                          <h4 className="text-white text-[9px] font-black uppercase tracking-[0.3em] mb-4 flex items-center gap-2 opacity-80">
-                             Still Have Doubts?
-                          </h4>
-                          
-                          <p className="text-slate-400 text-xs md:text-sm font-bold leading-relaxed mb-8 pr-4">
-                             Our partner success team is available 24/7 to help you dominate your city.
-                          </p>
-                          
-                          <Link href="/contact">
-                             <button className="bg-[#FF415E] text-white px-8 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#E63955] transition-all hover:scale-[1.03] active:scale-[0.98] shadow-xl shadow-pink-500/30">
-                                Get Expert Help
-                             </button>
-                          </Link>
-                       </div>
-                    </div>
-                  </motion.div>
-               </div>
-
-               {/* Right Column: FAQ Items */}
-               <div className="space-y-6 md:space-y-8">
-                  {faqs.map((faq, i) => (
-                    <FaqItem key={i} item={faq} />
-                  ))}
-               </div>
-
+         <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-16">
+               <h2 className="text-3xl md:text-5xl font-black text-[#0F172A] uppercase tracking-tighter">Frequently Asked Questions</h2>
+            </div>
+            
+            <div className="space-y-6 md:space-y-8">
+               {faqs.map((faq, i) => (
+                 <FaqItem key={i} item={faq} />
+               ))}
             </div>
          </div>
       </section>

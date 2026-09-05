@@ -1,6 +1,6 @@
 const { databases, DATABASE_ID, LEADS_COLLECTION_ID, VENUES_COLLECTION_ID, users } = require('../config/appwrite');
 const { ID, Query } = require('node-appwrite');
-const { sendLeadNotificationEmail } = require('../utils/emailService');
+const { sendLeadNotificationEmail, sendBulkLeadNotificationEmail } = require('../utils/emailService');
 const axios = require('axios');
 const { isVenueEligible, getBucketLabel } = require('../utils/paxMatcher');
 
@@ -254,6 +254,7 @@ exports.distributeLeadsToVenues = async (req, res) => {
         );
 
         const allVenues = venueResult.documents;
+        const venueLeadCounts = {};
 
         for (const leadData of leads) {
             const leadPincode = (leadData.pincode || filterPincode || "").toString().trim();
@@ -355,6 +356,22 @@ exports.distributeLeadsToVenues = async (req, res) => {
 
             stats.distributed++;
             results.push({ lead: leadData.name, pincode: leadPincode, assignedTo: targetVenue.venueName });
+
+            if (!venueLeadCounts[targetVenue.$id]) {
+                venueLeadCounts[targetVenue.$id] = { venue: targetVenue, count: 0 };
+            }
+            venueLeadCounts[targetVenue.$id].count++;
+        }
+
+        for (const vId in venueLeadCounts) {
+            const vData = venueLeadCounts[vId];
+            if (vData.count > 1) {
+                const emailTo = vData.venue.contactEmail || vData.venue.ownerEmail || vData.venue.email;
+                if (emailTo) {
+                    sendBulkLeadNotificationEmail(emailTo, vData.venue.venueName, vData.count)
+                        .catch(err => console.error(`Failed to send bulk lead email to ${emailTo}:`, err.message));
+                }
+            }
         }
 
         return res.status(200).json({
@@ -389,6 +406,7 @@ exports.distributeLeadsManualVenues = async (req, res) => {
 
         // Fetch details for the selected venues
         const targetVenues = [];
+        const venueLeadCounts = {};
         for (const vId of venueIds) {
             try {
                 const venueDoc = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, vId);
@@ -446,6 +464,11 @@ exports.distributeLeadsManualVenues = async (req, res) => {
                     stats.distributed++;
                     results.push({ lead: leadData.name, venue: targetVenue.venueName });
 
+                    if (!venueLeadCounts[targetVenue.$id]) {
+                        venueLeadCounts[targetVenue.$id] = { venue: targetVenue, count: 0 };
+                    }
+                    venueLeadCounts[targetVenue.$id].count++;
+
                     // Push Notification
                     if (targetVenue.expoPushToken) {
                         const { sendPushNotification } = require('../utils/notifications');
@@ -458,6 +481,17 @@ exports.distributeLeadsManualVenues = async (req, res) => {
                     }
                 } catch (err) {
                     console.error(`Failed to manually assign lead ${leadData.name} to ${targetVenue.venueName}:`, err);
+                }
+            }
+        }
+
+        for (const vId in venueLeadCounts) {
+            const vData = venueLeadCounts[vId];
+            if (vData.count > 1) {
+                const emailTo = vData.venue.contactEmail || vData.venue.ownerEmail || vData.venue.email;
+                if (emailTo) {
+                    sendBulkLeadNotificationEmail(emailTo, vData.venue.venueName, vData.count)
+                        .catch(err => console.error(`Failed to send bulk lead email to ${emailTo}:`, err.message));
                 }
             }
         }
