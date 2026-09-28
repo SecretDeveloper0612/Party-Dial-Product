@@ -106,7 +106,7 @@ export default function VerificationModal({ isOpen, onClose, venueProfile }: Ver
     return (
       <div className="space-y-2">
         <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</label>
-        <div className={`relative group cursor-pointer overflow-hidden rounded-2xl ${status === 'invalid' ? 'animate-shake' : ''}`}>
+        <div className={`relative group cursor-pointer overflow-hidden rounded-lg ${status === 'invalid' ? 'animate-shake' : ''}`}>
           <input 
             type="file" 
             required 
@@ -114,7 +114,7 @@ export default function VerificationModal({ isOpen, onClose, venueProfile }: Ver
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
             accept=".pdf,.jpg,.jpeg,.png" 
           />
-          <div className={`h-32 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-colors relative
+          <div className={`h-32 border-2 border-dashed rounded-lg flex flex-col items-center justify-center transition-colors relative
             ${status === 'idle' ? 'border-slate-200 bg-slate-50 group-hover:bg-blue-50 group-hover:border-blue-200' : ''}
             ${status === 'scanning' ? 'border-blue-300 bg-blue-50' : ''}
             ${status === 'valid' ? 'border-emerald-300 bg-emerald-50' : ''}
@@ -196,7 +196,7 @@ export default function VerificationModal({ isOpen, onClose, venueProfile }: Ver
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-2xl bg-white rounded-3xl shadow-xl overflow-hidden z-10 flex flex-col max-h-[90vh]"
+          className="relative w-full max-w-2xl bg-white rounded-xl shadow-xl overflow-hidden z-10 flex flex-col max-h-[90vh]"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/50">
@@ -228,7 +228,7 @@ export default function VerificationModal({ isOpen, onClose, venueProfile }: Ver
               </div>
             ) : (
               <form onSubmit={handleUpload} className="space-y-6">
-                <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex gap-3">
+                <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-4 flex gap-3">
                   <AlertCircle size={20} className="text-blue-500 shrink-0" />
                   <p className="text-xs font-medium text-blue-700 leading-relaxed">
                     To maintain our elite venue standard, we require standard KYC documents. Your documents are scanned instantly using AI to ensure authenticity.

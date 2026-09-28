@@ -73,7 +73,7 @@ const LeadExplorer = ({
             {/* Header */}
             <header className="px-10 py-8 border-b border-slate-100 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-6">
-                <div className="w-12 h-12 rounded-2xl bg-pd-pink flex items-center justify-center text-white shadow-lg shadow-pd-pink/20">
+                <div className="w-12 h-12 rounded-lg bg-pd-pink flex items-center justify-center text-white shadow-lg shadow-pd-pink/20">
                   <Zap size={24} />
                 </div>
                 <div>
@@ -82,7 +82,7 @@ const LeadExplorer = ({
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="hidden md:flex items-center gap-2 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-100 shadow-inner">
+                <div className="hidden md:flex items-center gap-2 bg-slate-50 px-4 py-2.5 rounded-lg border border-slate-100 shadow-inner">
                   <Search size={14} className="text-slate-400" />
                   <input 
                     type="text" 
@@ -94,7 +94,7 @@ const LeadExplorer = ({
                 </div>
                 <button 
                   onClick={onClose}
-                  className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xl shadow-slate-900/20 hover:bg-pd-pink transition-all"
+                  className="w-12 h-12 rounded-lg bg-slate-900 text-white flex items-center justify-center shadow-xl shadow-slate-900/20 hover:bg-pd-pink transition-all"
                 >
                   <X size={20} />
                 </button>
@@ -107,7 +107,7 @@ const LeadExplorer = ({
                 <div>
                   <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900 mb-6 font-pd">Status Categorization</h4>
                   <div className="space-y-2">
-                    {['All', 'New', 'In-Progress', 'Booked', 'Lost', 'Archived'].map(status => (
+                    {['All', 'New', 'In-Progress', 'Booked', 'Lost Leads', 'Archived'].map(status => (
                       <button 
                         key={status}
                         onClick={() => setLeadFilter(status)}
@@ -162,7 +162,7 @@ const LeadExplorer = ({
 
                 <button 
                   onClick={() => { setSearchTerm(''); setLeadFilter('All'); setSelectedEventTypes([]); setGuestRange({ min: 0, max: 2000 }); }}
-                  className="w-full py-4 border border-dashed border-slate-200 rounded-2xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-pd-pink hover:border-pd-pink transition-all font-pd"
+                  className="w-full py-4 border border-dashed border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-pd-pink hover:border-pd-pink transition-all font-pd"
                 >
                   Reset Intelligence
                 </button>
@@ -185,7 +185,7 @@ const LeadExplorer = ({
                       style={{ transform: 'translateZ(0)' }}
                     >
                       <div className="flex items-center gap-6 text-left">
-                        <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                        <div className="w-14 h-14 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500 shadow-inner group-hover:scale-110 transition-transform duration-500">
                           <User size={24} />
                         </div>
                         <div>

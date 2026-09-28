@@ -703,7 +703,7 @@ const QuotationManager = ({
                         </div>
 
                         {/* Discount & Extras */}
-                        <div className="grid grid-cols-2 gap-4 bg-[#0F172A] p-5 rounded-2xl text-white shadow-lg">
+                        <div className="grid grid-cols-2 gap-4 bg-[#0F172A] p-5 rounded-lg text-white shadow-lg">
                            <div className="space-y-2">
                               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Discount Setup</label>
                               <div className="flex items-center bg-slate-800 rounded-lg p-0.5">
@@ -868,7 +868,7 @@ const QuotationManager = ({
 
                      {/* Final Accumulation Card */}
                      <div className="pt-2">
-                        <div className="p-5 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div className="p-5 bg-white rounded-lg border border-slate-200 shadow-sm space-y-4">
                            <div className="space-y-2">
                               <div className="flex justify-between items-center text-[11px] font-semibold text-slate-500">
                                  <span>Subtotal</span>
@@ -899,7 +899,7 @@ const QuotationManager = ({
                <div className="flex-1 bg-slate-50/50 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[20px_20px] p-8 lg:p-16 flex flex-col items-center printable-container min-h-[calc(100vh-80px)] overflow-y-auto">
 
                   {/* Floating Premium Controls */}
-                  <div className="mb-8 flex items-center gap-2 bg-white/90 backdrop-blur-md p-2 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 no-print sticky top-8 z-20">
+                  <div className="mb-8 flex items-center gap-2 bg-white/90 backdrop-blur-md p-2 rounded-lg shadow-lg shadow-slate-200/50 border border-slate-200/60 no-print sticky top-8 z-20">
                      <button
                         onClick={handleWhatsAppShare}
                         disabled={isSharing}
@@ -947,7 +947,7 @@ const QuotationManager = ({
                      layout
                      ref={quotationRef}
                      id="quotation-preview-doc"
-                     className="w-full max-w-[212.5rem] bg-white shadow-2xl shadow-slate-200 rounded-2xl relative min-h-264 flex flex-col overflow-hidden border border-slate-200 print:shadow-none print:rounded-none print-only"
+                     className="w-full max-w-[212.5rem] bg-white shadow-2xl shadow-slate-200 rounded-lg relative min-h-264 flex flex-col overflow-hidden border border-slate-200 print:shadow-none print:rounded-none print-only"
                   >
                      <div className="p-12 lg:p-14 space-y-12">
 
@@ -960,7 +960,7 @@ const QuotationManager = ({
                                  <p className="text-xs font-medium uppercase tracking-wider">{venueProfile?.location || "Nainital Road, Haldwani"}</p>
                               </div>
                            </div>
-                           <div className="w-16 h-16 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-center overflow-hidden">
+                           <div className="w-16 h-16 bg-white rounded-lg border border-slate-100 shadow-sm flex items-center justify-center overflow-hidden">
                               {(() => {
                                  const rawPhotos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
                                  const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => {
@@ -1000,7 +1000,7 @@ const QuotationManager = ({
                               </p>
                            </div>
 
-                           <div className="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                           <div className="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-lg border border-slate-100">
                               <div className="space-y-3">
                                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Client Details</h4>
                                  <div>
@@ -1029,7 +1029,7 @@ const QuotationManager = ({
                         {/* About Our Venue */}
                         <div className="space-y-4">
                            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Amenities Included</h4>
-                           <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+                           <div className="bg-slate-50 rounded-lg p-6 border border-slate-100">
                               <div className="flex flex-wrap gap-4">
                                  {(() => {
                                     const rawAmenities = typeof venueProfile?.amenities === 'string' 
@@ -1096,7 +1096,7 @@ const QuotationManager = ({
                         {/* Financial Ledger Table */}
                         <div className="pt-6">
                            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Investment Summary</h4>
-                           <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+                           <div className="overflow-hidden rounded-lg border border-slate-200 shadow-sm">
                               <table className="w-full border-collapse bg-white">
                                  <thead>
                                     <tr className="bg-slate-50 border-b border-slate-200">
@@ -1121,7 +1121,7 @@ const QuotationManager = ({
 
                            {/* Totals Floating Card */}
                            <div className="flex justify-end pt-6">
-                              <div className="w-full max-w-[320px] bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+                              <div className="w-full max-w-[320px] bg-white rounded-lg p-6 border border-slate-200 shadow-sm space-y-3">
                                  <div className="flex justify-between items-center text-sm">
                                     <span className="font-medium text-slate-500">Subtotal</span>
                                     <span className="font-semibold text-slate-900">₹{subtotal.toLocaleString('en-IN')}</span>

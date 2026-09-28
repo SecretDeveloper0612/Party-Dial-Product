@@ -449,7 +449,7 @@ exports.distributeLeadsManualVenues = async (req, res) => {
                         guests: parseInt(String(leadData.pax || '0').replace(/\D/g, ''), 10) || 0,
                         eventDate: leadData.eventDate || '',
                         pincode: leadData.pincode || '',
-                        notes: `MANUAL DISTRIBUTION | Distributed to ${targetVenue.venueName} | ${leadData.notes || ''}`,
+                        notes: `MANUAL DISTRIBUTION | Distributed to ${targetVenue.venueName} | Event Date: ${leadData.eventDate || 'N/A'} | City: ${leadData.city || 'N/A'} | Pin: ${leadData.pincode || 'N/A'} | ${leadData.notes || ''}`,
                         status: 'New',
                         createdAt: new Date().toISOString()
                     };

@@ -224,7 +224,7 @@ const DashboardSettings = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-3xl p-8 shadow-2xl border border-slate-100 max-w-sm w-full text-center"
+              className="bg-white rounded-xl p-8 shadow-2xl border border-slate-100 max-w-sm w-full text-center"
             >
               <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-red-50 flex items-center justify-center border border-red-100 shadow-sm">
                 <Trash2 size={24} className="text-red-500" />
@@ -255,7 +255,7 @@ const DashboardSettings = ({
       </AnimatePresence>
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 md:p-8 rounded-xl border border-slate-200/60 shadow-sm">
          <div>
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Venue Settings</h1>
             <p className="text-sm font-medium text-slate-500">Configure your professional profile, gallery, and offerings</p>
@@ -275,7 +275,7 @@ const DashboardSettings = ({
                 <button 
                   key={section.id}
                   onClick={() => setSettingsSection(section.id)}
-                  className={`flex items-center justify-between p-4 rounded-2xl transition-all group border ${settingsSection === section.id ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-white border-slate-200/60 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}`}
+                  className={`flex items-center justify-between p-4 rounded-lg transition-all group border ${settingsSection === section.id ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-white border-slate-200/60 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}`}
                 >
                    <div className="flex items-center gap-3">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm ${settingsSection === section.id ? 'bg-white/20' : section.color}`}>
@@ -287,26 +287,26 @@ const DashboardSettings = ({
                 </button>
              ))}
              {venueProfile?.status && (
-               <div className={`mt-4 shrink-0 flex items-center gap-3 px-5 py-2.5 rounded-2xl border shadow-sm transition-all ${
-                  venueProfile.status === 'approved' ? 'bg-emerald-50 border-emerald-200 shadow-emerald-500/10' :
+               <div className={`mt-4 shrink-0 flex items-center gap-3 px-5 py-2.5 rounded-lg border shadow-sm transition-all ${
+                  (venueProfile.status === 'approved' || venueProfile.status === 'active' || venueProfile.status === 'ACTIVE') ? 'bg-emerald-50 border-emerald-200 shadow-emerald-500/10' :
                   venueProfile.status === 'rejected' ? 'bg-rose-50 border-rose-200 shadow-rose-500/10' :
                   'bg-amber-50 border-amber-200 shadow-amber-500/10'
                }`}>
                   <div className="flex items-center justify-center">
-                     {venueProfile.status === 'approved' ? <ShieldCheck size={22} className="text-emerald-600" strokeWidth={2.5} /> :
+                     {(venueProfile.status === 'approved' || venueProfile.status === 'active' || venueProfile.status === 'ACTIVE') ? <ShieldCheck size={22} className="text-emerald-600" strokeWidth={2.5} /> :
                       venueProfile.status === 'rejected' ? <X size={22} className="text-rose-600" strokeWidth={2.5} /> :
                       <Clock size={22} className="text-amber-600" strokeWidth={2.5} />}
                   </div>
                   <div className="flex flex-col justify-center">
                      <span className={`text-[9px] font-black uppercase tracking-[0.2em] leading-none mb-1.5 ${
-                        venueProfile.status === 'approved' ? 'text-emerald-600/70' :
+                        (venueProfile.status === 'approved' || venueProfile.status === 'active' || venueProfile.status === 'ACTIVE') ? 'text-emerald-600/70' :
                         venueProfile.status === 'rejected' ? 'text-rose-600/70' :
                         'text-amber-600/70'
                      }`}>
                         Listing Status
                      </span>
                      <span className={`text-[13px] font-black uppercase tracking-wider leading-none ${
-                        venueProfile.status === 'approved' ? 'text-emerald-700' :
+                        (venueProfile.status === 'approved' || venueProfile.status === 'active' || venueProfile.status === 'ACTIVE') ? 'text-emerald-700' :
                         venueProfile.status === 'rejected' ? 'text-rose-700' :
                         'text-amber-700'
                      }`}>
@@ -318,7 +318,7 @@ const DashboardSettings = ({
           </aside>
 
           {/* Content Area */}
-          <div className="flex-1 bg-white rounded-3xl border border-slate-200/60 shadow-sm p-6 md:p-8 relative min-h-150 overflow-hidden">
+          <div className="flex-1 bg-white rounded-xl border border-slate-200/60 shadow-sm p-6 md:p-8 relative min-h-150 overflow-hidden">
              <AnimatePresence mode="wait">
                 {settingsSection === 'profile' && (
                    <motion.div 
@@ -336,7 +336,7 @@ const DashboardSettings = ({
                                <h3 className="text-lg font-extrabold text-slate-900 mb-6">Brand Representative</h3>
                                <div className="flex items-center gap-6">
                                   <div className="relative group">
-                                     <div className="w-24 h-24 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+                                     <div className="w-24 h-24 rounded-lg bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
                                         {(photoIds.find((p: any) => p.category === 'Profile')) ? (
                                            <Image 
                                              src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${photoIds.find((p: any) => p.category === 'Profile').id}/view?project=69ae84bc001ca4edf8c2`} 
@@ -591,7 +591,7 @@ const DashboardSettings = ({
                             
                             if (halls.length === 0) {
                                return (
-                                  <div className="py-20 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                  <div className="py-20 text-center bg-slate-50 rounded-lg border border-dashed border-slate-200">
                                      <Building className="mx-auto text-slate-300 mb-3" size={40} />
                                      <h4 className="text-base font-extrabold text-slate-900">No spaces defined</h4>
                                      <p className="text-sm font-medium text-slate-500 mt-1 mb-6 max-w-sm mx-auto">Add your banquet halls, lawns, or specific event areas here.</p>
@@ -600,7 +600,7 @@ const DashboardSettings = ({
                             }
  
                             return halls.map((hall: any) => (
-                               <div key={hall.id} className="p-6 bg-slate-50 border border-slate-200/60 rounded-2xl flex flex-col md:flex-row md:items-end justify-between gap-6 group hover:border-slate-300 transition-all">
+                               <div key={hall.id} className="p-6 bg-slate-50 border border-slate-200/60 rounded-lg flex flex-col md:flex-row md:items-end justify-between gap-6 group hover:border-slate-300 transition-all">
                                   <div className="flex-1 flex flex-col gap-4">
                                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div className="space-y-1.5">
@@ -787,7 +787,7 @@ const DashboardSettings = ({
                            .filter((p: any) => p.category !== 'Profile')
                            .filter((p: any) => activeGalleryCategory === "All Photos" || p.category === activeGalleryCategory)
                            .map((p: any) => (
-                            <div key={p.id} className="aspect-square relative rounded-2xl overflow-hidden border border-slate-200/60 group shadow-sm">
+                            <div key={p.id} className="aspect-square relative rounded-lg overflow-hidden border border-slate-200/60 group shadow-sm">
                                <Image 
                                   src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${p.id}/view?project=69ae84bc001ca4edf8c2`} 
                                   alt="Gallery" 
@@ -811,7 +811,7 @@ const DashboardSettings = ({
                          ))}
                          
                          {(photoIds.filter((p: any) => activeGalleryCategory === "All Photos" || p.category === activeGalleryCategory).length === 0) && !isUploadingPhoto && (
-                            <div className="col-span-full py-20 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                            <div className="col-span-full py-20 text-center bg-slate-50 rounded-lg border border-dashed border-slate-200">
                                <ImageIcon className="mx-auto text-slate-300 mb-3" size={40} />
                                <h4 className="text-base font-extrabold text-slate-900">No photos in {activeGalleryCategory}</h4>
                                <p className="text-sm font-medium text-slate-500 mt-1 mb-5">Upload photos here to showcase your venue&apos;s aesthetic.</p>
@@ -825,7 +825,7 @@ const DashboardSettings = ({
                          )}
 
                          {isUploadingPhoto && (
-                            <div className="aspect-square relative rounded-2xl border border-slate-200/60 bg-slate-50 flex flex-col items-center justify-center animate-pulse gap-2">
+                            <div className="aspect-square relative rounded-lg border border-slate-200/60 bg-slate-50 flex flex-col items-center justify-center animate-pulse gap-2">
                                <div className="w-6 h-6 border-2 border-slate-300 border-t-slate-500 rounded-full animate-spin" />
                                <span className="text-xs font-bold text-slate-500">Uploading...</span>
                             </div>
@@ -907,7 +907,7 @@ const DashboardSettings = ({
                              </div>
                           </div>
 
-                          <div className="p-6 bg-slate-50 border border-slate-200/60 rounded-2xl flex items-start gap-4">
+                          <div className="p-6 bg-slate-50 border border-slate-200/60 rounded-lg flex items-start gap-4">
                              <div className="w-10 h-10 bg-white rounded-xl border border-slate-200/60 flex items-center justify-center text-amber-500 shrink-0">
                                 <Sparkles size={20} />
                              </div>
@@ -918,7 +918,7 @@ const DashboardSettings = ({
                           </div>
                        </section>
 
-                       <section className="p-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200/80 text-center">
+                       <section className="p-8 bg-slate-50 rounded-lg border border-dashed border-slate-200/80 text-center">
                           <Target className="mx-auto text-slate-400 mb-3" size={32} />
                           <h4 className="text-base font-extrabold text-slate-900 mb-1">Advanced Packages</h4>
                           <p className="text-sm text-slate-500 font-medium">
@@ -968,7 +968,7 @@ const DashboardSettings = ({
                              const videos = Array.isArray(venueProfile?.videos) ? venueProfile.videos : [];
                              if (videos.length === 0) {
                                 return (
-                                   <div className="py-20 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                   <div className="py-20 text-center bg-slate-50 rounded-lg border border-dashed border-slate-200">
                                       <PlayCircle className="mx-auto text-slate-300 mb-3" size={40} />
                                       <h4 className="text-base font-extrabold text-slate-900">No videos added</h4>
                                       <p className="text-sm font-medium text-slate-500 mt-1 mb-6 max-w-sm mx-auto">Add YouTube links to give customers a virtual tour of your venue.</p>

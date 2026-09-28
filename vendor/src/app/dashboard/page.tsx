@@ -58,6 +58,10 @@ import {
   Shield,
   CreditCard,
   Globe,
+  LayoutDashboard,
+  Kanban,
+  ReceiptIndianRupee,
+  Headset,
   Key,
   Database,
   Coffee,
@@ -94,15 +98,15 @@ import VerificationModal from '@/vendor/components/dashboard/VerificationModal';
 import logo from '../logo.jpg';
 
 const tabs = [
-  { id: 'overview', label: 'Overview', icon: <BarChart3 size={18} /> },
-  { id: 'leads', label: 'Leads', icon: <Zap size={18} /> },
-  { id: 'pipeline', label: 'Pipeline', icon: <Target size={18} /> },
-  { id: 'quotations', label: 'Quotations', icon: <FileText size={18} /> },
-  { id: 'reviews', label: 'Reviews', icon: <MessageSquareQuote size={18} /> },
+  { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={18} /> },
+  { id: 'leads', label: 'Leads', icon: <Users size={18} /> },
+  { id: 'pipeline', label: 'Pipeline', icon: <Kanban size={18} /> },
+  { id: 'quotations', label: 'Quotations', icon: <ReceiptIndianRupee size={18} /> },
+  { id: 'reviews', label: 'Reviews', icon: <Star size={18} /> },
 ];
 
 const secondaryTabs = [
-  { id: 'support', label: 'Support', icon: <HelpCircle size={18} /> },
+  { id: 'support', label: 'Support', icon: <Headset size={18} /> },
   { id: 'settings', label: 'Settings', icon: <Settings size={18} /> },
 ];
 
@@ -483,7 +487,7 @@ export default function VendorDashboard() {
     { id: 'Followups', color: 'bg-amber-500', text: 'text-amber-600', icon: <CalendarDays size={14} /> },
     { id: 'Quotation Send', color: 'bg-pink-500', text: 'text-pink-600', icon: <IndianRupee size={14} /> },
     { id: 'Booked', color: 'bg-emerald-500', text: 'text-emerald-600', icon: <CheckCircle2 size={14} /> },
-    { id: 'Lost', color: 'bg-red-500', text: 'text-red-600', icon: <XCircle size={14} /> }
+    { id: 'Lost Leads', color: 'bg-red-500', text: 'text-red-600', icon: <XCircle size={14} /> }
   ];
 
   const updateLeadStatus = async (leadId: string, newStatus: string) => {
@@ -941,7 +945,7 @@ export default function VendorDashboard() {
                     rawDate: payload.$createdAt || new Date().toISOString(),
                     updatedAt: payload.$updatedAt || payload.$createdAt || new Date().toISOString(),
                     eventDate: payload.eventDate || extractedDate || null,
-                    status: payload.status === 'Quoted' ? 'Quotation Send' : (payload.status === 'In-Progress' ? 'Contacted' : (payload.status === 'Lost' || payload.status === 'Lost Leads' ? 'Lost' : (payload.status || 'New'))),
+                    status: payload.status === 'Quoted' ? 'Quotation Send' : (payload.status === 'In-Progress' ? 'Contacted' : (payload.status === 'Lost' || payload.status === 'Lost Leads' ? 'Lost Leads' : (payload.status || 'New'))),
                     location: payload.city || extractedCity || (extractedPin ? `PIN: ${extractedPin}` : 'Haldwani'),
                     email: payload.email || 'client@mail.com',
                     title: 'Direct Inquiry',
@@ -1318,17 +1322,7 @@ export default function VendorDashboard() {
                
                <div className="hidden lg:block h-8 w-px bg-slate-200/50"></div>
 
-               {venueProfile && !venueProfile.isVerified && venueProfile.onboardingComplete && (
-                  <button 
-                     onClick={(e) => {
-                        e.stopPropagation();
-                        setShowVerificationModal(true);
-                     }}
-                     className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-xl bg-linear-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-black tracking-widest uppercase shadow-md hover:shadow-lg hover:scale-105 transition-all"
-                  >
-                     Verify Profile
-                  </button>
-               )}
+
                <div 
                   onClick={() => { setActiveTab('settings'); setSettingsSection('profile'); }}
                   className="flex items-center gap-3 lg:gap-4 pl-1 cursor-pointer group hover:opacity-90 active:scale-[0.98] transition-all"
@@ -1405,34 +1399,7 @@ export default function VendorDashboard() {
          {/* DASHBOARD CONTENT */}
          <div className="p-4 lg:p-8">
             
-            {/* Profile Status Indicator */}
-            {activeTab === 'overview' && venueProfile && (
-               <div className="mb-6 lg:mb-8 flex">
-                 {(() => {
-                   const status = venueProfile.isVerified 
-                     ? { label: "Approved Profile", color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20", icon: <ShieldCheck size={14} className="text-emerald-500" /> }
-                     : venueProfile.status === 'rejected'
-                     ? { label: "Rejected – Please Update Your Profile", color: "bg-rose-500/10 text-rose-600 border-rose-500/20", icon: <XCircle size={14} className="text-rose-500" /> }
-                     : { label: "Waiting for Approval", color: "bg-amber-500/10 text-amber-600 border-amber-500/20", icon: <Clock size={14} className="text-amber-500" /> };
-                   
-                   return (
-                     <motion.div 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`flex items-center gap-3 px-5 py-3 rounded-[20px] border ${status.color} backdrop-blur-sm shadow-sm transition-all group hover:scale-[1.02] cursor-default`}
-                     >
-                        <div className="flex items-center justify-center">
-                           {status.icon}
-                        </div>
-                        <div className="flex flex-col">
-                           <span className="text-[8px] font-black opacity-60 uppercase tracking-[0.2em] leading-none mb-1">Listing Status</span>
-                           <p className="text-[10px] font-black uppercase tracking-widest ">{status.label}</p>
-                        </div>
-                     </motion.div>
-                   );
-                 })()}
-               </div>
-            )}
+
 
             {activeTab === 'overview' && (
               <DashboardOverview 

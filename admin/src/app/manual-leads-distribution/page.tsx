@@ -23,7 +23,8 @@ import {
   Info,
   ChevronRight,
   Trash2,
-  Building2
+  Building2,
+  ChevronDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -85,6 +86,8 @@ export default function ManualLeadsDistributionPage() {
     pincode: "",
     city: ""
   });
+
+  const [isManualPax, setIsManualPax] = useState(false);
 
   const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
   const base = rawBase.replace(/\/+$/, "");
@@ -435,54 +438,138 @@ export default function ManualLeadsDistributionPage() {
                 </button>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-4">
-                   <input 
-                    type="text" placeholder="Customer Name"
-                    value={manualLead.name}
-                    onChange={(e) => setManualLead({...manualLead, name: e.target.value})}
-                    className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-purple-500/10 outline-none"
-                   />
-                   <input 
-                    type="text" placeholder="Phone Number"
-                    value={manualLead.phone}
-                    onChange={(e) => setManualLead({...manualLead, phone: e.target.value})}
-                    className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-purple-500/10 outline-none"
-                   />
-                   <input 
-                    type="text" placeholder="Event Type (e.g. Wedding)"
-                    value={manualLead.eventType}
-                    onChange={(e) => setManualLead({...manualLead, eventType: e.target.value})}
-                    className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-purple-500/10 outline-none"
-                   />
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Full Name</label>
+                    <input 
+                      type="text" placeholder="Your Name"
+                      value={manualLead.name}
+                      onChange={(e) => setManualLead({...manualLead, name: e.target.value})}
+                      className="w-full h-16 bg-slate-50 border-none rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:bg-white focus:border focus:border-purple-500 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Email Address</label>
+                    <input 
+                      type="email" placeholder="Your Email"
+                      value={manualLead.email || ""}
+                      onChange={(e) => setManualLead({...manualLead, email: e.target.value})}
+                      className="w-full h-16 bg-slate-50 border-none rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:bg-white focus:border focus:border-purple-500 transition-all"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-4">
-                  <input 
-                    type="date"
-                    value={manualLead.eventDate}
-                    onChange={(e) => setManualLead({...manualLead, eventDate: e.target.value})}
-                    className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-purple-500/10 outline-none"
-                   />
-                   <input 
-                    type="number" placeholder="Guest Count (PAX)"
-                    value={manualLead.pax}
-                    onChange={(e) => setManualLead({...manualLead, pax: e.target.value})}
-                    className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-purple-500/10 outline-none"
-                   />
-                   <div className="grid grid-cols-2 gap-2">
-                     <input 
-                      type="text" placeholder="Pincode"
-                      value={manualLead.pincode}
-                      onChange={(e) => setManualLead({...manualLead, pincode: e.target.value})}
-                      className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-purple-500/10 outline-none"
-                     />
-                     <input 
-                      type="text" placeholder="City"
-                      value={manualLead.city}
-                      onChange={(e) => setManualLead({...manualLead, city: e.target.value})}
-                      className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-purple-500/10 outline-none"
-                     />
-                   </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Phone Number</label>
+                    <div className="relative">
+                      <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center pointer-events-none z-10">
+                        <span className="text-sm font-bold text-slate-400 tracking-tighter shrink-0">+91</span>
+                      </div>
+                      <input 
+                        type="text" placeholder=""
+                        value={manualLead.phone}
+                        onChange={(e) => setManualLead({...manualLead, phone: e.target.value})}
+                        className="w-full h-16 bg-slate-50 border-none rounded-2xl pl-16 pr-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:bg-white focus:border focus:border-purple-500 transition-all tracking-[0.1em]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center ml-2 mr-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Approx Guests</label>
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setIsManualPax(!isManualPax);
+                          setManualLead({...manualLead, pax: ""});
+                        }} 
+                        className="text-[10px] font-bold text-indigo-500 hover:text-indigo-600 transition-colors"
+                      >
+                        {isManualPax ? "Select Range" : "Type Manually"}
+                      </button>
+                    </div>
+                    {isManualPax ? (
+                      <input 
+                        type="text" 
+                        placeholder="E.g. 150-175 guests"
+                        value={manualLead.pax}
+                        onChange={(e) => setManualLead({...manualLead, pax: e.target.value})}
+                        className="w-full h-16 bg-slate-50 border-none rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:bg-white focus:border focus:border-purple-500 transition-all"
+                      />
+                    ) : (
+                      <div className="relative">
+                        <select 
+                          value={manualLead.pax}
+                          onChange={(e) => setManualLead({...manualLead, pax: e.target.value})}
+                          className="w-full h-16 bg-slate-50 border-none rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:bg-white focus:border focus:border-purple-500 transition-all appearance-none cursor-pointer"
+                        >
+                          <option value="">Select Capacity</option>
+                          <option value="0-50">0-50 guests</option>
+                          <option value="50-100">50-100 guests</option>
+                          <option value="100-200">100-200 guests</option>
+                          <option value="200-500">200-500 guests</option>
+                          <option value="500-1000">500-1000 guests</option>
+                          <option value="1000-2000">1000-2000 guests</option>
+                          <option value="2000-5000">2000-5000 guests</option>
+                          <option value="5000+">5000+ guests</option>
+                        </select>
+                        <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Event Type</label>
+                    <div className="relative">
+                      <select 
+                        value={manualLead.eventType}
+                        onChange={(e) => setManualLead({...manualLead, eventType: e.target.value})}
+                        className="w-full h-16 bg-slate-50 border-none rounded-2xl px-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:bg-white focus:border focus:border-purple-500 transition-all appearance-none cursor-pointer"
+                      >
+                        <option value="">Select Event</option>
+                        <option value="Birthday Party">Birthday Party</option>
+                        <option value="Wedding Events">Wedding Events</option>
+                        <option value="Pre-Wedding Events">Pre-Wedding Events</option>
+                        <option value="Anniversary Party">Anniversary Party</option>
+                        <option value="Baby Shower">Baby Shower</option>
+                        <option value="Corporate Event">Corporate Event</option>
+                        <option value="Ring Ceremony">Ring Ceremony</option>
+                        <option value="Social Event">Social Event</option>
+                        <option value="Others">Others</option>
+                      </select>
+                      <ChevronDown size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Proposed Event Date</label>
+                    <div className="relative">
+                      <input 
+                        type="date"
+                        value={manualLead.eventDate}
+                        onChange={(e) => setManualLead({...manualLead, eventDate: e.target.value})}
+                        className="w-full h-16 bg-slate-50 border-none rounded-2xl px-6 pr-12 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:bg-white focus:border focus:border-purple-500 transition-all"
+                      />
+                      <Calendar size={18} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none hidden md:block" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">Pincode / Location</label>
+                    <div className="relative">
+                      <MapPin size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                      <input 
+                        type="text" placeholder="Enter Pincode or City"
+                        value={manualLead.city}
+                        onChange={(e) => setManualLead({...manualLead, city: e.target.value, pincode: e.target.value.replace(/\D/g, '')})}
+                        className="w-full h-16 bg-slate-50 border-none rounded-2xl pl-14 pr-6 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:bg-white focus:border focus:border-purple-500 transition-all"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

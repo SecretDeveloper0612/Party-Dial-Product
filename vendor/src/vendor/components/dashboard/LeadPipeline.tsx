@@ -12,6 +12,8 @@ interface Lead {
   guests: string;
   date: string;
   time: string;
+  eventDate?: string | null;
+  location?: string;
   status: string;
   email: string;
   color: string;
@@ -51,7 +53,7 @@ const LeadPipeline = ({
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full h-full min-h-[70vh] flex flex-col space-y-6">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm shrink-0">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200/60 shadow-sm shrink-0">
          <div>
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Lead Pipeline</h1>
             <p className="text-sm font-medium text-slate-500">Track and move your leads through the sales funnel</p>
@@ -78,7 +80,7 @@ const LeadPipeline = ({
               className="w-[320px] shrink-0 flex flex-col max-h-full"
             >
               {/* Column Header */}
-              <div className="bg-slate-50 border border-slate-200/60 rounded-2xl p-4 mb-3 flex items-center justify-between shadow-sm sticky top-0 z-10">
+              <div className="bg-slate-50 border border-slate-200/60 rounded-lg p-4 mb-3 flex items-center justify-between shadow-sm sticky top-0 z-10">
                  <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-lg ${stage.color} flex items-center justify-center text-white shadow-sm`}>
                        {React.isValidElement(stage.icon) && React.cloneElement(stage.icon as React.ReactElement<{ size?: number }>, { size: 14 })}
@@ -91,7 +93,7 @@ const LeadPipeline = ({
               </div>
 
               {/* Column Content */}
-              <div className="flex-1 overflow-y-auto pr-1 space-y-3 pb-2 scrollbar-hide min-h-[150px] bg-slate-50/30 rounded-2xl p-2 border border-slate-100 border-dashed">
+              <div className="flex-1 overflow-y-auto pr-1 space-y-3 pb-2 scrollbar-hide min-h-37.5 bg-slate-50/30 rounded-lg p-2 border border-slate-100 border-dashed">
                 <AnimatePresence>
                   {stageLeads.map((lead, idx) => (
                     <motion.div 
@@ -139,7 +141,7 @@ const LeadPipeline = ({
                                   </button>
                                   <div className="h-px bg-slate-100 my-1"></div>
                                   <button 
-                                    onClick={(e) => { e.stopPropagation(); updateLeadStatus(lead.id, 'Lost'); setActiveDropdown(null); }}
+                                    onClick={(e) => { e.stopPropagation(); updateLeadStatus(lead.id, 'Lost Leads'); setActiveDropdown(null); }}
                                     className="w-full text-left px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-50 flex items-center gap-2"
                                   >
                                     Mark as Lost
@@ -163,6 +165,22 @@ const LeadPipeline = ({
                              <Phone size={12} className="text-slate-400" />
                              <span>{lead.phone}</span>
                           </div>
+                          {(lead.eventDate || lead.location) && (
+                            <div className="flex flex-col gap-1.5 pt-2 mt-2 border-t border-slate-100/50">
+                              {lead.eventDate && (
+                                <div className="flex items-center gap-2 text-[10px] font-medium text-slate-500">
+                                  <CalendarDays size={10} className="text-amber-500" />
+                                  <span>{new Date(lead.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                </div>
+                              )}
+                              {lead.location && (
+                                <div className="flex items-center gap-2 text-[10px] font-medium text-slate-500">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500 shrink-0"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                  <span className="truncate">{lead.location}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                        </div>
 
                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">

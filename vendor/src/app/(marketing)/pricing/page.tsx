@@ -735,18 +735,6 @@ export default function PricingPage() {
               ))}
             </div>
           </div>
-          <motion.div 
-            key={billingDuration}
-            initial={{ opacity: 0, y: -5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-emerald-500 font-black text-[10px] uppercase tracking-widest mt-4 flex items-center justify-center gap-2"
-          >
-             <Sparkle size={14} fill="currentColor" />
-             {billingDuration === 'annually' && 'Save up to 23% with Annual Billing'}
-             {billingDuration === 'halfYearly' && 'Save up to 18% with Half-Yearly Billing'}
-             {billingDuration === 'quarterly' && 'Save up to 10% with Quarterly Billing'}
-             <Sparkle size={14} fill="currentColor" />
-          </motion.div>
         </div>
 
         <div className="max-w-384 mx-auto relative px-4 lg:px-8">

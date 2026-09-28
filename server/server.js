@@ -119,6 +119,7 @@ app.use('/api/plans', planRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/access', accessRoutes);
 app.use('/api/quotations', quotationRoutes);
+app.use('/api/support', require('./routes/supportRoutes'));
 app.get('/api/config', configController.getPublicConfig);
 
 // Optional: Fallback for undefined routes

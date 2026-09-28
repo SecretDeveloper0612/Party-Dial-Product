@@ -59,7 +59,7 @@ const VenueCalendar = ({
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ">Spring Ballroom • Grand Imperial Resort</p>
              </div>
              
-             <div className="flex items-center gap-3 bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm transition-all duration-300">
+             <div className="flex items-center gap-3 bg-white p-1.5 rounded-lg border border-slate-100 shadow-sm transition-all duration-300">
                 {['Monthly', 'Weekly', 'Blueprint'].map(view => (
                    <button 
                       key={view} 
@@ -109,7 +109,7 @@ const VenueCalendar = ({
                                 key={i} 
                                 whileHover={{ scale: 1.02, zIndex: 10 }}
                                 onClick={() => setSelectedDay(dayNum)}
-                                className={`bg-white min-h-[120px] p-5 flex flex-col transition-all cursor-pointer relative group ${isSelected ? 'ring-2 ring-pd-pink ring-inset rounded-2xl z-20 shadow-2xl scale-105' : ''} ${isToday ? 'bg-slate-50 border-pd-pink/10' : ''}`}
+                                className={`bg-white min-h-[120px] p-5 flex flex-col transition-all cursor-pointer relative group ${isSelected ? 'ring-2 ring-pd-pink ring-inset rounded-lg z-20 shadow-2xl scale-105' : ''} ${isToday ? 'bg-slate-50 border-pd-pink/10' : ''}`}
                              >
                                 <div className="flex justify-between items-start mb-4">
                                    <span className={`text-xs font-black  ${isSelected || isToday ? 'text-pd-pink' : isBooked ? 'text-slate-900' : isMaintenance ? 'text-amber-500' : 'text-slate-300'}`}>
@@ -176,9 +176,9 @@ const VenueCalendar = ({
                                 </div>
                                 <div className="flex items-center gap-6">
                                    {events.length === 0 && (
-                                      <button className="px-8 py-3.5 bg-pd-pink text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-pd-pink/20 hover:scale-105 transition-all">RESERVE SLOT</button>
+                                      <button className="px-8 py-3.5 bg-pd-pink text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-xl shadow-pd-pink/20 hover:scale-105 transition-all">RESERVE SLOT</button>
                                    )}
-                                   <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center transition-all ${isToday ? 'bg-white/10 border-white/20 text-white' : 'bg-slate-50 border-slate-100 text-slate-400'} group-hover:bg-pd-pink group-hover:text-white group-hover:border-pd-pink`}>
+                                   <div className={`w-14 h-14 rounded-lg border flex items-center justify-center transition-all ${isToday ? 'bg-white/10 border-white/20 text-white' : 'bg-slate-50 border-slate-100 text-slate-400'} group-hover:bg-pd-pink group-hover:text-white group-hover:border-pd-pink`}>
                                       <ChevronRight size={20} />
                                    </div>
                                 </div>
@@ -225,15 +225,15 @@ const VenueCalendar = ({
                           <div className="absolute inset-0 bg-linear-to-tr from-pd-pink/20 via-transparent to-blue-500/10 pointer-events-none" />
                           <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-pd-pink/10 rounded-full blur-[100px]" />
                           
-                          <div className="w-20 h-20 rounded-3xl bg-white/10 flex items-center justify-center mb-10 relative z-10 border border-white/10">
+                          <div className="w-20 h-20 rounded-xl bg-white/10 flex items-center justify-center mb-10 relative z-10 border border-white/10">
                              <Zap size={32} className="text-pd-pink" />
                           </div>
                           <h3 className="text-4xl font-black  uppercase text-white mb-4 relative z-10 tracking-tighter leading-none">Inventory Intelligence <span className="text-pd-pink">Blueprint</span></h3>
                           <p className="text-[13px] font-medium text-white/40  mb-12 relative z-10 max-w-md mx-auto leading-relaxed">Optimize your venue utilization with advanced predictive modeling and real-time inventory tracking architecture.</p>
                           
                           <div className="flex gap-4 relative z-10">
-                             <button className="px-12 py-5 bg-pd-pink text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-pd-pink/40 hover:scale-105 transition-all">OPTIMIZE YIELD</button>
-                             <button className="px-12 py-5 bg-white/5 text-white border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white/10 transition-all">EXPORT ANALYSIS</button>
+                             <button className="px-12 py-5 bg-pd-pink text-white rounded-lg text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-pd-pink/40 hover:scale-105 transition-all">OPTIMIZE YIELD</button>
+                             <button className="px-12 py-5 bg-white/5 text-white border border-white/10 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white/10 transition-all">EXPORT ANALYSIS</button>
                           </div>
                        </div>
                     </motion.div>
@@ -262,7 +262,7 @@ const VenueCalendar = ({
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: i * 0.1 }}
                         key={i} 
-                        className="flex gap-4 p-4 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group"
+                        className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group"
                       >
                          <div className={`w-1.5 h-12 rounded-full ${evt.status === 'Confirmed' ? 'bg-pd-pink' : evt.status === 'Maintenance' ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
                          <div>
@@ -283,7 +283,7 @@ const VenueCalendar = ({
                 
                 <button 
                   onClick={() => { setIsBookingModalOpen(true); setNewBookingDay(selectedDay); }}
-                  className="w-full py-5 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em]  mt-12 hover:bg-pd-pink hover:text-white transition-all shadow-xl"
+                  className="w-full py-5 bg-white text-slate-900 rounded-lg text-[10px] font-black uppercase tracking-[0.2em]  mt-12 hover:bg-pd-pink hover:text-white transition-all shadow-xl"
                 >
                    Schedule Intelligence
                 </button>
@@ -352,12 +352,12 @@ const VenueCalendar = ({
                  <div className="p-10 md:p-12 space-y-8">
                     <div className="space-y-3">
                        <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Account / Client Name</label>
-                       <input type="text" placeholder="e.g., Rohan Verma (Wedding Group)" className="w-full bg-slate-50 border-2 border-transparent focus:border-pd-pink/10 rounded-2xl px-6 py-5 text-sm font-bold text-slate-900 outline-none transition-all" />
+                       <input type="text" placeholder="e.g., Rohan Verma (Wedding Group)" className="w-full bg-slate-50 border-2 border-transparent focus:border-pd-pink/10 rounded-lg px-6 py-5 text-sm font-bold text-slate-900 outline-none transition-all" />
                     </div>
                     <div className="grid grid-cols-2 gap-5">
                       <div className="space-y-3">
                          <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Event Logic</label>
-                         <select className="w-full bg-slate-50 border-2 border-transparent focus:border-pd-pink/10 rounded-2xl px-6 py-5 text-sm font-bold text-slate-900 outline-none appearance-none cursor-pointer">
+                         <select className="w-full bg-slate-50 border-2 border-transparent focus:border-pd-pink/10 rounded-lg px-6 py-5 text-sm font-bold text-slate-900 outline-none appearance-none cursor-pointer">
                             <option>High Scale Wedding</option>
                             <option>Corporate Summit</option>
                             <option>Intimate Social</option>
@@ -365,7 +365,7 @@ const VenueCalendar = ({
                       </div>
                       <div className="space-y-3">
                          <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Expected Pax</label>
-                         <input type="number" placeholder="450" className="w-full bg-slate-50 border-2 border-transparent focus:border-pd-pink/10 rounded-2xl px-6 py-5 text-sm font-bold text-slate-900 outline-none" />
+                         <input type="number" placeholder="450" className="w-full bg-slate-50 border-2 border-transparent focus:border-pd-pink/10 rounded-lg px-6 py-5 text-sm font-bold text-slate-900 outline-none" />
                       </div>
                     </div>
                     <div className="flex gap-4 pt-4">
@@ -376,7 +376,7 @@ const VenueCalendar = ({
                              // but we can at least close the modal.
                              setIsBookingModalOpen(false);
                           }}
-                          className="flex-[2] py-5 bg-[#0F172A] text-white text-[11px] font-black uppercase tracking-widest rounded-2xl hover:bg-pd-pink transition-all shadow-xl shadow-slate-900/10"
+                          className="flex-[2] py-5 bg-[#0F172A] text-white text-[11px] font-black uppercase tracking-widest rounded-lg hover:bg-pd-pink transition-all shadow-xl shadow-slate-900/10"
                        >
                           Secure Venue Slot
                        </button>

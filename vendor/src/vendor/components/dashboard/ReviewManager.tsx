@@ -114,7 +114,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-6xl mx-auto space-y-6">
       
       {/* Premium Header */}
-      <div className="relative bg-white p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden group">
+      <div className="relative bg-white p-6 md:p-8 rounded-xl border border-slate-200/60 shadow-sm overflow-hidden group">
          {/* Subtle glowing accent */}
          <div className="absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-amber-400/10 via-pd-pink/5 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
          
@@ -124,7 +124,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                <p className="text-sm font-medium text-slate-500">Manage your venue's reputation and engage with clients</p>
             </div>
             
-            <div className="flex items-center gap-5 bg-white border border-slate-200/60 px-6 py-4 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] group-hover:shadow-[0_8px_30px_rgba(245,158,11,0.08)] transition-all duration-500">
+            <div className="flex items-center gap-5 bg-white border border-slate-200/60 px-6 py-4 rounded-lg shadow-[0_8px_30px_rgba(0,0,0,0.04)] group-hover:shadow-[0_8px_30px_rgba(245,158,11,0.08)] transition-all duration-500">
                <div className="flex flex-col items-end border-r border-slate-100 pr-5">
                   <span className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-[0.2em]">Overall Score</span>
                   <div className="flex items-baseline gap-1">
@@ -143,7 +143,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
 
       {/* Reviews Grid */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-24 bg-white rounded-3xl border border-slate-200/60 shadow-sm">
+        <div className="flex flex-col items-center justify-center py-24 bg-white rounded-xl border border-slate-200/60 shadow-sm">
           <div className="w-8 h-8 border-4 border-slate-200 border-t-pd-pink rounded-full animate-spin mb-4" />
           <p className="text-sm font-bold text-slate-400">Loading reviews...</p>
         </div>
@@ -155,7 +155,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                initial={{ opacity: 0, y: 15 }}
                animate={{ opacity: 1, y: 0 }}
                transition={{ delay: i * 0.05 }}
-               className="bg-white p-6 rounded-3xl border border-slate-200/50 shadow-sm flex flex-col h-full hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:border-slate-300 transition-all duration-300 relative group"
+               className="bg-white p-6 rounded-xl border border-slate-200/50 shadow-sm flex flex-col h-full hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:border-slate-300 transition-all duration-300 relative group"
              >
                 <div className="flex items-start justify-between gap-4 mb-5">
                    <div className="flex items-center gap-3">
@@ -183,7 +183,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                 </p>
 
                 {review.vendorReply ? (
-                  <div className="bg-emerald-50/50 border border-emerald-100/50 rounded-2xl p-4 mt-auto relative overflow-hidden group/reply">
+                  <div className="bg-emerald-50/50 border border-emerald-100/50 rounded-lg p-4 mt-auto relative overflow-hidden group/reply">
                     <div className="absolute top-0 left-0 w-1 h-full bg-emerald-400" />
                     <div className="flex items-center gap-1.5 mb-2 pl-1">
                        <CheckCircle2 size={14} className="text-emerald-500" />
@@ -207,7 +207,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
            ))}
 
            {reviews.length === 0 && (
-             <div className="col-span-full py-24 flex flex-col items-center justify-center text-center bg-white rounded-3xl border border-slate-200/60 shadow-sm">
+             <div className="col-span-full py-24 flex flex-col items-center justify-center text-center bg-white rounded-xl border border-slate-200/60 shadow-sm">
                 <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-300 mb-4 shadow-sm">
                   <MessageSquareQuote size={28} />
                 </div>
@@ -234,7 +234,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                className="bg-white w-full max-w-lg rounded-3xl shadow-xl overflow-hidden relative z-10 flex flex-col"
+                className="bg-white w-full max-w-lg rounded-xl shadow-xl overflow-hidden relative z-10 flex flex-col"
              >
                 {/* Modal Header */}
                 <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
@@ -249,7 +249,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
 
                 {/* Modal Content */}
                 <div className="p-6">
-                   <div className="bg-slate-50 border border-slate-200/60 p-4 rounded-2xl mb-6">
+                   <div className="bg-slate-50 border border-slate-200/60 p-4 rounded-lg mb-6">
                       <div className="flex items-center gap-3 mb-2">
                          <User size={16} className="text-slate-400" />
                          <span className="text-sm font-bold text-slate-900">{replyTarget.userName}</span>
@@ -265,7 +265,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                          value={replyText}
                          onChange={(e) => setReplyText(e.target.value)}
                          placeholder="Acknowledge their feedback and thank them..."
-                         className="w-full bg-white border border-slate-200/60 focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 rounded-2xl p-4 min-h-[140px] text-sm font-medium outline-none transition-all placeholder:text-slate-400 resize-none"
+                         className="w-full bg-white border border-slate-200/60 focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 rounded-lg p-4 min-h-[140px] text-sm font-medium outline-none transition-all placeholder:text-slate-400 resize-none"
                       />
                    </div>
                 </div>

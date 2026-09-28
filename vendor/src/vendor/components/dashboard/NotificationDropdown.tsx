@@ -71,7 +71,7 @@ const NotificationDropdown = ({
                        initial={{ opacity: 0, x: 20 }}
                        animate={{ opacity: 1, x: 0 }}
                        transition={{ delay: i * 0.05 }}
-                       className="p-4 m-2 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors cursor-pointer group"
+                       className="p-4 m-2 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors cursor-pointer group"
                        onClick={() => { onViewAll(); onClose(); }}
                      >
                        <div className="flex items-start gap-4">

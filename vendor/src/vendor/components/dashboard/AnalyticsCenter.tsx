@@ -11,7 +11,7 @@ const AnalyticsCenter = () => {
              <h1 className="text-4xl font-black text-slate-900 uppercase  tracking-tighter mb-2 leading-none">Performance <span className="text-pd-pink">Analytics</span></h1>
              <p className="text-sm font-medium text-slate-500 ">Advanced tracking of your venue&apos;s digital growth and velocity.</p>
           </div>
-          <div className="flex bg-white p-1.5 rounded-2xl border border-slate-100 shadow-pd-soft self-start">
+          <div className="flex bg-white p-1.5 rounded-lg border border-slate-100 shadow-pd-soft self-start">
              {['7D', '30D', '90D', '1Y'].map(t => (
                 <button key={t} className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${t === '30D' ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20' : 'text-slate-400 hover:text-slate-900'}`}>{t}</button>
              ))}

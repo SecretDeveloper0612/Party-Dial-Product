@@ -27,7 +27,8 @@ import {
   CreditCard,
   X,
   Receipt,
-  TrendingUp
+  TrendingUp,
+  LifeBuoy
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -74,6 +75,7 @@ const menuGroups = [
       { icon: FolderOpen, label: "Plan Management", path: "/plans" },
       { icon: Users, label: "User & Role Management", path: "/users" },
       { icon: GitGraph, label: "Team Structure", path: "/team-tree" },
+      { icon: LifeBuoy, label: "Support Tickets", path: "/support-tickets" },
     ]
   }
 ];
@@ -137,7 +139,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
          "Venue Leads Check": "Leads",
          "Plan Management": "Settings",
          "User & Role Management": "Users",
-         "Team Structure": "Users"
+         "Team Structure": "Users",
+         "Support Tickets": "Settings"
       };
       
       const requiredModule = moduleMap[item.label];

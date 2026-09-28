@@ -24,7 +24,7 @@ const SystemHistory = ({ pastActivities }: SystemHistoryProps) => {
              <h1 className="text-4xl font-black text-slate-900 uppercase  tracking-tighter mb-2 leading-none">Activity <span className="text-blue-600">History</span></h1>
              <p className="text-sm font-medium text-slate-500 ">Complete chronological log of your venue interactions and events.</p>
           </div>
-          <div className="flex bg-white p-1.5 rounded-2xl border border-slate-100 shadow-pd-soft self-start">
+          <div className="flex bg-white p-1.5 rounded-lg border border-slate-100 shadow-pd-soft self-start">
              {['All', 'Leads', 'Bookings', 'System'].map(t => (
                 <button key={t} className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${t === 'All' ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20' : 'text-slate-400 hover:text-slate-900'}`}>{t}</button>
              ))}
@@ -48,7 +48,7 @@ const SystemHistory = ({ pastActivities }: SystemHistoryProps) => {
                       {/* Circle on timeline */}
                       <div className="absolute left-[18px] top-4 w-3.5 h-3.5 rounded-full bg-white border-2 border-slate-200 group-hover:border-pd-pink transition-colors z-10 shadow-sm" />
                       
-                      <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-white group-hover:shadow-pd-soft transition-all group-hover:scale-110">
+                      <div className="w-14 h-14 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-white group-hover:shadow-pd-soft transition-all group-hover:scale-110">
                          {activity.icon}
                       </div>
                       <div className="flex-1 pb-10 border-b border-slate-50 last:border-0">

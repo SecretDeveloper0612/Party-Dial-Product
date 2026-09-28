@@ -4,49 +4,62 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { motion, AnimatePresence, useInView, useScroll, useMotionValueEvent } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectCoverflow, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import 'swiper/css/pagination';
 import {
-   CheckCircle2,
-   ArrowRight,
-   Users,
-   Zap,
-   ChevronDown,
-   Star,
-   Smartphone,
-   MapPin,
-   Target,
-   ShieldCheck,
-   LayoutDashboard,
-   MessageSquare,
-   Building2,
-   Calendar,
-   Phone,
-   Mail,
-   Clock,
-   TrendingUp,
-   Globe,
-   Check,
-   ArrowUpRight,
-   Shield,
-   PartyPopper,
-   Heart,
-   Wine,
-   Sparkles,
-   Baby,
-   Gem,
-   UsersRound,
-   Search,
-   Facebook,
-   Instagram,
-   ImageIcon,
-   Gift,
-   Filter
-} from 'lucide-react';
+  CheckCircle2,
+  ArrowRight,
+  Users,
+  Zap,
+  ChevronDown,
+  Star,
+  Smartphone,
+  MapPin,
+  Target,
+  ShieldCheck,
+  LayoutDashboard,
+  MessageSquare,
+  Building2,
+  Calendar,
+  Phone,
+  Mail,
+  Clock,
+  TrendingUp,
+  Globe,
+  Check,
+  ArrowUpRight,
+  Shield,
+  PartyPopper,
+  Heart,
+  Wine,
+  Sparkles,
+  Baby,
+  Gem,
+  UsersRound,
+  Search,
+  Facebook,
+  Instagram,
+  ImageIcon,
+  Gift,
+  Filter,
+  BadgeCheck,
+  SendHorizontal,
+  User,
+  Flame,
+  Award,
+  Eye,
+  Kanban,
+  ReceiptIndianRupee,
+  Headset,
+  Settings,
+  ArrowDown,
+  Bell,
+  BarChart3
+, CalendarCheck} from 'lucide-react';
 
 // --- DATA ---
 
@@ -57,1551 +70,2155 @@ import {
 
 
 const eventCategories = [
-   { name: "Birthdays", icon: <PartyPopper size={28} />, accent: "#F43F5E", bg: "from-rose-500/20 to-pink-500/5", demand: "2.4K+ monthly" },
-   { name: "Weddings", icon: <Heart size={28} />, accent: "#8B5CF6", bg: "from-violet-500/20 to-purple-500/5", demand: "3.1K+ monthly" },
-   { name: "Corporate", icon: <Building2 size={28} />, accent: "#3B82F6", bg: "from-blue-500/20 to-sky-500/5", demand: "1.8K+ monthly" },
-   { name: "Anniversaries", icon: <Wine size={28} />, accent: "#F59E0B", bg: "from-amber-500/20 to-yellow-500/5", demand: "900+ monthly" },
-   { name: "Pre-Wedding", icon: <Sparkles size={28} />, accent: "#EC4899", bg: "from-pink-500/20 to-rose-500/5", demand: "1.2K+ monthly" },
-   { name: "Kitty Party", icon: <UsersRound size={28} />, accent: "#10B981", bg: "from-emerald-500/20 to-teal-500/5", demand: "700+ monthly" },
-   { name: "Baby Shower", icon: <Baby size={28} />, accent: "#F97316", bg: "from-orange-500/20 to-amber-500/5", demand: "600+ monthly" },
-   { name: "Engagement", icon: <Gem size={28} />, accent: "#06B6D4", bg: "from-cyan-500/20 to-blue-500/5", demand: "1.0K+ monthly" }
+  { name:"Birthdays", icon: <PartyPopper size={28} />, accent:"#F43F5E", bg:"from-rose-500/20 to-pink-500/5", demand:"2.4K+ monthly"},
+  { name:"Weddings", icon: <Heart size={28} />, accent:"#8B5CF6", bg:"from-violet-500/20 to-purple-500/5", demand:"3.1K+ monthly"},
+  { name:"Corporate", icon: <Building2 size={28} />, accent:"#3B82F6", bg:"from-blue-500/20 to-sky-500/5", demand:"1.8K+ monthly"},
+  { name:"Anniversaries", icon: <Wine size={28} />, accent:"#F59E0B", bg:"from-amber-500/20 to-yellow-500/5", demand:"900+ monthly"},
+  { name:"Pre-Wedding", icon: <Sparkles size={28} />, accent:"#EC4899", bg:"from-pink-500/20 to-rose-500/5", demand:"1.2K+ monthly"},
+  { name:"Kitty Party", icon: <UsersRound size={28} />, accent:"#10B981", bg:"from-emerald-500/20 to-teal-500/5", demand:"700+ monthly"},
+  { name:"Baby Shower", icon: <Baby size={28} />, accent:"#F97316", bg:"from-orange-500/20 to-amber-500/5", demand:"600+ monthly"},
+  { name:"Engagement", icon: <Gem size={28} />, accent:"#06B6D4", bg:"from-cyan-500/20 to-blue-500/5", demand:"1.0K+ monthly"}
 ];
 
 const successStories = [
-   { name: "Grand Imperial", location: "Delhi", text: "PartyDial helped us increase weekend bookings by 35% in 6 months. Their verified lead system is top-notch.", img: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=400" },
-   { name: "The Sky Lawn", location: "Mumbai", text: "Their dashboard makes lead management effortless. We've closed more corporate events than ever before.", img: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&q=80&w=400" },
-   { name: "Royal Palms", location: "Bangalore", text: "The Real-time App Alerts are a game-changer. We respond to inquiries in minutes now.", img: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=400" },
-   { name: "City View Banquet", location: "Chandigarh", text: "Being listed as a verified partner has boosted our credibility significantly. Leads are high-intent.", img: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=400" },
-   { name: "Emerald Resort", location: "Jaipur", text: "The seasonal demand analytics helped us price our weekend slots better. Highly recommended for owners.", img: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400" }
+  { name:"Grand Imperial", location:"Delhi", text:"PartyDial helped us increase weekend bookings by 35% in 6 months. Their verified lead system is top-notch.", img:"https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=400"},
+  { name:"The Sky Lawn", location:"Mumbai", text:"Their dashboard makes lead management effortless. We've closed more corporate events than ever before.", img:"https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&q=80&w=400"},
+  { name:"Royal Palms", location:"Bangalore", text:"The Real-time App Alerts are a game-changer. We respond to inquiries in minutes now.", img:"https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=400"},
+  { name:"City View Banquet", location:"Chandigarh", text:"Being listed as a verified partner has boosted our credibility significantly. Leads are high-intent.", img:"https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=400"},
+  { name:"Emerald Resort", location:"Jaipur", text:"The seasonal demand analytics helped us price our weekend slots better. Highly recommended for owners.", img:"https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400"}
 ];
 
-const AnimatedCounter = ({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
-   const [count, setCount] = useState(0);
-   const ref = useRef(null);
-   const isInView = useInView(ref, { once: true, margin: "-10px 0px" });
+const AnimatedCounter = ({ end, duration = 2000, suffix =""}: { end: number, duration?: number, suffix?: string }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin:"-10px 0px"});
 
-   useEffect(() => {
-      if (isInView) {
-         let startTimestamp: number | null = null;
-         const step = (timestamp: number) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            setCount(Math.floor(progress * end));
-            if (progress < 1) {
-               window.requestAnimationFrame(step);
-            }
-         };
-         window.requestAnimationFrame(step);
+  useEffect(() => {
+   if (isInView) {
+     let startTimestamp: number | null = null;
+     const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      setCount(Math.floor(progress * end));
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
       }
-   }, [isInView, end, duration]);
+     };
+     window.requestAnimationFrame(step);
+   }
+  }, [isInView, end, duration]);
 
-   return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 };
 
 
 
 const features = [
-   { title: 'Smart Dashboard', type: 'dashboard', desc: 'Centralized command for lead management, revenue tracking, and venue operations.', icon: <LayoutDashboard size={24} />, accent: '#F43F5E', stats: '200% Growth', img: '/dashboard-preview.png' },
-   { title: 'Real-Time Alerts', type: 'alerts', desc: 'Never miss a lead. Instant App and Email alerts for every query.', icon: <Zap size={24} />, accent: '#10B981', stats: '< 5s Latency', img: '/alerts-preview.png' },
-   { title: 'Verified Contacts', type: 'verification', desc: 'Every inquiry is pre-qualified. We only deliver leads with high intent to book.', icon: <Phone size={24} />, accent: '#8B5CF6', stats: '99% Verified', img: '/dashboard-preview.png' },
-   { title: 'Followups', type: 'followups', desc: 'Stay top-of-mind with automated follow-ups. Nurture leads through scheduled messages and reminders.', icon: <MessageSquare size={24} />, accent: '#3B82F6', stats: '3x Conversion', img: '/dashboard-preview.png' },
-   { title: 'Elite Support', type: 'support', desc: 'Direct access to our senior partner success team whenever you need it.', icon: <Shield size={24} />, accent: '#EC4899', stats: '24/7 Priority', img: '/dashboard-preview.png' }
+  { title: 'Smart Dashboard', type: 'dashboard', desc: 'Centralized command for lead management, revenue tracking, and venue operations.', icon: <LayoutDashboard size={24} />, accent: '#F43F5E', stats: '200% Growth', img: '/dashboard-preview.png' },
+  { title: 'Real-Time Alerts', type: 'alerts', desc: 'Never miss a lead. Instant App and Email alerts for every query.', icon: <Zap size={24} />, accent: '#10B981', stats: '< 5s Latency', img: '/alerts-preview.png' },
+  { title: 'Verified Contacts', type: 'verification', desc: 'Every inquiry is pre-qualified. We only deliver leads with high intent to book.', icon: <Phone size={24} />, accent: '#8B5CF6', stats: '99% Verified', img: '/dashboard-preview.png' },
+  { title: 'Followups', type: 'followups', desc: 'Stay top-of-mind with automated follow-ups. Nurture leads through scheduled messages and reminders.', icon: <MessageSquare size={24} />, accent: '#3B82F6', stats: '3x Conversion', img: '/dashboard-preview.png' },
+  { title: 'Elite Support', type: 'support', desc: 'Direct access to our senior partner success team whenever you need it.', icon: <Shield size={24} />, accent: '#EC4899', stats: '24/7 Priority', img: '/dashboard-preview.png' }
 ];
 
 const FeatureHub = () => {
-   const [selected, setSelected] = useState(0);
-   const [mounted, setMounted] = useState(false);
+  const [selected, setSelected] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
-   useEffect(() => {
-      setTimeout(() => setMounted(true), 0);
-      const interval = setInterval(() => {
-         setSelected((prev) => (prev + 1) % features.length);
-      }, 6000);
-      return () => clearInterval(interval);
-   }, []);
+  useEffect(() => {
+   setTimeout(() => setMounted(true), 0);
+   const interval = setInterval(() => {
+     setSelected((prev) => (prev + 1) % features.length);
+   }, 6000);
+   return () => clearInterval(interval);
+  }, []);
 
-   if (!mounted) return <div className="h-100 lg:h-125 bg-slate-900 rounded-4xl animate-pulse" />;
+  if (!mounted) return <div className="h-100 lg:h-125 bg-slate-900 rounded-4xl animate-pulse"/>;
 
-   return (
-      <div className="relative flex flex-col p-4 md:p-6 lg:p-8 bg-[#0B0F19] rounded-4xl lg:rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-white/10 min-h-150 lg:min-h-125 max-w-300 mx-auto overflow-hidden group/hub">
+  return (
+   <div className="relative flex flex-col p-4 md:p-6 lg:p-8 bg-[#0B0F19] rounded-4xl lg:rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.6)] border border-white/10 min-h-150 lg:min-h-125 max-w-300 mx-auto overflow-hidden group/hub">
 
-         {/* Background Decorative Glows */}
+     {/* Background Decorative Glows */}
+     <div
+      className="absolute inset-0 opacity-40 transition-colors duration-1000 ease-in-out z-0 pointer-events-none"
+      style={{ background: `radial-gradient(circle at center 30%, ${features[selected].accent}40 0%, transparent 60%)` }}
+     ></div>
+
+     {/* Top Horizontal Tabs (Scrollable on mobile) */}
+     <div className="flex w-full gap-2 md:gap-3 relative z-10 overflow-x-auto pb-4 md:pb-6 mb-4 md:mb-2 border-b border-white/5 no-scrollbar snap-x touch-pan-x">
+      {features.map((f, i) => (
+        <button
+         key={i}
+         onClick={() => setSelected(i)}
+         className={`flex items-center gap-2 md:gap-3 px-4 py-2 md:px-5 md:py-3 rounded-full transition-all duration-500 shrink-0 relative overflow-hidden snap-start ${selected === i
+           ? 'bg-white/10 text-white shadow-lg border border-white/20 scale-100'
+           : 'bg-white/2 text-slate-500 hover:text-white hover:bg-white/5 border border-transparent scale-[0.98]'
+           }`}
+        >
+         {selected === i && (
+           <motion.div
+            layoutId="activeFeatureIndicatorTop"
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-1 rounded-t-full"
+            style={{ backgroundColor: f.accent }}
+           />
+         )}
          <div
-            className="absolute inset-0 opacity-40 transition-colors duration-1000 ease-in-out z-0 pointer-events-none"
-            style={{ background: `radial-gradient(circle at center 30%, ${features[selected].accent}40 0%, transparent 60%)` }}
-         ></div>
-
-         {/* Top Horizontal Tabs (Scrollable on mobile) */}
-         <div className="flex w-full gap-2 md:gap-3 relative z-10 overflow-x-auto pb-4 md:pb-6 mb-4 md:mb-2 border-b border-white/5 no-scrollbar snap-x touch-pan-x">
-            {features.map((f, i) => (
-               <button
-                  key={i}
-                  onClick={() => setSelected(i)}
-                  className={`flex items-center gap-2 md:gap-3 px-4 py-2 md:px-5 md:py-3 rounded-full transition-all duration-500 shrink-0 relative overflow-hidden snap-start ${selected === i
-                     ? 'bg-white/10 text-white shadow-lg border border-white/20 scale-100'
-                     : 'bg-white/2 text-slate-500 hover:text-white hover:bg-white/5 border border-transparent scale-[0.98]'
-                     }`}
-               >
-                  {selected === i && (
-                     <motion.div
-                        layoutId="activeFeatureIndicatorTop"
-                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-1 rounded-t-full"
-                        style={{ backgroundColor: f.accent }}
-                     />
-                  )}
-                  <div
-                     className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-all duration-500 shrink-0 ${selected === i ? 'bg-white/20 text-white shadow-inner' : 'bg-transparent text-slate-500'}`}
-                     style={selected === i ? { color: f.accent } : {}}
-                  >
-                     <div className="scale-[0.8] md:scale-100 flex items-center justify-center">
-                        {f.icon}
-                     </div>
-                  </div>
-                  <span className={`text-[10px] md:text-[11px] font-black uppercase tracking-widest leading-none ${selected === i ? 'text-white' : 'text-slate-400'}`}>{f.title}</span>
-               </button>
-            ))}
+           className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-all duration-500 shrink-0 ${selected === i ? 'bg-white/20 text-white shadow-inner' : 'bg-transparent text-slate-500'}`}
+           style={selected === i ? { color: f.accent } : {}}
+         >
+           <div className="scale-[0.8] md:scale-100 flex items-center justify-center">
+            {f.icon}
+           </div>
          </div>
+         <span className={`text-[10px] md:text-[11px] uppercase tracking-widest leading-none ${selected === i ? 'text-white' : 'text-slate-400'}`}>{f.title}</span>
+        </button>
+      ))}
+     </div>
 
-         {/* Main Content Area */}
-         <div className="flex-1 relative z-10 flex flex-col lg:flex-row gap-6 lg:gap-12 mt-2 md:mt-4">
+     {/* Main Content Area */}
+     <div className="flex-1 relative z-10 flex flex-col lg:flex-row gap-6 lg:gap-12 mt-2 md:mt-4">
 
-            {/* Left Side: Text and Descriptions (Below UI on mobile) */}
-            <div className="w-full lg:w-1/3 flex flex-col justify-center order-2 lg:order-1 mt-4 lg:mt-0">
-               <div className="h-45 lg:h-65 relative">
-                  <AnimatePresence mode="wait" initial={false}>
-                     <motion.div
-                        key={selected}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        transition={{ duration: 0.4, ease: "easeOut" }}
-                        className="absolute inset-0 flex flex-col justify-center"
-                     >
-                        <div
-                           className="inline-flex items-center self-start gap-1.5 px-3 py-1 md:py-1.5 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest mb-4 md:mb-6 shadow-[0_0_20px_rgba(0,0,0,0.5)] border"
-                           style={{ backgroundColor: `${features[selected].accent}20`, color: features[selected].accent, borderColor: `${features[selected].accent}40` }}
-                        >
-                           <Zap size={10} className="md:w-3 md:h-3" /> Elite Feature
-                        </div>
-                        <h4 className="text-2xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.1] mb-2 md:mb-4 drop-shadow-md">
-                           {features[selected].title}
-                        </h4>
-                        <p className="text-slate-400 md:text-slate-300 text-xs md:text-sm lg:text-base font-medium leading-relaxed mb-4 md:mb-8 max-w-sm">
-                           {features[selected].desc}
-                        </p>
+      {/* Left Side: Text and Descriptions (Below UI on mobile) */}
+      <div className="w-full lg:w-1/3 flex flex-col justify-center order-2 lg:order-1 mt-4 lg:mt-0">
+        <div className="h-45 lg:h-65 relative">
+         <AnimatePresence mode="wait"initial={false}>
+           <motion.div
+            key={selected}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.4, ease:"easeOut"}}
+            className="absolute inset-0 flex flex-col justify-center"
+           >
+            <div
+              className="inline-flex items-center self-start gap-1.5 px-3 py-1 md:py-1.5 rounded-full text-[8px] md:text-[9px] uppercase tracking-widest mb-4 md:mb-6 shadow-[0_0_20px_rgba(0,0,0,0.5)] border"
+              style={{ backgroundColor: `${features[selected].accent}20`, color: features[selected].accent, borderColor: `${features[selected].accent}40` }}
+            >
+              <Zap size={10} className="md:w-3 md:h-3"/> Elite Feature
+            </div>
+            <h4 className="text-2xl md:text-4xl lg:text-5xl font-semibold font-sf text-white tracking-tight leading-[1.1] mb-2 md:mb-4 drop-shadow-md">
+              {features[selected].title}
+            </h4>
+            <p className="text-slate-400 md:text-slate-300 text-xs md:text-sm lg:text-base font-normal font-pd leading-relaxed mb-4 md:mb-8 max-w-sm">
+              {features[selected].desc}
+            </p>
 
-                        <div className="flex flex-wrap gap-2 mt-auto">
-                           {['Next-Gen', 'Sync', 'Cloud Enabled'].map((tag, i) => (
-                              <div key={i} className="px-2 py-1 md:px-3 md:py-1.5 bg-white/5 border border-white/10 rounded-full text-[7px] md:text-[8px] font-bold uppercase tracking-widest text-slate-400">
-                                 {tag}
-                              </div>
-                           ))}
-                        </div>
-                     </motion.div>
-                  </AnimatePresence>
+            <div className="flex flex-wrap gap-2 mt-auto">
+              {['Next-Gen', 'Sync', 'Cloud Enabled'].map((tag, i) => (
+               <div key={i} className="px-2 py-1 md:px-3 md:py-1.5 bg-white/5 border border-white/10 rounded-full text-[7px] md:text-[8px] font-bold uppercase tracking-widest text-slate-400">
+                 {tag}
                </div>
+              ))}
             </div>
-
-            {/* Right Side: UI Showcase (Above text on mobile) */}
-            <div className="flex-1 relative w-full h-80 md:h-100 lg:h-auto order-1 lg:order-2">
-               <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                     key={selected + 'infographic'}
-                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                     exit={{ opacity: 0, scale: 1.05, y: -10 }}
-                     transition={{ duration: 0.4, ease: "circOut" }}
-                     className="absolute inset-0 w-full h-full"
-                  >
-                     {/* UI Frame with Dark Mode Outer, White Mode Inner */}
-                     <div className="w-full h-full rounded-3xl md:rounded-4xl bg-white/5 border border-white/10 p-1.5 md:p-3 lg:p-4 shadow-2xl flex flex-col">
-                        <motion.div
-                           className="relative w-full h-full rounded-[18px] md:rounded-3xl overflow-hidden bg-white shadow-inner flex flex-col"
-                        >
-                           {/* INFOGRAPHIC DYNAMIC CONTENT ENGINE (Unchanged pristine white UI) */}
-                           <div className="h-full w-full flex flex-col p-4 md:p-6 bg-slate-50/30">
-                              {features[selected].type === 'dashboard' && (
-                                 <div className="h-full flex flex-col">
-                                    <div className="grid grid-cols-2 gap-2 md:gap-4 mb-4 md:mb-6">
-                                       {[
-                                          { label: 'Total Revenue', val: '₹1.2M', up: '+12%', color: '#F43F5E' },
-                                          { label: 'Active Leads', val: '435', up: '+8%', color: '#10B981' },
-                                          { label: 'Direct Bookings', val: '128', up: '+15%', color: '#3B82F6' },
-                                          { label: 'Team Members', val: '12', up: 'Full Access', color: '#F59E0B' }
-                                       ].map((s, i) => (
-                                          <div key={i} className="bg-white p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
-                                             <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-relaxed mb-0.5 md:mb-1 truncate">{s.label}</p>
-                                             <p className="text-base md:text-xl font-black text-slate-900 tracking-tight">{s.val}</p>
-                                             <p className="text-[7px] md:text-[8px] font-bold mt-0.5 md:mt-1 tracking-widest" style={{ color: s.color }}>{s.up}</p>
-                                          </div>
-                                       ))}
-                                    </div>
-                                    <div className="flex-1 bg-white rounded-2xl md:rounded-[20px] p-3 md:p-4 border border-slate-100 flex items-center justify-center overflow-hidden shadow-sm">
-                                       <svg className="w-full h-24 md:h-32 overflow-visible" viewBox="0 0 100 40">
-                                          <motion.path d="M0,35 L20,10 L40,25 L60,5 L80,20 L100,2" fill="none" stroke={features[selected].accent} strokeWidth="3" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2 }} />
-                                          <motion.path d="M0,35 L20,30 L40,32 L60,25 L80,28 L100,10" fill="none" stroke="#CBD5E1" strokeWidth="1.5" strokeDasharray="2 2" />
-                                       </svg>
-                                    </div>
-                                 </div>
-                              )}
-
-                              {features[selected].type === 'alerts' && (
-                                 <div className="h-full flex flex-col items-center justify-center relative">
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
-                                       <MapPin size={200} className="md:w-60 md:h-60" strokeWidth={0.5} />
-                                    </div>
-                                    <div className="flex flex-col gap-3 md:gap-4 justify-center w-full max-w-sm relative z-10 px-2 md:px-0">
-                                       {[1, 2, 3].map((i) => (
-                                          <motion.div
-                                             key={i}
-                                             initial={{ scale: 0.9, opacity: 0 }}
-                                             animate={{ scale: 1, opacity: 1 }}
-                                             transition={{ delay: i * 0.15 }}
-                                             className="bg-white p-3 md:p-4 rounded-2xl md:rounded-[20px] shadow-lg shadow-slate-200/50 border border-slate-100 flex items-center gap-3 md:gap-4 w-full"
-                                          >
-                                             <div className="w-8 h-8 md:w-10 md:h-10 rounded-[10px] md:rounded-[14px] bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
-                                                <MessageSquare size={16} className="md:w-5 md:h-5" />
-                                             </div>
-                                             <div>
-                                                <p className="text-[10px] md:text-[11px] font-black text-slate-800 uppercase tracking-tight mb-0.5">New Lead Received</p>
-                                                <p className="text-[8px] md:text-[9px] font-bold text-slate-400 tracking-wide">Just now via App Alert</p>
-                                             </div>
-                                          </motion.div>
-                                       ))}
-                                    </div>
-                                 </div>
-                              )}
-
-                              {features[selected].type === 'verification' && (
-                                 <div className="h-full flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-8 items-center justify-center">
-                                    <div className="bg-white shadow-sm p-4 md:p-6 rounded-[20px] md:rounded-3xl border border-slate-100 flex flex-col items-center justify-center w-full h-30 md:h-full">
-                                       <div className="relative w-24 h-24 md:w-40 md:h-40 flex items-center justify-center">
-                                          <svg className="w-full h-full -rotate-90 drop-shadow-md md:drop-shadow-xl" viewBox="0 0 144 144">
-                                             <circle cx="72" cy="72" r="60" fill="none" stroke="#F1F5F9" strokeWidth="8" className="md:stroke-[12px]" />
-                                             <motion.circle cx="72" cy="72" r="60" fill="none" stroke={features[selected].accent} strokeWidth="8" className="md:stroke-[12px]" strokeDasharray="377" initial={{ strokeDashoffset: 377 }} animate={{ strokeDashoffset: 37 }} transition={{ duration: 2, ease: "easeOut" }} strokeLinecap="round" />
-                                          </svg>
-                                          <div className="absolute text-center flex flex-col items-center justify-center">
-                                             <p className="text-2xl md:text-4xl font-black text-slate-900 leading-none">99%</p>
-                                             <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 md:mt-1">Trust Score</p>
-                                          </div>
-                                       </div>
-                                    </div>
-                                    <div className="space-y-2 md:space-y-3 w-full">
-                                       {['Email OTP Verified', 'Phone Number Active', 'Identity Document Valid'].map((c, i) => (
-                                          <motion.div
-                                             key={i}
-                                             initial={{ opacity: 0, x: 20 }}
-                                             animate={{ opacity: 1, x: 0 }}
-                                             transition={{ delay: i * 0.1 }}
-                                             className="flex items-center gap-2 md:gap-3 p-2.5 md:p-4 bg-white rounded-xl md:rounded-2xl shadow-sm border border-slate-100"
-                                          >
-                                             <div className="w-5 h-5 md:w-6 md:h-6 rounded-md md:rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0"><Check size={10} className="md:w-3 md:h-3" /></div>
-                                             <span className="text-[9px] md:text-[11px] font-bold text-slate-700">{c}</span>
-                                          </motion.div>
-                                       ))}
-                                    </div>
-                                 </div>
-                              )}
-
-                              {features[selected].type === 'followups' && (
-                                 <div className="h-full flex flex-col justify-center items-center px-2 md:px-0">
-                                    <div className="w-full max-w-sm space-y-3 md:space-y-4">
-                                       {[
-                                          { user: 'Amit K.', status: 'Sent 1st Follow-up', time: '10m ago', icon: <Mail size={14} className="md:w-4 md:h-4" /> },
-                                          { user: 'Sonal M.', status: 'Meeting Scheduled', time: '2h ago', icon: <Calendar size={14} className="md:w-4 md:h-4" /> },
-                                          { user: 'Rahul S.', status: 'Booking Confirmed', time: '5h ago', icon: <CheckCircle2 size={14} className="md:w-4 md:h-4" /> }
-                                       ].map((f, i) => (
-                                          <motion.div
-                                             key={i}
-                                             initial={{ opacity: 0, x: -20 }}
-                                             animate={{ opacity: 1, x: 0 }}
-                                             transition={{ delay: i * 0.2 }}
-                                             className="bg-white p-3 md:p-4 rounded-2xl md:rounded-[20px] shadow-sm border border-slate-100 flex items-center justify-between"
-                                          >
-                                             <div className="flex items-center gap-3 md:gap-4">
-                                                <div className="w-8 h-8 md:w-10 md:h-10 rounded-[10px] md:rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
-                                                   <Users size={16} className="md:w-5 md:h-5" />
-                                                </div>
-                                                <div>
-                                                   <p className="text-xs md:text-sm font-black text-slate-900">{f.user}</p>
-                                                   <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{f.status}</p>
-                                                </div>
-                                             </div>
-                                             <div className="text-right flex flex-col items-end">
-                                                <p className="text-[8px] md:text-[9px] font-black text-pd-blue mb-1 md:mb-1.5">{f.time}</p>
-                                                <div className="text-pd-blue bg-pd-blue/10 p-1 md:p-1.5 rounded-lg md:rounded-[10px]">{f.icon}</div>
-                                             </div>
-                                          </motion.div>
-                                       ))}
-                                    </div>
-                                 </div>
-                              )}
-
-                              {features[selected].type === 'support' && (
-                                 <div className="h-full flex flex-col justify-end p-0 sm:p-2 lg:p-4 pb-2 sm:pb-4">
-                                    <div className="space-y-2 sm:space-y-4 max-w-60 md:max-w-65 sm:max-w-sm ml-auto">
-                                       <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-[20px] rounded-br-sm border border-slate-100 shadow-sm">
-                                          <p className="text-[9px] md:text-[10px] sm:text-xs font-bold text-slate-600 leading-relaxed">I have a question about my monthly lead limit on the Elite plan.</p>
-                                       </motion.div>
-                                       <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1 }} className="bg-pd-pink text-white p-3 sm:p-4 rounded-2xl sm:rounded-[20px] rounded-bl-sm flex gap-2 sm:gap-3 shadow-xl shadow-pd-pink/20">
-                                          <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5"><Check size={8} className="sm:hidden" /><Check size={12} className="hidden sm:block" /></div>
-                                          <p className="text-[9px] md:text-[10px] sm:text-xs font-bold leading-relaxed">Hi! The Elite plan actually has zero limits on leads. You get 100% of the volume!</p>
-                                       </motion.div>
-                                    </div>
-                                    <div className="mt-4 sm:mt-8 flex items-center gap-3 sm:gap-4 p-2.5 md:p-3 sm:p-4 bg-white rounded-2xl sm:rounded-[20px] border border-slate-100 shadow-sm w-max max-w-full">
-                                       <div className="w-7 h-7 md:w-8 md:h-8 sm:w-10 sm:h-10 rounded-lg md:rounded-[10px] sm:rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center animate-pulse shrink-0"><Clock size={14} className="sm:hidden" /><Clock size={20} className="hidden sm:block" /></div>
-                                       <div>
-                                          <p className="text-[11px] md:text-xs sm:text-sm font-black text-slate-800 leading-none sm:leading-normal">2 min avg.</p>
-                                          <p className="text-[7px] md:text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 md:mt-0.5">Response time</p>
-                                       </div>
-                                    </div>
-                                 </div>
-                              )}
-                           </div>
-                        </motion.div>
-                     </div>
-                  </motion.div>
-               </AnimatePresence>
-            </div>
-         </div>
+           </motion.div>
+         </AnimatePresence>
+        </div>
       </div>
-   );
+
+      {/* Right Side: UI Showcase (Above text on mobile) */}
+      <div className="flex-1 relative w-full h-80 md:h-100 lg:h-auto order-1 lg:order-2">
+        <AnimatePresence mode="wait"initial={false}>
+         <motion.div
+           key={selected + 'infographic'}
+           initial={{ opacity: 0, scale: 0.95, y: 10 }}
+           animate={{ opacity: 1, scale: 1, y: 0 }}
+           exit={{ opacity: 0, scale: 1.05, y: -10 }}
+           transition={{ duration: 0.4, ease:"circOut"}}
+           className="absolute inset-0 w-full h-full"
+         >
+           {/* UI Frame with Dark Mode Outer, White Mode Inner */}
+           <div className="w-full h-full rounded-3xl md:rounded-4xl bg-white/5 border border-white/10 p-1.5 md:p-3 lg:p-4 shadow-2xl flex flex-col">
+            <motion.div
+              className="relative w-full h-full rounded-[18px] md:rounded-3xl overflow-hidden bg-white shadow-inner flex flex-col"
+            >
+              {/* INFOGRAPHIC DYNAMIC CONTENT ENGINE (Unchanged pristine white UI) */}
+              <div className="h-full w-full flex flex-col p-4 md:p-6 bg-slate-50/30">
+               {features[selected].type === 'dashboard' && (
+                 <div className="h-full flex flex-col">
+                  <div className="grid grid-cols-2 gap-2 md:gap-4 mb-4 md:mb-6">
+                    {[
+                     { label: 'Total Revenue', val: '₹1.2M', up: '+12%', color: '#F43F5E' },
+                     { label: 'Active Leads', val: '435', up: '+8%', color: '#10B981' },
+                     { label: 'Direct Bookings', val: '128', up: '+15%', color: '#3B82F6' },
+                     { label: 'Team Members', val: '12', up: 'Full Access', color: '#F59E0B' }
+                    ].map((s, i) => (
+                     <div key={i} className="bg-white p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
+                       <p className="text-[8px] md:text-[9px] text-slate-400 uppercase tracking-widest leading-relaxed mb-0.5 md:mb-1 truncate font-normal font-pd">{s.label}</p>
+                       <p className="text-base md:text-xl text-slate-900 tracking-tight font-normal font-pd">{s.val}</p>
+                       <p className="text-[7px] md:text-[8px] font-normal font-pd mt-0.5 md:mt-1 tracking-widest"style={{ color: s.color }}>{s.up}</p>
+                     </div>
+                    ))}
+                  </div>
+                  <div className="flex-1 bg-white rounded-2xl md:rounded-[20px] p-3 md:p-4 border border-slate-100 flex items-center justify-center overflow-hidden shadow-sm">
+                    <svg className="w-full h-24 md:h-32 overflow-visible"viewBox="0 0 100 40">
+                     <motion.path d="M0,35 L20,10 L40,25 L60,5 L80,20 L100,2"fill="none"stroke={features[selected].accent} strokeWidth="3"initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 2 }} />
+                     <motion.path d="M0,35 L20,30 L40,32 L60,25 L80,28 L100,10"fill="none"stroke="#CBD5E1"strokeWidth="1.5"strokeDasharray="2 2"/>
+                    </svg>
+                  </div>
+                 </div>
+               )}
+
+               {features[selected].type === 'alerts' && (
+                 <div className="h-full flex flex-col items-center justify-center relative">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+                    <MapPin size={200} className="md:w-60 md:h-60"strokeWidth={0.5} />
+                  </div>
+                  <div className="flex flex-col gap-3 md:gap-4 justify-center w-full max-w-sm relative z-10 px-2 md:px-0">
+                    {[1, 2, 3].map((i) => (
+                     <motion.div
+                       key={i}
+                       initial={{ scale: 0.9, opacity: 0 }}
+                       animate={{ scale: 1, opacity: 1 }}
+                       transition={{ delay: i * 0.15 }}
+                       className="bg-white p-3 md:p-4 rounded-2xl md:rounded-[20px] shadow-lg shadow-slate-200/50 border border-slate-100 flex items-center gap-3 md:gap-4 w-full"
+                     >
+                       <div className="w-8 h-8 md:w-10 md:h-10 rounded-[10px] md:rounded-[14px] bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                        <MessageSquare size={16} className="md:w-5 md:h-5"/>
+                       </div>
+                       <div>
+                        <p className="text-[10px] md:text-[11px] text-slate-800 uppercase tracking-tight mb-0.5 font-normal font-pd">New Lead Received</p>
+                        <p className="text-[8px] md:text-[9px] font-normal font-pd text-slate-400 tracking-wide">Just now via App Alert</p>
+                       </div>
+                     </motion.div>
+                    ))}
+                  </div>
+                 </div>
+               )}
+
+               {features[selected].type === 'verification' && (
+                 <div className="h-full flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-8 items-center justify-center">
+                  <div className="bg-white shadow-sm p-4 md:p-6 rounded-[20px] md:rounded-3xl border border-slate-100 flex flex-col items-center justify-center w-full h-30 md:h-full">
+                    <div className="relative w-24 h-24 md:w-40 md:h-40 flex items-center justify-center">
+                     <svg className="w-full h-full -rotate-90 drop-shadow-md md:drop-shadow-xl"viewBox="0 0 144 144">
+                       <circle cx="72"cy="72"r="60"fill="none"stroke="#F1F5F9"strokeWidth="8"className="md:stroke-[12px]"/>
+                       <motion.circle cx="72"cy="72"r="60"fill="none"stroke={features[selected].accent} strokeWidth="8"className="md:stroke-[12px]"strokeDasharray="377"initial={{ strokeDashoffset: 377 }} animate={{ strokeDashoffset: 37 }} transition={{ duration: 2, ease:"easeOut"}} strokeLinecap="round"/>
+                     </svg>
+                     <div className="absolute text-center flex flex-col items-center justify-center">
+                       <p className="text-2xl md:text-4xl text-slate-900 leading-none font-normal font-pd">99%</p>
+                       <p className="text-[8px] md:text-[9px] text-slate-400 uppercase tracking-widest mt-0.5 md:mt-1 font-normal font-pd">Trust Score</p>
+                     </div>
+                    </div>
+                  </div>
+                  <div className="space-y-2 md:space-y-3 w-full">
+                    {['Email OTP Verified', 'Phone Number Active', 'Identity Document Valid'].map((c, i) => (
+                     <motion.div
+                       key={i}
+                       initial={{ opacity: 0, x: 20 }}
+                       animate={{ opacity: 1, x: 0 }}
+                       transition={{ delay: i * 0.1 }}
+                       className="flex items-center gap-2 md:gap-3 p-2.5 md:p-4 bg-white rounded-xl md:rounded-2xl shadow-sm border border-slate-100"
+                     >
+                       <div className="w-5 h-5 md:w-6 md:h-6 rounded-md md:rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0"><Check size={10} className="md:w-3 md:h-3"/></div>
+                       <span className="text-[9px] md:text-[11px] font-bold text-slate-700">{c}</span>
+                     </motion.div>
+                    ))}
+                  </div>
+                 </div>
+               )}
+
+               {features[selected].type === 'followups' && (
+                 <div className="h-full flex flex-col justify-center items-center px-2 md:px-0">
+                  <div className="w-full max-w-sm space-y-3 md:space-y-4">
+                    {[
+                     { user: 'Amit K.', status: 'Sent 1st Follow-up', time: '10m ago', icon: <Mail size={14} className="md:w-4 md:h-4"/> },
+                     { user: 'Sonal M.', status: 'Meeting Scheduled', time: '2h ago', icon: <Calendar size={14} className="md:w-4 md:h-4"/> },
+                     { user: 'Rahul S.', status: 'Booking Confirmed', time: '5h ago', icon: <CheckCircle2 size={14} className="md:w-4 md:h-4"/> }
+                    ].map((f, i) => (
+                     <motion.div
+                       key={i}
+                       initial={{ opacity: 0, x: -20 }}
+                       animate={{ opacity: 1, x: 0 }}
+                       transition={{ delay: i * 0.2 }}
+                       className="bg-white p-3 md:p-4 rounded-2xl md:rounded-[20px] shadow-sm border border-slate-100 flex items-center justify-between"
+                     >
+                       <div className="flex items-center gap-3 md:gap-4">
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-[10px] md:rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                          <Users size={16} className="md:w-5 md:h-5"/>
+                        </div>
+                        <div>
+                          <p className="text-xs md:text-sm text-slate-900 font-normal font-pd">{f.user}</p>
+                          <p className="text-[9px] md:text-[10px] font-normal font-pd text-slate-400 uppercase tracking-widest mt-0.5">{f.status}</p>
+                        </div>
+                       </div>
+                       <div className="text-right flex flex-col items-end">
+                        <p className="text-[8px] md:text-[9px] text-pd-blue mb-1 md:mb-1.5 font-normal font-pd">{f.time}</p>
+                        <div className="text-pd-blue bg-pd-blue/10 p-1 md:p-1.5 rounded-lg md:rounded-[10px]">{f.icon}</div>
+                       </div>
+                     </motion.div>
+                    ))}
+                  </div>
+                 </div>
+               )}
+
+               {features[selected].type === 'support' && (
+                 <div className="h-full flex flex-col justify-end p-0 sm:p-2 lg:p-4 pb-2 sm:pb-4">
+                  <div className="space-y-2 sm:space-y-4 max-w-60 md:max-w-65 sm:max-w-sm ml-auto">
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-[20px] rounded-br-sm border border-slate-100 shadow-sm">
+                     <p className="text-[9px] md:text-[10px] sm:text-xs font-normal font-pd text-slate-600 leading-relaxed">I have a question about my monthly lead limit on the Elite plan.</p>
+                    </motion.div>
+                    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1 }} className="bg-pd-pink text-white p-3 sm:p-4 rounded-2xl sm:rounded-[20px] rounded-bl-sm flex gap-2 sm:gap-3 shadow-xl shadow-pd-pink/20">
+                     <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0 mt-0.5"><Check size={8} className="sm:hidden"/><Check size={12} className="hidden sm:block"/></div>
+                     <p className="text-[9px] md:text-[10px] sm:text-xs font-normal font-pd leading-relaxed">Hi! The Elite plan actually has zero limits on leads. You get 100% of the volume!</p>
+                    </motion.div>
+                  </div>
+                  <div className="mt-4 sm:mt-8 flex items-center gap-3 sm:gap-4 p-2.5 md:p-3 sm:p-4 bg-white rounded-2xl sm:rounded-[20px] border border-slate-100 shadow-sm w-max max-w-full">
+                    <div className="w-7 h-7 md:w-8 md:h-8 sm:w-10 sm:h-10 rounded-lg md:rounded-[10px] sm:rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center animate-pulse shrink-0"><Clock size={14} className="sm:hidden"/><Clock size={20} className="hidden sm:block"/></div>
+                    <div>
+                     <p className="text-[11px] md:text-xs sm:text-sm text-slate-800 leading-none sm:leading-normal font-normal font-pd">2 min avg.</p>
+                     <p className="text-[7px] md:text-[8px] sm:text-[10px] font-normal font-pd text-slate-400 uppercase tracking-widest mt-1 md:mt-0.5">Response time</p>
+                    </div>
+                  </div>
+                 </div>
+               )}
+              </div>
+            </motion.div>
+           </div>
+         </motion.div>
+        </AnimatePresence>
+      </div>
+     </div>
+   </div>
+  );
+};
+
+
+
+
+
+
+const GrowthJourneySection = () => {
+  return (
+   <section className="py-24 lg:py-32 bg-white relative overflow-clip font-pd border-b border-slate-100">
+     <div className="absolute top-0 right-0 w-150 h-150 bg-linear-to-bl from-pd-pink/5 via-purple-500/5 to-transparent rounded-full blur-3xl pointer-events-none"/>
+     <div className="absolute bottom-0 left-0 w-150 h-150 bg-linear-to-tr from-pd-blue/5 via-emerald-400/5 to-transparent rounded-full blur-3xl pointer-events-none"/>
+     
+     <div className="max-w-[1400px] mx-auto px-6 lg:px-12 relative z-10">
+      {/* Header */}
+      <div className="mb-16 md:mb-20 text-center max-w-3xl mx-auto">
+        <motion.div 
+         initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+         className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200 shadow-sm text-slate-600 text-[11px] font-semibold font-pd uppercase tracking-widest mb-6"
+        >
+         <TrendingUp size={12} className="text-pd-pink"/>
+         <span>WHY PARTNER WITH PARTYDIAL</span>
+        </motion.div>
+        <motion.h2 
+         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+         className="text-3xl sm:text-4xl lg:text-[40px] xl:text-[48px] font-semibold font-pd text-slate-900 tracking-tight leading-[1.12] mb-6"
+        >
+         More Visibility. More Enquiries. <br />
+         <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-600 to-pd-blue">More Opportunities.</span>
+        </motion.h2>
+        <motion.p 
+         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+         className="text-slate-600 text-sm sm:text-base lg:text-lg font-normal font-pd leading-relaxed"
+        >
+         Your venue deserves more than a listing. PartyDial gives you the digital tools to get discovered, manage customer enquiries, understand your performance, and turn opportunities into bookings.
+        </motion.p>
+      </div>
+
+      {/* Bento Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 auto-rows-[300px]">
+        
+        {/* 01: Profile (Col Span 2) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          className="bg-slate-50 rounded-3xl border border-slate-200 shadow-sm overflow-hidden relative group hover:border-pd-pink/40 hover:shadow-xl transition-all duration-300 flex flex-col"
+        >
+          <div className="p-6 flex-1 flex flex-col justify-center relative z-10">
+            <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-pd-pink mb-4">
+              <Building2 size={20} />
+            </div>
+            <div className="text-[9px] font-semibold font-pd uppercase tracking-widest text-slate-400 mb-2">01 — Build Your Digital Presence</div>
+            <h3 className="text-lg font-semibold font-sf text-slate-900 mb-2 group-hover:text-pd-pink transition-colors">Professional Online Identity</h3>
+            <p className="text-xs font-normal font-pd text-slate-600 leading-relaxed max-w-sm">
+              Create a dedicated venue profile where customers can discover your property, explore its details, and view images.
+            </p>
+          </div>
+          {/* Light Mockup Visual */}
+          <div className="flex-1 bg-slate-100 relative overflow-hidden flex items-center justify-center border-t border-slate-200/50 min-h-[140px] pt-4">
+            <div className="absolute inset-0 bg-linear-to-tr from-pd-pink/10 to-transparent" />
+            <motion.div 
+              whileHover={{ scale: 1.05 }} transition={{ type: "spring", bounce: 0.4 }}
+              className="w-[80%] h-[70%] bg-white rounded-xl shadow-lg border border-slate-200 flex flex-col overflow-hidden relative z-10"
+            >
+              <div className="h-24 bg-slate-200 relative w-full">
+                <div className="absolute inset-0 bg-linear-to-r from-slate-200 to-slate-100" />
+              </div>
+              <div className="p-4 relative">
+                <div className="w-10 h-10 rounded-lg bg-white shadow-md border-4 border-white flex items-center justify-center -mt-10 mb-2 absolute">
+                  <Building2 size={16} className="text-slate-400" />
+                </div>
+                <div className="mt-6 h-3 w-1/2 bg-slate-200 rounded-full mb-2" />
+                <div className="h-2 w-1/3 bg-slate-100 rounded-full mb-4" />
+                <div className="flex gap-2">
+                  <div className="h-6 w-16 bg-pd-pink/10 rounded-full border border-pd-pink/20" />
+                  <div className="h-6 w-20 bg-slate-50 rounded-full border border-slate-200" />
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* 02: Search (Col Span 1) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+          className="bg-slate-50 rounded-3xl border border-slate-200 shadow-sm overflow-hidden relative group hover:border-pd-blue/40 hover:shadow-xl transition-all duration-300 flex flex-col"
+        >
+          <div className="p-6 pb-0 flex flex-col relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-pd-blue mb-4">
+              <Search size={20} />
+            </div>
+            <h3 className="text-lg font-semibold font-sf text-slate-900 mb-2 group-hover:text-pd-blue transition-colors">Get Discovered</h3>
+            <p className="text-xs font-normal font-pd text-slate-600 leading-relaxed">
+              Reach customers actively searching for venues based on their location and requirements.
+            </p>
+          </div>
+          <div className="flex-1 mt-6 relative overflow-hidden bg-slate-100 flex flex-col items-center pt-6 px-6 border-t border-slate-200/50">
+            <div className="w-full bg-white rounded-full px-4 py-2.5 border border-slate-200 flex items-center gap-3 mb-4 shadow-sm">
+              <Search size={14} className="text-slate-400" />
+              <div className="h-2 w-24 bg-slate-200 rounded-full" />
+            </div>
+            <div className="w-full space-y-3">
+              {[1, 2].map(i => (
+                <div key={i} className={`p-3 rounded-xl border flex gap-3 items-center ${i===1 ? 'bg-pd-blue/5 border-pd-blue/20 shadow-sm' : 'bg-white border-slate-200'}`}>
+                  <div className="w-10 h-10 rounded-lg bg-slate-100 shrink-0" />
+                  <div className="flex-1">
+                    <div className="h-2 w-2/3 bg-slate-200 rounded-full mb-1.5" />
+                    <div className="h-1.5 w-1/3 bg-slate-100 rounded-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 03: Notifications (Col Span 1) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+          className="bg-slate-50 rounded-3xl border border-slate-200 shadow-sm overflow-hidden relative group hover:border-amber-500/40 hover:shadow-xl transition-all duration-300 flex flex-col"
+        >
+          <div className="p-6 pb-0 flex flex-col relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-amber-500 mb-4">
+              <Bell size={20} />
+            </div>
+            <h3 className="text-lg font-semibold font-sf text-slate-900 mb-2 group-hover:text-amber-500 transition-colors">Generate Leads</h3>
+            <p className="text-xs font-normal font-pd text-slate-600 leading-relaxed">
+              Turn customer searches into qualified enquiries with important event details.
+            </p>
+          </div>
+          <div className="flex-1 mt-6 relative overflow-hidden bg-slate-100 flex items-center justify-center p-6 border-t border-slate-200/50">
+             <div className="bg-white border border-slate-200 rounded-2xl p-5 w-full shadow-lg relative group-hover:-translate-y-2 transition-transform duration-500">
+               <div className="font-semibold text-slate-800 mb-2 flex items-center justify-between border-b border-slate-100 pb-3">
+                 <div className="flex items-center gap-2">
+                   <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center"><Bell size={12} className="text-amber-600"/></div> 
+                   <span className="text-xs">New Enquiry</span>
+                 </div>
+               </div>
+               <div className="text-slate-500 text-[10px] space-y-2 font-medium">
+                 <div className="flex justify-between"><span>Event</span> <span className="text-slate-800">Wedding</span></div>
+                 <div className="flex justify-between"><span>Guests</span> <span className="text-slate-800">250 Guests</span></div>
+                 <div className="flex justify-between"><span>Budget</span> <span className="text-slate-800">₹50K – ₹75K</span></div>
+               </div>
+             </div>
+          </div>
+        </motion.div>
+
+        {/* 04: Kanban (Col Span 2) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}
+          className="bg-slate-50 rounded-3xl border border-slate-200 shadow-sm overflow-hidden relative group hover:border-purple-500/40 hover:shadow-xl transition-all duration-300 flex flex-col"
+        >
+          <div className="p-6 flex-1 flex flex-col justify-center relative z-10">
+            <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-purple-500 mb-4">
+              <Kanban size={20} />
+            </div>
+            <div className="text-[9px] font-semibold font-pd uppercase tracking-widest text-slate-400 mb-2">04 — Manage Your Leads</div>
+            <h3 className="text-lg font-semibold font-sf text-slate-900 mb-2 group-hover:text-purple-500 transition-colors">Keep Every Enquiry Organized</h3>
+            <p className="text-xs font-normal font-pd text-slate-600 leading-relaxed max-w-sm">
+              Track your customer enquiries from a single partner dashboard instead of managing scattered messages.
+            </p>
+          </div>
+          <div className="flex-1 bg-slate-100 relative overflow-hidden flex items-center justify-center border-t border-slate-200/50 min-h-[140px] p-4 md:p-6">
+            <div className="absolute inset-0 bg-linear-to-br from-purple-500/5 to-transparent" />
+            <div className="w-full h-full flex gap-3 overflow-hidden relative z-10">
+              {/* Columns */}
+              {['New', 'Contacted', 'Booked'].map((stage, i) => (
+                <div key={i} className="flex-1 bg-white/60 border border-slate-200 rounded-xl p-2 flex flex-col gap-2 backdrop-blur-sm shadow-sm group-hover:-translate-y-1 transition-transform duration-500 delay-[${i * 100}ms]">
+                  <div className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider">{stage}</div>
+                  {i === 0 && (
+                    <div className="h-12 bg-white rounded border border-slate-200 shadow-sm p-1.5 flex flex-col justify-between">
+                      <div className="h-1 w-2/3 bg-slate-200 rounded" />
+                      <div className="h-1 w-1/3 bg-slate-100 rounded" />
+                    </div>
+                  )}
+                  {i === 2 && (
+                    <div className="h-12 bg-emerald-50 rounded border border-emerald-100 shadow-sm p-1.5 flex flex-col justify-between">
+                      <div className="h-1 w-1/2 bg-emerald-200 rounded" />
+                      <div className="flex justify-between items-end">
+                        <div className="h-1 w-1/4 bg-emerald-100 rounded" />
+                        <CheckCircle2 size={10} className="text-emerald-500" />
+                      </div>
+                    </div>
+                  )}
+                  <div className="h-12 bg-white/50 rounded border border-slate-200 border-dashed mt-auto flex items-center justify-center">
+                    <span className="text-slate-300">+</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 05: Analytics (Col Span 2) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }}
+          className="bg-slate-50 rounded-3xl border border-slate-200 shadow-sm overflow-hidden relative group hover:border-emerald-500/40 hover:shadow-xl transition-all duration-300 flex flex-col"
+        >
+          <div className="p-6 flex-1 flex flex-col justify-center relative z-10">
+            <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-emerald-500 mb-4">
+              <BarChart3 size={20} />
+            </div>
+            <div className="text-[9px] font-semibold font-pd uppercase tracking-widest text-slate-400 mb-2">05 — Understand Your Business</div>
+            <h3 className="text-lg font-semibold font-sf text-slate-900 mb-2 group-hover:text-emerald-500 transition-colors">Turn Activity Into Insights</h3>
+            <p className="text-xs font-normal font-pd text-slate-600 leading-relaxed max-w-sm">
+              See how customers are interacting with your venue and understand important activity across your profile.
+            </p>
+          </div>
+          <div className="flex-1 bg-slate-100 relative overflow-hidden flex items-end justify-center border-t border-slate-200/50 min-h-[140px] p-4 md:p-6 pt-8">
+            <div className="w-full bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-end justify-between gap-2 h-full relative group-hover:scale-105 transition-transform duration-700 origin-bottom">
+              {[30, 45, 25, 60, 80, 50, 90].map((h, i) => (
+                <div key={i} className="w-full flex flex-col justify-end items-center gap-1 h-full">
+                  <div className={`w-full rounded-t-sm ${i === 6 ? 'bg-emerald-400' : 'bg-slate-200'}`} style={{ height: `${h}%` }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 06: Growth (Col Span 1) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.5 }}
+          className="bg-slate-50 rounded-3xl border border-slate-200 shadow-sm overflow-hidden relative group hover:border-pd-pink/40 hover:shadow-xl transition-all duration-300 flex flex-col"
+        >
+          <div className="p-6 pb-0 flex flex-col relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-pd-pink mb-4">
+              <TrendingUp size={20} />
+            </div>
+            <h3 className="text-lg font-semibold font-sf text-slate-900 mb-2 group-hover:text-pd-pink transition-colors">Create Growth</h3>
+            <p className="text-xs font-normal font-pd text-slate-600 leading-relaxed">
+              Turn digital interest into real-world business and bookings.
+            </p>
+          </div>
+          <div className="flex-1 mt-6 relative overflow-hidden bg-slate-100 flex items-center justify-center p-6 border-t border-slate-200/50">
+            <div className="w-32 h-32 rounded-full border-4 border-slate-200 flex items-center justify-center relative">
+              <div className="absolute inset-0 rounded-full border-4 border-pd-pink border-t-transparent border-l-transparent rotate-45 group-hover:rotate-180 transition-transform duration-1000" />
+              <div className="text-center">
+                <div className="text-lg font-bold text-slate-900">100%</div>
+                <div className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Growth</div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+      </div>
+
+      {/* Bottom CTA */}
+      <div className="mt-16 md:mt-20 max-w-3xl mx-auto text-center bg-slate-50 p-10 rounded-3xl border border-slate-200 relative overflow-hidden group">
+        <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px] opacity-50" />
+        <div className="relative z-10">
+          <h3 className="text-2xl md:text-3xl font-semibold font-sf text-slate-900 mb-4">Ready to Put Your Venue in Front of More Customers?</h3>
+          <p className="text-slate-600 text-sm md:text-base mb-8">Join PartyDial and start building your digital presence, receiving enquiries, and creating new booking opportunities.</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+            <Link href="/register" className="w-full sm:w-auto">
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto px-8 py-4 bg-[#F43F5E] hover:bg-[#e11d48] text-white rounded-2xl font-semibold font-pd text-sm shadow-xl shadow-[#F43F5E]/30 flex items-center justify-center transition-all">
+                Become a PartyDial Partner →
+              </motion.button>
+            </Link>
+            <button 
+              onClick={() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' })}
+              className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl font-semibold font-pd text-sm border border-slate-200 shadow-sm flex items-center justify-center transition-all cursor-pointer"
+            >
+              Calculate Your Revenue
+            </button>
+          </div>
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Simple onboarding · Professional venue profile · Partner dashboard</p>
+        </div>
+      </div>
+     </div>
+   </section>
+  );
+};
+
+
+const PartnerPortalSection = () => {
+  const [activeFeature, setActiveFeature] = useState(0);
+
+  const features = [
+   { id:"01", title:"Overview", desc:"Your Business at a Glance", detail:"Track profile views, new enquiries, total bookings, and overall revenue performance in real-time.", icon: <LayoutDashboard size={20} /> },
+   { id:"02", title:"Leads", desc:"Manage Every Opportunity", detail:"View, organize, and track new customer enquiries from one centralized lead dashboard.", icon: <Users size={20} /> },
+   { id:"03", title:"Pipeline", desc:"Track Your Sales Funnel", detail:"Move leads through your custom pipeline stages from initial contact to successful booking.", icon: <Kanban size={20} /> },
+   { id:"04", title:"Quotations", desc:"Send Professional Quotes", detail:"Create, send, and track professional quotations and pricing proposals for interested customers.", icon: <ReceiptIndianRupee size={20} /> },
+   { id:"05", title:"Reviews", desc:"Manage Customer Feedback", detail:"Read, respond to, and manage customer reviews to build your venue's reputation.", icon: <Star size={20} /> },
+   { id:"06", title:"Support", desc:"Get Help When You Need It", detail:"Access PartyDial partner support, helpful resources, and direct assistance for your venue.", icon: <Headset size={20} /> },
+   { id:"07", title:"Settings", desc:"Configure Your Venue Profile", detail:"Manage your venue details, photos, pricing packages, availability calendar, and account settings.", icon: <Settings size={20} /> },
+  ];
+
+  return (
+   <section className="py-24 lg:py-32 bg-slate-50 relative overflow-clip font-pd border-b border-slate-100">
+     {/* Background Gradients */}
+     <div className="absolute inset-0 z-0 pointer-events-none">
+      <div className="absolute top-0 right-0 w-200 h-200 bg-linear-to-bl from-pd-pink/5 via-purple-500/5 to-transparent rounded-full blur-3xl"/>
+      <div className="absolute bottom-0 left-0 w-150 h-150 bg-linear-to-tr from-pd-blue/5 via-emerald-400/5 to-transparent rounded-full blur-3xl"/>
+      <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] bg-size-[32px_32px] opacity-50"/>
+     </div>
+
+     <div className="max-w-350 mx-auto px-6 lg:px-12 relative z-10">
+      {/* Header */}
+      <div className="text-center max-w-4xl mx-auto mb-16 md:mb-20">
+        <motion.div 
+         initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+         className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-slate-600 text-[11px] font-semibold font-pd uppercase tracking-widest mb-6"
+        >
+         <LayoutDashboard size={12} className="text-pd-blue"/>
+         <span>The PartyDial Partner Portal</span>
+        </motion.div>
+
+        <motion.h2 
+         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+         className="text-3xl sm:text-4xl lg:text-[40px] xl:text-[48px] font-semibold font-pd text-slate-900 tracking-tight leading-[1.12] mb-6"
+        >
+         Everything Your Venue Needs, <br /> <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-blue via-purple-600 to-pd-pink">In One Dashboard</span>
+        </motion.h2>
+
+        <motion.p 
+         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+         className="text-slate-600 text-base sm:text-lg lg:text-xl font-normal font-pd leading-relaxed max-w-3xl mx-auto"
+        >
+         Manage your entire venue business from a single, centralized partner platform.
+        </motion.p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+        
+        {/* Left Column: Interactive Dashboard Mockup (Sticky) */}
+        <div className="lg:sticky lg:top-32 relative w-full h-150 lg:h-175 bg-white rounded-4xl border border-slate-200 shadow-2xl shadow-slate-900/5 overflow-hidden flex flex-col">
+         {/* Browser/App Header */}
+         <div className="h-14 bg-slate-50 border-b border-slate-100 flex items-center px-6 gap-4">
+           <div className="flex gap-2">
+            <div className="w-3 h-3 rounded-full bg-slate-300"></div>
+            <div className="w-3 h-3 rounded-full bg-slate-300"></div>
+            <div className="w-3 h-3 rounded-full bg-slate-300"></div>
+           </div>
+           <div className="h-7 flex-1 bg-white rounded-md border border-slate-200 flex items-center justify-center text-[10px] font-semibold text-slate-400 font-mono tracking-widest shadow-sm">
+            partner.partydial.com
+           </div>
+         </div>
+         
+         {/* Dashboard Content Area */}
+         <div className="flex-1 flex overflow-hidden">
+           {/* Sidebar */}
+           <div className="w-16 md:w-56 bg-slate-50/50 border-r border-slate-100 p-4 flex flex-col gap-2 shrink-0">
+            <div className="mb-6 px-2 hidden md:block">
+              <div className="text-xs font-bold text-slate-800 mb-1">Grand Plaza Banquet</div>
+              <div className="text-[9px] text-slate-400 uppercase tracking-widest">Haldwani • Active</div>
+            </div>
+            {features.map((f, i) => (
+              <div key={i} className={`flex items-center gap-3 p-2 md:px-3 md:py-2.5 rounded-xl cursor-pointer transition-colors ${activeFeature === i ? 'bg-pd-blue/10 text-pd-blue shadow-sm' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'} ${i === 5 ? 'mt-auto' : ''}`} onClick={() => setActiveFeature(i)}>
+               <div className="shrink-0">{f.icon}</div>
+               <span className="text-[11px] font-semibold tracking-wide hidden md:block truncate">{f.title}</span>
+              </div>
+            ))}
+           </div>
+           
+           {/* Main Dashboard Screen */}
+           <div className="flex-1 bg-white p-6 md:p-8 overflow-y-auto relative custom-scrollbar">
+            <AnimatePresence mode="wait">
+              <motion.div
+               key={activeFeature}
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: -10 }}
+               transition={{ duration: 0.3 }}
+               className="w-full h-full"
+              >
+               {/* 0. Overview */}
+               {activeFeature === 0 && (
+                 <div>
+                  <h3 className="text-xl font-semibold text-slate-900 mb-1">Dashboard Overview</h3>
+                  <p className="text-xs text-slate-500 mb-6">Good Morning, Partner 👋 Here&apos;s what&apos;s happening today.</p>
+                  
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    <div className="p-4 bg-white shadow-sm rounded-xl border border-slate-200">
+                     <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Profile Views</div>
+                     <div className="text-2xl font-bold text-slate-800 mb-1">486</div>
+                     <div className="text-[10px] text-emerald-500 font-semibold">+24.8% ↗</div>
+                    </div>
+                    <div className="p-4 bg-white shadow-sm rounded-xl border border-slate-200">
+                     <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">New Enquiries</div>
+                     <div className="text-2xl font-bold text-slate-800 mb-1">28</div>
+                     <div className="text-[10px] text-emerald-500 font-semibold">+18.4% ↗</div>
+                    </div>
+                    <div className="p-4 bg-white shadow-sm rounded-xl border border-slate-200">
+                     <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Bookings</div>
+                     <div className="text-2xl font-bold text-slate-800 mb-1">6</div>
+                     <div className="text-[10px] text-emerald-500 font-semibold">+20.0% ↗</div>
+                    </div>
+                    <div className="p-4 bg-white shadow-sm rounded-xl border border-slate-200">
+                     <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">Revenue</div>
+                     <div className="text-2xl font-bold text-slate-800 mb-1">₹1.8L</div>
+                     <div className="text-[10px] text-emerald-500 font-semibold">+24.6% ↗</div>
+                    </div>
+                  </div>
+                  <div className="w-full h-32 bg-slate-50 border border-slate-100 rounded-xl p-4 flex flex-col justify-between">
+                    <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Performance Trend</div>
+                    <svg className="w-full h-16"preserveAspectRatio="none"viewBox="0 0 100 100">
+                     <path d="M 0 80 Q 20 70 30 50 T 60 40 T 100 20"fill="none"stroke="#2563EB"strokeWidth="3"/>
+                    </svg>
+                  </div>
+                 </div>
+               )}
+
+               {/* 1. Leads, 2. Pipeline */}
+               {(activeFeature === 1 || activeFeature === 2) && (
+                 <div>
+                  <div className="flex justify-between items-end mb-6">
+                    <div>
+                     <h3 className="text-xl font-semibold text-slate-900 mb-1">{activeFeature === 1 ? 'Recent Enquiries' : 'Sales Pipeline'}</h3>
+                     <p className="text-xs text-slate-500">Track and manage your leads.</p>
+                    </div>
+                    <div className="px-3 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-lg border border-emerald-100">2 New Leads</div>
+                  </div>
+                  <div className="space-y-3">
+                    {['Wedding Event • 250 Pax', 'Corporate Event • 120 Pax', 'Birthday Party • 80 Pax'].map((lead, i) => (
+                     <div key={i} className="p-4 bg-white shadow-sm border border-slate-200 rounded-xl flex items-center justify-between">
+                       <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100"><Users size={16} /></div>
+                        <div>
+                          <div className="text-sm font-bold text-slate-800">{lead}</div>
+                          <div className="text-[10px] text-slate-500 mt-0.5">Oct 18, 2026 • ₹50k-₹75k Budget</div>
+                        </div>
+                       </div>
+                       <div className={`px-2.5 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider ${i === 0 ? 'bg-blue-50 text-blue-600 border border-blue-100' : i === 1 ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-pd-pink/10 text-pd-pink border border-pd-pink/20'}`}>
+                        {i === 0 ? 'New' : i === 1 ? 'Contacted' : 'Interested'}
+                       </div>
+                     </div>
+                    ))}
+                  </div>
+                 </div>
+               )}
+
+               {/* 3. Quotations */}
+               {activeFeature === 3 && (
+                 <div>
+                  <div className="flex justify-between items-end mb-6">
+                    <div>
+                     <h3 className="text-xl font-semibold text-slate-900 mb-1">Quotations</h3>
+                     <p className="text-xs text-slate-500">Manage pricing proposals.</p>
+                    </div>
+                    <div className="px-3 py-1.5 bg-pd-blue/10 text-pd-blue text-[10px] font-bold rounded-lg border border-pd-blue/20">Create New</div>
+                  </div>
+                  <div className="space-y-3">
+                    {['Wedding Event • ₹1.2L', 'Corporate Meet • ₹45k'].map((quote, i) => (
+                     <div key={i} className="p-4 bg-white shadow-sm border border-slate-200 rounded-xl flex items-center justify-between">
+                       <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100"><ReceiptIndianRupee size={16} /></div>
+                        <div>
+                          <div className="text-sm font-bold text-slate-800">{quote}</div>
+                          <div className="text-[10px] text-slate-500 mt-0.5">Sent 2 days ago</div>
+                        </div>
+                       </div>
+                       <div className={`px-2.5 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider ${i === 0 ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`}>
+                        {i === 0 ? 'Pending' : 'Accepted'}
+                       </div>
+                     </div>
+                    ))}
+                  </div>
+                 </div>
+               )}
+
+               {/* 4. Reviews */}
+               {activeFeature === 4 && (
+                 <div>
+                  <div className="flex justify-between items-end mb-6">
+                    <div>
+                     <h3 className="text-xl font-semibold text-slate-900 mb-1">Customer Reviews</h3>
+                     <p className="text-xs text-slate-500">Manage your venue&apos;s reputation.</p>
+                    </div>
+                    <div className="flex items-center gap-1 text-amber-500">
+                     <Star size={16} className="fill-current"/><Star size={16} className="fill-current"/><Star size={16} className="fill-current"/><Star size={16} className="fill-current"/><Star size={16} className="fill-current text-amber-200"/>
+                     <span className="text-sm font-bold text-slate-800 ml-1">4.2</span>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="p-4 bg-white shadow-sm border border-slate-200 rounded-xl">
+                     <div className="flex justify-between mb-2">
+                       <div className="text-sm font-bold text-slate-800">Rahul Sharma</div>
+                       <div className="flex text-amber-500 gap-0.5"><Star size={12} className="fill-current"/><Star size={12} className="fill-current"/><Star size={12} className="fill-current"/><Star size={12} className="fill-current"/><Star size={12} className="fill-current"/></div>
+                     </div>
+                     <p className="text-xs text-slate-500">&quot;Great venue for our corporate event. The staff was very helpful.&quot;</p>
+                    </div>
+                  </div>
+                 </div>
+               )}
+
+               {/* 5. Support, 6. Settings */}
+               {(activeFeature >= 5) && (
+                 <div>
+                  <h3 className="text-xl font-semibold text-slate-900 mb-1">{activeFeature === 5 ? 'Partner Support' : 'Venue Settings'}</h3>
+                  <p className="text-xs text-slate-500 mb-6">{activeFeature === 5 ? 'Get help with your partner account.' : 'Manage your venue profile and packages.'}</p>
+                  <div className="w-full h-40 bg-slate-100 rounded-2xl border border-slate-200 mb-6 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/50 to-transparent animate-shimmer"/>
+                    <div className="absolute bottom-4 left-4 w-16 h-16 rounded-xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-300">
+                     {activeFeature === 5 ? <Headset size={24} /> : <Settings size={24} />}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="h-12 bg-slate-50 rounded-xl border border-slate-100"></div>
+                    <div className="h-12 bg-slate-50 rounded-xl border border-slate-100"></div>
+                  </div>
+                 </div>
+               )}
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Floating Notifications */}
+            <div className="absolute bottom-6 right-6 flex flex-col gap-3 pointer-events-none z-20">
+              {(activeFeature === 1 || activeFeature === 2) && (
+               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="p-3 bg-white rounded-xl shadow-xl border border-slate-200 flex items-center gap-3 max-w-55">
+                 <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 shrink-0">🔔</div>
+                 <div>
+                  <div className="text-[10px] font-bold text-slate-900 leading-tight">New Enquiry</div>
+                  <div className="text-[9px] text-slate-500 leading-tight">Wedding Event • 250 Guests</div>
+                  <div className="text-[9px] font-semibold text-pd-blue mt-1">View Enquiry →</div>
+                 </div>
+               </motion.div>
+              )}
+              {activeFeature === 0 && (
+               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="p-3 bg-white rounded-xl shadow-xl border border-slate-200 flex items-center gap-3 max-w-55">
+                 <div className="w-8 h-8 rounded-full bg-pd-pink/10 flex items-center justify-center text-pd-pink shrink-0"><TrendingUp size={14} /></div>
+                 <div>
+                  <div className="text-[10px] font-bold text-slate-900 leading-tight">Profile Views</div>
+                  <div className="text-[9px] text-slate-500 leading-tight">486 • +24.8% this month</div>
+                 </div>
+               </motion.div>
+              )}
+            </div>
+
+           </div>
+         </div>
+        </div>
+
+        {/* Right Column: Scrollable Features List */}
+        <div className="h-150 lg:h-175 overflow-y-auto pr-2 custom-scrollbar relative">
+         <style>{`
+           .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+           .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+           .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+           .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+         `}</style>
+         
+         <div className="space-y-4 pb-20">
+           {features.map((feature, idx) => (
+            <div 
+              key={idx}
+              onClick={() => setActiveFeature(idx)}
+              className={`p-6 rounded-2xl cursor-pointer transition-all duration-300 border ${activeFeature === idx ? 'bg-white border-slate-200 shadow-xl shadow-slate-200/50' : 'bg-transparent border-transparent hover:bg-slate-100/50'}`}
+            >
+              <div className="flex gap-4">
+               <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${activeFeature === idx ? 'bg-linear-to-br from-pd-blue to-blue-600 text-white shadow-md shadow-pd-blue/20' : 'bg-white text-slate-400 border border-slate-200 shadow-sm'}`}>
+                 {feature.icon}
+               </div>
+               <div>
+                 <div className="flex items-center gap-2 mb-1">
+                  <span className={`text-[10px] font-semibold font-pd uppercase tracking-widest ${activeFeature === idx ? 'text-pd-blue' : 'text-slate-400'}`}>{feature.id}</span>
+                  <h4 className={`text-base font-semibold font-sf transition-colors ${activeFeature === idx ? 'text-slate-900' : 'text-slate-700'}`}>{feature.title}</h4>
+                 </div>
+                 <p className={`text-sm font-semibold font-pd mb-2 transition-colors ${activeFeature === idx ? 'text-slate-700' : 'text-slate-500'}`}>{feature.desc}</p>
+                 
+                 <AnimatePresence>
+                  {activeFeature === idx && (
+                    <motion.div 
+                     initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                     className="overflow-hidden"
+                    >
+                     <p className="text-[13px] font-normal font-pd text-slate-500 leading-relaxed mt-1">{feature.detail}</p>
+                    </motion.div>
+                  )}
+                 </AnimatePresence>
+               </div>
+              </div>
+            </div>
+           ))}
+         </div>
+        </div>
+
+      </div>
+
+      {/* Bottom CTA Block */}
+      <div className="mt-24 lg:mt-32 max-w-4xl mx-auto text-center relative overflow-hidden shadow-2xl bg-slate-900 rounded-3xl p-10 md:p-16">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-pd-pink/20 blur-3xl rounded-full mix-blend-screen pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-pd-blue/20 blur-3xl rounded-full mix-blend-screen pointer-events-none translate-y-1/2 -translate-x-1/3"></div>
+        
+        <div className="relative z-10">
+         <h3 className="text-3xl md:text-5xl font-semibold font-sf text-white tracking-tight leading-[1.15] mb-6">
+           Your Venue. Your Business. <br />
+           <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-blue via-purple-500 to-pd-pink">One Powerful Partner Portal.</span>
+         </h3>
+         <p className="text-slate-300 text-base lg:text-lg font-normal font-pd mb-10 max-w-2xl mx-auto">
+           From your first customer enquiry to your next confirmed booking, manage your venue business from one place with PartyDial.
+         </p>
+         
+         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+           <Link href="/login"className="w-full sm:w-auto">
+            <motion.button
+              whileHover={{ scale: 1.02, translateY: -2 }} whileTap={{ scale: 0.98 }}
+              className="w-full sm:w-auto px-8 py-4 bg-[#F43F5E] hover:bg-[#e11d48] text-white rounded-2xl font-semibold font-pd text-sm flex items-center justify-center gap-2 transition-all shadow-xl shadow-[#F43F5E]/20 group cursor-pointer"
+            >
+              <span>Explore Partner Dashboard</span>
+              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform"/>
+            </motion.button>
+           </Link>
+  
+           <Link href="/login"className="w-full sm:w-auto">
+            <button className="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-semibold font-pd text-sm border border-white/20 shadow-sm flex items-center justify-center transition-all cursor-pointer backdrop-blur-sm">
+              Become a PartyDial Partner
+            </button>
+           </Link>
+         </div>
+         
+         <div className="flex items-center justify-center gap-4 text-[11px] font-semibold font-pd text-slate-400 uppercase tracking-widest">
+           <span>Manage smarter</span>
+           <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
+           <span>Respond faster</span>
+           <span className="w-1.5 h-1.5 rounded-full bg-slate-600 hidden sm:block"></span>
+           <span className="hidden sm:inline-block">Grow your opportunities</span>
+         </div>
+        </div>
+      </div>
+     </div>
+   </section>
+  );
+};
+
+const RevenueCalculatorSection = () => {
+  const [venueType, setVenueType] = useState('Banquet Hall');
+  const [monthlyLeads, setMonthlyLeads] = useState(25);
+  const [conversionRate, setConversionRate] = useState(10);
+  const [avgBookingValue, setAvgBookingValue] = useState(25000);
+
+  const potentialBookings = (monthlyLeads * conversionRate) / 100;
+  const estimatedRevenue = potentialBookings * avgBookingValue;
+
+  const formatCurrency = (val: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
+
+  const venueTypes = ['Banquet Hall', 'Hotel', 'Resort', 'Lawn', 'Restaurant', 'Café', 'Farmhouse', 'Party Hall'];
+
+  return (
+   <section id="calculator" className="py-10 lg:py-12 bg-white relative overflow-hidden font-pd border-b border-slate-100">
+     {/* Background */}
+     <div className="absolute inset-0 z-0 pointer-events-none">
+      <div className="absolute top-0 right-0 w-150 h-150 bg-linear-to-bl from-pd-blue/5 via-emerald-400/5 to-transparent rounded-full blur-3xl"/>
+      <div className="absolute bottom-0 left-0 w-200 h-200 bg-linear-to-tr from-pd-pink/5 via-purple-500/5 to-transparent rounded-full blur-3xl"/>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-size-[40px_40px] opacity-20"style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent, black, transparent)' }} />
+     </div>
+
+     <div className="max-w-300 mx-auto px-6 lg:px-12 relative z-10">
+      {/* Header */}
+      <div className="text-center max-w-3xl mx-auto mb-10">
+        <motion.div 
+         initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+         className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200 shadow-sm text-slate-600 text-[11px] font-semibold font-pd uppercase tracking-widest mb-6"
+        >
+         <TrendingUp size={12} className="text-emerald-500"/>
+         <span>ESTIMATE YOUR BUSINESS OPPORTUNITY</span>
+        </motion.div>
+        <motion.h2 
+         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+         className="text-3xl sm:text-4xl lg:text-[40px] xl:text-[48px] font-semibold font-pd text-slate-900 tracking-tight leading-[1.12] mb-4 lg:whitespace-nowrap"
+        >
+         See Your Potential <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-blue via-purple-500 to-pd-pink">With PartyDial</span>
+        </motion.h2>
+        <motion.p 
+         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+         className="text-slate-600 text-sm sm:text-base lg:text-lg font-normal font-pd leading-relaxed max-w-2xl mx-auto"
+        >
+         Explore how customer enquiries, conversion rates, and average booking values can translate into potential business opportunities for your venue.
+        </motion.p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        {/* Left side: Inputs */}
+        <div className="lg:col-span-7 bg-white/80 backdrop-blur-xl rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 p-5 sm:p-8">
+         {/* Step 1: Venue Type */}
+         <div className="mb-6">
+           <div className="flex items-center gap-3 mb-3">
+            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px]">01</div>
+            <h3 className="text-base font-semibold text-slate-900">What type of venue do you operate?</h3>
+           </div>
+           <div className="relative">
+            <select 
+              value={venueType} 
+              onChange={(e) => setVenueType(e.target.value)}
+              className="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 font-semibold focus:outline-hidden focus:ring-2 focus:ring-pd-blue/20 focus:border-pd-blue transition-all cursor-pointer"
+            >
+              {venueTypes.map(v => <option key={v} value={v}>{v}</option>)}
+            </select>
+            <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"size={20} />
+           </div>
+         </div>
+
+         {/* Step 2: Leads */}
+         <div className="mb-6">
+           <div className="flex items-center gap-3 mb-3">
+            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px]">02</div>
+            <h3 className="text-base font-semibold text-slate-900">How many enquiries could you receive each month?</h3>
+           </div>
+           <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
+            <div className="flex justify-between items-end mb-4">
+              <div className="text-2xl font-bold text-pd-blue">{monthlyLeads} <span className="text-xs text-slate-500 font-semibold">Enquiries / Month</span></div>
+            </div>
+            <input type="range"min="10"max="200"step="5"value={monthlyLeads} onChange={(e) => setMonthlyLeads(parseInt(e.target.value))} className="w-full accent-pd-blue h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer mb-4"/>
+            <div className="flex flex-wrap gap-2">
+              {[10, 25, 50, 75, 100].map(v => (
+               <button key={v} onClick={() => setMonthlyLeads(v)} className={`px-4 py-1.5 rounded-lg text-xs font-bold border transition-colors ${monthlyLeads === v ? 'bg-pd-blue text-white border-pd-blue' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-100'}`}>{v}</button>
+              ))}
+            </div>
+           </div>
+         </div>
+
+         {/* Step 3: Conversion Rate */}
+         <div className="mb-6">
+           <div className="flex items-center gap-3 mb-3">
+            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px]">03</div>
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">What percentage of enquiries could convert?</h3>
+            </div>
+           </div>
+           <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
+            <div className="flex justify-between items-end mb-4">
+              <div className="text-2xl font-bold text-emerald-500">{conversionRate}% <span className="text-xs text-slate-500 font-semibold">Conversion Rate</span></div>
+            </div>
+            <input type="range"min="1"max="50"step="1"value={conversionRate} onChange={(e) => setConversionRate(parseInt(e.target.value))} className="w-full accent-emerald-500 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer mb-4"/>
+            <div className="flex justify-between text-xs font-bold text-slate-400"><span>1%</span><span>50%</span></div>
+           </div>
+         </div>
+
+         {/* Step 4: Average Booking Value */}
+         <div>
+           <div className="flex items-center gap-3 mb-3">
+            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px]">04</div>
+            <h3 className="text-base font-semibold text-slate-900">What is your average booking value?</h3>
+           </div>
+           <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
+            <div className="relative mb-4">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">₹</div>
+              <input type="number"value={avgBookingValue} onChange={(e) => setAvgBookingValue(parseInt(e.target.value) || 0)} className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-4 py-3 text-lg font-bold text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-pd-blue/20 focus:border-pd-blue"/>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[25000, 50000, 75000, 100000, 200000].map(v => (
+               <button key={v} onClick={() => setAvgBookingValue(v)} className={`px-4 py-1.5 rounded-lg text-xs font-bold border transition-colors ${avgBookingValue === v ? 'bg-pd-blue text-white border-pd-blue' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-100'}`}>₹{v / 1000}K</button>
+              ))}
+            </div>
+           </div>
+         </div>
+        </div>
+
+        {/* Right side: Results */}
+        <div className="lg:col-span-5 flex flex-col gap-4">
+         {/* Result Card */}
+         <div className="bg-slate-900 rounded-3xl shadow-2xl overflow-hidden relative border border-slate-800">
+           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 blur-3xl rounded-full mix-blend-screen pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
+           <div className="absolute bottom-0 left-0 w-64 h-64 bg-pd-blue/20 blur-3xl rounded-full mix-blend-screen pointer-events-none translate-y-1/2 -translate-x-1/2"></div>
+           
+           <div className="p-6 sm:p-8 relative z-10">
+            <div className="text-[10px] font-bold tracking-widest text-emerald-400 uppercase mb-6 flex items-center gap-2">
+              <TrendingUp size={14} /> YOUR ESTIMATED OPPORTUNITY
+            </div>
+            
+            <div className="grid grid-cols-2 gap-6 mb-8">
+              <div>
+               <AnimatePresence mode="popLayout">
+                 <motion.div key={monthlyLeads} initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-3xl sm:text-4xl font-bold text-white mb-1">{monthlyLeads}</motion.div>
+               </AnimatePresence>
+               <div className="text-xs font-semibold text-slate-400">Potential Leads</div>
+              </div>
+              <div>
+               <AnimatePresence mode="popLayout">
+                 <motion.div key={potentialBookings} initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-3xl sm:text-4xl font-bold text-white mb-1">
+                  {potentialBookings < 1 ? '<1' : Math.floor(potentialBookings)}
+                  {Math.floor(potentialBookings) !== Math.ceil(potentialBookings) && `–${Math.ceil(potentialBookings)}`}
+                 </motion.div>
+               </AnimatePresence>
+               <div className="text-xs font-semibold text-slate-400">Potential Bookings</div>
+              </div>
+            </div>
+            
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+              <div className="text-xs font-semibold text-slate-400 mb-2">Estimated Business Opportunity</div>
+              <AnimatePresence mode="popLayout">
+               <motion.div key={estimatedRevenue} initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-linear-to-r from-pd-blue via-purple-500 to-pd-pink tracking-tight">
+                 {formatCurrency(estimatedRevenue)}
+               </motion.div>
+              </AnimatePresence>
+            </div>
+            
+            <div className="flex items-start gap-3 p-4 bg-slate-800/50 rounded-xl border border-slate-700/50">
+              <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center shrink-0 mt-0.5"><Users size={12} className="text-slate-300"/></div>
+              <p className="text-xs text-slate-300 leading-relaxed font-semibold">
+               At {monthlyLeads} enquiries per month and a {conversionRate}% conversion rate, your inputs indicate approximately {Math.max(1, Math.floor(potentialBookings))}–{Math.max(1, Math.ceil(potentialBookings))} potential bookings for a <span className="text-white">{venueType}</span>.
+              </p>
+            </div>
+           </div>
+         </div>
+
+         {/* Funnel Vis */}
+         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 p-6">
+           <div className="text-center font-bold text-xs text-slate-900 mb-4">Opportunity Visualization</div>
+           <div className="flex flex-col items-center gap-1.5">
+            <div className="px-4 py-2 bg-slate-50 text-slate-600 rounded-lg border border-slate-200 text-xs font-semibold w-full text-center">Customer Searches</div>
+            <ArrowDown size={14} className="text-slate-300"/>
+            <div className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-100 text-xs font-bold w-[90%] text-center">{monthlyLeads} Enquiries</div>
+            <ArrowDown size={14} className="text-blue-300"/>
+            <div className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 text-xs font-bold w-[80%] text-center">{Math.max(1, Math.floor(potentialBookings))}–{Math.max(1, Math.ceil(potentialBookings))} Bookings</div>
+            <ArrowDown size={14} className="text-emerald-300"/>
+            <div className="px-4 py-2.5 bg-[#F43F5E] text-white rounded-lg shadow-md shadow-[#F43F5E]/20 text-sm font-bold w-[70%] text-center">
+              {formatCurrency(estimatedRevenue)}
+            </div>
+           </div>
+         </div>
+
+         <p className="text-[10px] text-slate-400 text-center leading-relaxed px-4">
+           <strong>Illustrative estimate only.</strong> Actual results may vary based on venue type, location, pricing, customer demand, availability, enquiry quality, and conversion rate. PartyDial does not guarantee a specific number of leads, bookings, or revenue.
+         </p>
+        </div>
+      </div>
+      
+      {/* CTA */}
+      <div className="mt-12 lg:mt-16 max-w-3xl mx-auto text-center">
+        <h3 className="text-xl md:text-3xl font-semibold font-sf text-slate-900 mb-3">Ready to Explore Your Opportunity?</h3>
+        <p className="text-slate-500 text-sm mb-6">Create your partner profile and start showcasing your venue to potential customers.</p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+         <Link href="/register"className="w-full sm:w-auto">
+           <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto px-6 py-3 bg-[#F43F5E] hover:bg-[#e11d48] text-white rounded-xl font-semibold font-pd text-sm shadow-lg shadow-[#F43F5E]/20 flex items-center justify-center transition-all">
+            Become a PartyDial Partner →
+           </motion.button>
+         </Link>
+         <Link href="/login"className="w-full sm:w-auto">
+           <button className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-slate-50 text-slate-700 rounded-xl font-semibold font-pd text-sm border border-slate-200 shadow-sm flex items-center justify-center transition-all">
+            Explore Partner Dashboard →
+           </button>
+         </Link>
+        </div>
+      </div>
+
+     </div>
+   </section>
+  );
 };
 
 export default function PartnerLandingPage() {
-   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-   const [showSticky, setShowSticky] = useState(false);
+  const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [showSticky, setShowSticky] = useState(false);
 
-   useEffect(() => {
-      const handleScroll = () => {
-         setShowSticky(window.scrollY > 400);
-      };
-      window.addEventListener('scroll', handleScroll);
-      return () => window.removeEventListener('scroll', handleScroll);
-   }, []);
+  useEffect(() => {
+   const handleScroll = () => {
+     setShowSticky(window.scrollY > 400);
+   };
+   window.addEventListener('scroll', handleScroll);
+   return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-   return (
-      <div suppressHydrationWarning className="bg-slate-50 min-h-screen text-slate-800 selection:bg-pd-pink selection:text-white">
+  return (
+   <div suppressHydrationWarning className="bg-slate-50 min-h-screen text-slate-800 selection:bg-pd-pink selection:text-white">
 
-         {/* 1. HERO SECTION */}
-         <section className="relative min-h-[90vh] flex items-center py-20 lg:py-0 overflow-hidden bg-white border-b border-slate-100">
-            {/* Subtle Background Elements */}
-            <div className="absolute inset-0 z-0 overflow-hidden">
-               <motion.div 
-                  animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }} 
-                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} 
-                  className="absolute left-0 right-0 top-0 -z-10 m-auto h-77.5 w-77.5 rounded-full pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/40 to-transparent"
-               ></motion.div>
-               <motion.div 
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }} 
-                  transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }} 
-                  className="absolute left-1/2 right-0 bottom-0 -z-10 m-auto h-100 w-100 rounded-full pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-blue/40 to-transparent"
-               ></motion.div>
+     {/* 1. NEW SAAS-STYLE HERO SECTION */}
+     <section className="relative min-h-screen flex items-center pt-28 pb-16 lg:py-24 overflow-hidden bg-slate-50 border-b border-slate-100">
+      {/* Premium SaaS Background Gradients & Grids */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-32 right-0 w-200 h-200 rounded-full bg-linear-to-bl from-pd-pink/15 via-purple-500/10 to-transparent blur-3xl"/>
+        <div className="absolute top-1/4 -left-32 w-150 h-150 rounded-full bg-linear-to-tr from-pd-blue/15 via-emerald-400/10 to-transparent blur-3xl"/>
+        
+        {/* Floating Abstract Shapes */}
+        <motion.div 
+          animate={{ y: [0, -30, 0], rotate: [0, 10, 0] }} 
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[15%] right-[45%] w-40 h-40 bg-linear-to-tr from-pd-pink/20 to-purple-500/20 rounded-full blur-2xl"
+        />
+        <motion.div 
+          animate={{ y: [0, 40, 0], scale: [1, 1.05, 1] }} 
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute bottom-[20%] left-[25%] w-64 h-64 bg-linear-to-bl from-pd-blue/20 to-cyan-400/10 rounded-full blur-3xl"
+        />
+        <motion.div 
+          animate={{ x: [0, 25, 0], rotate: [0, -15, 0] }} 
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute top-[10%] left-[10%] w-32 h-32 bg-linear-to-tr from-amber-400/10 to-rose-400/10 rounded-full blur-2xl"
+        />
+
+        {/* Subtle background tech grid */}
+        <div 
+         className="absolute inset-0 opacity-[0.03]"
+         style={{ backgroundImage: 'linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+        />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,#f8fafc_80%)]"/>
+      </div>
+
+      <div className="max-w-360 w-full mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-12 lg:gap-8 relative z-10">
+        
+        {/* Left Column: Messaging (45%) */}
+        <motion.div
+         initial={{ opacity: 0, y: 30 }}
+         animate={{ opacity: 1, y: 0 }}
+         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+         className="w-full lg:w-[45%] flex flex-col items-start lg:pr-8"
+        >
+         <h1 className="text-4xl sm:text-5xl md:text-[56px] font-semibold font-sf text-slate-900 tracking-tight leading-[1.1] mb-6">
+           Turn Your Venue Into a <br />
+           <span className="relative inline-block mt-2">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-600 to-pd-blue">
+              High-Visibility
+            </span> Business
+           </span>
+         </h1>
+
+         <p className="text-base sm:text-lg text-slate-600 font-normal font-pd mb-8 max-w-lg leading-relaxed">
+           Get discovered by customers looking for venues, receive qualified enquiries, and manage your business through PartyDial’s powerful partner platform.
+         </p>
+
+         <div className="w-full flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-4">
+           <Link href="/login"className="w-full sm:w-auto">
+            <motion.button
+              whileHover={{ scale: 1.02, translateY: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full sm:w-auto px-8 py-4 bg-pd-pink hover:bg-rose-600 text-white rounded-2xl font-semibold font-pd text-sm flex items-center justify-center gap-2 transition-all shadow-xl shadow-pd-pink/20 hover:shadow-pd-pink/40 group cursor-pointer"
+            >
+              <span>Become a PartyDial Partner</span>
+              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform"/>
+            </motion.button>
+           </Link>
+
+           <button 
+            onClick={() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' })}
+            className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl font-semibold font-pd text-sm border border-slate-200 shadow-sm flex items-center justify-center transition-all hover:border-slate-300 cursor-pointer"
+           >
+            Calculate Your Revenue
+           </button>
+         </div>
+         
+         <p className="text-xs text-slate-500 font-normal font-pd">
+           Start growing your venue with PartyDial.
+         </p>
+        </motion.div>
+
+        {/* Right Column: Interactive SaaS Dashboard (55%) */}
+        <motion.div
+         initial={{ opacity: 0, scale: 0.95 }}
+         animate={{ opacity: 1, scale: 1 }}
+         transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+         className="w-full lg:w-[55%] relative mt-8 lg:mt-0"
+        >
+         {/* Floating Storytelling Cards */}
+         
+         {/* Card 1: New Enquiry (Top Left) */}
+         <motion.div 
+           initial={{ opacity: 0, x: -20, y: 10 }}
+           animate={{ opacity: 1, x: 0, y: 0 }}
+           transition={{ delay: 1, duration: 0.5 }}
+           className="absolute -left-4 md:-left-12 -top-6 md:-top-10 z-20 bg-white p-3 md:p-4 rounded-2xl shadow-xl border border-slate-100 flex items-start gap-3 w-48 md:w-56 animate-float-slow"
+         >
+           <div className="w-8 h-8 rounded-full bg-pd-pink/10 text-pd-pink flex items-center justify-center shrink-0">
+            <Heart size={14} fill="currentColor"/>
+           </div>
+           <div>
+            <p className="text-[10px] md:text-xs font-semibold font-pd text-slate-900 leading-tight">New Enquiry</p>
+            <p className="text-[9px] md:text-[10px] font-normal font-pd text-slate-500 mt-0.5">Wedding · 250 Guests</p>
+            <p className="text-[9px] md:text-[10px] font-semibold font-pd text-pd-pink mt-1 cursor-pointer">View Enquiry →</p>
+           </div>
+         </motion.div>
+
+         {/* Card 2: New Booking (Bottom Left) */}
+         <motion.div 
+           initial={{ opacity: 0, x: -20, y: -10 }}
+           animate={{ opacity: 1, x: 0, y: 0 }}
+           transition={{ delay: 1.5, duration: 0.5 }}
+           className="absolute -left-2 md:-left-8 bottom-12 md:bottom-20 z-20 bg-white p-3 md:p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3 animate-float-fast"
+         >
+           <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+            <CheckCircle2 size={16} />
+           </div>
+           <div>
+            <p className="text-[10px] md:text-xs font-semibold font-pd text-slate-900 leading-tight">Booking Confirmed</p>
+            <p className="text-[9px] md:text-[10px] font-normal font-pd text-slate-500 mt-0.5">18 Oct · 250 Pax</p>
+           </div>
+         </motion.div>
+
+         {/* Card 3: Profile Visibility (Top Right) */}
+         <motion.div 
+           initial={{ opacity: 0, x: 20, y: 10 }}
+           animate={{ opacity: 1, x: 0, y: 0 }}
+           transition={{ delay: 1.2, duration: 0.5 }}
+           className="absolute -right-4 md:-right-8 top-1/4 z-20 bg-white p-3 md:p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3 animate-float-slow"
+           style={{ animationDelay: '1s' }}
+         >
+           <div className="w-8 h-8 rounded-full bg-pd-blue/10 text-pd-blue flex items-center justify-center shrink-0">
+            <Eye size={14} />
+           </div>
+           <div>
+            <p className="text-[10px] md:text-xs font-normal font-pd text-slate-500 leading-tight">Profile Views</p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-sm md:text-base font-semibold font-pd text-slate-900">
+               <AnimatedCounter end={486} />
+              </span>
+              <span className="text-[9px] md:text-[10px] font-semibold font-pd text-emerald-500">+24.8%</span>
+            </div>
+           </div>
+         </motion.div>
+
+         {/* Card 4: Revenue (Bottom Right) */}
+         <motion.div 
+           initial={{ opacity: 0, x: 20, y: -10 }}
+           animate={{ opacity: 1, x: 0, y: 0 }}
+           transition={{ delay: 1.8, duration: 0.5 }}
+           className="absolute -right-2 md:-right-10 bottom-0 md:-bottom-6 z-20 bg-white p-3 md:p-4 rounded-2xl shadow-xl border border-slate-100 flex items-start gap-3 animate-float-fast"
+           style={{ animationDelay: '2s' }}
+         >
+           <div className="w-8 h-8 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+            <TrendingUp size={14} />
+           </div>
+           <div>
+            <p className="text-[10px] md:text-xs font-normal font-pd text-slate-500 leading-tight">Booking Value</p>
+            <p className="text-sm md:text-base font-semibold font-pd text-slate-900 mt-0.5">₹42,500</p>
+           </div>
+         </motion.div>
+
+         {/* Main Dashboard Mockup */}
+         <div className="w-full bg-white rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-slate-200 overflow-hidden relative">
+           {/* Window Header */}
+           <div className="h-10 bg-slate-50 border-b border-slate-100 flex items-center justify-between px-4">
+            <div className="flex gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-slate-200"/>
+              <div className="w-2.5 h-2.5 rounded-full bg-slate-200"/>
+              <div className="w-2.5 h-2.5 rounded-full bg-slate-200"/>
+            </div>
+            <div className="text-[10px] font-semibold font-pd text-slate-400">PartyDial Partner</div>
+            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 rounded-full border border-emerald-100">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping absolute"/>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 relative"/>
+              <span className="text-[8px] font-semibold font-pd text-emerald-600 uppercase tracking-widest">Live</span>
+            </div>
+           </div>
+
+           {/* Dashboard Content */}
+           <div className="p-6 md:p-8 bg-slate-50/50">
+            <div className="mb-6">
+              <h3 className="text-lg md:text-xl font-semibold font-sf text-slate-900">Good Morning, Partner 👋</h3>
+              <p className="text-xs md:text-sm text-slate-500 font-normal font-pd">Here&apos;s your business overview</p>
             </div>
 
-            <div className="max-w-360 w-full mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center relative z-10">
-               {/* Left Side: Information */}
-               <motion.div
-                  initial={{ opacity: 0, x: -40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                  className="relative py-4 lg:py-6"
-               >
-                  <motion.div
-                     initial={{ opacity: 0, y: 10 }}
-                     animate={{ opacity: 1, y: 0 }}
-                     transition={{ delay: 0.2, duration: 0.5 }}
-                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm mb-8"
-                  >
-                     <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                     <span className="text-xs font-semibold text-slate-700 tracking-wide">New: Verified Partner Program</span>
-                     <ArrowRight size={14} className="text-slate-400" />
-                  </motion.div>
+            {/* Metric Grid */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {/* Leads */}
+              <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group/metric">
+               <div className="absolute top-0 right-0 w-16 h-16 bg-pd-pink/5 rounded-bl-full transition-transform group-hover/metric:scale-110"/>
+               <p className="text-[10px] md:text-xs font-normal font-pd text-slate-500 mb-1">New Leads</p>
+               <div className="flex items-end gap-2">
+                 <span className="text-2xl md:text-3xl font-semibold font-pd text-slate-900"><AnimatedCounter end={28} /></span>
+                 <span className="text-[9px] md:text-[10px] font-semibold font-pd text-emerald-500 mb-1">+18.4%</span>
+               </div>
+              </div>
+              
+              {/* Views */}
+              <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group/metric">
+               <div className="absolute top-0 right-0 w-16 h-16 bg-pd-blue/5 rounded-bl-full transition-transform group-hover/metric:scale-110"/>
+               <p className="text-[10px] md:text-xs font-normal font-pd text-slate-500 mb-1">Profile Views</p>
+               <div className="flex items-end gap-2">
+                 <span className="text-2xl md:text-3xl font-semibold font-pd text-slate-900"><AnimatedCounter end={486} /></span>
+                 <span className="text-[9px] md:text-[10px] font-semibold font-pd text-emerald-500 mb-1">+24.8%</span>
+               </div>
+              </div>
 
-                  <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-6">
-                     Scale Your Venue&apos;s <br />
-                     <span className="relative inline-block mt-2">
-                        <span className="relative z-10 text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-500 to-pd-blue">
-                           Party Bookings
-                        </span>
-                        <span className="absolute -bottom-2 left-0 w-full h-3 bg-pd-pink/10 z-0 rounded-full blur-sm"></span>
-                     </span>
-                  </h1>
+              {/* Enquiries */}
+              <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group/metric">
+               <div className="absolute top-0 right-0 w-16 h-16 bg-purple-500/5 rounded-bl-full transition-transform group-hover/metric:scale-110"/>
+               <p className="text-[10px] md:text-xs font-normal font-pd text-slate-500 mb-1">Enquiries</p>
+               <div className="flex items-end gap-2">
+                 <span className="text-2xl md:text-3xl font-semibold font-pd text-slate-900"><AnimatedCounter end={17} /></span>
+                 <span className="text-[9px] md:text-[10px] font-semibold font-pd text-emerald-500 mb-1">+12.5%</span>
+               </div>
+              </div>
 
-                  <p className="text-lg md:text-xl text-slate-500 font-medium mb-10 max-w-lg leading-relaxed">
-                     Transform empty slots into guaranteed revenue. Connect with thousands of verified, high-intent customers actively searching for venues in your city.
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center">
-                     <Link href="/login">
-                        <motion.button
-                           whileHover={{ scale: 1.02, boxShadow: "0 20px 40px -10px rgba(233,30,140,0.3)" }}
-                           whileTap={{ scale: 0.98 }}
-                           className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold tracking-wide flex items-center gap-3 transition-all hover:bg-slate-800"
-                        >
-                           Start Receiving Leads
-                           <ArrowRight size={18} />
-                        </motion.button>
-                     </Link>
-                     <div className="flex items-center gap-4 px-5 py-3 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                        <div className="flex -space-x-2">
-                           {[1, 2, 3].map(i => <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden"><Image src={`https://i.pravatar.cc/100?u=${i + 20}`} alt="user" width={32} height={32} /></div>)}
-                        </div>
-                        <div className="flex flex-col">
-                           <div className="flex items-center gap-1 text-amber-400">
-                              {[1, 2, 3, 4, 5].map(s => <Star key={s} size={10} className="fill-current" />)}
-                           </div>
-                           <span className="text-[10px] font-bold text-slate-500">Trusted by 500+ Owners</span>
-                        </div>
-                     </div>
-                  </div>
-               </motion.div>
-
-               {/* Right Side: Enquiry Form */}
-               <motion.div
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="w-full max-w-md mx-auto lg:ml-auto lg:mr-0 mt-12 lg:mt-0 relative"
-               >
-                  {/* Decorative background blobs behind the form */}
-                  <div className="absolute -top-10 -right-10 w-40 h-40 bg-pd-pink/20 rounded-full blur-2xl pointer-events-none" />
-                  <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-pd-blue/20 rounded-full blur-2xl pointer-events-none" />
-
-                  <div className="bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100/60 p-8 relative overflow-hidden backdrop-blur-xl">
-                     <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-pd-pink/10 to-pd-blue/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
-                     
-                     <h3 className="text-2xl font-black text-slate-800 mb-2">Partner Enquiry</h3>
-                     <p className="text-sm text-slate-500 mb-8 font-medium">Fill in your details and our onboarding team will get back to you within 24 hours.</p>
-
-                     <form className="space-y-4 relative z-10" onSubmit={(e) => e.preventDefault()}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                           <div className="space-y-1">
-                              <label className="text-xs font-bold text-slate-700 ml-1">Your Name *</label>
-                              <input type="text" required placeholder="John Doe" className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 placeholder:font-normal" />
-                           </div>
-                           <div className="space-y-1">
-                              <label className="text-xs font-bold text-slate-700 ml-1">Phone Number *</label>
-                              <input type="tel" required placeholder="+91 98765 43210" className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 placeholder:font-normal" />
-                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                           <div className="space-y-1">
-                              <label className="text-xs font-bold text-slate-700 ml-1">Email Address</label>
-                              <input type="email" placeholder="john@example.com" className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 placeholder:font-normal" />
-                           </div>
-                           <div className="space-y-1">
-                              <label className="text-xs font-bold text-slate-700 ml-1">Business Name *</label>
-                              <input type="text" required placeholder="The Grand Banquet" className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 placeholder:font-normal" />
-                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                           <div className="space-y-1">
-                              <label className="text-xs font-bold text-slate-700 ml-1">City *</label>
-                              <input type="text" required placeholder="Mumbai" className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 placeholder:font-normal" />
-                           </div>
-                           <div className="space-y-1">
-                              <label className="text-xs font-bold text-slate-700 ml-1">Service Category *</label>
-                              <select required defaultValue="" className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 appearance-none">
-                                 <option value="" disabled>Select Category</option>
-                                 <option value="venue">Venue Provider</option>
-                                 <option value="catering">Catering Service</option>
-                                 <option value="decor">Event Decorator</option>
-                                 <option value="photo">Photography</option>
-                                 <option value="makeup">Makeup Artist</option>
-                                 <option value="other">Other</option>
-                              </select>
-                           </div>
-                        </div>
-
-                        <div className="space-y-1">
-                           <label className="text-xs font-bold text-slate-700 ml-1">Message (Optional)</label>
-                           <textarea placeholder="Tell us a bit about your business..." rows={3} className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink focus:bg-white transition-all font-medium text-slate-800 placeholder:font-normal resize-none"></textarea>
-                        </div>
-
-                        <button type="submit" className="w-full bg-pd-pink text-white rounded-xl py-3.5 mt-6 font-black text-sm hover:bg-pd-red transition-all shadow-lg shadow-pd-pink/30 hover:shadow-pd-pink/50 hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                           Request Callback <ArrowRight size={16} strokeWidth={3} />
-                        </button>
-                     </form>
-                     <p className="text-[10px] text-center text-slate-400 mt-6 font-medium">By submitting, you agree to our <Link href="/terms-of-service" className="underline hover:text-pd-pink">Terms & Conditions</Link>.</p>
-                  </div>
-               </motion.div>
+              {/* Bookings */}
+              <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group/metric">
+               <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/5 rounded-bl-full transition-transform group-hover/metric:scale-110"/>
+               <p className="text-[10px] md:text-xs font-normal font-pd text-slate-500 mb-1">Bookings</p>
+               <div className="flex items-end gap-2">
+                 <span className="text-2xl md:text-3xl font-semibold font-pd text-slate-900"><AnimatedCounter end={6} /></span>
+                 <span className="text-[9px] md:text-[10px] font-semibold font-pd text-emerald-500 mb-1">+20.0%</span>
+               </div>
+              </div>
             </div>
-         </section>
 
-
-         {/* ABOUT PARTYDIAL SECTION (FOR VENDORS) */}
-         <section className="py-24 px-6 lg:px-12 bg-white overflow-hidden relative">
-            {/* Decorative Background Elements */}
-            <div className="absolute top-0 right-0 w-200 h-200 bg-pd-pink/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-150 h-150 bg-pd-blue/5 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3 pointer-events-none" />
-
-            <div className="max-w-[1600px] mx-auto relative z-10">
-               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                  
-                  {/* Left Side: Content */}
-                  <motion.div 
-                     initial={{ opacity: 0, x: -40 }}
-                     whileInView={{ opacity: 1, x: 0 }}
-                     viewport={{ once: true, margin: "-100px" }}
-                     transition={{ duration: 0.8 }}
-                     className="max-w-2xl"
-                  >
-                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-100 text-pd-pink text-[11px] font-bold uppercase tracking-[0.2em] mb-6">
-                        About Us
-                     </div>
-                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-slate-900 mb-6 leading-[1.1] tracking-tight">
-                        Redefining <span className="pd-gradient-text">Growth</span>. <br />
-                        The PartyDial Way.
-                     </h2>
-                     <p className="text-lg md:text-xl text-slate-500 font-medium leading-relaxed mb-8">
-                        PartyDial is India&apos;s most trusted platform for discovering and booking premium event spaces and services. We eliminate the guesswork from lead generation, bringing you verified customers, transparent bookings, and unparalleled support.
-                     </p>
-                     
-                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-                        <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 hover:border-pd-pink/30 hover:shadow-lg transition-all group">
-                           <h4 className="text-4xl font-semibold text-slate-900 mb-2 group-hover:text-pd-pink transition-colors">50K+</h4>
-                           <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Monthly Leads</p>
-                        </div>
-                        <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 hover:border-pd-blue/30 hover:shadow-lg transition-all group">
-                           <h4 className="text-4xl font-semibold text-slate-900 mb-2 group-hover:text-pd-blue transition-colors">10K+</h4>
-                           <p className="text-sm font-bold text-slate-500 uppercase tracking-wide">Verified Partners</p>
-                        </div>
-                     </div>
-
-                     <Link href="/about">
-                        <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-semibold tracking-wide flex items-center gap-3 transition-all hover:bg-pd-pink shadow-xl shadow-slate-900/20 hover:shadow-pd-pink/40 hover:-translate-y-1">
-                           Learn More About Us <ArrowRight size={18} />
-                        </button>
-                     </Link>
-                  </motion.div>
-
-                  {/* Right Side: Bento Grid Features */}
-                  <motion.div 
-                     initial={{ opacity: 0, x: 40 }}
-                     whileInView={{ opacity: 1, x: 0 }}
-                     viewport={{ once: true, margin: "-100px" }}
-                     transition={{ duration: 0.8, delay: 0.2 }}
-                     className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10 lg:mt-0 pb-8 sm:pb-0"
-                  >
-                     <div className="bg-white rounded-3xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 hover:-translate-y-1 transition-transform group">
-                        <div className="w-12 h-12 rounded-2xl bg-pd-pink/10 flex items-center justify-center text-pd-pink mb-4 group-hover:scale-110 transition-transform">
-                           <ShieldCheck size={24} />
-                        </div>
-                        <h4 className="text-lg font-semibold text-slate-800 mb-2">Verified Customers</h4>
-                        <p className="text-sm text-slate-500 font-medium">Every lead is OTP-verified and matched precisely to your venue criteria.</p>
-                     </div>
-
-                     <div className="bg-white rounded-3xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 hover:-translate-y-1 transition-transform group sm:translate-y-8">
-                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4 group-hover:scale-110 transition-transform">
-                           <TrendingUp size={24} />
-                        </div>
-                        <h4 className="text-lg font-semibold text-slate-800 mb-2">Higher ROI</h4>
-                        <p className="text-sm text-slate-500 font-medium">Zero listing fees. You only pay for confirmed, high-value bookings.</p>
-                     </div>
-
-                     <div className="bg-white rounded-3xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 hover:-translate-y-1 transition-transform group">
-                        <div className="w-12 h-12 rounded-2xl bg-pd-blue/10 flex items-center justify-center text-pd-blue mb-4 group-hover:scale-110 transition-transform">
-                           <LayoutDashboard size={24} />
-                        </div>
-                        <h4 className="text-lg font-semibold text-slate-800 mb-2">Smart Dashboard</h4>
-                        <p className="text-sm text-slate-500 font-medium">Manage leads, availability, and payments in one intuitive platform.</p>
-                     </div>
-
-                     <div className="bg-white rounded-3xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-100 hover:-translate-y-1 transition-transform group sm:translate-y-8">
-                        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4 group-hover:scale-110 transition-transform">
-                           <Heart size={24} />
-                        </div>
-                        <h4 className="text-lg font-semibold text-slate-800 mb-2">Dedicated Support</h4>
-                        <p className="text-sm text-slate-500 font-medium">Your success is our priority with 24/7 dedicated account management.</p>
-                     </div>
-                  </motion.div>
-
+            {/* Revenue Section */}
+            <div className="bg-white p-5 md:p-6 rounded-2xl border border-slate-100 shadow-sm">
+              <div className="flex justify-between items-start mb-4">
+               <div>
+                 <p className="text-[10px] md:text-xs font-normal font-pd text-slate-500 mb-1">Estimated Revenue</p>
+                 <p className="text-xl md:text-2xl font-semibold font-pd text-slate-900">₹<AnimatedCounter end={180000} duration={2500} /></p>
                </div>
+               <div className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-md text-[9px] md:text-[10px] font-semibold font-pd flex items-center gap-1">
+                 <TrendingUp size={10} /> +24.6% this month
+               </div>
+              </div>
+              
+              {/* Revenue Chart Animation */}
+              <div className="w-full h-24 mt-2 relative">
+               <svg className="w-full h-full overflow-visible"preserveAspectRatio="none"viewBox="0 0 400 100">
+                 <defs>
+                  <linearGradient id="chartGradient"x1="0"y1="0"x2="0"y2="1">
+                    <stop offset="0%"stopColor="#f43f5e"stopOpacity="0.2"/>
+                    <stop offset="100%"stopColor="#f43f5e"stopOpacity="0"/>
+                  </linearGradient>
+                 </defs>
+                 {/* Grid lines */}
+                 <line x1="0"y1="25"x2="400"y2="25"stroke="#f1f5f9"strokeWidth="1"strokeDasharray="4 4"/>
+                 <line x1="0"y1="50"x2="400"y2="50"stroke="#f1f5f9"strokeWidth="1"strokeDasharray="4 4"/>
+                 <line x1="0"y1="75"x2="400"y2="75"stroke="#f1f5f9"strokeWidth="1"strokeDasharray="4 4"/>
+                 
+                 {/* Area under line */}
+                 <motion.path 
+                  d="M0,80 C50,70 100,90 150,60 C200,30 250,50 300,20 C350,-10 400,10 400,10 L400,100 L0,100 Z"
+                  fill="url(#chartGradient)"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                 />
+                 
+                 {/* Line chart */}
+                 <motion.path 
+                  d="M0,80 C50,70 100,90 150,60 C200,30 250,50 300,20 C350,-10 400,10 400,10"
+                  fill="none"
+                  stroke="#f43f5e"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 1.5, ease:"easeOut", delay: 0.2 }}
+                 />
+                 
+                 {/* Points */}
+                 <motion.circle cx="150"cy="60"r="4"fill="white"stroke="#f43f5e"strokeWidth="2"initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.8 }} />
+                 <motion.circle cx="300"cy="20"r="4"fill="white"stroke="#f43f5e"strokeWidth="2"initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.2 }} />
+                 <motion.circle cx="400"cy="10"r="4"fill="white"stroke="#f43f5e"strokeWidth="2"initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.6 }} />
+               </svg>
+              </div>
             </div>
-         </section>
+           </div>
+         </div>
+        </motion.div>
+      </div>
+     </section>
 
-         {/* BENEFITS OF PARTYDIAL SECTION */}
-         <section id="benefits" className="relative py-12 md:py-16 px-6 bg-slate-50 overflow-hidden">
-            {/* Background Accents */}
-            <div className="absolute top-0 right-0 w-200 h-200 bg-pd-pink/10 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/4"></div>
-            <div className="absolute bottom-0 left-0 w-200 h-200 bg-pd-blue/10 rounded-full blur-[120px] pointer-events-none translate-y-1/2 -translate-x-1/4"></div>
-            
-            <div className="max-w-360 mx-auto lg:px-12 relative z-10">
-               <div className="text-center mb-10 md:mb-14">
-                  <motion.div 
-                     initial={{ opacity: 0, y: 20 }}
-                     whileInView={{ opacity: 1, y: 0 }}
-                     viewport={{ once: true }}
-                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-md border border-slate-100 text-pd-pink text-xs font-semibold uppercase tracking-widest mb-6"
-                  >
-                     Why Choose Us
-                  </motion.div>
-                  <motion.h2 
-                     initial={{ opacity: 0, y: 20 }}
-                     whileInView={{ opacity: 1, y: 0 }}
-                     viewport={{ once: true }}
-                     transition={{ delay: 0.1 }}
-                     className="text-4xl md:text-5xl lg:text-7xl font-semibold text-[#0F172A] tracking-tight mb-6"
-                  >
-                     Benefits of <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue">PartyDial</span>
-                  </motion.h2>
-                  <motion.p 
-                     initial={{ opacity: 0, y: 20 }}
-                     whileInView={{ opacity: 1, y: 0 }}
-                     viewport={{ once: true }}
-                     transition={{ delay: 0.2 }}
-                     className="text-slate-500 text-base md:text-lg lg:text-xl font-normal max-w-2xl mx-auto leading-relaxed"
-                  >
-                     We equip you with a high-performance growth engine designed to dominate your local market and skyrocket your venue&apos;s revenue.
-                  </motion.p>
-               </div>
 
-               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {[
-                     {
-                        title: "10x More Exposure",
-                        desc: "Get discovered by thousands of customers actively searching for event venues in your city every single day.",
-                        icon: <Target size={32} />,
-                        color: "text-pd-pink",
-                        bg: "bg-pd-pink/10",
-                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(244,63,94,0.3)]"
-                     },
-                     {
-                        title: "Verified High-Intent Leads",
-                        desc: "Say goodbye to window shoppers. Every inquiry is strictly phone-verified and actively looking to book.",
-                        icon: <ShieldCheck size={32} />,
-                        color: "text-emerald-500",
-                        bg: "bg-emerald-500/10",
-                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)]"
-                     },
-                     {
-                        title: "Zero Setup Cost",
-                        desc: "Launch your verified profile instantly without any upfront investment. We only succeed when you close bookings.",
-                        icon: <Building2 size={32} />,
-                        color: "text-blue-500",
-                        bg: "bg-blue-500/10",
-                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(59,130,246,0.3)]"
-                     },
-                     {
-                        title: "Smart Dashboard",
-                        desc: "Manage all your leads, track revenue, and monitor your venue's performance in one intuitive interface.",
-                        icon: <LayoutDashboard size={32} />,
-                        color: "text-pd-blue",
-                        bg: "bg-pd-blue/10",
-                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.3)]"
-                     },
-                     {
-                        title: "Real-Time Alerts",
-                        desc: "Never miss a booking. Get instant app and email notifications the second a new lead is generated.",
-                        icon: <Zap size={32} />,
-                        color: "text-amber-500",
-                        bg: "bg-amber-500/10",
-                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.3)]"
-                     },
-                     {
-                        title: "Dedicated Success Manager",
-                        desc: "Get 1-on-1 strategic support from industry experts to help optimize your listing and pricing strategy.",
-                        icon: <Users size={32} />,
-                        color: "text-purple-500",
-                        bg: "bg-purple-500/10",
-                        glow: "group-hover:shadow-[0_20px_40px_-15px_rgba(168,85,247,0.3)]"
-                     }
-                  ].map((benefit, i) => (
-                     <motion.div
-                        key={i}
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: i * 0.1, duration: 0.5 }}
-                        whileHover={{ y: -10 }}
-                        className={`group relative p-6 lg:p-8 rounded-4xl bg-white border border-slate-100 transition-all duration-500 ${benefit.glow} hover:border-transparent cursor-default`}
-                     >
-                        <div className="absolute inset-0 bg-linear-to-br from-white to-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 rounded-4xl"></div>
-                        
-                        <div className="relative z-10 flex flex-col h-full">
-                           <div className={`w-16 h-16 rounded-2xl ${benefit.bg} flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-500 ${benefit.color}`}>
-                              {benefit.icon}
-                           </div>
-                           
-                           <h4 className="text-2xl font-semibold text-[#0F172A] tracking-tight mb-4">{benefit.title}</h4>
-                           <p className="text-slate-500 text-base font-normal leading-relaxed mt-auto">
-                              {benefit.desc}
-                           </p>
-                        </div>
-                     </motion.div>
-                  ))}
-               </div>
+     {/* 2. WHAT IS PARTYDIAL SECTION */}
+     <section className="py-12 lg:py-16 px-6 lg:px-12 bg-white relative overflow-hidden border-b border-slate-100">
+      {/* Background Ambient Glows */}
+      <div className="absolute top-0 right-0 w-150 h-150 bg-linear-to-bl from-pd-pink/10 via-purple-500/5 to-transparent rounded-full blur-3xl -translate-y-1/4 translate-x-1/4 pointer-events-none"/>
+      <div className="absolute bottom-0 left-0 w-150 h-150 bg-linear-to-tr from-pd-blue/10 via-emerald-400/5 to-transparent rounded-full blur-3xl translate-y-1/4 -translate-x-1/4 pointer-events-none"/>
+
+      <div className="max-w-360 mx-auto relative z-10">
+        {/* Header Section */}
+        <div className="text-center max-w-3xl mx-auto mb-10 md:mb-12">
+         <motion.div 
+           initial={{ opacity: 0, y: 15 }}
+           whileInView={{ opacity: 1, y: 0 }}
+           viewport={{ once: true }}
+           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-linear-to-r from-pd-pink/10 to-pd-blue/10 border border-pd-pink/20 text-pd-pink text-[11px] font-semibold font-pd uppercase tracking-widest mb-6"
+         >
+           <span>Why Partners Choose PartyDial</span>
+         </motion.div>
+
+         <motion.h2 
+           initial={{ opacity: 0, y: 20 }}
+           whileInView={{ opacity: 1, y: 0 }}
+           viewport={{ once: true }}
+           transition={{ delay: 0.1 }}
+           className="text-3xl sm:text-4xl lg:text-[40px] xl:text-[48px] font-semibold font-pd text-slate-900 tracking-tight leading-[1.12] mb-4"
+         >
+           Everything You Need to <br />
+           <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-600 to-pd-blue">Grow Your Venue Business</span>
+         </motion.h2>
+
+         <motion.p 
+           initial={{ opacity: 0, y: 20 }}
+           whileInView={{ opacity: 1, y: 0 }}
+           viewport={{ once: true }}
+           transition={{ delay: 0.2 }}
+           className="text-slate-600 text-sm sm:text-base lg:text-lg font-normal font-pd leading-relaxed mx-auto"
+         >
+           Attract customers, manage your enquiries, and secure more bookings—all from one powerful partner platform.
+         </motion.p>
+        </div>
+
+        {/* Core Benefits Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+         
+         {/* Card 1: Get Discovered */}
+         <motion.div 
+           initial={{ opacity: 0, y: 30 }}
+           whileInView={{ opacity: 1, y: 0 }}
+           viewport={{ once: true }}
+           transition={{ duration: 0.6 }}
+           className="group relative p-8 rounded-3xl bg-slate-50/50 border border-slate-200/80 hover:border-pd-pink/40 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+         >
+           <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-bl from-pd-pink/20 to-transparent rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500"/>
+           
+           <div className="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-pd-pink mb-6 group-hover:scale-110 transition-transform">
+            <Search size={24} />
+           </div>
+           
+           <div className="mb-6 grow">
+            <div className="text-[11px] font-semibold font-pd uppercase tracking-widest text-slate-400 mb-3">01 — Get Discovered</div>
+            <h3 className="text-xl font-semibold font-sf text-slate-900 mb-3 group-hover:text-pd-pink transition-colors">
+              Put Your Venue Where Customers Are Looking
+            </h3>
+            <p className="text-sm font-normal font-pd text-slate-600 leading-relaxed">
+              Showcase your venue to customers searching for event spaces based on their specific location and event requirements.
+            </p>
+           </div>
+
+           <div className="flex items-center text-sm font-semibold font-pd text-slate-900 group-hover:text-pd-pink transition-colors mt-auto cursor-pointer">
+            Explore Visibility <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform"/>
+           </div>
+         </motion.div>
+
+         {/* Card 2: Get Qualified Leads */}
+         <motion.div 
+           initial={{ opacity: 0, y: 30 }}
+           whileInView={{ opacity: 1, y: 0 }}
+           viewport={{ once: true }}
+           transition={{ duration: 0.6, delay: 0.1 }}
+           className="group relative p-8 rounded-3xl bg-slate-50/50 border border-slate-200/80 hover:border-pd-blue/40 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+         >
+           <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-bl from-pd-blue/20 to-transparent rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500"/>
+           
+           <div className="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-pd-blue mb-6 group-hover:scale-110 transition-transform">
+            <Target size={24} />
+           </div>
+           
+           <div className="mb-6 grow">
+            <div className="text-[11px] font-semibold font-pd uppercase tracking-widest text-slate-400 mb-3">02 — Get Qualified Leads</div>
+            <h3 className="text-xl font-semibold font-sf text-slate-900 mb-3 group-hover:text-pd-blue transition-colors">
+              Connect With Customers Who Match Your Venue
+            </h3>
+            <p className="text-sm font-normal font-pd text-slate-600 leading-relaxed">
+              Receive relevant, high-quality enquiries containing important customer details like guest capacity and budget.
+            </p>
+           </div>
+
+           <div className="flex items-center text-sm font-semibold font-pd text-slate-900 group-hover:text-pd-blue transition-colors mt-auto cursor-pointer">
+            See How Leads Work <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform"/>
+           </div>
+         </motion.div>
+
+         {/* Card 3: Get More Bookings */}
+         <motion.div 
+           initial={{ opacity: 0, y: 30 }}
+           whileInView={{ opacity: 1, y: 0 }}
+           viewport={{ once: true }}
+           transition={{ duration: 0.6, delay: 0.2 }}
+           className="group relative p-8 rounded-3xl bg-slate-50/50 border border-slate-200/80 hover:border-emerald-500/40 shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+         >
+           <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-bl from-emerald-500/20 to-transparent rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500"/>
+           
+           <div className="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 transition-transform">
+            <TrendingUp size={24} />
+           </div>
+           
+           <div className="mb-6 grow">
+            <div className="text-[11px] font-semibold font-pd uppercase tracking-widest text-slate-400 mb-3">03 — Get More Bookings</div>
+            <h3 className="text-xl font-semibold font-sf text-slate-900 mb-3 group-hover:text-emerald-500 transition-colors">
+              Turn Enquiries Into Confirmed Events
+            </h3>
+            <p className="text-sm font-normal font-pd text-slate-600 leading-relaxed">
+              Manage incoming enquiries, follow up with customers, and turn genuine opportunities into confirmed bookings.
+            </p>
+           </div>
+
+           <div className="flex items-center text-sm font-semibold font-pd text-slate-900 group-hover:text-emerald-500 transition-colors mt-auto cursor-pointer">
+            Grow Your Bookings <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform"/>
+           </div>
+         </motion.div>
+        </div>
+
+        {/* Section Visual — The PartyDial Growth Loop */}
+        <motion.div 
+         initial={{ opacity: 0, scale: 0.98 }}
+         whileInView={{ opacity: 1, scale: 1 }}
+         viewport={{ once: true }}
+         transition={{ duration: 0.8 }}
+         className="w-full max-w-5xl mx-auto mt-12 md:mt-16 bg-slate-900 rounded-3xl p-8 md:p-12 mb-16 relative overflow-hidden shadow-2xl"
+        >
+         {/* Subtle Grid and Glow in dark container */}
+         <div className="absolute inset-0 opacity-10 pointer-events-none"style={{ backgroundImage: 'radial-gradient(circle at center, #ffffff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-32 bg-pd-pink/20 blur-3xl rounded-full"/>
+         
+         <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
+           
+           <div className="flex flex-col items-center gap-2 group">
+            <div className="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center group-hover:bg-white group-hover:text-slate-900 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]">
+              <Building2 size={20} />
             </div>
-         </section>
+            <span className="text-[10px] sm:text-xs font-semibold font-pd text-slate-300 group-hover:text-white text-center">Your Venue</span>
+           </div>
 
-         {/* FEATURES OF PARTYDIAL SECTION */}
-         <section id="features" className="relative py-20 md:py-24 px-6 bg-white overflow-hidden font-pd">
-            <div className="max-w-360 mx-auto lg:px-12 relative z-10">
-               <div className="text-center mb-16 md:mb-20">
-                  <motion.div 
-                     initial={{ opacity: 0, y: 20 }}
-                     whileInView={{ opacity: 1, y: 0 }}
-                     viewport={{ once: true }}
-                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 shadow-sm border border-slate-100 text-pd-blue text-xs font-semibold uppercase tracking-widest mb-6"
-                  >
-                     Powerful Tools
-                  </motion.div>
-                  <motion.h2 
-                     initial={{ opacity: 0, y: 20 }}
-                     whileInView={{ opacity: 1, y: 0 }}
-                     viewport={{ once: true }}
-                     transition={{ delay: 0.1 }}
-                     className="text-4xl md:text-5xl lg:text-7xl font-semibold text-[#0F172A] tracking-tight mb-6"
-                  >
-                     Features of <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-blue to-pd-pink">PartyDial</span>
-                  </motion.h2>
-                  <motion.p 
-                     initial={{ opacity: 0, y: 20 }}
-                     whileInView={{ opacity: 1, y: 0 }}
-                     viewport={{ once: true }}
-                     transition={{ delay: 0.2 }}
-                     className="text-slate-500 text-base md:text-lg lg:text-xl font-normal max-w-2xl mx-auto leading-relaxed"
-                  >
-                     Everything you need to manage your venue, capture leads, and close more bookings seamlessly.
-                  </motion.p>
-               </div>
-
-               <div className="relative w-full overflow-hidden py-8 mt-8">
-                  {/* Fade edges for smooth entry/exit */}
-                  <div className="absolute top-0 left-0 w-32 h-full bg-linear-to-r from-white to-transparent z-10 pointer-events-none"></div>
-                  <div className="absolute top-0 right-0 w-32 h-full bg-linear-to-l from-white to-transparent z-10 pointer-events-none"></div>
-
-                  {(() => {
-                     const featuresList = [
-                        { id: "01", title: "Venue profile page", desc: "Your own branded page with photos, videos, capacity, amenities, location, and pricing information.", icon: <LayoutDashboard size={40} className="text-pd-pink" strokeWidth={1.5} /> },
-                        { id: "02", title: "Smart search filters", desc: "Customers can find you by city, locality, event type, guest count, budget, food preference, and venue category.", icon: <Filter size={40} className="text-pd-pink" strokeWidth={1.5} /> },
-                        { id: "03", title: "Enquiry management", desc: "Receive customer booking enquiries in an organised way.", icon: <MessageSquare size={40} className="text-pd-pink" strokeWidth={1.5} /> },
-                        { id: "04", title: "Photo and video gallery", desc: "Showcase your ambience, décor possibilities, food presentation, and real events.", icon: <ImageIcon size={40} className="text-pd-pink" strokeWidth={1.5} /> },
-                        { id: "05", title: "Venue categories", desc: "List for weddings, receptions, birthdays, anniversaries, corporate events, kitty parties, and more.", icon: <UsersRound size={40} className="text-pd-pink" strokeWidth={1.5} /> },
-                        { id: "06", title: "Availability support", desc: "Help customers enquire for their preferred event date.", icon: <Calendar size={40} className="text-pd-pink" strokeWidth={1.5} /> },
-                        { id: "07", title: "Location & map", desc: "Make it easier for customers to find and visit your venue.", icon: <MapPin size={40} className="text-pd-pink" strokeWidth={1.5} /> },
-                        { id: "08", title: "Customer reviews", desc: "Build trust through authentic feedback and venue experience.", icon: <Star size={40} className="text-pd-pink" strokeWidth={1.5} /> },
-                        { id: "09", title: "Offers and packages", desc: "Promote special packages, seasonal offers, weekday deals, or wedding packages.", icon: <Gift size={40} className="text-pd-pink" strokeWidth={1.5} /> },
-                        { id: "10", title: "Dashboard & analytics", desc: "Understand profile views, enquiries, customer interest, and lead activity.", icon: <TrendingUp size={40} className="text-pd-pink" strokeWidth={1.5} /> },
-                        { id: "11", title: "Mobile accessibility", desc: "Manage and review leads from mobile, wherever you are.", icon: <Smartphone size={40} className="text-pd-pink" strokeWidth={1.5} /> }
-                     ];
-                     return (
-                        <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
-                           <div className="flex gap-6 pr-6">
-                              {featuresList.map((feature, i) => (
-                                 <div
-                                    key={i}
-                                    className="relative p-6 pt-8 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center w-72 shrink-0 group"
-                                 >
-                                    <div className="w-20 h-20 rounded-full bg-pd-pink/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
-                                       {feature.icon}
-                                    </div>
-                                    <div className="w-6 h-0.5 bg-pd-pink/30 mb-4 rounded-full group-hover:bg-pd-pink transition-colors"></div>
-                                    <h4 className="text-[15px] font-semibold text-slate-900 mb-2 leading-tight">{feature.title}</h4>
-                                    <p className="text-[13px] text-slate-500 font-normal leading-relaxed">{feature.desc}</p>
-                                 </div>
-                              ))}
-                           </div>
-                           <div className="flex gap-6 pr-6" aria-hidden="true">
-                              {featuresList.map((feature, i) => (
-                                 <div
-                                    key={`dup-${i}`}
-                                    className="relative p-6 pt-8 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center text-center w-70 shrink-0 group"
-                                 >
-                                    <div className="w-20 h-20 rounded-full bg-pd-pink/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
-                                       {feature.icon}
-                                    </div>
-                                    <div className="w-6 h-0.5 bg-pd-pink/30 mb-4 rounded-full group-hover:bg-pd-pink transition-colors"></div>
-                                    <h4 className="text-[15px] font-semibold text-slate-900 mb-2 leading-tight">{feature.title}</h4>
-                                    <p className="text-[13px] text-slate-500 font-normal leading-relaxed">{feature.desc}</p>
-                                 </div>
-                              ))}
-                           </div>
-                        </div>
-                     );
-                  })()}
-               </div>
-            </div>
-         </section>
-
-         {/* 8.5 THE LEAD ENGINE - ACQUISITION TO REVENUE */}
-         <section className="py-12 md:py-20 px-6 bg-[#030712] overflow-hidden relative border-y border-white/5">
-            {/* Background Visuals - High performance gradients */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none"></div>
-            <div className="absolute top-1/2 left-1/4 w-150 h-150 -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.05)_0%,transparent_60%)] pointer-events-none"></div>
-            <div className="absolute top-1/2 right-1/4 w-150 h-150 translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.05)_0%,transparent_60%)] pointer-events-none"></div>
-
-            <div className="max-w-300 mx-auto relative z-10">
-               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-
-                  {/* Left Content - Sleek Typography and Cards */}
-                  <motion.div
-                     initial={{ opacity: 0, y: 30 }}
-                     whileInView={{ opacity: 1, y: 0 }}
-                     viewport={{ once: true }}
-                     transition={{ duration: 0.6, ease: "easeOut" }}
-                     className="order-2 lg:order-1"
-                  >
-                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 text-slate-300 text-[9px] font-black uppercase tracking-[0.3em] mb-4 border border-white/10 shadow-lg">
-                        <div className="w-1.5 h-1.5 rounded-full bg-pd-pink animate-pulse"></div>
-                        Acquisition Engine v4.0
-                     </div>
-                     <h3 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase leading-[1.1] mb-6">
-                        we run <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue">the ads</span> <br />
-                        you close <br />
-                        the revenue
-                     </h3>
-
-                     <div className="space-y-4">
-                        {/* Feature Card 1 */}
-                        <motion.div whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.06)", boxShadow: "0 10px 30px rgba(59,130,246,0.15)" }} className="relative p-5 rounded-3xl bg-white/2 border border-white/5 transition-colors group">
-                           <div className="absolute top-5 left-5 w-8 h-8 rounded-[10px] bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                              <Target size={16} />
-                           </div>
-                           <div className="pl-12">
-                              <h4 className="text-white text-xs font-black uppercase tracking-widest mb-1">Omnichannel Reach</h4>
-                              <p className="text-slate-400 text-xs font-medium leading-relaxed">
-                                 We invest heavily in Google Search, Meta Ads, and Local SEO to pull high-intent customers. Your venue gets discovered exactly when users are looking to book.
-                              </p>
-                           </div>
-                        </motion.div>
-
-                        {/* Feature Card 2 */}
-                        <motion.div whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.06)", boxShadow: "0 10px 30px rgba(16,185,129,0.15)" }} className="relative p-5 rounded-3xl bg-white/2 border border-white/5 transition-colors group">
-                           <div className="absolute top-5 left-5 w-8 h-8 rounded-[10px] bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                              <ShieldCheck size={16} />
-                           </div>
-                           <div className="pl-12">
-                              <h4 className="text-white text-xs font-black uppercase tracking-widest mb-1">Elite Filtering</h4>
-                              <p className="text-slate-400 text-xs font-medium leading-relaxed">
-                                 Only verified enquiries reach you. We filter out the noise, ensuring you only spend time on customers ready to talk numbers.
-                              </p>
-                           </div>
-                        </motion.div>
-
-                        {/* Highlight Card */}
-                        <div className="p-5 mt-2 rounded-3xl bg-linear-to-br from-white/10 to-white/5 border border-white/10 relative overflow-hidden group">
-                           <div className="absolute top-0 right-0 w-32 h-32 bg-pd-pink/20 blur-[50px] group-hover:bg-pd-pink/30 transition-colors"></div>
-                           <div className="flex items-center gap-3 mb-2 relative z-10">
-                              <div className="w-6 h-6 rounded-full bg-pd-pink text-white flex items-center justify-center shadow-lg shadow-pd-pink/20">
-                                 <Smartphone size={12} />
-                              </div>
-                              <h4 className="text-white text-xs font-black uppercase tracking-widest">Digital HQ Feature</h4>
-                           </div>
-                           <p className="text-slate-300 text-xs font-medium leading-relaxed mb-3 relative z-10">
-                              Your listing on PartyDial acts as your professional micro-site with a <span className="text-emerald-400 font-bold">Verified Review System</span>.
-                              Direct calls from your page go ONLY to you.
-                           </p>
-                           <Link href="/process" className="text-[9px] font-black text-white uppercase tracking-widest group-hover:translate-x-2 transition-transform inline-flex items-center gap-2 relative z-10">
-                              Explore Full Process <ArrowRight size={12} className="text-pd-pink" />
-                           </Link>
-                        </div>
-                     </div>
-                  </motion.div>
-
-                  {/* Right Content - Smooth High-Tech Data Engine Animation */}
-                  <div className="relative w-full aspect-square max-w-100 mx-auto order-1 lg:order-2 flex items-center justify-center mt-10 lg:mt-0">
-                     <style>{`
-                        @keyframes map-float { 0%, 100% { transform: translateY(-8px); } 50% { transform: translateY(8px); } }
-                        @keyframes scan-line { 0% { left: -100%; } 100% { left: 100%; } }
-                     `}</style>
-
-                     {/* Decorative Background Rings */}
-                     <div
-                        className="absolute w-[90%] h-[90%] rounded-full border border-slate-700/30 border-dashed animate-[spin_40s_linear_infinite]"
-                     />
-                     <div
-                        className="absolute w-[65%] h-[65%] rounded-full border border-blue-500/10 animate-[spin_60s_linear_infinite_reverse]"
-                     />
-
-                     {/* Native SVG for lag-free data flow animation */}
-                     <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        {/* Paths */}
-                        <path id="flow-google" d="M 15 25 Q 50 25 50 50" fill="none" stroke="#334155" strokeWidth="0.2" strokeDasharray="1 1" />
-                        <path id="flow-meta" d="M 50 10 L 50 50" fill="none" stroke="#334155" strokeWidth="0.2" strokeDasharray="1 1" />
-                        <path id="flow-insta" d="M 85 25 Q 50 25 50 50" fill="none" stroke="#334155" strokeWidth="0.2" strokeDasharray="1 1" />
-                        <path id="flow-output" d="M 50 50 L 50 90" fill="none" stroke="#059669" strokeWidth="0.4" strokeDasharray="1 1" />
-
-                        {/* Hardware Accelerated SVG Particles */}
-                        <circle r="1" fill="#3B82F6">
-                           <animateMotion dur="2.2s" repeatCount="indefinite" path="M 15 25 Q 50 25 50 50" />
-                        </circle>
-                        <circle r="1" fill="#8B5CF6">
-                           <animateMotion dur="2.8s" repeatCount="indefinite" path="M 50 10 L 50 50" />
-                        </circle>
-                        <circle r="1" fill="#EC4899">
-                           <animateMotion dur="1.9s" repeatCount="indefinite" path="M 85 25 Q 50 25 50 50" />
-                        </circle>
-
-                        {/* Output verified leads (faster, bolder) */}
-                        <circle r="1.5" fill="#10B981">
-                           <animateMotion dur="1.4s" repeatCount="indefinite" path="M 50 50 L 50 90" />
-                        </circle>
-                        <circle r="1.5" fill="#10B981">
-                           <animateMotion dur="1.4s" begin="0.7s" repeatCount="indefinite" path="M 50 50 L 50 90" />
-                        </circle>
-                     </svg>
-
-                     {/* HTML Overlay Nodes */}
-                     <div className="absolute inset-0 w-full h-full pointer-events-none z-20">
-                        {/* Central Hub */}
-                        <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-24 h-24 md:w-32 md:h-32 z-30">
-                           <div
-                              className="w-full h-full rounded-3xl bg-linear-to-br from-pd-pink via-purple-500 to-pd-blue p-px shadow-[0_0_50px_rgba(139,92,246,0.3)]"
-                              style={{ animation: 'map-float 5s ease-in-out infinite' }}
-                           >
-                              <div className="w-full h-full bg-[#030712] rounded-[23px] flex flex-col items-center justify-center relative overflow-hidden">
-                                 <div className="absolute inset-0 bg-linear-to-b from-white/10 to-transparent"></div>
-                                 <Image src="/apple-icon.jpg" alt="PartyDial Logo" width={60} height={60} className="mb-2 relative z-10 rounded-[10px]" />
-                                 <span className="text-[8px] font-black text-white tracking-widest uppercase relative z-10">PARTYDIAL</span>
-
-                                 {/* Scanning effect */}
-                                 <div
-                                    className="absolute bottom-0 h-1 bg-linear-to-r from-transparent via-emerald-400 to-transparent w-[200%]"
-                                    style={{ animation: 'scan-line 2s linear infinite' }}
-                                 />
-                              </div>
-                           </div>
-                        </div>
-
-                        {/* Input Node: Google */}
-                        <motion.div
-                           initial={{ opacity: 0, scale: 0.5 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}
-                           className="absolute top-[25%] left-[15%] -translate-x-1/2 -translate-y-1/2 bg-[#0B0F19] border border-slate-700/50 p-2 rounded-2xl flex flex-col items-center shadow-lg"
-                        >
-                           <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mb-1"><Search size={12} /></div>
-                           <p className="text-white text-[7px] font-black uppercase tracking-widest">Google Ads</p>
-                        </motion.div>
-
-                        {/* Input Node: Meta */}
-                        <motion.div
-                           initial={{ opacity: 0, scale: 0.5 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}
-                           className="absolute top-[10%] left-[50%] -translate-x-1/2 -translate-y-1/2 bg-[#0B0F19] border border-slate-700/50 p-2 rounded-2xl flex flex-col items-center shadow-lg"
-                        >
-                           <div className="w-6 h-6 rounded-full bg-blue-600/20 text-blue-500 flex items-center justify-center mb-1"><Facebook size={12} /></div>
-                           <p className="text-white text-[7px] font-black uppercase tracking-widest">Facebook</p>
-                        </motion.div>
-
-                        {/* Input Node: Insta */}
-                        <motion.div
-                           initial={{ opacity: 0, scale: 0.5 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6 }}
-                           className="absolute top-[25%] left-[85%] -translate-x-1/2 -translate-y-1/2 bg-[#0B0F19] border border-slate-700/50 p-2 rounded-2xl flex flex-col items-center shadow-lg"
-                        >
-                           <div className="w-6 h-6 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center mb-1"><Instagram size={12} /></div>
-                           <p className="text-white text-[7px] font-black uppercase tracking-widest">Instagram</p>
-                        </motion.div>
-
-                        {/* Output Node: Verified Leads */}
-                        <motion.div
-                           initial={{ opacity: 0, scale: 0.5 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ delay: 0.8 }}
-                           className="absolute top-[90%] left-[50%] -translate-x-1/2 -translate-y-1/2 bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-3xl flex flex-col items-center shadow-[0_0_30px_rgba(16,185,129,0.15)] backdrop-blur-md min-w-35"
-                        >
-                           <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-1.5 shadow-lg shadow-emerald-500/20">
-                              <ShieldCheck size={16} />
-                           </div>
-                           <p className="text-emerald-400 text-[9px] font-black uppercase tracking-[0.2em] mb-0.5">Verified Leads</p>
-                           <p className="text-slate-300 text-[7px] font-bold tracking-widest uppercase">Direct to your Dashboard</p>
-                        </motion.div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </section>
-
-         {/* 9. SUCCESS STORIES */}
-         <section id="stories" className="py-24 bg-slate-50 border-t border-slate-100 overflow-hidden relative">
-            {/* Background Decoration */}
-            <div className="absolute top-0 right-0 w-1/4 h-full bg-linear-to-l from-slate-50 to-transparent pointer-events-none z-10 hidden md:block" />
-            <div className="absolute top-0 left-0 w-1/4 h-full bg-linear-to-r from-slate-50 to-transparent pointer-events-none z-10 hidden md:block" />
-
+           <div className="hidden md:block flex-1 h-px bg-slate-700 relative overflow-hidden">
             <motion.div 
-               initial={{ opacity: 0, y: 30 }} 
-               whileInView={{ opacity: 1, y: 0 }} 
-               viewport={{ once: true, margin: "-50px" }} 
-               transition={{ duration: 0.8 }}
-               className="max-w-360 mx-auto mb-16 px-6 lg:px-12 text-center"
+              initial={{ left:"-20%"}}
+              animate={{ left:"120%"}}
+              transition={{ duration: 1.5, repeat: Infinity, ease:"linear"}}
+              className="absolute top-0 w-1/2 h-full bg-linear-to-r from-transparent via-pd-pink to-transparent"
+            />
+           </div>
+           <div className="block md:hidden h-6 w-px bg-slate-700"/>
+
+           <div className="flex flex-col items-center gap-2 group">
+            <div className="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center group-hover:bg-pd-pink group-hover:text-white transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_20px_rgba(244,63,94,0.5)]">
+              <Search size={20} />
+            </div>
+            <span className="text-[10px] sm:text-xs font-semibold font-pd text-slate-300 group-hover:text-white text-center">Discovery</span>
+           </div>
+
+           <div className="hidden md:block flex-1 h-px bg-slate-700 relative overflow-hidden">
+            <motion.div 
+              initial={{ left:"-20%"}}
+              animate={{ left:"120%"}}
+              transition={{ duration: 1.5, delay: 0.3, repeat: Infinity, ease:"linear"}}
+              className="absolute top-0 w-1/2 h-full bg-linear-to-r from-transparent via-pd-blue to-transparent"
+            />
+           </div>
+           <div className="block md:hidden h-6 w-px bg-slate-700"/>
+
+           <div className="flex flex-col items-center gap-2 group">
+            <div className="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center group-hover:bg-pd-blue group-hover:text-white transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_20px_rgba(37,99,235,0.5)]">
+              <MessageSquare size={20} />
+            </div>
+            <span className="text-[10px] sm:text-xs font-semibold font-pd text-slate-300 group-hover:text-white text-center">Enquiry</span>
+           </div>
+
+           <div className="hidden md:block flex-1 h-px bg-slate-700 relative overflow-hidden">
+            <motion.div 
+              initial={{ left:"-20%"}}
+              animate={{ left:"120%"}}
+              transition={{ duration: 1.5, delay: 0.6, repeat: Infinity, ease:"linear"}}
+              className="absolute top-0 w-1/2 h-full bg-linear-to-r from-transparent via-purple-500 to-transparent"
+            />
+           </div>
+           <div className="block md:hidden h-6 w-px bg-slate-700"/>
+
+           <div className="flex flex-col items-center gap-2 group">
+            <div className="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_20px_rgba(16,185,129,0.5)]">
+              <CheckCircle2 size={20} />
+            </div>
+            <span className="text-[10px] sm:text-xs font-semibold font-pd text-slate-300 group-hover:text-white text-center">Booking</span>
+           </div>
+
+           <div className="hidden md:block flex-1 h-px bg-slate-700 relative overflow-hidden">
+            <motion.div 
+              initial={{ left:"-20%"}}
+              animate={{ left:"120%"}}
+              transition={{ duration: 1.5, delay: 0.9, repeat: Infinity, ease:"linear"}}
+              className="absolute top-0 w-1/2 h-full bg-linear-to-r from-transparent via-amber-400 to-transparent"
+            />
+           </div>
+           <div className="block md:hidden h-6 w-px bg-slate-700"/>
+
+           <div className="flex flex-col items-center gap-2 group">
+            <div className="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center group-hover:bg-amber-400 group-hover:text-slate-900 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_20px_rgba(251,191,36,0.5)]">
+              <TrendingUp size={20} />
+            </div>
+            <span className="text-[10px] sm:text-xs font-semibold font-pd text-slate-300 group-hover:text-white text-center">Growth</span>
+           </div>
+         </div>
+        </motion.div>
+
+        {/* Closing Message */}
+        <div className="text-center max-w-3xl mx-auto">
+         <h3 className="text-2xl sm:text-3xl font-semibold font-sf text-slate-900 tracking-tight mb-4">
+           One Platform. More Visibility. Better Opportunities.
+         </h3>
+         <p className="text-slate-600 text-sm sm:text-base font-normal font-pd mb-8">
+           List your venue, connect with potential customers, manage your enquiries, and grow your business — all through PartyDial.
+         </p>
+         
+         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+           <Link href="/login"className="w-full sm:w-auto">
+            <motion.button
+              whileHover={{ scale: 1.02, translateY: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full sm:w-auto px-8 py-4 bg-[#F43F5E] hover:bg-[#e11d48] text-white rounded-2xl font-semibold font-pd text-sm flex items-center justify-center gap-2 transition-all shadow-xl shadow-[#F43F5E]/20 group cursor-pointer"
             >
-               <h3 className="text-3xl md:text-5xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-4">Real Success Stories</h3>
-               <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed">Join hundreds of top-tier venues scaling with PartyDial</p>
-            </motion.div>
+              <span>Become a PartyDial Partner</span>
+              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform"/>
+            </motion.button>
+           </Link>
 
-            <style>{`
-               .ticker-swiper .swiper-wrapper {
-                  transition-timing-function: linear !important;
-               }
-            `}</style>
+           <button 
+            onClick={() => {
+              const el = document.getElementById('features');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl font-semibold font-pd text-sm border border-slate-200 shadow-sm flex items-center justify-center transition-all hover:border-slate-300 cursor-pointer"
+           >
+            Explore Partner Platform
+           </button>
+         </div>
+        </div>
+      </div>
+     </section>
 
-            <div className="w-full">
-               <Swiper
-                  slidesPerView={'auto'}
-                  spaceBetween={24}
-                  centeredSlides={false}
-                  loop={true}
-                  grabCursor={true}
-                  speed={6000}
-                  autoplay={{
-                     delay: 0,
-                     disableOnInteraction: false,
-                     pauseOnMouseEnter: true,
-                  }}
-                  modules={[Autoplay]}
-                  className="w-full px-6! pb-16! ticker-swiper"
-               >
-                  {/* Duplicate array to ensure enough slides exist for seamless linear looping */}
-                  {[...successStories, ...successStories, ...successStories, ...successStories].map((t, i) => (
-                     <SwiperSlide key={i} className="w-[320px]! md:w-105! h-auto">
-                        <div className="relative p-8 md:p-10 bg-white rounded-4xl shadow-[0_10px_40px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col group transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)] overflow-hidden cursor-grab active:cursor-grabbing">
-                           <div className="flex text-amber-400 mb-6 gap-1 relative z-10">
-                              {[...Array(5)].map((_, j) => (
-                                 <Star key={j} size={16} fill="currentColor" />
-                              ))}
-                           </div>
-                           <p className="text-sm md:text-base text-slate-700 font-medium  leading-relaxed mb-8 flex-1 relative z-10">
-                              &quot;{t.text}&quot;
-                           </p>
-                           <div className="flex gap-4 items-center pt-6 border-t border-slate-50 relative z-10">
-                              <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-2xl overflow-hidden shadow-sm">
-                                 <Image src={t.img} alt={t.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
-                              </div>
-                              <div>
-                                 <div className="text-sm md:text-base font-black text-slate-900 tracking-tight">{t.name}</div>
-                                 <div className="text-[10px] md:text-xs font-bold text-pd-pink uppercase tracking-widest mt-0.5">{t.location}</div>
-                              </div>
-                           </div>
+     {/* 4. INTERACTIVE GROWTH JOURNEY */}
+     <GrowthJourneySection />
 
-                           {/* Quote decoration */}
-                           <div className="absolute top-6 right-6 opacity-[0.03] text-slate-900 group-hover:scale-110 group-hover:opacity-[0.05] transition-all duration-500 pointer-events-none">
-                              <MessageSquare size={80} fill="currentColor" />
-                           </div>
-                        </div>
-                     </SwiperSlide>
+     <PartnerPortalSection />
+
+     <RevenueCalculatorSection />
+
+     
+     {/* 9. SUCCESS STORIES */}
+     <section id="stories" className="py-24 bg-slate-50 border-t border-slate-100 overflow-hidden relative font-pd">
+      
+      {/* Fade Gradients for Ticker */}
+      <div className="absolute top-0 right-0 w-1/4 md:w-[15%] h-full bg-linear-to-l from-slate-50 to-transparent pointer-events-none z-20" />
+      <div className="absolute top-0 left-0 w-1/4 md:w-[15%] h-full bg-linear-to-r from-slate-50 to-transparent pointer-events-none z-20" />
+
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }} 
+        whileInView={{ opacity: 1, y: 0 }} 
+        viewport={{ once: true, margin:"-50px"}} 
+        transition={{ duration: 0.8 }}
+        className="max-w-360 mx-auto mb-16 px-6 lg:px-12 text-center relative z-10"
+      >
+        <h3 className="text-3xl md:text-5xl font-semibold font-sf text-slate-900 tracking-tight leading-[1.1] mb-4">Real Success <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-blue via-purple-600 to-pd-pink">Stories</span></h3>
+        <p className="text-slate-500 text-sm md:text-base font-normal font-pd leading-relaxed">Join hundreds of top-tier venues scaling with PartyDial</p>
+      </motion.div>
+
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes marquee-reverse {
+          0% { transform: translateX(-50%); }
+          100% { transform: translateX(0); }
+        }
+        .animate-marquee {
+          animation: marquee 80s linear infinite;
+        }
+        .animate-marquee-reverse {
+          animation: marquee-reverse 90s linear infinite;
+        }
+        .ticker-row:hover .animate-marquee, .ticker-row:hover .animate-marquee-reverse {
+          animation-play-state: paused;
+        }
+      `}</style>
+
+      {/* Marquee Container */}
+      <div className="flex flex-col gap-6 w-full relative z-10 ticker-row group">
+        
+        {/* Row 1: Left scrolling */}
+        <div className="flex w-[max-content] animate-marquee gap-6">
+          {[...successStories, ...successStories, ...successStories, ...successStories].map((t, i) => (
+            <div key={i} className="w-[340px] md:w-[400px] shrink-0 bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between">
+              <div>
+                <div className="flex text-amber-400 mb-5 gap-1">
+                  {[...Array(5)].map((_, j) => (
+                    <svg key={j} width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
                   ))}
-               </Swiper>
+                </div>
+                <p className="text-[13px] md:text-sm text-slate-500 font-normal leading-[1.6] mb-8">
+                  {t.text}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-slate-800">{t.name}</div>
+                  <div className="text-xs text-slate-500">{t.location}</div>
+                </div>
+              </div>
             </div>
-         </section>
+          ))}
+        </div>
 
-         {/* 10. NATIONAL EXPANSION - DISCOVERY HUB */}
-         <section className="relative py-12 md:py-16 px-6 overflow-hidden bg-white border-y border-slate-50">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,#F43F5E08,transparent_50%)]"></div>
-            <div className="max-w-360 mx-auto lg:px-12 relative z-10">
-               <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-                  {/* Left Content */}
-                  <motion.div
-                     initial={{ opacity: 0, x: -50 }}
-                     whileInView={{ opacity: 1, x: 0 }}
-                     viewport={{ once: true }}
-                     transition={{ duration: 0.8 }}
-                  >
-                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-[0.4em] mb-8 border border-emerald-100">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span> Live Operations: 13/13 Districts Active
-                     </div>
-                     <h3 className="text-3xl md:text-5xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-8">
-                        dominating <br />
-                        <span className="pd-gradient-text not-">the hills</span> <br />
-                        scaling india
-                     </h3>
-                     <p className="text-slate-500 text-sm md:text-base font-medium max-w-sm leading-relaxed mb-12">
-                        We’ve successfully digitized the entire venue ecosystem across all 13 districts of Uttarakhand. Our next phase? Activating the same elite power across India&apos;s major states.
-                     </p>
-
-                     <div className="space-y-8">
-                        <div className="flex flex-col gap-4">
-                           <div className="text-[10px] font-black text-emerald-500 uppercase tracking-widest  flex items-center gap-2">
-                              <CheckCircle2 size={12} /> Live Hubs (Uttarakhand)
-                           </div>
-                           <div suppressHydrationWarning className="flex flex-wrap gap-2">
-                              {[
-                                 "Dehradun", "Haridwar", "Rishikesh", "Mussoorie",
-                                 "Nainital", "Haldwani", "Rudrapur", "Roorkee",
-                                 "Kashipur", "Almora", "Pauri", "Tehri", "Chamoli",
-                                 "Pithoragarh", "Uttarkashi"
-                              ].map((city, i) => (
-                                 <div key={i} className="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100 text-[9px] font-black uppercase tracking-widest shadow-sm">
-                                    {city}
-                                 </div>
-                              ))}
-                           </div>
-                        </div>
-                        <div className="flex flex-col gap-4">
-                           <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest  flex items-center gap-2">
-                              <Zap size={12} className="opacity-40" /> Upcoming Expansion (Phase 02)
-                           </div>
-                           <div suppressHydrationWarning className="flex flex-wrap gap-2">
-                              {[
-                                 { s: "UP", c: "Lucknow" }, { s: "Delhi NCR", c: "Gurugram" },
-                                 { s: "Maharashtra", c: "Mumbai" }, { s: "Punjab", c: "Chandigarh" },
-                                 { s: "Rajasthan", c: "Jaipur" }, { s: "Gujarat", c: "Ahmedabad" }
-                              ].map((state, i) => (
-                                 <div key={i} className="group relative px-3 py-1.5 bg-slate-50 text-slate-400 rounded-lg border border-slate-100 text-[9px] font-black uppercase tracking-widest transition-all hover:bg-slate-900 hover:text-white hover:border-slate-900">
-                                    {state.s}
-                                    <span className="inline-block ml-1 opacity-40 group-hover:opacity-100 ">({state.c})</span>
-                                 </div>
-                              ))}
-                           </div>
-                        </div>
-                     </div>
-                  </motion.div>
-
-                  {/* Right Infographic */}
-                  <motion.div
-                     initial={{ opacity: 0, scale: 0.95 }}
-                     whileInView={{ opacity: 1, scale: 1 }}
-                     viewport={{ once: true }}
-                     transition={{ duration: 0.8 }}
-                     className="relative lg:pl-10"
-                  >
-                     <div className="relative aspect-square w-full max-w-162.5 mx-auto group">
-                        {/* Premium Background Glows */}
-                        <div className="absolute inset-0 rounded-full animate-pulse bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-emerald-500/20 to-transparent pointer-events-none"></div>
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] rounded-full pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-blue-500/10 to-transparent"></div>
-
-                        <div className="relative w-full h-full rounded-[48px] overflow-hidden border border-slate-100/50 bg-white shadow-[0_32px_80px_-16px_rgba(15,23,42,0.1)] p-4 md:p-8 flex items-center justify-center">
-
-                           {/* Live Status Badge */}
-                           <div className="absolute top-8 left-8 flex items-center gap-3 px-5 py-2.5 bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-slate-100 z-30">
-                              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_#10B981]"></div>
-                              <span className="text-[11px] font-black text-slate-800 uppercase tracking-[0.3em]">Network expansion map</span>
-                           </div>
-
-                           {/* PURE CSS ANIMATION STYLES */}
-                           <style>{`
-                              @keyframes map-dash {
-                                 to {
-                                    stroke-dashoffset: -24;
-                                 }
-                              }
-                              .animate-map-dash {
-                                 animation: map-dash 1.5s linear infinite;
-                              }
-                           `}</style>
-
-                           {/* INFOGRAPHIC ENGINE */}
-                           <div className="w-full h-full relative z-10 p-4">
-                              <svg viewBox="0 0 500 600" className="w-full h-full drop-shadow-2xl">
-                                 {/* PREMIUM DATA GRID BACKGROUND */}
-                                 <g className="opacity-10">
-                                    {Array.from({ length: 14 }).map((_, i) => (
-                                       <line key={`h-${i}`} x1="0" y1={i * 45} x2="500" y2={i * 45} stroke="#cbd5e1" strokeWidth="0.5" />
-                                    ))}
-                                    {Array.from({ length: 12 }).map((_, i) => (
-                                       <line key={`v-${i}`} x1={i * 45} y1="0" x2={i * 45} y2="600" stroke="#cbd5e1" strokeWidth="0.5" />
-                                    ))}
-                                 </g>
-
-                                 <defs>
-                                    <radialGradient id="mapHubGradient">
-                                       <stop offset="0%" stopColor="#10b981" />
-                                       <stop offset="100%" stopColor="transparent" />
-                                    </radialGradient>
-                                    <filter id="svgGlow">
-                                       <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                                       <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
-                                    </filter>
-                                 </defs>
-
-                                 {/* HUB CORE (Pure CSS Pulsing) */}
-                                 <circle
-                                    cx="250" cy="180" r="140"
-                                    fill="url(#mapHubGradient)"
-                                    className="opacity-10 animate-pulse"
-                                    style={{ animationDuration: '4s' }}
-                                 />
-
-                                 {/* CONNECTIVITY BRAIN (Pure CSS Flowing Lines) */}
-                                 <g className="opacity-40">
-                                    {[
-                                       { from: [250, 180], to: [150, 100], color: "#10b981" }, // Hub to Garhwal
-                                       { from: [250, 180], to: [380, 240], color: "#10b981" }, // Hub to Kumaon
-                                       { from: [250, 180], to: [180, 180], color: "#10b981" }, // Hub to Dehradun
-                                       { from: [250, 180], to: [130, 380], color: "#cbd5e1" }, // Hub to UP West
-                                       { from: [250, 180], to: [220, 500], color: "#cbd5e1" }, // Hub to Delhi
-                                       { from: [250, 180], to: [450, 480], color: "#cbd5e1" }, // Hub to Maharashtra
-                                    ].map((line, i) => (
-                                       <path
-                                          key={i}
-                                          d={`M250,180 C250,180 ${line.to[0]},180 ${line.to[0]},${line.to[1]}`}
-                                          fill="none"
-                                          stroke={line.color}
-                                          strokeWidth="2"
-                                          strokeDasharray="6 6"
-                                          className="animate-map-dash"
-                                       />
-                                    ))}
-                                 </g>
-
-                                 {/* CITY NODES & STATUS CARDS */}
-                                 {[
-                                    { name: "Garhwal", pos: [120, 100], val: "LIVE", desc: "Region Hub", color: "#10B981" },
-                                    { name: "Kumaon", pos: [380, 240], val: "LIVE", desc: "Active Hub", color: "#10B981" },
-                                    { name: "Dehradun", pos: [180, 180], val: "LIVE", desc: "Core Hub", color: "#10B981" },
-                                    { name: "UP West", pos: [130, 380], val: "UPCOMING", desc: "Phase 02", color: "#94a3b8" },
-                                    { name: "Delhi", pos: [220, 500], val: "UPCOMING", desc: "Scaling", color: "#94a3b8" },
-                                    { name: "Maharashtra", pos: [450, 480], val: "UPCOMING", desc: "Phase 03", color: "#94a3b8" }
-                                 ].map((city, i) => (
-                                    <g key={i}>
-                                       {/* Pure CSS Node Ping for Live cities */}
-                                       <circle
-                                          cx={city.pos[0]} cy={city.pos[1]} r="10"
-                                          fill={city.color}
-                                          className={`opacity-30 ${city.val === 'LIVE' ? 'animate-ping' : ''}`}
-                                          style={{ animationDuration: '2s' }}
-                                       />
-                                       <circle cx={city.pos[0]} cy={city.pos[1]} r="4" fill={city.color} filter="url(#svgGlow)" />
-
-                                       {/* Node Labels */}
-                                       <g className="transition-transform hover:-translate-y-1 cursor-default">
-                                          <rect x={city.pos[0] - 60} y={city.pos[1] + 15} width="120" height="42" rx="14" fill="white" className="shadow-xl" stroke="#f1f5f9" />
-                                          <text x={city.pos[0]} y={city.pos[1] + 30} textAnchor="middle" className="text-[10px] font-black uppercase tracking-tight fill-slate-900 font-sans">
-                                             {city.name}
-                                          </text>
-                                          <text x={city.pos[0]} y={city.pos[1] + 46} textAnchor="middle" className="text-[8px] font-bold uppercase tracking-widest fill-slate-400 font-sans">
-                                             <tspan fill={city.val === 'LIVE' ? '#10b981' : '#94a3b8'}>{city.val}</tspan> | {city.desc}
-                                          </text>
-                                       </g>
-                                    </g>
-                                 ))}
-                              </svg>
-                           </div>
-                        </div>
-                     </div>
-                  </motion.div>
-               </div>
+        {/* Row 2: Right scrolling (reverse) */}
+        <div className="flex w-[max-content] animate-marquee-reverse gap-6 pl-12">
+          {[...successStories].reverse().concat([...successStories].reverse()).concat([...successStories].reverse()).concat([...successStories].reverse()).map((t, i) => (
+            <div key={i} className="w-[340px] md:w-[400px] shrink-0 bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between">
+              <div>
+                <div className="flex text-amber-400 mb-5 gap-1">
+                  {[...Array(5)].map((_, j) => (
+                    <svg key={j} width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-[13px] md:text-sm text-slate-500 font-normal leading-[1.6] mb-8">
+                  {t.text}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-slate-800">{t.name}</div>
+                  <div className="text-xs text-slate-500">{t.location}</div>
+                </div>
+              </div>
             </div>
-         </section>
-
-         {/* 11. FAQ - MILLION DOLLAR SAAS REDESIGN */}
-         <section id="faq" suppressHydrationWarning className="py-20 md:py-32 px-6 bg-white relative overflow-hidden">
-            <div className="max-w-300 mx-auto lg:px-6">
-               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-24">
-
-                  {/* Left Column: Heading */}
-                  <div className="lg:col-span-5 flex flex-col justify-center">
-                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 w-max mb-6">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-pulse"></div>
-                        Knowledge Base
-                     </div>
-                     
-                     <h3 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-6">
-                        CURIOUS ABOUT <span className="text-transparent bg-clip-text bg-linear-to-r from-[#F43F5E] via-[#D946EF] to-[#3B82F6]">GROWTH?</span>
-                     </h3>
-                     
-                     <p className="text-slate-500 text-sm md:text-base font-medium max-w-100 leading-relaxed mb-8 lg:mb-12">
-                        Everything you need to know about the most powerful event engine in the country.
-                     </p>
-
-                     <div className="hidden lg:block">
-                        <div className="p-8 bg-[#16161F] rounded-3xl text-white w-full max-w-85 shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
-                           <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-white">Still have doubts?</h4>
-                           <p className="text-slate-400 text-xs font-medium leading-[1.8] mb-8 pr-6">Our partner success team is available 24/7 to help you dominate your city.</p>
-                           <Link href="/contact">
-                              <button className="px-6 py-3.5 bg-[#FA3E63] text-[9px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-[#E11D48] transition-all shadow-[0_4px_20px_rgba(250,62,99,0.3)] hover:shadow-[0_8px_30px_rgba(250,62,99,0.5)] hover:-translate-y-0.5">Get Expert Help</button>
-                           </Link>
-                        </div>
-                     </div>
-                  </div>
-
-                  {/* Right Column: Accordion */}
-                  <div className="lg:col-span-7 flex flex-col justify-center space-y-4">
-                     {[
-                        { q: "How do I list my venue?", a: "Registering is easy. Fill out our partner onboarding form with your basic venue details. Our verification team reviews all applications within 24-48 hours to ensure our quality standards are met." },
-                        { q: "How do I receive leads?", a: "Every inquiry is delivered instantly. We notify you via Real-time App Alerts and Email Alerts. You can also view, track, and manage all your conversations through the Partner Dashboard." },
-                        { q: "Can I update pricing?", a: "Yes, you have full control. Update your pricing, seasonal availability, event capacity, and high-quality photo gallery at any time through your dashboard." },
-                        { q: "Is there a listing fee?", a: "We offer several ways to grow. From organic free listings with standard visibility to premium growth plans that guarantee high-intent lead volume. Contact us to find your perfect fit." }
-                     ].map((f, i) => (
-                        <motion.div
-                           key={i}
-                           initial={{ opacity: 0, y: 10 }}
-                           whileInView={{ opacity: 1, y: 0 }}
-                           viewport={{ once: true }}
-                           transition={{ delay: i * 0.05 }}
-                           className={`rounded-[20px] border transition-all duration-300 overflow-hidden ${activeFaq === i ? 'bg-white border-[#3B82F6] shadow-[0_8px_30px_rgba(59,130,246,0.12)] ring-1 ring-[#3B82F6]/20 z-10 relative' : 'bg-white border-slate-100 hover:border-slate-200 shadow-sm z-0 relative'}`}
-                        >
-                           <button
-                              onClick={() => setActiveFaq(activeFaq === i ? null : i)}
-                              className="w-full p-6 flex items-center justify-between text-left group bg-white"
-                           >
-                              <div className="flex items-center gap-6">
-                                 <span className={`text-[9px] font-black tracking-[0.2em] transition-colors ${activeFaq === i ? 'text-[#3B82F6]' : 'text-slate-300'}`}>0{i + 1}</span>
-                                 <span className={`text-sm md:text-[15px] font-black tracking-tight transition-colors duration-300 ${activeFaq === i ? 'text-[#0F172A]' : 'text-[#0F172A] group-hover:text-[#3B82F6]'}`}>{f.q}</span>
-                              </div>
-                              <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${activeFaq === i ? 'bg-blue-50 text-[#3B82F6] rotate-180' : 'bg-slate-50 text-slate-400 rotate-0 group-hover:bg-slate-100'}`}>
-                                 <ChevronDown size={14} strokeWidth={2.5} />
-                              </div>
-                           </button>
-
-                           <AnimatePresence initial={false}>
-                              {activeFaq === i && (
-                                 <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    transition={{ duration: 0.3, ease: "easeOut" }}
-                                    className="overflow-hidden bg-white"
-                                 >
-                                    <div className="px-6 pb-7 pl-18">
-                                       <p className="text-[13px] md:text-sm text-slate-500 font-medium leading-[1.8] max-w-125">
-                                          {f.a}
-                                       </p>
-                                    </div>
-                                 </motion.div>
-                              )}
-                           </AnimatePresence>
-                        </motion.div>
-                     ))}
-                  </div>
-               </div>
-            </div>
-         </section>
-
-         {/* 12. FINAL CTA - PREMIUM DARK SHOWCASE */}
-         <section className="py-12 md:py-16 px-6 bg-white overflow-hidden relative">
-            <style>{`
-               @keyframes float-slow {
-                  0%, 100% { transform: translateY(0px); }
-                  50% { transform: translateY(-15px); }
-               }
-               .animate-float-slow {
-                  animation: float-slow 6s ease-in-out infinite;
-                  will-change: transform;
-               }
-               @keyframes float-fast {
-                  0%, 100% { transform: translateY(0px) translateX(0px); }
-                  50% { transform: translateY(-10px) translateX(5px); }
-               }
-               .animate-float-fast {
-                  animation: float-fast 4s ease-in-out infinite;
-                  will-change: transform;
-               }
-            `}</style>
-
-            <div className="max-w-360 mx-auto lg:px-12">
-               <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                  className="bg-[#0F172A] border border-slate-800/50 rounded-4xl md:rounded-[40px] p-10 md:p-20 relative overflow-hidden shadow-[0_40px_100px_-20px_rgba(15,23,42,0.4)] flex flex-col lg:flex-row items-center gap-16"
-               >
-                  {/* Dynamic Dark Mode Background Gradients */}
-                  <motion.div 
-                     animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }} 
-                     transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} 
-                     className="absolute top-0 right-0 w-125 h-125 rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-blue/30 to-transparent"
-                  ></motion.div>
-                  <motion.div 
-                     animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.7, 0.3] }} 
-                     transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }} 
-                     className="absolute bottom-0 left-0 w-125 h-125 rounded-full translate-y-1/3 -translate-x-1/3 pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/30 to-transparent"
-                  ></motion.div>
-
-                  {/* Dot Grid Overlay */}
-                  <div className="absolute inset-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
-
-                  {/* Left Content */}
-                  <div className="flex-1 text-left relative z-10 w-full">
-                     <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/5 text-white backdrop-blur-md text-[10px] font-black uppercase tracking-[0.2em] mb-8 border border-white/10 shadow-xl">
-                        <Shield size={14} className="text-emerald-400" /> Global Priority Partner
-                     </div>
-                     <h3 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase leading-[1.1] mb-8">
-                        Ready to join <br />
-                        the <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue not-">Leaders?</span>
-                     </h3>
-                     <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed max-w-xl mb-12">
-                        India&apos;s most powerful venue growth engine. Stop waiting for leads and start <span className="text-white font-bold  border-b border-pd-pink">commanding them.</span>
-                     </p>
-                     <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-                        <Link href="/login" className="px-14 py-5 bg-white text-slate-900 rounded-[20px] text-xs font-black uppercase tracking-[0.3em]  hover:bg-pd-pink hover:text-white transition-all duration-500 shadow-2xl shadow-white/5 hover:shadow-pd-pink/30 hover:-translate-y-1 w-full sm:w-auto text-center">
-                           List Your Venue
-                        </Link>
-                        <div className="flex flex-col gap-1">
-                           <div className="flex items-center gap-1">
-                              {[...Array(5)].map((_, j) => <Star key={j} size={14} fill="#FBBF24" className="text-amber-400" />)}
-                           </div>
-                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1"><AnimatedCounter end={500} suffix="+" /> Active Venues</span>
-                        </div>
-                     </div>
-                  </div>
-
-                  {/* Right Visual: Floating Success Badge (Pure CSS Animation) */}
-                  <div className="flex-1 relative w-full max-w-112.5 aspect-square flex items-center justify-center mt-10 lg:mt-0">
-                     <div className="absolute inset-0 rounded-full animate-pulse pointer-events-none bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-white/10 to-transparent"></div>
-
-                     {/* The "Elite Achievement" Card */}
-                     <div className="relative w-70 md:w-80 h-95 md:h-100 bg-white rounded-3xl shadow-[0_20px_80px_rgba(0,0,0,0.3)] border border-slate-100 p-8 overflow-hidden group/card animate-float-slow">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-pd-blue/10 rounded-full blur-3xl group-hover/card:bg-pd-pink/10 transition-colors duration-700"></div>
-
-                        <div className="relative z-10 flex flex-col h-full justify-between">
-                           <div>
-                              <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-pd-pink to-rose-500 flex items-center justify-center text-white shadow-xl shadow-pd-pink/30 mb-6 group-hover/card:scale-110 transition-transform duration-500">
-                                 <TrendingUp size={28} />
-                              </div>
-                              <div className="text-[10px] font-black text-pd-pink uppercase tracking-widest leading-none mb-2">Verified Growth</div>
-                              <div className="text-4xl font-black  text-slate-900"><AnimatedCounter end={140} suffix="%" /> <span className="text-sm font-bold opacity-30 not- uppercase tracking-widest">YoY</span></div>
-                           </div>
-
-                           <div className="space-y-4">
-                              <div className="h-0.75 w-full bg-slate-100 overflow-hidden rounded-full">
-                                 {/* Pure CSS Progress Bar Fill */}
-                                 <div className="h-full bg-linear-to-r from-pd-blue to-pd-pink rounded-full w-[85%] relative overflow-hidden transition-all duration-1000 group-hover/card:w-full">
-                                    <div className="absolute top-0 left-0 w-full h-full bg-white/30 animate-[pulse_2s_ease-in-out_infinite]"></div>
-                                 </div>
-                              </div>
-                              <div className="flex justify-between items-end">
-                                 <div>
-                                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Status</div>
-                                    <div className="text-sm font-black text-emerald-500 uppercase tracking-tight  flex items-center gap-1.5">
-                                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></div>
-                                       Elite Tier
-                                    </div>
-                                 </div>
-                                 <div className="w-12 h-12 rounded-full border-[3px] border-white shadow-lg overflow-hidden group-hover/card:scale-110 transition-transform duration-500">
-                                    <Image src="/india-map-preview.png" alt="Region" width={48} height={48} className="w-full h-full object-cover" />
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-
-                        <div className="absolute bottom-0 left-0 w-full h-[60%] bg-linear-to-t from-slate-50 to-transparent pointer-events-none"></div>
-                     </div>
-
-                     {/* Secondary Floating Elements (Pure CSS) */}
-                     <div className="absolute -top-4 right-2 md:top-10 md:-right-6 px-4 py-3 bg-[#0F172A] shadow-2xl rounded-2xl border border-white/10 text-white z-20 animate-float-fast backdrop-blur-md">
-                        <div className="flex items-center gap-3">
-                           <div className="w-6 h-6 rounded-full bg-pd-blue flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-                              <CheckCircle2 size={12} strokeWidth={3} />
-                           </div>
-                           <span className="text-[9px] font-black uppercase tracking-widest">Instant Live</span>
-                        </div>
-                     </div>
-                  </div>
-               </motion.div>
-            </div>
-         </section>
-
-         {/* 13. REGISTRATION - SMART HUB (PREMIUM REDESIGN) */}
-         <section id="register" suppressHydrationWarning className="py-20 md:py-32 px-6 bg-slate-50 relative overflow-hidden flex justify-center">
-
-            {/* Ambient background glows (Static for perfect performance) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 pointer-events-none opacity-60">
-               <div className="absolute top-0 right-0 w-100 h-100 rounded-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-blue/40 to-transparent"></div>
-               <div className="absolute bottom-0 left-0 w-100 h-100 rounded-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-pd-pink/40 to-transparent"></div>
-               <div className="absolute top-1/4 left-1/4 w-75 h-75 rounded-full bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-emerald-400/30 to-transparent"></div>
-            </div>
-
-            <motion.div
-               initial={{ opacity: 0, y: 40 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               viewport={{ once: true }}
-               transition={{ duration: 0.8 }}
-               className="max-w-300 w-full bg-white/95 rounded-3xl md:rounded-[40px] p-4 sm:p-8 md:p-16 border border-white shadow-[0_40px_100px_rgba(0,0,0,0.05)] relative z-10"
-            >
-               <div className="flex flex-col lg:flex-row gap-10 lg:gap-24 items-center">
-                  {/* Left Column: Benefits & Copy */}
-                  <div className="flex-1 w-full">
-                     <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-pd-pink/10 text-pd-pink text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-6 md:mb-8 border border-pd-pink/20">
-                        <span className="w-2 h-2 rounded-full bg-pd-pink animate-pulse"></span> Partner Application
-                     </div>
-                     <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] tracking-tight uppercase leading-[1.1] mb-4 md:mb-6">
-                        Start your <br />
-                        <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink to-pd-blue not-">Legacy.</span>
-                     </h2>
-                     <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed max-w-sm mb-8 md:mb-12">
-                        Join India&apos;s most exclusive venue network. Apply now and our partner success team will review your application within 24 hours.
-                     </p>
-
-                     <div className="space-y-3 md:space-y-4">
-                        {[
-                           { icon: <ShieldCheck size={20} className="text-emerald-500 md:w-5 md:h-5 w-4 h-4" />, title: "Instant Verification", desc: "Fast-track onboarding for premium venues." },
-                           { icon: <Zap size={20} className="text-amber-500 md:w-5 md:h-5 w-4 h-4" />, title: "Live in 24h", desc: "Get your first inquiry by this time tomorrow." },
-                           { icon: <Globe size={20} className="text-pd-blue md:w-5 md:h-5 w-4 h-4" />, title: "National Footprint", desc: "Showcase your venue to a PAN India audience." }
-                        ].map((item, i) => (
-                           <div key={i} className="flex items-center gap-4 md:gap-5 p-4 md:p-5 rounded-[20px] md:rounded-3xl bg-white/50 border border-white shadow-sm hover:shadow-md transition-all group cursor-default">
-                              <div className="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-[14px] md:rounded-2xl bg-white shadow-sm flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                                 {item.icon}
-                              </div>
-                              <div>
-                                 <div className="text-[11px] md:text-xs font-black uppercase tracking-widest text-slate-900 mb-0.5 md:mb-1">{item.title}</div>
-                                 <div className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-snug">{item.desc}</div>
-                              </div>
-                           </div>
-                        ))}
-                     </div>
-                  </div>
-
-                  {/* Right Column: The Form */}
-                  <div className="flex-1 w-full max-w-125">
-                     <div className="bg-white rounded-3xl md:rounded-4xl p-6 sm:p-8 md:p-10 shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group/form">
-                        {/* Static Border Glow on Form (Reveals on focus) */}
-                        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-pd-blue via-pd-pink to-emerald-400 opacity-20 group-focus-within/form:opacity-100 transition-opacity duration-500"></div>
-
-                        <form className="space-y-5 md:space-y-6" onSubmit={(e) => { e.preventDefault(); alert("Application Sent!"); }}>
-
-                           {/* Venue Details */}
-                           <div className="space-y-3 md:space-y-4">
-                              <label className="flex items-center gap-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                 <Building2 size={12} /> Venue Information
-                              </label>
-                              <div className="space-y-3">
-                                 <div className="relative">
-                                    <input required className="w-full h-12 md:h-14 bg-slate-50 border border-slate-100 rounded-[14px] md:rounded-2xl px-4 md:px-6 text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-blue focus:ring-4 focus:ring-pd-blue/10 transition-all outline-none" placeholder="Venue Name" />
-                                 </div>
-                                 <div className="relative">
-                                    <input required className="w-full h-12 md:h-14 bg-slate-50 border border-slate-100 rounded-[14px] md:rounded-2xl px-4 md:px-6 text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-blue focus:ring-4 focus:ring-pd-blue/10 transition-all outline-none" placeholder="Owner Name" />
-                                 </div>
-                              </div>
-                           </div>
-
-                           {/* Contact Details */}
-                           <div className="space-y-3 md:space-y-4 pt-4 border-t border-slate-100">
-                              <label className="flex items-center gap-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                 <Phone size={12} /> Contact Details
-                              </label>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                 <input required className="w-full h-12 md:h-14 bg-slate-50 border border-slate-100 rounded-[14px] md:rounded-2xl px-4 md:px-6 text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all outline-none" placeholder="City" />
-                                 <input required className="w-full h-12 md:h-14 bg-slate-50 border border-slate-100 rounded-[14px] md:rounded-2xl px-4 md:px-6 text-sm font-bold text-slate-900 focus:bg-white focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all outline-none" placeholder="Phone" />
-                              </div>
-                           </div>
-
-                           <button
-                              type="submit"
-                              className="w-full h-14 md:h-16 mt-2 md:mt-4 relative group/btn rounded-[14px] md:rounded-2xl overflow-hidden"
-                           >
-                              <div className="absolute inset-0 bg-linear-to-r from-pd-pink to-pd-red group-hover/btn:opacity-90 transition-opacity"></div>
-                              <div className="relative w-full h-full flex items-center justify-center text-white text-xs md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.3em]  gap-2 md:gap-3 group-hover/btn:scale-[1.02] transition-transform duration-300">
-                                 Submit Application <ArrowRight size={14} className="md:w-4 md:h-4" />
-                              </div>
-                           </button>
-
-                           <div className="flex items-center justify-center gap-1.5 md:gap-2 pt-2">
-                              <ShieldCheck size={12} className="text-emerald-500" />
-                              <p className="text-[7px] md:text-[8px] font-black text-slate-400 uppercase tracking-widest">256-bit Secure Partner Verification</p>
-                           </div>
-                        </form>
-                     </div>
-                  </div>
-               </div>
-            </motion.div>
-         </section>
-
-
-         <AnimatePresence>
-            {showSticky && (
-               <motion.div
-                  initial={{ y: 100, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: 100, opacity: 0 }}
-                  className="fixed bottom-0 left-0 right-0 p-3 z-50 lg:hidden pointer-events-none"
-               >
-                  <Link href="/signup" className="w-full block text-center py-4 bg-pd-red text-white text-sm font-black rounded-xl shadow-2xl pointer-events-auto">
-                     LIST YOUR VENUE
-                  </Link>
-               </motion.div>
-            )}
-         </AnimatePresence>
+          ))}
+        </div>
 
       </div>
-   );
+     </section>
+
+
+     
+     
+     
+     
+     {/* 10. NATIONAL EXPANSION - MAPLESS GRID DESIGN */}
+     <section className="relative py-24 px-6 overflow-hidden bg-[#F7F9FB] border-y border-slate-100 font-pd">
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-linear-to-bl from-[#3B82F6]/5 to-transparent rounded-full blur-[80px] pointer-events-none"></div>
+      
+      <div className="max-w-[1200px] mx-auto relative z-10">
+        
+        {/* Header Block */}
+        <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#3B82F6]/5 text-[#3B82F6] text-[10px] uppercase tracking-[0.4em] mb-6 border border-[#3B82F6]/10">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-ping"></span> 
+            National Expansion
+          </div>
+          
+          <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold font-sf text-slate-900 tracking-tight leading-[1.1] mb-6">
+            Dominating <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-purple-600 to-pd-blue">The Hills,</span> <br className="hidden md:block" />
+            Scaling India.
+          </h3>
+          
+          <p className="text-slate-500 text-sm md:text-base leading-relaxed font-normal font-pd">
+            After successfully digitizing the venue ecosystem in Uttarakhand, we are launching discovery hubs in major metropolitan areas to connect customers to premium venues nationwide.
+          </p>
+        </div>
+
+        {/* Phase 02 Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[
+            {
+              state: "Delhi NCR",
+              cities: "New Delhi · Gurugram · Noida",
+              status: "Live",
+              color: "#F43F5E" // Pink
+            },
+            {
+              state: "Maharashtra",
+              cities: "Mumbai · Pune",
+              status: "Beta",
+              color: "#A855F7" // Purple
+            },
+            {
+              state: "Punjab",
+              cities: "Chandigarh · Ludhiana",
+              status: "Deploying",
+              color: "#3B82F6" // Blue
+            },
+            {
+              state: "Rajasthan",
+              cities: "Jaipur · Udaipur",
+              status: "Deploying",
+              color: "#F59E0B" // Amber
+            },
+            {
+              state: "Gujarat",
+              cities: "Ahmedabad · Surat",
+              status: "Planning",
+              color: "#10B981" // Emerald
+            },
+            {
+              state: "Uttar Pradesh",
+              cities: "Lucknow · Agra",
+              status: "Planning",
+              color: "#6366F1" // Indigo
+            }
+          ].map((loc, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              className="bg-white rounded-[20px] p-6 md:p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
+            >
+              <div 
+                className="absolute top-0 left-0 w-1 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ backgroundColor: loc.color }}
+              ></div>
+              
+              <div className="flex justify-between items-start mb-12">
+                <div 
+                  className="w-12 h-12 rounded-xl flex items-center justify-center bg-slate-50 shadow-sm transition-transform duration-500 group-hover:rotate-6"
+                  style={{ color: loc.color }}
+                >
+                  <MapPin size={24} />
+                </div>
+                
+                <div 
+                  className="px-3 py-1 text-[10px] uppercase tracking-widest font-bold font-sf rounded-full border bg-white shadow-sm"
+                  style={{ 
+                    borderColor: `${loc.color}30`, 
+                    color: loc.color 
+                  }}
+                >
+                  {loc.status}
+                </div>
+              </div>
+              
+              <h4 className="text-xl md:text-2xl font-bold font-sf text-slate-900 mb-2">{loc.state}</h4>
+              <p className="text-sm font-pd text-slate-500">{loc.cities}</p>
+            </motion.div>
+          ))}
+        </div>
+        
+      </div>
+     </section>
+
+
+     
+
+
+     
+
+
+     
+     
+     {/* 11. FAQ - 2-COLUMN IMAGE DESIGN */}
+     <section id="faq" suppressHydrationWarning className="py-20 md:py-24 px-4 sm:px-6 bg-[#F7F9FB] relative overflow-hidden">
+      <div className="max-w-[1200px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          
+          {/* Left Column - Dark Gradient Card */}
+          <div className="lg:col-span-5 bg-[#16161F] rounded-[24px] p-8 md:p-10 text-white shadow-2xl relative overflow-hidden">
+            {/* Subtle radial glow inside card */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#3b4b86] opacity-30 blur-[80px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/4"></div>
+            
+            <div className="relative z-10">
+              <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-8 border border-white/5">
+                <Shield className="text-[#F43F5E]" size={24} />
+              </div>
+              
+              <h3 className="text-3xl md:text-4xl font-semibold font-sf text-white leading-[1.2] mb-4">
+                Frequently<br />Asked<br />Questions
+              </h3>
+              
+              <p className="text-slate-300 text-sm md:text-base font-normal font-pd leading-relaxed mb-6 max-w-[90%]">
+                Find answers to common questions about our services
+              </p>
+              
+              <div className="w-16 h-0.5 bg-[#F43F5E] mb-8"></div>
+              
+              <div className="space-y-4 mb-12">
+                {[
+                  "Expert Support Team",
+                  "24/7 Assistance",
+                  "Quick Response Time",
+                  "Secure & Confidential Support",
+                  "Dedicated Account Assistance"
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <CheckCircle2 size={18} className="text-[#F43F5E] shrink-0" />
+                    <span className="text-slate-200 text-sm font-pd">{item}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <Link href="/contact" className="block w-full">
+                <button className="w-full bg-[#F43F5E] hover:bg-[#E11D48] text-white font-semibold font-pd py-4 px-6 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#F43F5E]/20">
+                  Contact Support <ArrowRight size={18} />
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Column - Accordion List */}
+          <div className="lg:col-span-7 flex flex-col space-y-3 lg:space-y-4">
+            {[
+              { q: "How do I list my venue?", a: "Registering is easy. Fill out our partner onboarding form with your basic venue details. Our verification team reviews all applications within 24-48 hours to ensure our quality standards are met." },
+              { q: "How do I receive leads?", a: "Every inquiry is delivered instantly. We notify you via Real-time App Alerts and Email Alerts. You can also view, track, and manage all your conversations through the Partner Dashboard." },
+              { q: "Can I update pricing?", a: "Yes, you have full control. Update your pricing, seasonal availability, event capacity, and high-quality photo gallery at any time through your dashboard." },
+              { q: "Is there a listing fee?", a: "We offer several ways to grow. From organic free listings with standard visibility to premium growth plans that guarantee high-intent lead volume. Contact us to find your perfect fit." },
+              { q: "Do you offer premium placements?", a: "Yes, we offer premium placements that give your venue top visibility in local search results and priority recommendations to high-intent clients." },
+              { q: "How do I get paid for bookings?", a: "Payments are processed securely and sent directly to your linked bank account within 2-3 business days after the event takes place." },
+              { q: "What kind of support is available?", a: "You have access to our 24/7 partner support team via chat, email, and phone, plus a dedicated account manager for premium partners." }
+            ].map((f, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className={`bg-white rounded-[16px] transition-all duration-150 overflow-hidden ${activeFaq === i ? 'ring-2 ring-[#F43F5E]/20 shadow-md border-transparent' : 'border border-slate-100 shadow-sm hover:border-slate-200'}`}
+              >
+                <button
+                  onClick={() => setActiveFaq(activeFaq === i ? null : i)}
+                  className="w-full p-5 md:p-6 flex items-center justify-between text-left group bg-white"
+                >
+                  <div className="flex items-center gap-4 md:gap-6">
+                    <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-bold transition-colors duration-150 ${activeFaq === i ? 'bg-[#F43F5E] text-white' : 'bg-slate-100 text-slate-600'}`}>
+                      {i + 1}
+                    </div>
+                    <span className="text-base md:text-lg font-semibold font-sf text-slate-800 tracking-tight">
+                      {f.q}
+                    </span>
+                  </div>
+                  <div className={`shrink-0 transition-transform duration-150 ${activeFaq === i ? 'rotate-180' : 'rotate-0'}`}>
+                    <ChevronDown size={20} className="text-[#F43F5E]" />
+                  </div>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {activeFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.15, ease: "easeOut" }}
+                      className="overflow-hidden bg-white"
+                    >
+                      <div className="px-5 md:px-6 pb-6 pt-0 md:pl-[72px]">
+                        <p className="text-sm text-slate-500 font-normal font-pd leading-relaxed max-w-2xl">
+                          {f.a}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+          </div>
+          
+        </div>
+      </div>
+     </section>
+
+
+     
+     
+     {/* 12. FINAL CTA - LIGHT CLEAN SHOWCASE */}
+     <section className="py-24 md:py-32 px-6 bg-white relative overflow-hidden flex flex-col items-center border-t border-slate-100">
+      
+      {/* Subtle Background Elements */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Soft Radial Gradients */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#F43F5E]/5 blur-[100px] rounded-full translate-x-1/3 -translate-y-1/3"></div>
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#3B82F6]/5 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3"></div>
+      </div>
+
+      <div className="max-w-4xl mx-auto w-full relative z-10 flex flex-col items-center text-center">
+        
+        {/* Clean Flow Diagram */}
+        <div className="w-full max-w-3xl mx-auto mb-16">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-2 relative">
+            {/* Connecting Line (Desktop) */}
+            <div className="hidden md:block absolute top-1/2 left-0 w-full h-px bg-slate-200 -translate-y-1/2 -z-10"></div>
+            
+            {[
+              { icon: MapPin, label: "Your Venue" },
+              { icon: Search, label: "Get Discovered" },
+              { icon: MessageSquare, label: "Receive Enquiry" },
+              { icon: Users, label: "Connect" },
+              { icon: CalendarCheck, label: "Booking" }
+            ].map((step, i) => (
+              <React.Fragment key={i}>
+                <div className="flex flex-col items-center gap-3 relative bg-white px-2 md:px-0">
+                  <div className="w-12 h-12 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-[#F43F5E] relative z-10 hover:scale-110 hover:shadow-md transition-all duration-300">
+                    <step.icon size={20} />
+                  </div>
+                  <span className="text-[11px] uppercase tracking-[0.1em] text-slate-500 font-semibold font-sf hidden md:block whitespace-nowrap">{step.label}</span>
+                </div>
+                {i < 4 && (
+                  <div className="md:hidden w-px h-6 bg-slate-200 my-1"></div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+
+        {/* Eyebrow */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F43F5E]/10 text-[11px] font-bold uppercase tracking-[0.2em] text-[#F43F5E] w-max mb-6">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#F43F5E]"></div>
+          Ready to Grow Your Venue?
+        </div>
+
+        {/* Headline */}
+        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold font-sf tracking-tight leading-[1.1] mb-6 text-slate-900 max-w-3xl">
+          Your Next Booking <br className="hidden md:block"/>
+          Could <span className="relative inline-block text-[#F43F5E]">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-pink via-purple-600 to-pd-blue">
+              Start Here.
+            </span>
+            <svg className="absolute w-full h-2 -bottom-1 left-0 text-[#F43F5E]/30" viewBox="0 0 100 10" preserveAspectRatio="none">
+              <path d="M0,8 Q50,0 100,8" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+            </svg>
+          </span>
+        </h2>
+
+        {/* Description */}
+        <p className="text-slate-500 text-base md:text-lg font-normal font-pd leading-relaxed max-w-2xl mx-auto mb-10">
+          Put your venue in front of customers searching for the right space for their next event. Create your PartyDial partner profile, showcase your venue, receive customer enquiries, and manage your opportunities from one place.
+        </p>
+
+        {/* Actions */}
+        <div className="w-full flex flex-col items-center space-y-8">
+          
+          <div className="w-full max-w-sm flex flex-col items-center">
+            <Link href="/login" className="w-full group">
+              <button className="w-full bg-[#F43F5E] hover:bg-[#E11D48] text-white font-semibold font-sf text-base md:text-lg py-4 md:py-5 px-8 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-[0_8px_30px_rgba(244,63,94,0.3)] hover:shadow-[0_12px_40px_rgba(244,63,94,0.4)] hover:-translate-y-1">
+                <span>Become a PartyDial Partner</span>
+                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </button>
+            </Link>
+            
+            {/* Supporting Microcopy */}
+            <p className="text-[11px] md:text-xs text-slate-500 font-medium font-pd mt-4 tracking-wide">
+              Quick onboarding · Professional venue profile · Partner dashboard
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+     </section>
+
+
+     
+
+
+     
+
+
+     <AnimatePresence>
+      {showSticky && (
+        <motion.div
+         initial={{ y: 100, opacity: 0 }}
+         animate={{ y: 0, opacity: 1 }}
+         exit={{ y: 100, opacity: 0 }}
+         className="fixed bottom-0 left-0 right-0 p-3 z-50 lg:hidden pointer-events-none"
+        >
+         <Link href="/signup"className="w-full block text-center py-4 bg-pd-red text-white text-sm rounded-xl shadow-2xl pointer-events-auto">
+           LIST YOUR VENUE
+         </Link>
+        </motion.div>
+      )}
+     </AnimatePresence>
+
+   </div>
+  );
 }

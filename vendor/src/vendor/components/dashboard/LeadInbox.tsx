@@ -23,6 +23,7 @@ interface Lead {
   date: string;
   time: string;
   eventDate: string | null;
+  location?: string;
   status: string;
   email: string;
   color: string;
@@ -44,13 +45,13 @@ const LeadInbox = ({
   setActiveTab
 }: LeadInboxProps) => {
 
-  const filters = ['All', 'New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost'];
+  const filters = ['All', 'New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost Leads'];
 
   return (
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-6xl mx-auto space-y-6">
       
       {/* Header & Controls */}
-      <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-sm flex flex-col gap-6">
+      <div className="bg-white rounded-xl p-6 border border-slate-200/60 shadow-sm flex flex-col gap-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Lead Inbox</h1>
@@ -91,7 +92,7 @@ const LeadInbox = ({
       </div>
 
       {/* Leads List */}
-      <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
         
         {/* Table Header (Hidden on Mobile) */}
         <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-slate-100 bg-slate-50/50 text-[10px] font-bold uppercase tracking-wider text-slate-500">
@@ -155,6 +156,12 @@ const LeadInbox = ({
                          <span className="text-[10px] text-slate-400 ">Date unconfirmed</span>
                        )}
                     </div>
+                    {lead.location && (
+                       <div className="flex items-center gap-2 mt-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 shrink-0"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                          <span className="text-[10px] font-medium text-slate-500 truncate">{lead.location}</span>
+                       </div>
+                    )}
                  </div>
 
                  {/* Contact Actions */}
@@ -187,7 +194,7 @@ const LeadInbox = ({
                             isExpired ? 'bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed' :
                             lead.status === 'New' ? 'bg-blue-50 text-blue-700 border-blue-200/50 cursor-pointer' :
                             lead.status === 'Booked' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50 cursor-pointer' :
-                            lead.status === 'Lost' ? 'bg-rose-50 text-rose-700 border-rose-200/50 cursor-pointer' :
+                            lead.status === 'Lost Leads' ? 'bg-rose-50 text-rose-700 border-rose-200/50 cursor-pointer' :
                             'bg-slate-50 text-slate-700 border-slate-200/60 cursor-pointer'
                           }`}
                           value={displayStatus}
@@ -197,7 +204,7 @@ const LeadInbox = ({
                           {isExpired ? (
                              <option value="Expired">Expired</option>
                           ) : (
-                             ['New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost'].map(s => (
+                             ['New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost Leads'].map(s => (
                                 <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
                              ))
                           )}

@@ -25,11 +25,11 @@ const FinanceHub = ({ setActiveTab }: FinanceHubProps) => {
            <p className="text-sm font-medium text-slate-500 ">Manage your revenue stream and upcoming payouts.</p>
          </div>
          <div className="flex gap-4">
-            <button className="flex items-center gap-2 px-8 py-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all shadow-pd-soft">
+            <button className="flex items-center gap-2 px-8 py-4 bg-white border border-slate-100 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all shadow-pd-soft">
                <Download size={14} />
                Export Report
             </button>
-            <button className="pd-btn-primary flex items-center gap-2 px-8 py-4 rounded-2xl shadow-xl shadow-pd-pink/20">
+            <button className="pd-btn-primary flex items-center gap-2 px-8 py-4 rounded-lg shadow-xl shadow-pd-pink/20">
                <Plus size={14} strokeWidth={3} />
                Withdraw
             </button>
@@ -44,7 +44,7 @@ const FinanceHub = ({ setActiveTab }: FinanceHubProps) => {
           ].map((item, idx) => (
              <div key={idx} className={`${item.bg === 'bg-white' ? item.bg : item.bg + ' ' + item.text} p-10 rounded-[50px] shadow-2xl relative overflow-hidden group hover:-translate-y-2 transition-all duration-500`}>
                 <div className="relative z-10">
-                   <div className={`w-14 h-14 rounded-2xl ${item.bg === 'bg-white' ? 'bg-slate-50 text-slate-900' : 'bg-white/10 text-white'} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform`}>
+                   <div className={`w-14 h-14 rounded-lg ${item.bg === 'bg-white' ? 'bg-slate-50 text-slate-900' : 'bg-white/10 text-white'} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform`}>
                       {item.icon}
                    </div>
                    <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] ${item.bg === 'bg-white' ? 'text-slate-400' : 'text-white/60'} mb-2`}>{item.label}</h4>
@@ -66,7 +66,7 @@ const FinanceHub = ({ setActiveTab }: FinanceHubProps) => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setActiveTab('history')} 
-                    className="px-8 py-3 rounded-2xl bg-[#0F172A] text-white text-[9px] font-black uppercase tracking-[0.2em]  hover:bg-pd-pink transition-all shadow-2xl shadow-slate-900/20 flex items-center gap-3 transition-colors group"
+                    className="px-8 py-3 rounded-lg bg-[#0F172A] text-white text-[9px] font-black uppercase tracking-[0.2em]  hover:bg-pd-pink transition-all shadow-2xl shadow-slate-900/20 flex items-center gap-3 transition-colors group"
                  >
                     <History size={14} className="group-hover:rotate-[-45deg] transition-transform" />
                     View All Records

@@ -11,7 +11,10 @@ import {
   ArrowRight,
   Calendar,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Phone,
+  CalendarDays,
+  IndianRupee
 } from 'lucide-react';
 
 interface Lead {
@@ -61,13 +64,25 @@ const DashboardOverview = ({
   setShowInquiryPopup
 }: DashboardOverviewProps) => {
 
-  const [timeFilter, setTimeFilter] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'all'>('monthly');
+  const [timeFilter, setTimeFilter] = useState<'today' | 'weekly' | 'monthly' | 'yearly' | 'all'>('today');
 
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
     if (hour < 18) return 'Good afternoon';
     return 'Good evening';
+  };
+
+  const getLeadIcon = (status: string) => {
+    switch (status) {
+      case 'New': return <Zap size={16} />;
+      case 'Contacted': return <Phone size={16} />;
+      case 'Followups': return <CalendarDays size={16} />;
+      case 'Quotation Send': return <IndianRupee size={16} />;
+      case 'Booked': return <CheckCircle2 size={16} />;
+      case 'Lost': return <XCircle size={16} />;
+      default: return <Users size={16} />;
+    }
   };
 
   // Compute stats locally based on timeFilter
@@ -157,47 +172,17 @@ const DashboardOverview = ({
       className="space-y-6 lg:space-y-8"
     >
         
-        {/* Premium Welcome Header */}
-        <div className="relative overflow-hidden bg-white border border-slate-200/60 rounded-3xl p-8 lg:p-10 shadow-sm">
-           {/* Abstract Background Element */}
-           <div className="absolute -top-24 -right-24 w-96 h-96 bg-linear-to-br from-pd-pink/10 to-pd-purple/5 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-           
-           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div>
-                 <motion.h1 
-                    initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
-                    className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-2"
-                 >
-                    {getGreeting()}, <span className="bg-clip-text text-transparent bg-linear-to-r from-slate-900 to-slate-600">{venueProfile?.venueName || userName || "Partner"}</span>
-                 </motion.h1>
-                 <motion.p 
-                    initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
-                    className="text-slate-500 font-medium text-sm"
-                 >
-                    Here&apos;s what&apos;s happening with your venue today.
-                 </motion.p>
-              </div>
-              
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="flex gap-3">
-                 <button 
-                   onClick={() => setActiveTab('leads')}
-                   className="h-11 px-6 bg-slate-900 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-slate-900/10 hover:bg-slate-800 hover:shadow-lg active:scale-95 flex items-center gap-2"
-                 >
-                    View Pipeline <ArrowRight size={14} />
-                 </button>
-              </motion.div>
-           </div>
-        </div>
+
 
          {/* Time Filter & Stats Grid */}
          <div className="flex flex-col gap-4">
            <div className="flex justify-end items-center px-1">
-             <div className="bg-white border border-slate-200/60 p-1 rounded-xl flex items-center shadow-sm">
-                <Calendar size={14} className="text-slate-400 mx-2" />
+             <div className="bg-white border border-slate-200/60 px-4 py-2 rounded-full flex items-center shadow-sm relative group cursor-pointer hover:border-slate-300 transition-colors">
+                <Calendar size={16} className="text-slate-400 mr-2" />
                 <select 
                   value={timeFilter}
                   onChange={(e) => setTimeFilter(e.target.value as 'today' | 'weekly' | 'monthly' | 'yearly' | 'all')}
-                  className="bg-transparent text-[11px] font-bold text-slate-700 outline-none pr-3 cursor-pointer"
+                  className="bg-transparent text-sm font-bold text-slate-700 outline-none pr-6 cursor-pointer appearance-none relative z-10 w-full"
                 >
                    <option value="today">Today</option>
                    <option value="weekly">This Week</option>
@@ -205,6 +190,9 @@ const DashboardOverview = ({
                    <option value="yearly">This Year</option>
                    <option value="all">All Time</option>
                 </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-700 z-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </div>
              </div>
            </div>
            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
@@ -214,7 +202,7 @@ const DashboardOverview = ({
                animate={{ opacity: 1, y: 0 }}
                transition={{ delay: 0.1 + (i * 0.05), ease: "easeOut" }}
                key={i}
-               className="group bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
+               className="group bg-white p-6 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
              >
                 {/* Subtle Hover Glow */}
                 <div className="absolute inset-0 bg-linear-to-br from-white to-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -239,7 +227,7 @@ const DashboardOverview = ({
 
        {/* Feed Section */}
        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          <div className="lg:col-span-3 bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col">
+          <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col">
              
              {/* Header */}
              <div className="px-6 lg:px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-white/50 backdrop-blur-sm">
@@ -265,11 +253,11 @@ const DashboardOverview = ({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 + (i * 0.05) }}
                         onClick={() => setActiveTab('leads')}
-                        className="group p-4 bg-white border border-slate-200/50 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between hover:shadow-md hover:border-slate-300 transition-all cursor-pointer gap-4 sm:gap-0"
+                        className="group p-4 bg-white border border-slate-200/50 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between hover:shadow-md hover:border-slate-300 transition-all cursor-pointer gap-4 sm:gap-0"
                       >
                          <div className="flex items-center gap-4">
                             <div className="w-10 h-10 rounded-full bg-linear-to-tr from-slate-100 to-slate-50 flex items-center justify-center text-slate-400 group-hover:text-pd-pink border border-slate-200/50 shrink-0 shadow-sm transition-colors">
-                               <Users size={16} />
+                               {getLeadIcon(lead.status)}
                             </div>
                             <div>
                                <h4 className="text-sm font-bold text-slate-900 mb-0.5">{lead.name}</h4>
@@ -293,7 +281,7 @@ const DashboardOverview = ({
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-16 px-6">
-                     <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-300 mb-4 shadow-sm border border-slate-100">
+                     <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center text-slate-300 mb-4 shadow-sm border border-slate-100">
                         <Zap size={24} />
                      </div>
                      <h3 className="text-sm font-bold text-slate-900 mb-1">No Leads Found</h3>
