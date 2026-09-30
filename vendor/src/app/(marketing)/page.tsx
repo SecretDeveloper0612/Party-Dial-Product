@@ -624,25 +624,25 @@ const GrowthJourneySection = () => {
       </div>
 
       {/* Bottom CTA */}
-      <div className="mt-16 md:mt-20 max-w-3xl mx-auto text-center bg-slate-50 p-10 rounded-3xl border border-slate-200 relative overflow-hidden group">
+      <div className="mt-16 md:mt-20 max-w-3xl mx-auto text-center bg-slate-50 p-6 sm:p-8 md:p-10 rounded-3xl border border-slate-200 relative overflow-hidden group">
         <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px] opacity-50" />
         <div className="relative z-10">
-          <h3 className="text-2xl md:text-3xl font-semibold font-sf text-slate-900 mb-4">Ready to Put Your Venue in Front of More Customers?</h3>
-          <p className="text-slate-600 text-sm md:text-base mb-8">Join PartyDial and start building your digital presence, receiving enquiries, and creating new booking opportunities.</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+          <h3 className="text-[22px] md:text-3xl font-semibold font-sf text-slate-900 mb-3 md:mb-4 leading-tight">Ready to Put Your Venue in Front of More Customers?</h3>
+          <p className="text-slate-600 text-[13px] md:text-base mb-6 md:mb-8 px-2 md:px-0 leading-relaxed">Join PartyDial and start building your digital presence, receiving enquiries, and creating new booking opportunities.</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 mb-6">
             <Link href="/register" className="w-full sm:w-auto">
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto px-8 py-4 bg-[#F43F5E] hover:bg-[#e11d48] text-white rounded-2xl font-semibold font-pd text-sm shadow-xl shadow-[#F43F5E]/30 flex items-center justify-center transition-all">
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto px-4 md:px-8 py-3.5 md:py-4 bg-[#F43F5E] hover:bg-[#e11d48] text-white rounded-2xl font-semibold font-pd text-[13px] md:text-sm shadow-xl shadow-[#F43F5E]/30 flex items-center justify-center transition-all whitespace-nowrap">
                 Become a PartyDial Partner →
               </motion.button>
             </Link>
             <button 
               onClick={() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' })}
-              className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl font-semibold font-pd text-sm border border-slate-200 shadow-sm flex items-center justify-center transition-all cursor-pointer"
+              className="w-full sm:w-auto px-4 md:px-8 py-3.5 md:py-4 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl font-semibold font-pd text-[13px] md:text-sm border border-slate-200 shadow-sm flex items-center justify-center transition-all cursor-pointer whitespace-nowrap"
             >
               Calculate Your Revenue
             </button>
           </div>
-          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Simple onboarding · Professional venue profile · Partner dashboard</p>
+          <p className="text-[9px] md:text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-relaxed">Simple onboarding · Professional venue profile · Partner dashboard</p>
         </div>
       </div>
      </div>
@@ -956,38 +956,38 @@ const PartnerPortalSection = () => {
       </div>
 
       {/* Bottom CTA Block */}
-      <div className="mt-24 lg:mt-32 max-w-4xl mx-auto text-center relative overflow-hidden shadow-2xl bg-slate-900 rounded-3xl p-10 md:p-16">
+      <div className="mt-24 lg:mt-32 max-w-4xl mx-auto text-center relative overflow-hidden shadow-2xl bg-slate-900 rounded-3xl p-6 sm:p-8 md:p-16">
         <div className="absolute top-0 right-0 w-64 h-64 bg-pd-pink/20 blur-3xl rounded-full mix-blend-screen pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-pd-blue/20 blur-3xl rounded-full mix-blend-screen pointer-events-none translate-y-1/2 -translate-x-1/3"></div>
         
         <div className="relative z-10">
-         <h3 className="text-3xl md:text-5xl font-semibold font-sf text-white tracking-tight leading-[1.15] mb-6">
+         <h3 className="text-[26px] md:text-5xl font-semibold font-sf text-white tracking-tight leading-tight md:leading-[1.15] mb-4 md:mb-6">
            Your Venue. Your Business. <br />
            <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-blue via-purple-500 to-pd-pink">One Powerful Partner Portal.</span>
          </h3>
-         <p className="text-slate-300 text-base lg:text-lg font-normal font-pd mb-10 max-w-2xl mx-auto">
+         <p className="text-slate-300 text-[13px] sm:text-base lg:text-lg font-normal font-pd mb-8 md:mb-10 max-w-2xl mx-auto px-2 md:px-0 leading-relaxed">
            From your first customer enquiry to your next confirmed booking, manage your venue business from one place with PartyDial.
          </p>
          
-         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 mb-8">
            <Link href="/login"className="w-full sm:w-auto">
             <motion.button
               whileHover={{ scale: 1.02, translateY: -2 }} whileTap={{ scale: 0.98 }}
-              className="w-full sm:w-auto px-8 py-4 bg-[#F43F5E] hover:bg-[#e11d48] text-white rounded-2xl font-semibold font-pd text-sm flex items-center justify-center gap-2 transition-all shadow-xl shadow-[#F43F5E]/20 group cursor-pointer"
+              className="w-full sm:w-auto px-4 md:px-8 py-3.5 md:py-4 bg-[#F43F5E] hover:bg-[#e11d48] text-white rounded-2xl font-semibold font-pd text-[13px] md:text-sm flex items-center justify-center gap-2 transition-all shadow-xl shadow-[#F43F5E]/20 group cursor-pointer whitespace-nowrap"
             >
               <span>Explore Partner Dashboard</span>
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform"/>
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform md:w-[18px] md:h-[18px]"/>
             </motion.button>
            </Link>
   
            <Link href="/login"className="w-full sm:w-auto">
-            <button className="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-semibold font-pd text-sm border border-white/20 shadow-sm flex items-center justify-center transition-all cursor-pointer backdrop-blur-sm">
+            <button className="w-full sm:w-auto px-4 md:px-8 py-3.5 md:py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-semibold font-pd text-[13px] md:text-sm border border-white/20 shadow-sm flex items-center justify-center transition-all cursor-pointer backdrop-blur-sm whitespace-nowrap">
               Become a PartyDial Partner
             </button>
            </Link>
          </div>
          
-         <div className="flex items-center justify-center gap-4 text-[11px] font-semibold font-pd text-slate-400 uppercase tracking-widest">
+         <div className="flex items-center justify-center gap-3 md:gap-4 text-[9px] md:text-[11px] font-semibold font-pd text-slate-400 uppercase tracking-widest whitespace-nowrap">
            <span>Manage smarter</span>
            <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
            <span>Respond faster</span>
@@ -1325,15 +1325,15 @@ export default function PartnerLandingPage() {
            initial={{ opacity: 0, x: -20, y: 10 }}
            animate={{ opacity: 1, x: 0, y: 0 }}
            transition={{ delay: 1, duration: 0.5 }}
-           className="absolute -left-4 md:-left-12 -top-6 md:-top-10 z-20 bg-white p-3 md:p-4 rounded-2xl shadow-xl border border-slate-100 flex items-start gap-3 w-48 md:w-56 animate-float-slow"
+           className="hidden md:flex absolute -left-12 -top-10 z-20 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 items-start gap-3 w-56 animate-float-slow"
          >
            <div className="w-8 h-8 rounded-full bg-pd-pink/10 text-pd-pink flex items-center justify-center shrink-0">
             <Heart size={14} fill="currentColor"/>
            </div>
            <div>
-            <p className="text-[10px] md:text-xs font-semibold font-pd text-slate-900 leading-tight">New Enquiry</p>
-            <p className="text-[9px] md:text-[10px] font-normal font-pd text-slate-500 mt-0.5">Wedding · 250 Guests</p>
-            <p className="text-[9px] md:text-[10px] font-semibold font-pd text-pd-pink mt-1 cursor-pointer">View Enquiry →</p>
+            <p className="text-xs font-semibold font-pd text-slate-900 leading-tight">New Enquiry</p>
+            <p className="text-[10px] font-normal font-pd text-slate-500 mt-0.5">Wedding · 250 Guests</p>
+            <p className="text-[10px] font-semibold font-pd text-pd-pink mt-1 cursor-pointer">View Enquiry →</p>
            </div>
          </motion.div>
 
@@ -1342,14 +1342,14 @@ export default function PartnerLandingPage() {
            initial={{ opacity: 0, x: -20, y: -10 }}
            animate={{ opacity: 1, x: 0, y: 0 }}
            transition={{ delay: 1.5, duration: 0.5 }}
-           className="absolute -left-2 md:-left-8 bottom-12 md:bottom-20 z-20 bg-white p-3 md:p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3 animate-float-fast"
+           className="hidden md:flex absolute -left-8 bottom-20 z-20 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 items-center gap-3 animate-float-fast"
          >
            <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
             <CheckCircle2 size={16} />
            </div>
            <div>
-            <p className="text-[10px] md:text-xs font-semibold font-pd text-slate-900 leading-tight">Booking Confirmed</p>
-            <p className="text-[9px] md:text-[10px] font-normal font-pd text-slate-500 mt-0.5">18 Oct · 250 Pax</p>
+            <p className="text-xs font-semibold font-pd text-slate-900 leading-tight">Booking Confirmed</p>
+            <p className="text-[10px] font-normal font-pd text-slate-500 mt-0.5">18 Oct · 250 Pax</p>
            </div>
          </motion.div>
 
@@ -1358,19 +1358,19 @@ export default function PartnerLandingPage() {
            initial={{ opacity: 0, x: 20, y: 10 }}
            animate={{ opacity: 1, x: 0, y: 0 }}
            transition={{ delay: 1.2, duration: 0.5 }}
-           className="absolute -right-4 md:-right-8 top-1/4 z-20 bg-white p-3 md:p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3 animate-float-slow"
+           className="hidden md:flex absolute -right-8 top-1/4 z-20 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 items-center gap-3 animate-float-slow"
            style={{ animationDelay: '1s' }}
          >
            <div className="w-8 h-8 rounded-full bg-pd-blue/10 text-pd-blue flex items-center justify-center shrink-0">
             <Eye size={14} />
            </div>
            <div>
-            <p className="text-[10px] md:text-xs font-normal font-pd text-slate-500 leading-tight">Profile Views</p>
+            <p className="text-xs font-normal font-pd text-slate-500 leading-tight">Profile Views</p>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-sm md:text-base font-semibold font-pd text-slate-900">
+              <span className="text-base font-semibold font-pd text-slate-900">
                <AnimatedCounter end={486} />
               </span>
-              <span className="text-[9px] md:text-[10px] font-semibold font-pd text-emerald-500">+24.8%</span>
+              <span className="text-[10px] font-semibold font-pd text-emerald-500">+24.8%</span>
             </div>
            </div>
          </motion.div>
@@ -1380,15 +1380,15 @@ export default function PartnerLandingPage() {
            initial={{ opacity: 0, x: 20, y: -10 }}
            animate={{ opacity: 1, x: 0, y: 0 }}
            transition={{ delay: 1.8, duration: 0.5 }}
-           className="absolute -right-2 md:-right-10 bottom-0 md:-bottom-6 z-20 bg-white p-3 md:p-4 rounded-2xl shadow-xl border border-slate-100 flex items-start gap-3 animate-float-fast"
+           className="hidden md:flex absolute -right-10 -bottom-6 z-20 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 items-start gap-3 animate-float-fast"
            style={{ animationDelay: '2s' }}
          >
            <div className="w-8 h-8 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
             <TrendingUp size={14} />
            </div>
            <div>
-            <p className="text-[10px] md:text-xs font-normal font-pd text-slate-500 leading-tight">Booking Value</p>
-            <p className="text-sm md:text-base font-semibold font-pd text-slate-900 mt-0.5">₹42,500</p>
+            <p className="text-xs font-normal font-pd text-slate-500 leading-tight">Booking Value</p>
+            <p className="text-base font-semibold font-pd text-slate-900 mt-0.5">₹42,500</p>
            </div>
          </motion.div>
 

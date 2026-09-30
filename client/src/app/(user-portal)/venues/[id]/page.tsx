@@ -723,6 +723,34 @@ export default function VenueDetailPage() {
                   
                   {/* Title & Location */}
                   <h1 className="text-2xl sm:text-3xl md:text-[38px] font-pd font-bold text-slate-900 mb-1 tracking-tight leading-tight">{venue.name}</h1>
+                {/* CLAIM THIS BUSINESS UI */}
+                {venue?.claimStatus === 'UNCLAIMED' && (
+                  <div className="mt-6 mb-8 bg-blue-50/50 border border-blue-100 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-blue-900 font-semibold font-pd mb-1 flex items-center gap-2">
+                        <span className="text-yellow-500">⚠</span> Is this your business?
+                      </h3>
+                      <p className="text-blue-700/80 text-sm font-pd">
+                        Claim this venue to manage your PartyDial listing and connect with customers.
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => alert('Claim flow opening soon')}
+                      className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap"
+                    >
+                      Claim This Business
+                    </button>
+                  </div>
+                )}
+                {venue?.claimStatus === 'CLAIMED' && (
+                  <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-semibold">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Claimed & Verified
+                  </div>
+                )}
+
                   <div className="flex items-center justify-center sm:justify-start gap-1.5 text-slate-500 font-pd font-medium text-xs md:text-sm">
                      <MapPin className="text-rose-400 shrink-0" size={14} />
                      <span className="leading-relaxed">{venue.location}</span>

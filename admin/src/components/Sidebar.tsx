@@ -76,6 +76,8 @@ const menuGroups = [
       { icon: Users, label: "User & Role Management", path: "/users" },
       { icon: GitGraph, label: "Team Structure", path: "/team-tree" },
       { icon: LifeBuoy, label: "Support Tickets", path: "/support-tickets" },
+      { icon: Building2, label: "Listing Venues", path: "/listing-venues" },
+      { icon: ShieldCheck, label: "Claims & Verification", path: "/claims-verification" },
     ]
   }
 ];

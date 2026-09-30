@@ -4,6 +4,7 @@ const venueController = require('../controllers/venueController');
 
 // Define routes for venues
 router.get('/', venueController.getAllVenues);
+router.post('/', venueController.createVenue);
 router.post('/leads', venueController.submitLead);
 router.get('/:venueId/leads', venueController.getVenueLeads);
 router.patch('/:id/approve', venueController.approveVenue);

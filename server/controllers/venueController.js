@@ -93,7 +93,7 @@ exports.approveVenue = async (req, res) => {
     }
 };
 
-// Reject a venue listing (set isVerified: false, status: 'rejected')
+// Reject a venue listing (set isVerified: true, status: 'rejected')
 exports.rejectVenue = async (req, res) => {
     try {
         const { id } = req.params;
@@ -102,7 +102,7 @@ exports.rejectVenue = async (req, res) => {
         // Fetch current doc to check for missing required fields (like capacity)
         const currentDoc = await databases.getDocument(DATABASE_ID, VENUES_COLLECTION_ID, id);
         
-        const updatePayload = { isVerified: false, status: 'rejected' };
+        const updatePayload = { isVerified: true, status: 'rejected' };
         // If capacity is missing (required in new schema), add a default
         if (currentDoc.capacity === undefined || currentDoc.capacity === null || currentDoc.capacity < 1) {
             updatePayload.capacity = 1;
@@ -174,8 +174,8 @@ exports.updateVenue = async (req, res) => {
         const payload = {};
         allowedFields.forEach(field => {
             if (updateData[field] !== undefined) {
-                if (field === 'capacity') {
-                    // capacity must be an integer
+                if (field === 'capacity' || field === 'rooms') {
+                    // capacity and rooms must be an integer
                     payload[field] = parseInt(updateData[field]) || 0;
                 } else if (stringArrayFields.includes(field)) {
                     // Appwrite stores these as string attributes containing JSON arrays
@@ -860,4 +860,51 @@ exports.notifyOnboardingComplete = async (req, res) => {
         console.error('Error in notifyOnboardingComplete:', error);
         return res.status(500).json({ status: 'error', message: error.message });
     }
+};
+
+exports.createVenue = async (req, res) => {
+  try {
+    const venueData = req.body;
+    // Add default timestamps and identifiers
+    const documentId = ID.unique();
+        const newVenue = await databases.createDocument(
+      DATABASE_ID,
+      VENUES_COLLECTION_ID,
+      documentId,
+      {
+        venueName: venueData.venueName || 'Unnamed Venue',
+        venueType: venueData.category || 'Banquet Hall',
+        city: venueData.city || 'Unknown',
+        state: venueData.state || 'Unknown',
+        pincode: venueData.pincode || '000000',
+        landmark: venueData.address || '',
+        description: venueData.description || 'No description provided.',
+        capacity: venueData.capacity !== undefined ? parseInt(venueData.capacity) : 500,
+        perPlateVeg: venueData.perPlateVeg || '0',
+        perPlateNonVeg: venueData.perPlateNonVeg || '0',
+        amenities: venueData.amenities || '',
+        eventTypes: venueData.eventTypes || '',
+        foodTypes: venueData.foodTypes || '',
+        photos: venueData.photos || '',
+        userId: venueData.vendorId || 'admin_import',
+        ownerName: venueData.ownerName || 'PartyDial Admin',
+        contactNumber: venueData.phone || '0000000000',
+        contactEmail: venueData.contactEmail || 'admin@partydial.com',
+        status: venueData.listingStatus === 'Published' ? 'active' : 'draft',
+        isVerified: true,
+        profileStatus: 'active',
+        onboardingComplete: false,
+        accessLevel: 'basic',
+        featuresAccess: '',
+        rating: 0.0,
+        totalReviews: 0,
+        subscriptionPlan: 'free',
+        subscriptionStatus: 'inactive'
+      }
+    );
+    res.status(201).json({ status: 'success', data: newVenue });
+  } catch (error) {
+    console.error('Error creating venue:', error);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
 };
