@@ -726,20 +726,31 @@ export default function VenueDetailPage() {
                   <h1 className="text-2xl sm:text-3xl md:text-[38px] font-pd font-bold text-slate-900 mb-1 tracking-tight leading-tight">{venue.name}</h1>
                 {/* CLAIM THIS BUSINESS UI */}
                 {venue?.claimStatus?.toUpperCase() === 'UNCLAIMED' && (
-                  <div className="mt-6 mb-8 bg-blue-50/50 border border-blue-100 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                    <div>
-                      <h3 className="text-blue-900 font-semibold font-pd mb-1 flex items-center gap-2">
-                        <span className="text-yellow-500">⚠</span> Is this your business?
+                  <div className="mt-6 mb-8 bg-gradient-to-br from-blue-50 to-indigo-50/50 border border-blue-100/80 rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all duration-700"></div>
+                    
+                    <div className="relative z-10">
+                      <h3 className="text-slate-900 font-bold font-pd mb-1.5 flex items-center gap-2 text-lg tracking-tight">
+                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </span>
+                        Own this business?
                       </h3>
-                      <p className="text-blue-700/80 text-sm font-pd">
-                        Claim this venue to manage your PartyDial listing and connect with customers.
+                      <p className="text-slate-600 text-sm font-medium max-w-lg leading-relaxed">
+                        Claim your PartyDial listing to update your pricing, add high-quality photos, and start receiving direct customer leads.
                       </p>
                     </div>
+                    
                     <button 
                       onClick={() => alert('Claim flow opening soon')}
-                      className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap"
+                      className="relative z-10 group/btn inline-flex items-center justify-center gap-2 px-7 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold shadow-xl shadow-slate-900/10 hover:shadow-slate-900/20 transition-all active:scale-95 whitespace-nowrap ring-2 ring-slate-900/5"
                     >
-                      Claim This Business
+                      <span>Claim Venue Now</span>
+                      <svg className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
                     </button>
                   </div>
                 )}
