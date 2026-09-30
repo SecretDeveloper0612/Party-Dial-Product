@@ -15,7 +15,8 @@ export default function ListingVenuesPage() {
     name: '', category: 'Banquet Hall', city: '', address: '', phone: '',
     email: '', password: '', description: '', state: '', pincode: '', mapLink: '',
     capacity: '', vegPrice: '', nonVegPrice: '',
-    amenities: [] as string[], eventTypes: [] as string[], existingPhotos: [] as string[]
+    amenities: [] as string[], eventTypes: [] as string[], existingPhotos: [] as string[],
+    claimStatus: 'Unclaimed'
   });
   const [selectedPhotos, setSelectedPhotos] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,7 +66,7 @@ export default function ListingVenuesPage() {
           amenities: JSON.stringify(newVenue.amenities),
           eventTypes: JSON.stringify(newVenue.eventTypes),
           listingStatus: 'Published',
-          claimStatus: 'Claimed',
+          claimStatus: newVenue.claimStatus,
           source: 'Admin Import'
       };
 
@@ -280,7 +281,8 @@ export default function ListingVenuesPage() {
               capacity: venue.capacity ? venue.capacity.toString() : '', vegPrice: venue.perPlateVeg ? venue.perPlateVeg.toString() : '', nonVegPrice: venue.perPlateNonVeg ? venue.perPlateNonVeg.toString() : '',
               amenities: (() => { try { return JSON.parse(venue.amenities || '[]') } catch { return [] } })(),
               eventTypes: (() => { try { return JSON.parse(venue.eventTypes || '[]') } catch { return [] } })(),
-              existingPhotos: (() => { try { return JSON.parse(venue.photos || '[]') } catch { return [] } })()
+              existingPhotos: (() => { try { return JSON.parse(venue.photos || '[]') } catch { return [] } })(),
+              claimStatus: venue.claimStatus || 'Unclaimed'
             });
             setIsImportModalOpen(true);
           }} className="text-pd-red hover:text-red-700 font-medium text-sm mr-4">Edit</button><a href={`http://localhost:3001/venues/${venue.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 font-medium text-sm">View Listing</a>
@@ -356,6 +358,14 @@ export default function ListingVenuesPage() {
                         <option>Lawn</option>
                         <option>Hotel</option>
                         <option>Restaurant</option>
+                      </select>
+                    </div>
+
+                    <div className="col-span-3 md:col-span-1">
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Claim Status</label>
+                      <select value={newVenue.claimStatus} onChange={(e) => setNewVenue({...newVenue, claimStatus: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none">
+                        <option value="Unclaimed">Unclaimed</option>
+                        <option value="Claimed">Claimed</option>
                       </select>
                     </div>
 

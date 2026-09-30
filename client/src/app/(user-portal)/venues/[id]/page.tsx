@@ -724,7 +724,7 @@ export default function VenueDetailPage() {
                   {/* Title & Location */}
                   <h1 className="text-2xl sm:text-3xl md:text-[38px] font-pd font-bold text-slate-900 mb-1 tracking-tight leading-tight">{venue.name}</h1>
                 {/* CLAIM THIS BUSINESS UI */}
-                {venue?.claimStatus === 'UNCLAIMED' && (
+                {venue?.claimStatus?.toUpperCase() === 'UNCLAIMED' && (
                   <div className="mt-6 mb-8 bg-blue-50/50 border border-blue-100 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div>
                       <h3 className="text-blue-900 font-semibold font-pd mb-1 flex items-center gap-2">
@@ -742,7 +742,7 @@ export default function VenueDetailPage() {
                     </button>
                   </div>
                 )}
-                {venue?.claimStatus === 'CLAIMED' && (
+                {venue?.claimStatus?.toUpperCase() === 'CLAIMED' && (
                   <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-semibold">
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
