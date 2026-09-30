@@ -269,6 +269,7 @@ export default function VenueDetailPage() {
             type: doc.venueType || "Banquet Hall",
             verified: doc.isVerified || false,
             popular: doc.status === 'active',
+            claimStatus: doc.claimStatus || 'UNCLAIMED',
             rating: 0.0, 
             reviewCount: 0,
             contactNumber: doc.contactNumber || "919058988455",
