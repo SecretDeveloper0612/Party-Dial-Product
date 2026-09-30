@@ -60,13 +60,10 @@ export default function ListingVenuesPage() {
           state: newVenue.state,
           pincode: newVenue.pincode,
           capacity: newVenue.capacity ? parseInt(newVenue.capacity) : 500,
-          rooms: newVenue.rooms,
           perPlateVeg: newVenue.vegPrice,
           perPlateNonVeg: newVenue.nonVegPrice,
-          foodPolicy: newVenue.foodPolicy,
           amenities: JSON.stringify(newVenue.amenities),
           eventTypes: JSON.stringify(newVenue.eventTypes),
-          videoLink: newVenue.videoLink,
           listingStatus: 'Published',
           claimStatus: 'Claimed',
           source: 'Admin Import'
