@@ -67,6 +67,7 @@ export default function ListingVenuesPage() {
           eventTypes: JSON.stringify(newVenue.eventTypes),
           listingStatus: 'Published',
           claimStatus: newVenue.claimStatus,
+          vendorId: newVenue.claimStatus === 'Claimed' ? 'admin_claimed' : 'admin_import',
           source: 'Admin Import'
       };
 
@@ -127,7 +128,7 @@ export default function ListingVenuesPage() {
         
         if (data.status === 'success' && data.data) {
           // Only show venues that were manually imported/created by the Admin
-          const adminCreatedVenues = data.data.filter((v: any) => v.userId === 'admin_import' || v.ownerName === 'PartyDial Admin');
+          const adminCreatedVenues = data.data.filter((v: any) => v.userId === 'admin_import' || v.userId === 'admin_claimed' || v.ownerName === 'PartyDial Admin');
           // Map backend Appwrite data to the table format
           const mappedVenues = adminCreatedVenues.map((v: any) => ({
             ...v,
@@ -136,7 +137,7 @@ export default function ListingVenuesPage() {
             category: v.category || 'Banquet',
             city: v.city || 'Unknown City',
             listingStatus: v.listingStatus || 'Published',
-            claimStatus: v.claimStatus || 'Unclaimed',
+            claimStatus: v.userId === 'admin_claimed' ? 'Claimed' : (v.claimStatus || 'Unclaimed'),
           }));
           setVenues(mappedVenues);
         } else {

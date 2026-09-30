@@ -194,6 +194,10 @@ exports.updateVenue = async (req, res) => {
             }
         });
 
+        if (updateData.vendorId) {
+            payload.userId = updateData.vendorId;
+        }
+
         const updated = await databases.updateDocument(
             DATABASE_ID,
             VENUES_COLLECTION_ID,
