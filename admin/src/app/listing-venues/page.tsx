@@ -31,7 +31,7 @@ export default function ListingVenuesPage() {
   const handleCreateVenue = async () => {
     setIsSubmitting(true);
     try {
-      const baseServerUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5005';
+      const baseServerUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5005' : (process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5005');
       const serverUrl = baseServerUrl.endsWith('/api') ? baseServerUrl : `${baseServerUrl}/api`;
       
       const url = editingVenueId ? `${serverUrl}/venues/${editingVenueId}` : `${serverUrl}/venues`;
@@ -91,7 +91,14 @@ export default function ListingVenuesPage() {
         body: JSON.stringify(payload)
       });
       
-      const result = await res.json();
+      const responseText = await res.text();
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (e) {
+        throw new Error(`Server returned invalid format (${res.status}): ${responseText.substring(0, 50)}`);
+      }
+
       if (res.ok) {
         setToast({ message: editingVenueId ? 'Venue updated successfully!' : 'Venue created successfully!', type: 'success' });
         setIsImportModalOpen(false);
@@ -121,7 +128,7 @@ export default function ListingVenuesPage() {
     const fetchVenues = async () => {
       try {
         // Wire to the backend URL for venues
-        const baseServerUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5005';
+        const baseServerUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:5005' : (process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5005');
       const serverUrl = baseServerUrl.endsWith('/api') ? baseServerUrl : `${baseServerUrl}/api`;
         const res = await fetch(`${serverUrl}/venues?limit=50`);
         const data = await res.json();
