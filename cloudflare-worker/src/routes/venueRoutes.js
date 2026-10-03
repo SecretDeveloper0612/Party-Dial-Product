@@ -4,6 +4,7 @@ import * as venueController from '../controllers/venueController';
 const router = new Hono();
 
 router.get('/', venueController.getAllVenues);
+router.post('/', venueController.createVenue);
 router.post('/leads', venueController.submitLead);
 router.get('/:venueId/leads', venueController.getVenueLeads);
 router.patch('/:id/approve', venueController.approveVenue);

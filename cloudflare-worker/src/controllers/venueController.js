@@ -327,3 +327,56 @@ export const notifyDocSubmission = async (c) => {
 export const notifyOnboardingComplete = async (c) => {
     return c.json({ status: 'success', message: 'Onboarding completion notification processed' }, 200);
 };
+
+export const createVenue = async (c) => {
+  try {
+    const venueData = await c.req.json().catch(() => ({}));
+    if (!venueData || Object.keys(venueData).length === 0) {
+      return c.json({ status: 'error', message: 'Venue data is required' }, 400);
+    }
+    
+    const { databases, databaseId, collections } = getAppwriteServices(c.env);
+    const documentId = ID.unique();
+    
+    const newVenue = await databases.createDocument(
+      databaseId,
+      collections.VENUES,
+      documentId,
+      {
+        venueName: venueData.venueName || 'Unnamed Venue',
+        venueType: venueData.category || venueData.venueType || 'Banquet Hall',
+        city: venueData.city || 'Unknown',
+        state: venueData.state || 'Unknown',
+        pincode: venueData.pincode || '000000',
+        landmark: venueData.address || venueData.landmark || '',
+        description: venueData.description || 'No description provided.',
+        capacity: venueData.capacity !== undefined ? parseInt(venueData.capacity) : 500,
+        perPlateVeg: venueData.perPlateVeg || '0',
+        perPlateNonVeg: venueData.perPlateNonVeg || '0',
+        amenities: venueData.amenities || '',
+        eventTypes: venueData.eventTypes || '',
+        foodTypes: venueData.foodTypes || '',
+        photos: venueData.photos || '',
+        userId: venueData.vendorId || venueData.userId || 'admin_import',
+        ownerName: venueData.ownerName || 'PartyDial Admin',
+        contactNumber: venueData.phone || venueData.contactNumber || '0000000000',
+        contactEmail: venueData.contactEmail || 'admin@partydial.com',
+        status: venueData.listingStatus === 'Published' ? 'active' : 'draft',
+        isVerified: true,
+        profileStatus: 'active',
+        onboardingComplete: false,
+        accessLevel: 'basic',
+        featuresAccess: '',
+        rating: 0.0,
+        totalReviews: 0,
+        subscriptionPlan: 'free',
+        subscriptionStatus: 'inactive'
+      }
+    );
+
+    return c.json({ status: 'success', data: newVenue }, 201);
+  } catch (error) {
+    console.error('Error creating venue:', error);
+    return c.json({ status: 'error', message: error.message }, 500);
+  }
+};
