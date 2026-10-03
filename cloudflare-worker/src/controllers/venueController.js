@@ -340,7 +340,7 @@ export const createVenue = async (c) => {
     
     const newVenue = await databases.createDocument(
       databaseId,
-      collections.VENUES,
+      collections.venues,
       documentId,
       {
         venueName: venueData.venueName || 'Unnamed Venue',
