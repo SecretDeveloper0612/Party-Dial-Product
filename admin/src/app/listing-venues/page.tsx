@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, CheckCircle, AlertTriangle, ShieldAlert, Plus, Filter, Download } from 'lucide-react';
-import { storage, ID, STORAGE_BUCKET_ID, databases, DATABASE_ID, VENUES_COLLECTION_ID } from '../../lib/appwrite';
+import { storage, ID, STORAGE_BUCKET_ID } from '../../lib/appwrite';
 
 export default function ListingVenuesPage() {
   
@@ -76,72 +76,39 @@ export default function ListingVenuesPage() {
       }
 
       if (editingVenueId) {
-         await databases.updateDocument(
-           DATABASE_ID,
-           VENUES_COLLECTION_ID,
-           editingVenueId,
-           {
-             venueName: newVenue.name,
-             venueType: newVenue.category,
-             city: newVenue.city,
-             state: newVenue.state,
-             pincode: newVenue.pincode,
-             landmark: newVenue.address,
-             description: newVenue.description,
-             capacity: newVenue.capacity ? parseInt(newVenue.capacity) : 500,
-             perPlateVeg: newVenue.vegPrice,
-             perPlateNonVeg: newVenue.nonVegPrice,
-             amenities: JSON.stringify(newVenue.amenities),
-             eventTypes: JSON.stringify(newVenue.eventTypes),
-             photos: payload.photos,
-             userId: newVenue.claimStatus === 'Claimed' ? 'admin_claimed' : 'admin_import',
-             contactNumber: newVenue.phone,
-             contactEmail: newVenue.email
-           }
-         );
-      } else {
-         await databases.createDocument(
-           DATABASE_ID,
-           VENUES_COLLECTION_ID,
-           ID.unique(),
-           {
-             venueName: newVenue.name,
-             venueType: newVenue.category,
-             city: newVenue.city,
-             state: newVenue.state,
-             pincode: newVenue.pincode,
-             landmark: newVenue.address,
-             description: newVenue.description,
-             capacity: newVenue.capacity ? parseInt(newVenue.capacity) : 500,
-             perPlateVeg: newVenue.vegPrice,
-             perPlateNonVeg: newVenue.nonVegPrice,
-             amenities: JSON.stringify(newVenue.amenities),
-             eventTypes: JSON.stringify(newVenue.eventTypes),
-             photos: payload.photos,
-             userId: newVenue.claimStatus === 'Claimed' ? 'admin_claimed' : 'admin_import',
-             ownerName: 'PartyDial Admin',
-             contactNumber: newVenue.phone || '0000000000',
-             contactEmail: newVenue.email || 'admin@partydial.com',
-             status: 'active',
-             isVerified: true,
-             profileStatus: 'active',
-             onboardingComplete: false,
-             accessLevel: 'basic',
-             featuresAccess: '',
-             rating: 0.0,
-             totalReviews: 0,
-             subscriptionPlan: 'free',
-             subscriptionStatus: 'inactive'
-           }
-         );
+         // for PUT we map back to schema exactly
+         payload.venueType = newVenue.category;
+         payload.landmark = newVenue.address;
+         payload.contactNumber = newVenue.phone;
+         delete payload.category;
+         delete payload.address;
+         delete payload.phone;
       }
 
-      setToast({ message: editingVenueId ? 'Venue updated successfully!' : 'Venue created successfully!', type: 'success' });
-      setIsImportModalOpen(false);
-      setEditingVenueId(null);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      const responseText = await res.text();
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (e) {
+        result = { status: 'error', message: `Server error (${res.status}): ${responseText.substring(0, 50)}` };
+      }
+
+      if (res.ok) {
+        setToast({ message: editingVenueId ? 'Venue updated successfully!' : 'Venue created successfully!', type: 'success' });
+        setIsImportModalOpen(false);
+        setEditingVenueId(null);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        setToast({ message: 'Failed to save: ' + (result.message || res.statusText), type: 'error' });
+      }
     } catch (err: any) {
       setToast({ message: 'Error: ' + (err.message || 'Network error connecting to backend.'), type: 'error' });
       console.error(err);
