@@ -96,7 +96,7 @@ export default function ListingVenuesPage() {
       try {
         result = JSON.parse(responseText);
       } catch (e) {
-        throw new Error(`Server returned invalid format (${res.status}): ${responseText.substring(0, 50)}`);
+        result = { status: 'error', message: `Server error (${res.status}): ${responseText.substring(0, 50)}` };
       }
 
       if (res.ok) {

@@ -869,6 +869,10 @@ exports.notifyOnboardingComplete = async (req, res) => {
 exports.createVenue = async (req, res) => {
   try {
     const venueData = req.body;
+    if (!venueData || Object.keys(venueData).length === 0) {
+      return res.status(400).json({ status: 'error', message: 'Venue data is required' });
+    }
+    
     // Add default timestamps and identifiers
     const documentId = ID.unique();
         const newVenue = await databases.createDocument(
