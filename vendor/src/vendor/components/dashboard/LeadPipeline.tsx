@@ -55,12 +55,12 @@ const LeadPipeline = ({
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-slate-200/60 shadow-sm shrink-0">
          <div>
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Lead Pipeline</h1>
-            <p className="text-sm font-medium text-slate-500">Track and move your leads through the sales funnel</p>
+            <h1 className="text-2xl font-bold font-heading text-slate-900 tracking-tight mb-1">Lead Pipeline</h1>
+            <p className="text-sm font-normal text-slate-500">Track and move your leads through the sales funnel</p>
          </div>
          <button 
            onClick={() => setActiveTab('leads')}
-           className="px-4 py-2.5 bg-slate-50 border border-slate-200/60 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-100 hover:text-slate-900 transition-all flex items-center gap-2 w-max shadow-sm"
+           className="px-4 py-2 bg-slate-50 border border-slate-200/60 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-100 hover:text-slate-900 transition-all flex items-center gap-2 w-max shadow-sm"
          >
             Switch to List View <ArrowRight size={14} />
          </button>
@@ -85,9 +85,9 @@ const LeadPipeline = ({
                     <div className={`w-8 h-8 rounded-lg ${stage.color} flex items-center justify-center text-white shadow-sm`}>
                        {React.isValidElement(stage.icon) && React.cloneElement(stage.icon as React.ReactElement<{ size?: number }>, { size: 14 })}
                     </div>
-                    <h3 className="text-sm font-extrabold text-slate-900">{stage.id}</h3>
+                    <h3 className="text-sm font-semibold text-slate-900">{stage.id}</h3>
                  </div>
-                 <span className="px-2.5 py-1 bg-white border border-slate-200/60 rounded-full text-[10px] font-bold text-slate-600">
+                 <span className="px-2.5 py-0.5 bg-white border border-slate-200/60 rounded-full text-[11px] font-medium text-slate-600">
                    {stageLeads.length}
                  </span>
               </div>
@@ -106,7 +106,7 @@ const LeadPipeline = ({
                       className="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm hover:shadow-md hover:border-slate-300 transition-all group relative cursor-grab active:cursor-grabbing"
                     >
                        <div className="flex justify-between items-start mb-3">
-                          <h4 className="text-sm font-extrabold text-slate-900 leading-tight pr-2">{lead.name}</h4>
+                          <h4 className="text-sm font-semibold text-slate-900 leading-tight pr-2">{lead.name}</h4>
                           <div className="relative">
                             <button 
                               onClick={(e) => {

@@ -105,7 +105,7 @@ export default function VerificationModal({ isOpen, onClose, venueProfile }: Ver
 
     return (
       <div className="space-y-2">
-        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</label>
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</label>
         <div className={`relative group cursor-pointer overflow-hidden rounded-lg ${status === 'invalid' ? 'animate-shake' : ''}`}>
           <input 
             type="file" 
@@ -205,7 +205,7 @@ export default function VerificationModal({ isOpen, onClose, venueProfile }: Ver
                 <ShieldCheck size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Verify Your Profile</h3>
+                <h3 className="text-lg font-bold font-heading text-slate-900 tracking-tight">Verify Your Profile</h3>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Submit documents for admin approval</p>
               </div>
             </div>
@@ -221,7 +221,7 @@ export default function VerificationModal({ isOpen, onClose, venueProfile }: Ver
                 <div className="w-20 h-20 rounded-full bg-emerald-100 text-emerald-500 flex items-center justify-center mb-6">
                   <CheckCircle2 size={40} />
                 </div>
-                <h4 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Documents Submitted</h4>
+                <h4 className="text-xl font-bold font-heading text-slate-900 mb-2 uppercase tracking-tight">Documents Submitted</h4>
                 <p className="text-sm font-medium text-slate-500 max-w-sm">
                   Our verification team will review your documents and activate your premium status within 24 hours.
                 </p>

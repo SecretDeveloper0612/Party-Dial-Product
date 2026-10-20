@@ -77,8 +77,8 @@ const LeadExplorer = ({
                   <Zap size={24} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black  uppercase tracking-tight text-slate-900 leading-none mb-1">Lead <span className="text-pd-pink">Explorer</span></h2>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">High-Performance Lead Management Architecture</p>
+                  <h2 className="text-2xl font-bold font-heading text-slate-900 tracking-tight leading-none mb-1">Lead <span className="text-pd-pink">Explorer</span></h2>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">High-Performance Lead Management Architecture</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -105,13 +105,13 @@ const LeadExplorer = ({
               {/* SIDEBAR FILTERS - Light and optimized */}
               <aside className="w-80 border-r border-slate-100 p-8 space-y-10 overflow-y-auto hidden lg:block shrink-0 scrollbar-hide">
                 <div>
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900 mb-6 font-pd">Status Categorization</h4>
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wider text-slate-900 mb-6 font-pd">Status Categorization</h4>
                   <div className="space-y-2">
                     {['All', 'New', 'In-Progress', 'Booked', 'Lost Leads', 'Archived'].map(status => (
                       <button 
                         key={status}
                         onClick={() => setLeadFilter(status)}
-                        className={`w-full flex items-center justify-between px-5 py-3 rounded-xl text-[11px] font-black uppercase  transition-all ${leadFilter === status ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
+                        className={`w-full flex items-center justify-between px-5 py-3 rounded-xl text-[11px] font-semibold uppercase  transition-all ${leadFilter === status ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
                       >
                         {status}
                         <span className="text-[9px] opacity-40">({recentLeads.filter(l => status === 'All' || l.status === status).length})</span>
@@ -121,7 +121,7 @@ const LeadExplorer = ({
                 </div>
 
                 <div>
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900 mb-6 font-pd">Event Morphology</h4>
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wider text-slate-900 mb-6 font-pd">Event Morphology</h4>
                   <div className="grid grid-cols-1 gap-2">
                     {['Wedding', 'Corporate', 'Birthday', 'Engagement'].map(evt => (
                       <label key={evt} className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-slate-50 cursor-pointer group transition-all">
@@ -134,14 +134,14 @@ const LeadExplorer = ({
                           }}
                           className="w-4 h-4 rounded border-slate-200 text-pd-pink focus:ring-pd-pink" 
                         />
-                        <span className="text-[11px] font-black uppercase  text-slate-500 group-hover:text-slate-900">{evt}</span>
+                        <span className="text-[11px] font-semibold uppercase  text-slate-500 group-hover:text-slate-900">{evt}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900 mb-6 flex justify-between font-pd">
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wider text-slate-900 mb-6 flex justify-between font-pd">
                     Guest Magnitude 
                     <span className="text-pd-pink font-pd">{guestRange.max}+</span>
                   </h4>
@@ -154,7 +154,7 @@ const LeadExplorer = ({
                     onChange={(e) => setGuestRange({ ...guestRange, max: parseInt(e.target.value) })}
                     className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-pd-pink"
                   />
-                  <div className="flex justify-between mt-2 text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none font-pd">
+                  <div className="flex justify-between mt-2 text-[8px] font-semibold text-slate-400 uppercase tracking-widest leading-none font-pd">
                     <span>0 Pax</span>
                     <span>2k+ Pax</span>
                   </div>
@@ -162,7 +162,7 @@ const LeadExplorer = ({
 
                 <button 
                   onClick={() => { setSearchTerm(''); setLeadFilter('All'); setSelectedEventTypes([]); setGuestRange({ min: 0, max: 2000 }); }}
-                  className="w-full py-4 border border-dashed border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-pd-pink hover:border-pd-pink transition-all font-pd"
+                  className="w-full py-4 border border-dashed border-slate-200 rounded-lg text-[9px] font-semibold uppercase tracking-wider text-slate-400 hover:text-pd-pink hover:border-pd-pink transition-all font-pd"
                 >
                   Reset Intelligence
                 </button>
@@ -190,12 +190,12 @@ const LeadExplorer = ({
                         </div>
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-base font-black  text-slate-900 uppercase tracking-tight leading-none">{lead.name}</h4>
+                            <h4 className="text-base font-semibold text-slate-900 leading-none">{lead.name}</h4>
                             {lead.unread && <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>}
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className="text-[9px] font-black uppercase text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">{lead.location}</span>
-                            <span className="text-[9px] font-black uppercase text-pd-pink ">{lead.event}</span>
+                            <span className="text-[9px] font-semibold uppercase text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">{lead.location}</span>
+                            <span className="text-[9px] font-semibold uppercase text-pd-pink ">{lead.event}</span>
                             <span className="text-[9px] font-bold text-slate-300 ">{lead.date} • {lead.time}</span>
                           </div>
                         </div>
@@ -203,10 +203,10 @@ const LeadExplorer = ({
 
                       <div className="flex items-center gap-10">
                         <div className="flex flex-col items-center">
-                          <span className="text-[8px] font-black uppercase text-slate-300">Guests</span>
-                          <span className="text-sm font-black  text-slate-900 leading-none">{lead.guests}</span>
+                          <span className="text-[8px] font-semibold uppercase text-slate-300">Guests</span>
+                          <span className="text-sm font-semibold  text-slate-900 leading-none">{lead.guests}</span>
                         </div>
-                        <div className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                        <div className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-wider ${
                           lead.status === 'Booked' ? 'bg-emerald-50 text-emerald-600' : 
                           lead.status === 'New' ? 'bg-blue-50 text-blue-600 animate-pulse' : 'bg-amber-50 text-amber-600'
                         }`}>
@@ -224,7 +224,7 @@ const LeadExplorer = ({
                   {filteredLeads.length === 0 && (
                     <div className="py-32 flex flex-col items-center justify-center text-center opacity-40">
                       <Search size={48} className="text-slate-200 mb-6" />
-                      <p className="text-[11px] font-black uppercase  tracking-widest">No matching inquiries found</p>
+                      <p className="text-[11px] font-semibold uppercase  tracking-widest">No matching inquiries found</p>
                     </div>
                   )}
                 </div>

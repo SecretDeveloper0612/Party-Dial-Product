@@ -230,7 +230,7 @@ const DashboardSettings = ({
               <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-red-50 flex items-center justify-center border border-red-100 shadow-sm">
                 <Trash2 size={24} className="text-red-500" />
               </div>
-              <h3 className="text-lg font-extrabold text-slate-900 mb-2">
+              <h3 className="text-lg font-bold font-heading text-slate-900 mb-2">
                 Remove Photo?
               </h3>
               <p className="text-sm text-slate-500 font-medium mb-8">
@@ -258,7 +258,7 @@ const DashboardSettings = ({
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 md:p-8 rounded-xl border border-slate-200/60 shadow-sm">
          <div>
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Venue Settings</h1>
+            <h1 className="text-2xl font-bold font-heading text-slate-900 tracking-tight mb-1">Venue Settings</h1>
             <p className="text-sm font-medium text-slate-500">Configure your professional profile, gallery, and offerings</p>
          </div>
       </div>
@@ -299,14 +299,14 @@ const DashboardSettings = ({
                       <Clock size={22} className="text-amber-600" strokeWidth={2.5} />}
                   </div>
                   <div className="flex flex-col justify-center">
-                     <span className={`text-[9px] font-black uppercase tracking-[0.2em] leading-none mb-1.5 ${
+                     <span className={`text-[10px] font-semibold uppercase tracking-wider leading-none mb-1.5 ${
                         (venueProfile.status === 'approved' || venueProfile.status === 'active' || venueProfile.status === 'ACTIVE') ? 'text-emerald-600/70' :
                         venueProfile.status === 'rejected' ? 'text-rose-600/70' :
                         'text-amber-600/70'
                      }`}>
                         Listing Status
                      </span>
-                     <span className={`text-[13px] font-black uppercase tracking-wider leading-none ${
+                     <span className={`text-[13px] font-semibold tracking-normal leading-none ${
                         (venueProfile.status === 'approved' || venueProfile.status === 'active' || venueProfile.status === 'ACTIVE') ? 'text-emerald-700' :
                         venueProfile.status === 'rejected' ? 'text-rose-700' :
                         'text-amber-700'
@@ -334,7 +334,7 @@ const DashboardSettings = ({
                          {/* Left Column */}
                          <div className="space-y-8">
                             <section>
-                               <h3 className="text-lg font-extrabold text-slate-900 mb-6">Brand Representative</h3>
+                               <h3 className="text-lg font-bold font-heading text-slate-900 mb-6">Brand Representative</h3>
                                <div className="flex items-center gap-6">
                                   <div className="relative group">
                                      <div className="w-24 h-24 rounded-lg bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
@@ -359,14 +359,14 @@ const DashboardSettings = ({
                                      <input type="file" hidden ref={avatarInputRef} accept="image/*" onChange={handleAvatarUpload} />
                                   </div>
                                   <div>
-                                     <p className="text-sm font-extrabold text-slate-900 mb-1">Display Logo</p>
+                                     <p className="text-sm font-semibold text-slate-900 mb-1">Display Logo</p>
                                      <p className="text-xs font-medium text-slate-500 leading-relaxed max-w-50">Update your primary profile picture that appears in search results.</p>
                                   </div>
                                </div>
                             </section>
 
                             <section>
-                               <h3 className="text-lg font-extrabold text-slate-900 mb-6">Venue Details</h3>
+                               <h3 className="text-lg font-bold font-heading text-slate-900 mb-6">Venue Details</h3>
                                <div className="space-y-5">
                                   <div className="space-y-1.5">
                                      <label className="text-xs font-bold text-slate-700">Display Name</label>
@@ -585,7 +585,7 @@ const DashboardSettings = ({
                             </section>
 
                             <section>
-                               <h3 className="text-lg font-extrabold text-slate-900 mb-4 flex items-center gap-2">
+                               <h3 className="text-lg font-bold font-heading text-slate-900 mb-4 flex items-center gap-2">
                                   Billing Information
                                </h3>
                                <div className="space-y-4">
@@ -625,7 +625,7 @@ const DashboardSettings = ({
                          {/* Right Column */}
                          <div className="space-y-8">
                             <section>
-                               <h3 className="text-lg font-extrabold text-slate-900 mb-6">About the Venue</h3>
+                               <h3 className="text-lg font-bold font-heading text-slate-900 mb-6">About the Venue</h3>
                                <div className="space-y-1.5">
                                   <label className="text-xs font-bold text-slate-700">Bio & Description</label>
                                   <textarea 
@@ -645,7 +645,7 @@ const DashboardSettings = ({
                             </section>
 
                             <section>
-                               <h3 className="text-lg font-extrabold text-slate-900 mb-4">Supported Events</h3>
+                               <h3 className="text-lg font-bold font-heading text-slate-900 mb-4">Supported Events</h3>
                                <div className="flex flex-wrap gap-2">
                                   {eventTypesList.map((type) => {
                                      const isActive = eventTypes.includes(type);
@@ -663,7 +663,7 @@ const DashboardSettings = ({
                             </section>
 
                             <section>
-                               <h3 className="text-lg font-extrabold text-slate-900 mb-4">Amenities</h3>
+                               <h3 className="text-lg font-bold font-heading text-slate-900 mb-4">Amenities</h3>
                                <div className="grid grid-cols-2 gap-3">
                                   {[
                                      { id: 'ac', label: 'Air Conditioning', icon: <Wind size={16} /> },
@@ -723,7 +723,7 @@ const DashboardSettings = ({
                    >
                       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                          <div>
-                            <h3 className="text-xl font-extrabold text-slate-900">Venue Spaces</h3>
+                            <h3 className="text-xl font-bold font-heading text-slate-900">Venue Spaces</h3>
                             <p className="text-sm font-medium text-slate-500">List and manage individual halls, lawns, or dining areas.</p>
                          </div>
                          <button 
@@ -746,7 +746,7 @@ const DashboardSettings = ({
                                return (
                                   <div className="py-20 text-center bg-slate-50 rounded-lg border border-dashed border-slate-200">
                                      <Building className="mx-auto text-slate-300 mb-3" size={40} />
-                                     <h4 className="text-base font-extrabold text-slate-900">No spaces defined</h4>
+                                     <h4 className="text-base font-semibold text-slate-900">No spaces defined</h4>
                                      <p className="text-sm font-medium text-slate-500 mt-1 mb-6 max-w-sm mx-auto">Add your banquet halls, lawns, or specific event areas here.</p>
                                   </div>
                                );
@@ -900,7 +900,7 @@ const DashboardSettings = ({
                    >
                       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                          <div>
-                            <h3 className="text-xl font-extrabold text-slate-900">Venue Media Gallery</h3>
+                            <h3 className="text-xl font-bold font-heading text-slate-900">Venue Media Gallery</h3>
                             <p className="text-sm font-medium text-slate-500">Upload and manage high-quality photos to attract customers.</p>
                          </div>
                          <div className="flex items-center gap-3">
@@ -966,7 +966,7 @@ const DashboardSettings = ({
                          {(photoIds.filter((p: any) => activeGalleryCategory === "All Photos" || p.category === activeGalleryCategory).length === 0) && !isUploadingPhoto && (
                             <div className="col-span-full py-20 text-center bg-slate-50 rounded-lg border border-dashed border-slate-200">
                                <ImageIcon className="mx-auto text-slate-300 mb-3" size={40} />
-                               <h4 className="text-base font-extrabold text-slate-900">No photos in {activeGalleryCategory}</h4>
+                               <h4 className="text-base font-semibold text-slate-900">No photos in {activeGalleryCategory}</h4>
                                <p className="text-sm font-medium text-slate-500 mt-1 mb-5">Upload photos here to showcase your venue&apos;s aesthetic.</p>
                                <button 
                                  onClick={() => fileInputRef.current?.click()}
@@ -998,7 +998,7 @@ const DashboardSettings = ({
                     >
                        <section className="max-w-3xl">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                             <h3 className="text-xl font-extrabold text-slate-900">Event Pricing & Food Rates</h3>
+                             <h3 className="text-xl font-bold font-heading text-slate-900">Event Pricing & Food Rates</h3>
                              <span className="text-[11px] font-bold text-pd-pink bg-pink-50 px-3 py-1 rounded-full border border-pink-100 w-fit">
                                Model: {venueProfile?.pricingType === 'per_person' ? 'Per Person' : venueProfile?.pricingType === 'rental_package' ? 'Rental / Package' : 'Per Plate'}
                              </span>
@@ -1028,7 +1028,7 @@ const DashboardSettings = ({
                                          : 'bg-white border-slate-200/60 text-slate-700 hover:border-slate-300'
                                      }`}
                                    >
-                                     <p className="text-xs font-black">{unit.label}</p>
+                                     <p className="text-xs font-semibold">{unit.label}</p>
                                      <p className={`text-[10px] font-semibold mt-0.5 ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>{unit.sub}</p>
                                    </button>
                                  );
@@ -1105,7 +1105,7 @@ const DashboardSettings = ({
                                 <Sparkles size={20} />
                              </div>
                              <div>
-                                <h4 className="text-sm font-extrabold text-slate-900 mb-1">Smart Pricing Insight</h4>
+                                <h4 className="text-sm font-semibold text-slate-900 mb-1">Smart Pricing Insight</h4>
                                 <p className="text-sm text-slate-600 font-medium leading-relaxed">Setting accurate rates helps match you with higher-quality leads and improves your visibility in sorted search results.</p>
                              </div>
                           </div>
@@ -1113,7 +1113,7 @@ const DashboardSettings = ({
 
                        <section className="p-8 bg-slate-50 rounded-lg border border-dashed border-slate-200/80 text-center">
                           <Target className="mx-auto text-slate-400 mb-3" size={32} />
-                          <h4 className="text-base font-extrabold text-slate-900 mb-1">Advanced Packages</h4>
+                          <h4 className="text-base font-semibold text-slate-900 mb-1">Advanced Packages</h4>
                           <p className="text-sm text-slate-500 font-medium">
                              Custom package definitions and detailed menus are managed via your main subscription.
                           </p>
@@ -1142,7 +1142,7 @@ const DashboardSettings = ({
                     >
                        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div>
-                             <h3 className="text-xl font-extrabold text-slate-900">Venue Videos</h3>
+                             <h3 className="text-xl font-bold font-heading text-slate-900">Venue Videos</h3>
                              <p className="text-sm font-medium text-slate-500">Showcase your venue with YouTube video links.</p>
                           </div>
                           <button 
@@ -1163,7 +1163,7 @@ const DashboardSettings = ({
                                 return (
                                    <div className="py-20 text-center bg-slate-50 rounded-lg border border-dashed border-slate-200">
                                       <PlayCircle className="mx-auto text-slate-300 mb-3" size={40} />
-                                      <h4 className="text-base font-extrabold text-slate-900">No videos added</h4>
+                                      <h4 className="text-base font-semibold text-slate-900">No videos added</h4>
                                       <p className="text-sm font-medium text-slate-500 mt-1 mb-6 max-w-sm mx-auto">Add YouTube links to give customers a virtual tour of your venue.</p>
                                    </div>
                                 );

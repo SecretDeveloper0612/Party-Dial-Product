@@ -45,12 +45,16 @@ export default function InvoicesPage() {
             try {
               if (p.billingDetails) parsedBilling = JSON.parse(p.billingDetails);
             } catch(e) {}
+            let safeAmount = Number(p.amount || 0);
+            if (safeAmount > 50000 && safeAmount % 100 === 0) {
+              safeAmount = safeAmount / 100;
+            }
             return {
               docId: p.$id,
               id: p.invoiceNumber,
               client: p.venueName || p.ownerEmail || "Private Client",
               event: p.planName || "Venue Subscription",
-              amount: p.amount || 0,
+              amount: safeAmount,
               date: p.paidAt ? new Date(p.paidAt).toISOString().split('T')[0] : "—",
               status: (p.status === 'captured' || p.status === 'paid') ? 'Paid' : p.status === 'failed' ? 'Failed' : 'Pending',
               due: p.paidAt ? new Date(new Date(p.paidAt).setDate(new Date(p.paidAt).getDate() + 5)).toISOString().split('T')[0] : "—",

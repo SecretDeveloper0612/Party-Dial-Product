@@ -136,7 +136,14 @@ const planLabels: {[key: string]: string} = {
   'Upto 5000 PAX': 'Platinum Live',
   '5000+ PAX': 'Enterprise Live',
   'trial_30': 'Introductory Offer',
-  'free': 'Free Live'
+  'free': 'Free Live',
+  'Partner Pro': 'Partner Pro',
+  'Partner Pro (Monthly Plan)': 'Partner Pro Monthly',
+  'Partner Pro (Half-Yearly Plan)': 'Partner Pro Half-Yearly',
+  'Partner Pro (Annual Plan)': 'Partner Pro Annual',
+  'pro_monthly': 'Partner Pro Monthly',
+  'pro_halfYearly': 'Partner Pro Half-Yearly',
+  'pro_annually': 'Partner Pro Annual'
 };
 
 export default function VendorDashboard() {
@@ -356,9 +363,8 @@ export default function VendorDashboard() {
             onboardingComplete: true
           });
           setVenueProfile((prev: any) => ({ ...prev, onboardingComplete: true }));
-          showToast('Onboarding completed! Listing Management moved to Settings.', 'success');
         } catch (err) {
-          console.error('Failed to auto-complete onboarding:', err);
+          console.error('Failed to sync profile status:', err);
         }
       };
       syncOnboarding();
@@ -1113,7 +1119,7 @@ export default function VendorDashboard() {
                      </div>
                      <div className="flex items-center gap-2 ml-1">
                         <div className="w-4 h-px bg-pd-pink/50"></div>
-                        <span className="text-[10px] font-black uppercase text-pd-pink tracking-[0.5em]  opacity-90">Partner</span>
+                        <span className="text-[10px] font-semibold uppercase text-pd-pink tracking-widest opacity-90">Partner</span>
                      </div>
                   </div>
                </Link>
@@ -1131,7 +1137,7 @@ export default function VendorDashboard() {
             </div>
 
             <div className="space-y-1">
-               <span className={`text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 mb-4 block opacity-50 ${sidebarOpen ? 'pl-4' : 'text-center pl-0'}`}>
+               <span className={`text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-3 block ${sidebarOpen ? 'pl-4' : 'text-center pl-0'}`}>
                   {sidebarOpen ? 'Main Menu' : 'Menu'}
                </span>
                 {tabs
@@ -1149,18 +1155,18 @@ export default function VendorDashboard() {
                       setActiveTab(item.id);
                       if (isMobile) setSidebarOpen(false);
                     }}
-                    className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3.5 rounded-2xl text-[14px] font-semibold transition-colors duration-200 ${
+                    className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3 rounded-xl text-[14px] font-medium transition-colors duration-200 ${
                       activeTab === item.id 
-                      ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/10' 
-                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                      ? 'bg-slate-900 text-white shadow-md' 
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                     }`}
                     title={!sidebarOpen ? item.label : undefined}
                   >
-                    <div className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110 text-pd-pink' : ''}`}>
+                    <div className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-105 text-pd-pink' : ''}`}>
                       {item.icon}
                     </div>
                     {sidebarOpen && (
-                      <span className="tracking-wide whitespace-nowrap">
+                      <span className="tracking-normal whitespace-nowrap">
                         {venueProfile?.subscriptionPlan === 'free' && item.id === 'overview' ? 'My Listing' : item.label}
                       </span>
                     )}
@@ -1170,7 +1176,7 @@ export default function VendorDashboard() {
 
               {/* Listing Management */}
               <div className="space-y-1 mt-6 px-2">
-                 <span className={`text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 block opacity-60 ${sidebarOpen ? 'pl-4' : 'text-center pl-0'}`}>
+                 <span className={`text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2 block ${sidebarOpen ? 'pl-4' : 'text-center pl-0'}`}>
                    {sidebarOpen ? 'Listing Details' : 'Listing'}
                  </span>
                  {[
@@ -1184,7 +1190,7 @@ export default function VendorDashboard() {
                        item.action();
                        if (isMobile) setSidebarOpen(false);
                      }}
-                     className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-slate-500 hover:bg-slate-50 hover:text-pd-pink transition-all cursor-pointer`}
+                     className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-2.5 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-pd-pink transition-all cursor-pointer`}
                      title={!sidebarOpen ? item.label : undefined}
                    >
                      <div className="p-1.5 bg-slate-50 rounded-lg group-hover:bg-white transition-colors">
@@ -1196,7 +1202,7 @@ export default function VendorDashboard() {
               </div>
 
              <div className="space-y-1 mt-6">
-                <span className={`text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block ${sidebarOpen ? 'pl-4' : 'text-center pl-0'}`}>
+                <span className={`text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2 block ${sidebarOpen ? 'pl-4' : 'text-center pl-0'}`}>
                   System
                 </span>
                 {secondaryTabs.map(item => (
@@ -1206,14 +1212,14 @@ export default function VendorDashboard() {
                       setActiveTab(item.id);
                       if (isMobile) setSidebarOpen(false);
                     }}
-                    className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3.5 rounded-2xl text-[14px] font-semibold transition-colors duration-200 ${
+                    className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3 rounded-xl text-[14px] font-medium transition-colors duration-200 ${
                       activeTab === item.id 
-                      ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/10' 
-                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                      ? 'bg-slate-900 text-white shadow-md' 
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                     }`}
                     title={!sidebarOpen ? item.label : undefined}
                   >
-                    <div className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110 text-pd-pink' : ''}`}>
+                    <div className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-105 text-pd-pink' : ''}`}>
                       {item.icon}
                     </div>
                     {sidebarOpen && <span className="whitespace-nowrap">{item.label}</span>}
@@ -1240,20 +1246,20 @@ export default function VendorDashboard() {
                                 <span className={`relative w-1.5 h-1.5 rounded-full ${expiryInfo.daysLeft < 7 ? 'bg-rose-500' : 'bg-emerald-500'}`}></span>
                              </div>
                              <div className="min-w-0">
-                                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-800 leading-none block mb-0.5 truncate">
+                                <span className="text-xs font-semibold text-slate-800 leading-none block mb-0.5 truncate">
                                    {expiryInfo.label}
                                 </span>
-                                <span className="text-[7px] font-bold uppercase tracking-widest text-slate-400 leading-none block">
+                                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400 leading-none block">
                                    Validity
                                 </span>
                              </div>
                           </div>
-                          <div className={`flex items-center gap-1 px-1.5 py-1 rounded-lg text-[9px] font-black tracking-tight border shrink-0 ${
+                          <div className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold tracking-normal border shrink-0 ${
                              expiryInfo.daysLeft < 7 
                                ? 'bg-rose-50 text-rose-600 border-rose-100 shadow-[0_0_10px_rgba(244,63,94,0.1)]' 
                                : 'bg-emerald-50 text-emerald-700 border-emerald-100 shadow-[0_0_10px_rgba(16,185,129,0.1)]'
                           }`}>
-                             <Clock size={10} className={expiryInfo.daysLeft < 7 ? 'animate-pulse' : ''} />
+                             <Clock size={11} className={expiryInfo.daysLeft < 7 ? 'animate-pulse' : ''} />
                              <span>{expiryInfo.daysLeft}d left</span>
                           </div>
                        </div>
@@ -1276,11 +1282,11 @@ export default function VendorDashboard() {
                            <div className="w-6 h-6 rounded-full bg-rose-50 flex items-center justify-center text-rose-600 border border-rose-100 shrink-0">
                               <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.6)]"></span>
                            </div>
-                           <span className="text-[10px] font-black uppercase tracking-[0.15em] text-rose-600 leading-none text-center">
+                           <span className="text-xs font-semibold text-rose-600 leading-none text-center">
                               Plan Expired
                            </span>
                         </div>
-                        <Link href="/pricing" className="bg-slate-900 hover:bg-pd-pink transition-colors text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-slate-900/10 active:scale-95 text-center w-full">
+                        <Link href="/pricing" className="bg-slate-900 hover:bg-pd-pink transition-colors text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md active:scale-95 text-center w-full">
                            Upgrade Now
                         </Link>
                      </div>
@@ -1298,7 +1304,7 @@ export default function VendorDashboard() {
             
             <button 
                onClick={handleLogout}
-               className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3 rounded-2xl text-sm font-bold  text-red-500 hover:bg-red-50 transition-colors`}
+               className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-2.5 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors`}
                title={!sidebarOpen ? "Sign Out" : undefined}
             >
                <LogOut size={20} />
@@ -1328,12 +1334,12 @@ export default function VendorDashboard() {
                
                <div className="flex flex-col justify-center">
                   <div className="flex items-center gap-2 mb-1.5">
-                     <div className="px-2 py-0.5 bg-slate-100/80 rounded-md border border-slate-200/50 text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">
+                     <div className="px-2.5 py-0.5 bg-slate-100 rounded-md border border-slate-200/50 text-[10px] font-medium text-slate-500 uppercase tracking-wider leading-none">
                         {formattedDate || 'Loading...'}
                      </div>
                   </div>
-                  <div className="text-xl lg:text-2xl font-extrabold tracking-tight leading-none flex items-center gap-2.5">
-                     <span className="capitalize text-slate-800 font-bold">{activeTab}</span>
+                  <div className="text-xl lg:text-2xl font-bold font-heading tracking-tight leading-none flex items-center gap-2.5">
+                     <span className="capitalize text-slate-800">{activeTab}</span>
                   </div>
                </div>
             </div>
@@ -1376,10 +1382,10 @@ export default function VendorDashboard() {
                   className="flex items-center gap-3 lg:gap-4 pl-1 cursor-pointer group hover:opacity-90 active:scale-[0.98] transition-all"
                >
                   <div className="text-right hidden md:flex flex-col items-end">
-                     <p className="text-[14px] font-black text-slate-900 leading-none mb-1 group-hover:text-pd-pink transition-colors">{venueProfile?.venueName || userData?.name || "Your Venue"}</p>
+                     <p className="text-[14px] font-bold text-slate-900 leading-none mb-1 group-hover:text-pd-pink transition-colors">{venueProfile?.venueName || userData?.name || "Your Venue"}</p>
                       <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded border ${hasActivePaidPlan ? 'bg-emerald-50/50 border-emerald-100' : 'bg-slate-100/70 border-slate-200'}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${!isRealtimeConnected ? 'bg-rose-500' : hasActivePaidPlan ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-amber-500'}`}></span>
-                        <p className={`text-[9px] ${!isRealtimeConnected ? 'text-rose-600' : hasActivePaidPlan ? 'text-emerald-600' : 'text-slate-600'} font-black uppercase tracking-widest leading-none`}>
+                        <p className={`text-[10px] ${!isRealtimeConnected ? 'text-rose-600' : hasActivePaidPlan ? 'text-emerald-600' : 'text-slate-600'} font-semibold uppercase tracking-wider leading-none`}>
                             {!isRealtimeConnected 
                               ? 'Reconnecting' 
                               : (planLabels[venueProfile?.subscriptionPlan] || (hasActivePaidPlan ? 'Live' : 'Standard'))}
@@ -1475,21 +1481,21 @@ export default function VendorDashboard() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="flex flex-col items-center justify-center min-h-125 bg-white rounded-[40px] border border-slate-100 shadow-pd-soft p-12 text-center"
                 >
-                   <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mb-8 mx-auto shadow-inner">
-                      <Zap size={45} className="fill-amber-500 animate-pulse" />
+                   <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mb-6 mx-auto shadow-inner">
+                      <Zap size={36} className="fill-amber-500 animate-pulse" />
                    </div>
-                   <h3 className="text-3xl font-black text-slate-900 uppercase  tracking-tighter mb-4">Direct Leads Restricted</h3>
-                   <p className="text-slate-500 font-medium  max-w-md mx-auto mb-12 leading-relaxed">
-                      Your profile is currently on the <span className="text-slate-900 font-bold">Free Plan</span>. Purchase a subscription to unlock real-time inquiries, lead management tools, and customer contact details.
+                   <h3 className="text-2xl font-bold font-heading text-slate-900 tracking-tight mb-3">Direct Leads Restricted</h3>
+                   <p className="text-slate-500 font-normal max-w-md mx-auto mb-8 leading-relaxed">
+                      Your profile is currently on the <span className="text-slate-900 font-semibold">Free Plan</span>. Purchase a subscription to unlock real-time inquiries, lead management tools, and customer contact details.
                    </p>
                    <div className="flex flex-col sm:flex-row gap-4 items-center">
                       <button 
                          onClick={() => setShowInquiryPopup(true)}
-                         className="px-10 py-5 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest rounded-3xl hover:bg-pd-pink transition-all shadow-2xl active:scale-95 flex items-center gap-3"
+                         className="px-8 py-4 bg-slate-900 text-white text-xs font-semibold rounded-2xl hover:bg-pd-pink transition-all shadow-xl active:scale-95 flex items-center gap-2"
                        >
-                          Unlock All Features <ArrowUpRight size={18} />
+                          Unlock All Features <ArrowUpRight size={16} />
                        </button>
-                      <button onClick={() => setActiveTab('support')} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors">
+                      <button onClick={() => setActiveTab('support')} className="text-xs font-semibold text-slate-400 hover:text-slate-900 transition-colors">
                          Talk to Support
                       </button>
                    </div>
@@ -1519,13 +1525,13 @@ export default function VendorDashboard() {
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center justify-center min-h-125 bg-white rounded-[40px] border border-white shadow-pd-soft p-12 text-center"
+                  className="flex flex-col items-center justify-center min-h-125 bg-white rounded-3xl border border-white shadow-pd-soft p-12 text-center"
                 >
-                   <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 mb-8 mx-auto">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                   <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 mb-6 mx-auto">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
                    </div>
-                   <h3 className="text-3xl font-black text-slate-900 uppercase  tracking-tighter mb-4">Quotations Locked</h3>
-                   <p className="text-slate-500 font-medium  max-w-md mx-auto mb-12 leading-relaxed">
+                   <h3 className="text-2xl font-bold font-heading text-slate-900 tracking-tight mb-3">Quotations Locked</h3>
+                   <p className="text-slate-500 font-normal max-w-md mx-auto mb-8 leading-relaxed">
                       Sending professional quotations and tracking their status requires an active subscription. Upgrade your plan to use this feature.
                    </p>
                 </motion.div>
@@ -1544,20 +1550,20 @@ export default function VendorDashboard() {
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center justify-center min-h-125 bg-white rounded-[40px] border border-white shadow-pd-soft p-12 text-center"
+                  className="flex flex-col items-center justify-center min-h-125 bg-white rounded-3xl border border-white shadow-pd-soft p-12 text-center"
                 >
-                   <div className="w-24 h-24 bg-pd-purple/5 rounded-full flex items-center justify-center text-pd-purple mb-8 mx-auto">
-                      <Target size={45} className="animate-bounce" />
+                   <div className="w-20 h-20 bg-pd-purple/5 rounded-full flex items-center justify-center text-pd-purple mb-6 mx-auto">
+                      <Target size={36} className="animate-bounce" />
                    </div>
-                   <h3 className="text-3xl font-black text-slate-900 uppercase  tracking-tighter mb-4">Pipeline Locked</h3>
-                   <p className="text-slate-500 font-medium  max-w-md mx-auto mb-12 leading-relaxed">
+                   <h3 className="text-2xl font-bold font-heading text-slate-900 tracking-tight mb-3">Pipeline Locked</h3>
+                   <p className="text-slate-500 font-normal max-w-md mx-auto mb-8 leading-relaxed">
                       Managing your sales pipeline and booking flow requires an active subscription. Upgrade today to start converting inquiries into bookings.
                    </p>
                    <button 
                       onClick={() => setShowInquiryPopup(true)}
-                      className="px-10 py-5 bg-pd-purple text-white text-[11px] font-black uppercase tracking-widest rounded-3xl hover:bg-slate-900 transition-all shadow-2xl active:scale-95 flex items-center gap-3"
+                      className="px-8 py-4 bg-pd-purple text-white text-xs font-semibold rounded-2xl hover:bg-slate-900 transition-all shadow-xl active:scale-95 flex items-center gap-2"
                    >
-                      Activate Sales Pipeline <Sparkles size={18} />
+                      Activate Sales Pipeline <Sparkles size={16} />
                    </button>
                 </motion.div>
               )
@@ -1588,13 +1594,13 @@ export default function VendorDashboard() {
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col items-center justify-center min-h-125 bg-white rounded-[40px] border border-white shadow-pd-soft p-12 text-center"
+                  className="flex flex-col items-center justify-center min-h-125 bg-white rounded-3xl border border-white shadow-pd-soft p-12 text-center"
                 >
-                   <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mb-8 mx-auto">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                   <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mb-6 mx-auto">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                    </div>
-                   <h3 className="text-3xl font-black text-slate-900 uppercase  tracking-tighter mb-4">Reviews Locked</h3>
-                   <p className="text-slate-500 font-medium  max-w-md mx-auto mb-12 leading-relaxed">
+                   <h3 className="text-2xl font-bold font-heading text-slate-900 tracking-tight mb-3">Reviews Locked</h3>
+                   <p className="text-slate-500 font-normal max-w-md mx-auto mb-8 leading-relaxed">
                       Responding to customer reviews and managing your reputation requires an active subscription. Upgrade your plan to use this feature.
                    </p>
                 </motion.div>
@@ -1661,8 +1667,8 @@ export default function VendorDashboard() {
               </div>
             )}
             <div className="flex flex-col">
-               <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] leading-none mb-1">System Message</span>
-               <p className="text-[12px] font-black uppercase tracking-tight ">{toast.message}</p>
+               <span className="text-[10px] font-semibold text-white/50 uppercase tracking-wider leading-none mb-1">System Message</span>
+               <p className="text-[13px] font-medium tracking-normal">{toast.message}</p>
             </div>
             <button onClick={() => setToast(null)} className="ml-4 p-1 hover:bg-white/10 rounded-lg transition-colors">
                <X size={14} className="text-white/40" />

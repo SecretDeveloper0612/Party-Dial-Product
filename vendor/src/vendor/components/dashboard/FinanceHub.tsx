@@ -21,11 +21,11 @@ const FinanceHub = ({ setActiveTab }: FinanceHubProps) => {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
        <header className="flex items-center justify-between">
           <div>
-           <h1 className="text-4xl font-black text-slate-900 uppercase  tracking-tight mb-2">Financial Hub</h1>
+           <h1 className="text-3xl font-bold font-heading text-slate-900 tracking-tight mb-2">Financial Hub</h1>
            <p className="text-sm font-medium text-slate-500 ">Manage your revenue stream and upcoming payouts.</p>
          </div>
          <div className="flex gap-4">
-            <button className="flex items-center gap-2 px-8 py-4 bg-white border border-slate-100 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all shadow-pd-soft">
+            <button className="flex items-center gap-2 px-8 py-4 bg-white border border-slate-100 rounded-lg text-[10px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-900 transition-all shadow-pd-soft">
                <Download size={14} />
                Export Report
             </button>
@@ -47,10 +47,10 @@ const FinanceHub = ({ setActiveTab }: FinanceHubProps) => {
                    <div className={`w-14 h-14 rounded-lg ${item.bg === 'bg-white' ? 'bg-slate-50 text-slate-900' : 'bg-white/10 text-white'} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform`}>
                       {item.icon}
                    </div>
-                   <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] ${item.bg === 'bg-white' ? 'text-slate-400' : 'text-white/60'} mb-2`}>{item.label}</h4>
+                   <h4 className={`text-[10px] font-semibold uppercase tracking-wider ${item.bg === 'bg-white' ? 'text-slate-400' : 'text-white/60'} mb-2`}>{item.label}</h4>
                    <div className="flex items-baseline gap-3">
-                      <p className="text-4xl font-black  tracking-tighter">{item.value}</p>
-                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${item.bg === 'bg-white' ? 'bg-emerald-50 text-emerald-500' : 'bg-white/20'}`}>{item.delta}</span>
+                      <p className="text-3xl font-bold font-heading text-slate-900 tracking-tight">{item.value}</p>
+                      <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${item.bg === 'bg-white' ? 'bg-emerald-50 text-emerald-500' : 'bg-white/20'}`}>{item.delta}</span>
                    </div>
                 </div>
                 {item.bg !== 'bg-white' && <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700" />}
@@ -61,12 +61,12 @@ const FinanceHub = ({ setActiveTab }: FinanceHubProps) => {
        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-8 bg-white p-12 rounded-[50px] border border-slate-100 shadow-pd-soft relative overflow-hidden">
              <div className="flex items-center justify-between mb-12">
-                <h3 className="text-xl font-black  uppercase text-slate-900 tracking-tight">Recent Transactions</h3>
+                <h3 className="text-xl font-bold font-heading text-slate-900 tracking-tight">Recent Transactions</h3>
                  <motion.button 
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setActiveTab('history')} 
-                    className="px-8 py-3 rounded-lg bg-[#0F172A] text-white text-[9px] font-black uppercase tracking-[0.2em]  hover:bg-pd-pink transition-all shadow-2xl shadow-slate-900/20 flex items-center gap-3 transition-colors group"
+                    className="px-8 py-3 rounded-lg bg-[#0F172A] text-white text-[9px] font-semibold uppercase tracking-wider  hover:bg-pd-pink transition-all shadow-2xl shadow-slate-900/20 flex items-center gap-3 transition-colors group"
                  >
                     <History size={14} className="group-hover:rotate-[-45deg] transition-transform" />
                     View All Records
@@ -87,15 +87,15 @@ const FinanceHub = ({ setActiveTab }: FinanceHubProps) => {
                          </div>
                          <div>
                             <div className="flex items-center gap-3 mb-1">
-                               <h4 className="text-sm font-black  text-slate-900 uppercase">{t.name}</h4>
-                               <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-white border border-slate-100 rounded-full text-slate-400">{t.id}</span>
+                               <h4 className="text-sm font-semibold  text-slate-900 uppercase">{t.name}</h4>
+                               <span className="text-[8px] font-semibold uppercase px-2 py-0.5 bg-white border border-slate-100 rounded-full text-slate-400">{t.id}</span>
                             </div>
                             <p className="text-[10px] text-slate-400 font-bold  tracking-wider">{t.date}</p>
                          </div>
                       </div>
                       <div className="text-right">
-                         <p className={`text-xl font-black  mb-1 ${t.amt.startsWith('+') ? 'text-emerald-500' : 'text-slate-900'}`}>{t.amt}</p>
-                         <span className={`text-[8px] font-black uppercase px-2 py-1 rounded-full ${t.status === 'Completed' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>{t.status}</span>
+                         <p className={`text-xl font-bold font-heading mb-1 ${t.amt.startsWith('+') ? 'text-emerald-500' : 'text-slate-900'}`}>{t.amt}</p>
+                         <span className={`text-[8px] font-semibold uppercase px-2 py-1 rounded-full ${t.status === 'Completed' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>{t.status}</span>
                       </div>
                    </div>
                 ))}
@@ -104,12 +104,12 @@ const FinanceHub = ({ setActiveTab }: FinanceHubProps) => {
 
           <div className="lg:col-span-4 space-y-8">
              <div className="bg-slate-900 p-10 rounded-[50px] shadow-2xl relative overflow-hidden group h-full">
-                <h3 className="text-lg font-black  uppercase text-white mb-8 relative z-10">Revenue Goal</h3>
+                <h3 className="text-lg font-bold font-heading text-white mb-6 relative z-10">Revenue Goal</h3>
                 <div className="relative z-10">
                    <div className="flex justify-between items-end mb-4">
-                      <p className="text-4xl font-black  text-white leading-none">₹2.4L<span className="text-sm font-black text-white/40 block mt-2 tracking-widest uppercase">Target for Oct</span></p>
+                      <p className="text-3xl font-bold font-heading text-white leading-none">₹2.4L<span className="text-sm font-semibold text-white/40 block mt-2 tracking-widest uppercase">Target for Oct</span></p>
                       <div className="text-right">
-                         <p className="text-emerald-400 text-sm font-black ">65%</p>
+                         <p className="text-emerald-400 text-sm font-semibold ">65%</p>
                       </div>
                    </div>
                    <div className="h-4 bg-white/10 rounded-full overflow-hidden mb-10 border border-white/5">

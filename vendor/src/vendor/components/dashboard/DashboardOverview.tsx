@@ -179,10 +179,10 @@ const DashboardOverview = ({
            <div className="flex justify-end items-center px-1">
              <div className="bg-white border border-slate-200/60 px-4 py-2 rounded-full flex items-center shadow-sm relative group cursor-pointer hover:border-slate-300 transition-colors">
                 <Calendar size={16} className="text-slate-400 mr-2" />
-                <select 
+                 <select 
                   value={timeFilter}
                   onChange={(e) => setTimeFilter(e.target.value as 'today' | 'weekly' | 'monthly' | 'yearly' | 'all')}
-                  className="bg-transparent text-sm font-bold text-slate-700 outline-none pr-6 cursor-pointer appearance-none relative z-10 w-full"
+                  className="bg-transparent text-sm font-medium text-slate-700 outline-none pr-6 cursor-pointer appearance-none relative z-10 w-full"
                 >
                    <option value="today">Today</option>
                    <option value="weekly">This Week</option>
@@ -212,13 +212,13 @@ const DashboardOverview = ({
                      <div className={`w-10 h-10 rounded-[14px] ${stat.color} flex items-center justify-center transition-transform group-hover:scale-110 duration-300`}>
                         {stat.icon}
                      </div>
-                     <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${stat.isUp ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                     <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium ${stat.isUp ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
                         {stat.isUp ? <TrendingUp size={12} /> : <TrendingUp size={12} className="rotate-180" />}
                         {stat.trend}
                      </div>
                   </div>
-                  <h4 className="text-xs font-semibold text-slate-500 mb-1">{stat.label}</h4>
-                  <p className="text-2xl font-extrabold text-slate-900 tracking-tight">{stat.value}</p>
+                  <h4 className="text-xs font-medium text-slate-500 mb-1">{stat.label}</h4>
+                  <p className="text-2xl font-bold font-heading text-slate-900 tracking-tight">{stat.value}</p>
                 </div>
              </motion.div>
           ))}
@@ -260,8 +260,8 @@ const DashboardOverview = ({
                                {getLeadIcon(lead.status)}
                             </div>
                             <div>
-                               <h4 className="text-sm font-bold text-slate-900 mb-0.5">{lead.name}</h4>
-                               <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                               <h4 className="text-sm font-semibold text-slate-900 mb-0.5">{lead.name}</h4>
+                               <div className="flex items-center gap-2 text-xs font-normal text-slate-500">
                                   <span className="flex items-center gap-1">
                                      <Clock size={12} className="opacity-70" /> {lead.date}
                                   </span>
@@ -272,7 +272,7 @@ const DashboardOverview = ({
                          </div>
                          
                          <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${lead.color} border border-current/10`}>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider ${lead.color} border border-current/10`}>
                                {lead.status}
                             </span>
                          </div>

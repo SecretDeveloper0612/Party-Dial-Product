@@ -8,12 +8,12 @@ const AnalyticsCenter = () => {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-             <h1 className="text-4xl font-black text-slate-900 uppercase  tracking-tighter mb-2 leading-none">Performance <span className="text-pd-pink">Analytics</span></h1>
+             <h1 className="text-3xl font-bold font-heading text-slate-900 tracking-tight mb-2 leading-none">Performance <span className="text-pd-pink">Analytics</span></h1>
              <p className="text-sm font-medium text-slate-500 ">Advanced tracking of your venue&apos;s digital growth and velocity.</p>
           </div>
           <div className="flex bg-white p-1.5 rounded-lg border border-slate-100 shadow-pd-soft self-start">
              {['7D', '30D', '90D', '1Y'].map(t => (
-                <button key={t} className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${t === '30D' ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20' : 'text-slate-400 hover:text-slate-900'}`}>{t}</button>
+                <button key={t} className={`px-5 py-2 rounded-xl text-[10px] font-semibold uppercase tracking-wider transition-all ${t === '30D' ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20' : 'text-slate-400 hover:text-slate-900'}`}>{t}</button>
              ))}
           </div>
        </header>
@@ -24,17 +24,17 @@ const AnalyticsCenter = () => {
              <div className="relative z-10">
                 <div className="flex items-center justify-between mb-12">
                    <div>
-                      <h3 className="text-xl font-black  uppercase text-slate-900">Visibility Trend</h3>
-                      <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mt-1">+24% vs last month</p>
+                      <h3 className="text-xl font-bold font-heading text-slate-900">Visibility Trend</h3>
+                      <p className="text-[10px] font-semibold text-emerald-500 uppercase tracking-widest mt-1">+24% vs last month</p>
                    </div>
                    <div className="flex items-center gap-6">
                       <div className="flex items-center gap-2">
                          <div className="w-2.5 h-2.5 rounded-full bg-pd-pink"></div>
-                         <span className="text-[10px] font-black text-slate-400 uppercase">Views</span>
+                         <span className="text-[10px] font-medium text-slate-400 uppercase">Views</span>
                       </div>
                       <div className="flex items-center gap-2">
                          <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-                         <span className="text-[10px] font-black text-slate-400 uppercase">Leads</span>
+                         <span className="text-[10px] font-medium text-slate-400 uppercase">Leads</span>
                       </div>
                    </div>
                 </div>
@@ -43,7 +43,7 @@ const AnalyticsCenter = () => {
                    {[40, 65, 45, 95, 70, 85, 60, 80, 100, 90, 75, 85].map((h, i) => (
                       <div key={i} className="flex-1 h-full flex flex-col justify-end group/bar cursor-pointer relative">
                          {/* Tooltip on hover */}
-                         <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-xl opacity-0 group-hover/bar:opacity-100 transition-all scale-75 group-hover/bar:scale-100 whitespace-nowrap z-20 shadow-xl pointer-events-none">
+                         <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-semibold px-3 py-1.5 rounded-xl opacity-0 group-hover/bar:opacity-100 transition-all scale-75 group-hover/bar:scale-100 whitespace-nowrap z-20 shadow-xl pointer-events-none">
                             {h * 42} Views
                          </div>
                          
@@ -66,7 +66,7 @@ const AnalyticsCenter = () => {
                 
                 <div className="flex justify-between mt-8 border-t border-slate-50 pt-6 px-1">
                    {['Jan', 'Mar', 'May', 'Jul', 'Sep', 'Nov'].map(m => (
-                      <span key={m} className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{m}</span>
+                      <span key={m} className="text-[10px] font-semibold text-slate-300 uppercase tracking-widest">{m}</span>
                    ))}
                 </div>
              </div>
@@ -74,7 +74,7 @@ const AnalyticsCenter = () => {
 
           <div className="lg:col-span-4 grid grid-cols-1 gap-8">
              <div className="bg-white p-10 rounded-[50px] border border-slate-100 shadow-pd-soft">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-8">Conversion Funnel</h4>
+                <h4 className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-8">Conversion Funnel</h4>
                 <div className="space-y-6">
                    {[
                       { label: 'Profile Views', value: '4,280', color: 'bg-slate-100' },
@@ -84,7 +84,7 @@ const AnalyticsCenter = () => {
                       <div key={i}>
                          <div className="flex justify-between items-end mb-2">
                             <span className="text-[10px] font-bold text-slate-500 uppercase ">{f.label}</span>
-                            <span className="text-sm font-black text-slate-900 ">{f.value}</span>
+                            <span className="text-sm font-bold font-heading text-slate-900 ">{f.value}</span>
                          </div>
                          <div className={`h-2 w-full ${f.color} rounded-full overflow-hidden`}>
                             <div className="h-full bg-slate-900 w-3/4 rounded-full" />
@@ -95,8 +95,8 @@ const AnalyticsCenter = () => {
              </div>
              
              <div className="bg-slate-900 p-10 rounded-[50px] text-white">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-pd-pink mb-4">Pro Insight</h4>
-                <p className="text-sm font-black  tracking-tight leading-relaxed">Your conversion rate is 8% higher than average Gurgaon venues this week. Keep up the high response speed!</p>
+                <h4 className="text-[10px] font-semibold uppercase tracking-wider text-pd-pink mb-4">Pro Insight</h4>
+                <p className="text-sm font-medium tracking-normal leading-relaxed">Your conversion rate is 8% higher than average Gurgaon venues this week. Keep up the high response speed!</p>
              </div>
           </div>
        </div>

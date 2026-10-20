@@ -224,33 +224,39 @@ exports.verifyPayment = async (req, res) => {
     const couponUsed = req.body.couponUsed;
     let invoiceNumber = await getNextInvoiceNumber();
     
+    // Normalize Amount to INR
+    let totalInr = Number(amount || 0);
+    if (totalInr > 50000 && totalInr % 100 === 0) {
+      totalInr = totalInr / 100;
+    }
+    const basePrice = totalInr / 1.18; // Reverse calculate 18% GST
+    const gstAmount = totalInr - basePrice;
+
+    // Dates & Duration
+    const startDate = new Date();
+    const durationMonths = billingDuration === 'monthly' ? 1 : (billingDuration === 'halfYearly' || billingDuration === 'halfyear') ? 6 : 12;
+    const expiryDate = new Date(startDate);
+    expiryDate.setMonth(expiryDate.getMonth() + durationMonths);
+
+    const durationMap = { monthly: '1 Month', halfYearly: '6 Months', halfyear: '6 Months', annually: '12 Months', yearly: '12 Months' };
+    const billingDurationLabel = billingDuration === 'monthly' ? 'Monthly' : (billingDuration === 'halfYearly' || billingDuration === 'halfyear') ? 'Half-Yearly' : 'Annually';
+    const planDurationStr = `${billingDurationLabel} (${durationMap[billingDuration] || '12 Months'})`;
+
     // ── PDF INVOICE GENERATION & STORAGE ──
     let pdfBuffer = null;
     let invoiceFileId = null;
     try {
-      const totalInr = amount / 100;
-      const basePrice = totalInr / 1.18; // Reverse calculate 18% GST
-      const gstAmount = totalInr - basePrice;
-
       let bill = {};
       try {
         bill = typeof billingDetails === 'string' ? JSON.parse(billingDetails) : (billingDetails || {});
       } catch (e) { bill = {}; }
 
-      const startDate = new Date();
-      const durationMonths = billingDuration === 'monthly' ? 1 : (billingDuration === 'halfYearly' || billingDuration === 'halfyear') ? 6 : 12;
-      expiryDate.setMonth(expiryDate.getMonth() + durationMonths);
-
-      const durationMap = { monthly: '1 Month', halfYearly: '6 Months', halfyear: '6 Months', annually: '12 Months', yearly: '12 Months' };
-      const billingDurationLabel = billingDuration === 'monthly' ? 'Monthly' : (billingDuration === 'halfYearly' || billingDuration === 'halfyear') ? 'Half-Yearly' : 'Annually';
-      const planDurationStr = `${billingDurationLabel} (${durationMap[billingDuration] || '12 Months'})`;
-
       const invoiceData = {
         invoiceNumber,
         invoiceDate: startDate.toLocaleDateString('en-IN'),
-        venueName: venueName || bill.name || 'Valued Partner',
-        ownerName: bill.ownerName || '',
-        billingAddress: bill.address || bill.fullAddress || '',
+        venueName: venueName || bill.businessName || bill.name || 'Valued Partner',
+        ownerName: bill.ownerName || bill.name || '',
+        billingAddress: bill.address || bill.fullAddress || (bill.city ? `${bill.city}, ${bill.state || ''}` : ''),
         email: ownerEmail || bill.email || '',
         mobile: bill.mobile || bill.phone || '',
         gstNumber: bill.gstNumber || '',
@@ -282,7 +288,7 @@ exports.verifyPayment = async (req, res) => {
       console.error('Failed to generate or upload PDF invoice:', pdfErr.message);
     }
 
-    // Store the payment record in Appwrite
+    // Store the payment record in Appwrite (store amount in INR)
     try {
       await databases.createDocument(
         DATABASE_ID,
@@ -296,7 +302,7 @@ exports.verifyPayment = async (req, res) => {
           ownerEmail: ownerEmail || billingDetails?.email || '',
           planId: planId || '',
           planName: planName || '',
-          amount: amount,
+          amount: Math.round(totalInr),
           currency: paymentDetails.currency || 'INR',
           method: paymentDetails.method || 'razorpay',
           status: 'captured',
@@ -311,27 +317,41 @@ exports.verifyPayment = async (req, res) => {
       console.warn('Could not store payment record:', dbErr.message);
     }
 
-    // ── GUEST CHECKOUT: AUTO-ACCOUNT CREATION ──
+    // ── IDENTIFY TARGET VENUE FOR ACCESS GRANTING ──
     let targetVenueId = venueId;
-    if (!targetVenueId && billingDetails?.email) {
+
+    if (!targetVenueId && req.body.userId) {
       try {
-        // Here we would normally call an auth service to create an account
-        // For now, we'll log it and assume the system creates a placeholder venue
-        console.log(`GUEST CHECKOUT: Creating auto-account for ${billingDetails.email}`);
-        // Log logic for auto-signup would go here...
+        const vRes = await databases.listDocuments(DATABASE_ID, VENUES_COLLECTION_ID, [
+          Query.equal('userId', req.body.userId),
+          Query.limit(1)
+        ]);
+        if (vRes.documents.length > 0) {
+          targetVenueId = vRes.documents[0].$id;
+        }
       } catch (e) {
-        console.error('Guest account creation failed:', e.message);
+        console.warn('Could not find venue by userId:', e.message);
       }
     }
 
-    // ── UPDATE VENUE SUBSCRIPTION STATUS ──
+    if (!targetVenueId && (ownerEmail || billingDetails?.email)) {
+      const emailToMatch = ownerEmail || billingDetails?.email;
+      try {
+        const vRes = await databases.listDocuments(DATABASE_ID, VENUES_COLLECTION_ID, [
+          Query.equal('contactEmail', emailToMatch),
+          Query.limit(1)
+        ]);
+        if (vRes.documents.length > 0) {
+          targetVenueId = vRes.documents[0].$id;
+        }
+      } catch (e) {
+        console.warn('Could not find venue by contactEmail:', e.message);
+      }
+    }
+
+    // ── UPDATE VENUE SUBSCRIPTION STATUS & GRANT ACCESS ──
     try {
       if (targetVenueId) {
-        const startDate = new Date();
-        const durationMonths = billingDuration === 'monthly' ? 1 : (billingDuration === 'halfYearly' || billingDuration === 'halfyear') ? 6 : 12;
-        expiryDate.setMonth(expiryDate.getMonth() + durationMonths);
-
-        // --- ADD PAID_SINCE METADATA ---
         let updatedBilling = {};
         try {
           updatedBilling = typeof billingDetails === 'string' ? JSON.parse(billingDetails) : (billingDetails || {});
@@ -339,33 +359,38 @@ exports.verifyPayment = async (req, res) => {
         
         updatedBilling.paidSince = startDate.toISOString();
 
+        const updatePayload = {
+          subscriptionPlan: planName || 'Partner Pro',
+          subscriptionExpiry: expiryDate.toISOString(),
+          onboardingComplete: true,
+          billingDetails: JSON.stringify(updatedBilling)
+        };
+
         try {
           await databases.updateDocument(
             DATABASE_ID,
             VENUES_COLLECTION_ID,
             targetVenueId,
-            {
-              subscriptionPlan: planName || 'Standard',
-              subscriptionExpiry: expiryDate.toISOString(),
-              billingDetails: JSON.stringify(updatedBilling)
-            }
+            updatePayload
           );
+          console.log(`Successfully granted subscription to venue: ${targetVenueId} (${planName}) until ${expiryDate.toISOString()}`);
         } catch (updateErr) {
-          // If billingDetails doesn't exist in DB, retry without it
+          // If billingDetails attribute is missing in Appwrite schema, update without it
           if (updateErr.message && updateErr.message.includes('billingDetails')) {
+            delete updatePayload.billingDetails;
             await databases.updateDocument(
               DATABASE_ID,
               VENUES_COLLECTION_ID,
               targetVenueId,
-              {
-                subscriptionPlan: planName || 'Standard',
-                subscriptionExpiry: expiryDate.toISOString()
-              }
+              updatePayload
             );
+            console.log(`Successfully granted subscription (without billingDetails) to venue: ${targetVenueId}`);
           } else {
             throw updateErr;
           }
         }
+      } else {
+        console.warn('Could not find a venue to grant subscription access to.');
       }
     } catch (venueErr) {
       console.error('Failed to update venue subscription:', venueErr.message);
@@ -387,14 +412,14 @@ exports.verifyPayment = async (req, res) => {
         emailTo,
         venueName || billingDetails?.name || 'Partner',
         planName || 'Subscription Plan',
-        amount / 100, // Use INR for display
+        totalInr, // Use INR for display
         {
           invoiceNumber,
           billingDetails,
           date: new Date().toLocaleDateString(),
           addons: req.body.addons || [],
           discount: req.body.discount || 0,
-          basePrice: amount / 100 // Fallback
+          basePrice: totalInr / 1.18 // Fallback
         },
         attachments
       )
@@ -419,7 +444,14 @@ exports.getAllPayments = async (req, res) => {
         PAYMENTS_COLLECTION_ID,
         [Query.orderDesc('$createdAt'), Query.limit(100)]
       );
-      return res.status(200).json({ status: 'success', data: result.documents, source: 'appwrite' });
+      const sanitized = (result.documents || []).map(p => {
+        let amt = Number(p.amount || 0);
+        if (amt > 50000 && amt % 100 === 0) {
+          amt = amt / 100;
+        }
+        return { ...p, amount: amt };
+      });
+      return res.status(200).json({ status: 'success', data: sanitized, source: 'appwrite' });
     } catch (dbErr) {
       // If the collection doesn't exist, fall back to Razorpay API
       console.warn('Appwrite payments collection not available, falling back to Razorpay API');
@@ -632,11 +664,26 @@ exports.downloadInvoice = async (req, res) => {
   try {
     const { id } = req.params;
     
-    const payment = await databases.getDocument(
-      process.env.APPWRITE_DATABASE_ID,
-      process.env.APPWRITE_PAYMENTS_COLLECTION_ID || 'payments',
-      id
-    );
+    let payment = null;
+    try {
+      payment = await databases.getDocument(
+        process.env.APPWRITE_DATABASE_ID,
+        process.env.APPWRITE_PAYMENTS_COLLECTION_ID || 'payments',
+        id
+      );
+    } catch (docErr) {
+      // If direct ID lookup fails, search by invoiceNumber
+      const list = await databases.listDocuments(
+        process.env.APPWRITE_DATABASE_ID,
+        process.env.APPWRITE_PAYMENTS_COLLECTION_ID || 'payments',
+        [Query.equal('invoiceNumber', id)]
+      );
+      if (list.documents.length > 0) {
+        payment = list.documents[0];
+      } else {
+        return res.status(404).json({ status: 'error', message: 'Invoice / Payment not found' });
+      }
+    }
     
     let billing = {};
     try {
@@ -645,7 +692,10 @@ exports.downloadInvoice = async (req, res) => {
       }
     } catch(e){}
 
-    const amount = payment.amount || 0;
+    let amount = Number(payment.amount || 0);
+    if (amount > 50000 && amount % 100 === 0) {
+      amount = amount / 100;
+    }
     const basePrice = amount / 1.18;
     const gstAmount = amount - basePrice;
 

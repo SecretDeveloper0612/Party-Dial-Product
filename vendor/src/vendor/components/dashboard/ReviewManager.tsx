@@ -120,15 +120,15 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
          
          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-               <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Customer Reviews</h1>
+               <h1 className="text-3xl font-bold font-heading text-slate-900 tracking-tight mb-2">Customer Reviews</h1>
                <p className="text-sm font-medium text-slate-500">Manage your venue's reputation and engage with clients</p>
             </div>
             
             <div className="flex items-center gap-5 bg-white border border-slate-200/60 px-6 py-4 rounded-lg shadow-[0_8px_30px_rgba(0,0,0,0.04)] group-hover:shadow-[0_8px_30px_rgba(245,158,11,0.08)] transition-all duration-500">
                <div className="flex flex-col items-end border-r border-slate-100 pr-5">
-                  <span className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-[0.2em]">Overall Score</span>
+                  <span className="text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">Overall Score</span>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-slate-900 leading-none tracking-tighter">{avgRating}</span>
+                    <span className="text-3xl font-bold font-heading text-slate-900 leading-none tracking-tight">{avgRating}</span>
                     <span className="text-sm font-bold text-slate-400">/ 5.0</span>
                   </div>
                </div>
@@ -167,7 +167,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                          )}
                       </div>
                       <div>
-                         <h4 className="text-[15px] font-extrabold text-slate-900 leading-tight">{review.userName || 'Anonymous'}</h4>
+                         <h4 className="text-[15px] font-semibold text-slate-900 leading-tight">{review.userName || 'Anonymous'}</h4>
                          <p className="text-[11px] text-slate-400 font-bold mt-0.5 uppercase tracking-wide">{new Date(review.$createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</p>
                       </div>
                    </div>
@@ -187,7 +187,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                     <div className="absolute top-0 left-0 w-1 h-full bg-emerald-400" />
                     <div className="flex items-center gap-1.5 mb-2 pl-1">
                        <CheckCircle2 size={14} className="text-emerald-500" />
-                       <span className="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-700">Vendor Reply</span>
+                       <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-700">Vendor Reply</span>
                     </div>
                     <p className="text-xs text-slate-700 font-medium leading-relaxed pl-1">"{review.vendorReply}"</p>
                   </div>
@@ -197,7 +197,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                         setReplyTarget(review);
                         setReplyText('');
                     }}
-                    className="mt-auto w-full py-3 bg-white border border-slate-200 rounded-xl text-xs font-black text-slate-600 hover:text-white hover:border-pd-pink hover:bg-pd-pink shadow-sm hover:shadow-[0_8px_20px_rgba(236,72,153,0.25)] transition-all duration-300 flex items-center justify-center gap-2 group/btn"
+                    className="mt-auto w-full py-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:text-white hover:border-pd-pink hover:bg-pd-pink shadow-sm hover:shadow-[0_8px_20px_rgba(236,72,153,0.25)] transition-all duration-300 flex items-center justify-center gap-2 group/btn"
                   >
                     <Send size={14} className="rotate-45 -translate-y-0.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-1 transition-transform" />
                     Write a Reply
@@ -211,7 +211,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
                 <div className="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-300 mb-4 shadow-sm">
                   <MessageSquareQuote size={28} />
                 </div>
-                <h3 className="text-base font-extrabold text-slate-900 mb-1">No Reviews Yet</h3>
+                <h3 className="text-base font-bold font-heading text-slate-900 mb-1">No Reviews Yet</h3>
                 <p className="text-sm font-medium text-slate-500 max-w-sm">When customers review your venue, their feedback will appear here in real-time.</p>
              </div>
            )}
@@ -238,7 +238,7 @@ const ReviewManager = ({ venueId, setReplyTarget, replyTarget, showToast }: Revi
              >
                 {/* Modal Header */}
                 <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-                   <h3 className="text-lg font-extrabold text-slate-900">Reply to Review</h3>
+                   <h3 className="text-lg font-bold font-heading text-slate-900">Reply to Review</h3>
                    <button 
                      onClick={() => setReplyTarget(null)} 
                      className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-colors"

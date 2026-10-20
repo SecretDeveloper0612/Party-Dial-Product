@@ -41,7 +41,9 @@ exports.generateInvoicePDF = async (data) => {
                 planName,
                 totalAmount,
                 status = "Paid",
-                paymentDate
+                paymentDate,
+                email = '',
+                mobile = ''
             } = data;
 
             let clientDetails = {};
@@ -129,7 +131,11 @@ exports.generateInvoicePDF = async (data) => {
             if (clientDetails.email || email) doc.text(`Email: ${clientDetails.email || email}`, center + 10, doc.y);
 
             // ─── ITEMS TABLE ───
-            const amt = Number(totalAmount || 0);
+            let amt = Number(totalAmount || 0);
+            if (amt > 50000 && amt % 100 === 0) {
+                // Safeguard against raw paise passed directly from payment gateway
+                amt = amt / 100;
+            }
             const subtotal = amt / 1.18;
             const gst = subtotal * 0.09;
 

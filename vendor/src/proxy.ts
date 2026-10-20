@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Intercept any onboarding routes and redirect directly to dashboard
+  if (pathname.startsWith('/onboarding') || pathname.startsWith('/dashboard/onboarding')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
   const response = NextResponse.next();
   
   // Apply no-store cache control for sensitive routes
@@ -21,6 +28,8 @@ export const config = {
     '/admin/:path*',
     '/vendor/:path*',
     '/api/:path*',
-    '/dashboard/:path*'
+    '/dashboard/:path*',
+    '/onboarding/:path*',
+    '/onboarding'
   ],
 };

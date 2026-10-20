@@ -36,6 +36,30 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/onboarding',
+        destination: '/dashboard',
+        permanent: false,
+      },
+      {
+        source: '/onboarding/:path*',
+        destination: '/dashboard',
+        permanent: false,
+      },
+      {
+        source: '/dashboard/onboarding',
+        destination: '/dashboard',
+        permanent: false,
+      },
+      {
+        source: '/dashboard/onboarding/:path*',
+        destination: '/dashboard',
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

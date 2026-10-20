@@ -66,7 +66,7 @@ const QuickSupport = () => {
     >
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Help & Support</h1>
+        <h1 className="text-3xl font-bold font-heading text-slate-900 tracking-tight mb-2">Help & Support</h1>
         <p className="text-slate-500 font-medium">Get assistance with your vendor account or contact the PartyDial team.</p>
       </div>
 

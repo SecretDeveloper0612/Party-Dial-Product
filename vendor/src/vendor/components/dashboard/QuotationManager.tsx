@@ -887,7 +887,7 @@ const QuotationManager = ({
                            <div className="flex justify-between items-end">
                               <span className="text-xs font-bold text-slate-900">Total Amount</span>
                               <div className="text-right">
-                                 <span className="text-2xl font-black text-pink-500 tracking-tight leading-none block">₹{total.toLocaleString('en-IN')}</span>
+                                 <span className="text-2xl font-bold font-heading text-pink-500 tracking-tight leading-none block">₹{total.toLocaleString('en-IN')}</span>
                               </div>
                            </div>
                         </div>
@@ -954,7 +954,7 @@ const QuotationManager = ({
                         {/* Header: Venue Identity */}
                         <div className="flex justify-between items-start">
                            <div className="space-y-1">
-                              <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight leading-none">{venueProfile?.venueName || "Henry's Imperial Ballroom"}</h1>
+                              <h1 className="text-3xl font-bold font-heading text-slate-900 tracking-tight leading-none">{venueProfile?.venueName || "Henry's Imperial Ballroom"}</h1>
                               <div className="flex items-center gap-1.5 text-slate-400 mt-2">
                                  <MapPin size={14} className="text-pink-500" />
                                  <p className="text-xs font-medium uppercase tracking-wider">{venueProfile?.location || "Nainital Road, Haldwani"}</p>
@@ -1139,7 +1139,7 @@ const QuotationManager = ({
                                  <div className="h-px bg-slate-200 my-3" />
                                  <div className="flex justify-between items-end">
                                     <span className="text-sm font-bold text-slate-900">Total</span>
-                                    <span className="text-2xl font-black text-pink-500 tracking-tight">₹{total.toLocaleString('en-IN')}</span>
+                                    <span className="text-2xl font-bold font-heading text-pink-500 tracking-tight">₹{total.toLocaleString('en-IN')}</span>
                                  </div>
                               </div>
                            </div>
