@@ -4,6 +4,7 @@ const paymentController = require('../controllers/paymentController');
 
 router.get('/', paymentController.getAllPayments);
 router.post('/create-order', paymentController.createOrder);
+router.post('/create-subscription', paymentController.createSubscription);
 router.post('/verify-payment', paymentController.verifyPayment);
 router.post('/manual-invoice', paymentController.createManualInvoice);
 router.post('/preview-invoice', paymentController.previewManualInvoice);

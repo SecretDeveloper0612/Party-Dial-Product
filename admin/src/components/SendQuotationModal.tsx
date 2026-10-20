@@ -22,15 +22,16 @@ interface SendQuotationModalProps {
 let cachedVenues: any[] | null = null;
 
 const basePlans = [
-  { id: 'bp10', name: 'Starter 10 PAX', pax: 10, mrp: { quarterly: 1, halfYearly: 1, annually: 1 }, price: { quarterly: 1, halfYearly: 1, annually: 1 } },
-  { id: 'bp50', name: '0-50 PAX Membership', pax: 50, mrp: { quarterly: 4500, halfYearly: 8250, annually: 14965 }, price: { quarterly: 3780, halfYearly: 6660, annually: 12045 } },
-  { id: 'bp100', name: '50-100 PAX Membership', pax: 100, mrp: { quarterly: 6300, halfYearly: 11000, annually: 20075 }, price: { quarterly: 5040, halfYearly: 9000, annually: 16060 } },
-  { id: 'bp200', name: '100-200 PAX Membership', pax: 200, mrp: { quarterly: 10500, halfYearly: 19000, annually: 35040 }, price: { quarterly: 8910, halfYearly: 15840, annually: 28105 } },
-  { id: 'bp500', name: '200-500 PAX Membership', pax: 500, mrp: { quarterly: 16000, halfYearly: 30000, annually: 56940 }, price: { quarterly: 13500, halfYearly: 24300, annually: 44895 } },
-  { id: 'bp1000', name: '500-1000 PAX Membership', pax: 1000, mrp: { quarterly: 22500, halfYearly: 42500, annually: 79935 }, price: { quarterly: 18900, halfYearly: 34920, annually: 65335 } },
-  { id: 'bp2000', name: '1000-2000 PAX Membership', pax: 2000, mrp: { quarterly: 31000, halfYearly: 57500, annually: 109865 }, price: { quarterly: 26100, halfYearly: 48600, annually: 90885 } },
-  { id: 'bp5000', name: '2000-5000 PAX Membership', pax: 5000, mrp: { quarterly: 50000, halfYearly: 95000, annually: 179945 }, price: { quarterly: 40500, halfYearly: 75600, annually: 138335 } },
-  { id: 'bp9999', name: '5000+ PAX Membership', pax: 9999, mrp: { quarterly: 82000, halfYearly: 155000, annually: 300030 }, price: { quarterly: 63000, halfYearly: 117000, annually: 218635 } },
+  { id: 'pro_partner', name: 'Partner Pro Membership', pax: 9999, mrp: { monthly: 7999, halfYearly: 47994, annually: 95988 }, price: { monthly: 5999, halfYearly: 21000, annually: 36000 } },
+  { id: 'bp10', name: 'Starter 10 PAX', pax: 10, mrp: { monthly: 1, halfYearly: 1, annually: 1 }, price: { monthly: 1, halfYearly: 1, annually: 1 } },
+  { id: 'bp50', name: '0-50 PAX Membership', pax: 50, mrp: { monthly: 7999, halfYearly: 47994, annually: 95988 }, price: { monthly: 4999, halfYearly: 21000, annually: 36000 } },
+  { id: 'bp100', name: '50-100 PAX Membership', pax: 100, mrp: { monthly: 7999, halfYearly: 47994, annually: 95988 }, price: { monthly: 4999, halfYearly: 21000, annually: 36000 } },
+  { id: 'bp200', name: '100-200 PAX Membership', pax: 200, mrp: { monthly: 7999, halfYearly: 47994, annually: 95988 }, price: { monthly: 4999, halfYearly: 21000, annually: 36000 } },
+  { id: 'bp500', name: '200-500 PAX Membership', pax: 500, mrp: { monthly: 7999, halfYearly: 47994, annually: 95988 }, price: { monthly: 4999, halfYearly: 21000, annually: 36000 } },
+  { id: 'bp1000', name: '500-1000 PAX Membership', pax: 1000, mrp: { monthly: 7999, halfYearly: 47994, annually: 95988 }, price: { monthly: 4999, halfYearly: 21000, annually: 36000 } },
+  { id: 'bp2000', name: '1000-2000 PAX Membership', pax: 2000, mrp: { monthly: 7999, halfYearly: 47994, annually: 95988 }, price: { monthly: 4999, halfYearly: 21000, annually: 36000 } },
+  { id: 'bp5000', name: '2000-5000 PAX Membership', pax: 5000, mrp: { monthly: 7999, halfYearly: 47994, annually: 95988 }, price: { monthly: 4999, halfYearly: 21000, annually: 36000 } },
+  { id: 'bp9999', name: '5000+ PAX Membership', pax: 9999, mrp: { monthly: 7999, halfYearly: 47994, annually: 95988 }, price: { monthly: 4999, halfYearly: 21000, annually: 36000 } },
 ];
 
 const addons = [
@@ -47,7 +48,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [discountType, setDiscountType] = useState<'percent' | 'value'>('percent');
-  const [billingDuration, setBillingDuration] = useState<'quarterly' | 'halfYearly' | 'annually'>('annually');
+  const [billingDuration, setBillingDuration] = useState<'monthly' | 'halfYearly' | 'annually'>('annually');
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [step, setStep] = useState(0);
@@ -252,7 +253,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
     doc.text(`Expected Date : Immediate`, pageWidth - 220, rightY); rightY += 15;
 
     // 5. Table Data
-    const durationMap: any = { quarterly: '3 Months', halfYearly: '6 Months', annually: '12 Months' };
+    const durationMap: any = { monthly: '1 Month', halfYearly: '6 Months', annually: '12 Months' };
     
     const tableData = [];
     let srNo = 1;
@@ -447,7 +448,7 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
   const memoizedPlans = useMemo(() => basePlans.map((plan) => {
     const planMrp = plan.mrp[billingDuration];
     const planPrice = plan.price[billingDuration];
-    const days = billingDuration === 'quarterly' ? 90 : billingDuration === 'halfYearly' ? 180 : 365;
+    const days = billingDuration === 'monthly' ? 30 : billingDuration === 'halfYearly' ? 180 : 365;
     const dailyPrice = Math.round(planPrice / days);
     const dailyMrp = Math.round(planMrp / days);
     return { ...plan, planMrp, planPrice, dailyPrice, dailyMrp };
@@ -958,13 +959,13 @@ export default function SendQuotationModal({ isOpen, onClose, entityName, entity
                              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">01. Billing Duration</h3>
                           </div>
                           <div className="flex bg-slate-100 p-1.5 rounded-2xl">
-                             {(['quarterly', 'halfYearly', 'annually'] as const).map((duration) => (
+                             {(['monthly', 'halfYearly', 'annually'] as const).map((duration) => (
                                 <button
                                    key={duration}
                                    onClick={() => setBillingDuration(duration)}
                                    className={cn("flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all", billingDuration === duration ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600")}
                                 >
-                                   {duration === 'halfYearly' ? 'Half-Yearly' : duration}
+                                   {duration === 'monthly' ? 'Monthly (1 Mo)' : duration === 'halfYearly' ? 'Half-Yearly (6 Mo)' : 'Annually (12 Mo)'}
                                 </button>
                              ))}
                           </div>

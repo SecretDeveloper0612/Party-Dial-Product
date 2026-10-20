@@ -98,6 +98,9 @@ function CheckoutContent() {
 
   const fetchPlans = async () => {
     const professionalPlans = [
+      { $id: 'plan_partner_pro_monthly', name: 'Partner Pro Membership (Monthly)', price: 5999, description: 'Flexible 1-month commitment (₹5,999/mo)' },
+      { $id: 'plan_partner_pro_halfyearly', name: 'Partner Pro Membership (Half-Yearly)', price: 21000, description: '6-Month Plan at ₹3,500/mo (Save 56%)' },
+      { $id: 'plan_partner_pro_yearly', name: 'Partner Pro Membership (Annual)', price: 36000, description: '12-Month Plan at ₹3,000/mo (Save 62%)' },
       { $id: 'bp50', name: '0-50 PAX Membership', price: 12045, description: 'Starter exposure for boutique venues' },
       { $id: 'bp100', name: '50-100 PAX Membership', price: 16060, description: 'Growth plan for rising banquet halls' },
       { $id: 'bp200', name: '100-200 PAX Membership', price: 28105, description: 'Premium tier for professional venues' },
@@ -234,12 +237,14 @@ function CheckoutContent() {
       }
     }
     const afterDiscount = Math.max(0, subtotal - discount);
+    const gst = Math.round(afterDiscount * 0.18);
+    const total = Math.round(afterDiscount + gst);
     
     return {
       base: subtotal,
       discount,
-      gst: 0,
-      total: Math.round(afterDiscount)
+      gst,
+      total
     };
   };
 

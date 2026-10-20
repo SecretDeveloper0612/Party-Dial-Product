@@ -93,8 +93,7 @@ export const verifyPayment = async (c) => {
     try {
       if (venueId) {
         const startDate = new Date();
-        let expiryDate = new Date(startDate);
-        const durationMonths = billingDuration === 'quarterly' ? 3 : billingDuration === 'halfYearly' ? 6 : 12;
+        const durationMonths = billingDuration === 'monthly' ? 1 : (billingDuration === 'halfYearly' || billingDuration === 'halfyear') ? 6 : 12;
         expiryDate.setMonth(expiryDate.getMonth() + durationMonths);
 
         let updatedBilling = typeof billingDetails === 'string' ? JSON.parse(billingDetails) : (billingDetails || {});

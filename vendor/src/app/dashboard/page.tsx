@@ -146,7 +146,6 @@ export default function VendorDashboard() {
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [settingsSection, setSettingsSection] = useState('profile');
   const [leadFilter, setLeadFilter] = useState('All');
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const [showPaymentReminder, setShowPaymentReminder] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -555,7 +554,12 @@ export default function VendorDashboard() {
 
       await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueProfile.$id, {
         venueName: venueProfile.venueName,
+        venueType: venueProfile.venueType || 'Banquet Hall',
         capacity: !isNaN(parseInt(String(venueProfile.capacity))) ? Math.max(1, Math.min(10000, parseInt(String(venueProfile.capacity)))) : 1, 
+        minCapacity: !isNaN(parseInt(String(venueProfile.minCapacity))) ? parseInt(String(venueProfile.minCapacity)) : 50,
+        maxCapacity: !isNaN(parseInt(String(venueProfile.maxCapacity))) ? parseInt(String(venueProfile.maxCapacity)) : 500,
+        pricingType: venueProfile.pricingType || 'per_plate',
+        foodTypes: typeof venueProfile.foodTypes === 'string' ? venueProfile.foodTypes : JSON.stringify(venueProfile.foodTypes || ['Veg', 'Non-Veg']),
         perPlateVeg: String(parseInt(String(venueProfile.perPlateVeg || 0)) || 0),
         perPlateNonVeg: String(parseInt(String(venueProfile.perPlateNonVeg || 0)) || 0),
         description: venueProfile.description || '',
@@ -808,10 +812,8 @@ export default function VendorDashboard() {
           // Mobile check - suppress disruptive popups on small screens if requested or already dismissed
           const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 1024;
 
-          if (!profile.onboardingComplete) {
-            router.push('/onboarding');
-            return;
-          } else if (needsPaymentPrompt && !alreadyDismissed && !isMobileDevice) {
+          // Allow vendors directly into the dashboard
+          if (needsPaymentPrompt && !alreadyDismissed && !isMobileDevice) {
             // Use localStorage for precise timing, fallback to $updatedAt for cross-device
             const storedTime = localStorage.getItem('onboardingCompletedAt');
             const completionTime = new Date(storedTime || profile.$updatedAt).getTime();
@@ -833,15 +835,82 @@ export default function VendorDashboard() {
             }
           }
         } else {
-          // If no venue document found, we check if they are actually a vendor
-          // This prevents Clients (from port 3000) from seeing the onboarding screen
-          // Allow any authenticated user without a profile to proceed to onboarding.
-          // This allows new accounts to complete their profile setup.
-          if (!isVendor && !isMasterAdmin) {
-            console.log('User is new or client, proceeding to onboarding.');
+          // If no venue document found, initialize a default venue profile document directly for this user
+          try {
+            const { ID } = await import('appwrite');
+            const defaultPayload = {
+              userId: user.$id,
+              ownerName: user.name || 'Vendor Owner',
+              venueName: user.name ? `${user.name}'s Venue` : 'My Venue',
+              contactEmail: user.email || '',
+              contactNumber: user.phone || '',
+              city: 'Haldwani',
+              state: 'Uttarakhand',
+              pincode: '263139',
+              venueType: 'Banquet Hall',
+              capacity: 200,
+              minCapacity: 50,
+              maxCapacity: 500,
+              pricingType: 'per_plate',
+              foodTypes: JSON.stringify(['Veg', 'Non-Veg']),
+              perPlateVeg: '800',
+              perPlateNonVeg: '1200',
+              description: '',
+              amenities: JSON.stringify(['ac', 'parking', 'wifi', 'indoor']),
+              eventTypes: JSON.stringify(['Birthday Party', 'Wedding Events', 'Anniversary Party']),
+              photos: JSON.stringify([]),
+              isVerified: false,
+              status: 'active',
+              subscriptionPlan: 'free',
+              onboardingComplete: true
+            };
+
+            const created = await databases.createDocument(
+              DATABASE_ID,
+              VENUES_COLLECTION_ID,
+              ID.unique(),
+              defaultPayload
+            );
+            setVenueProfile({
+              ...created,
+              packages: [],
+              halls: [],
+              ownerName: defaultPayload.ownerName,
+              address: '',
+              city: defaultPayload.city,
+              state: defaultPayload.state
+            });
+            showToast('Welcome to your Partner Dashboard! Configure your venue details below.', 'success');
+          } catch (createErr) {
+            console.error('Failed to auto-create venue profile:', createErr);
+            // Fallback in-memory profile so dashboard renders smoothly
+            setVenueProfile({
+              userId: user.$id,
+              ownerName: user.name || 'Vendor Owner',
+              venueName: 'My Venue',
+              contactEmail: user.email || '',
+              contactNumber: '',
+              city: 'Haldwani',
+              state: 'Uttarakhand',
+              pincode: '263139',
+              venueType: 'Banquet Hall',
+              capacity: 200,
+              minCapacity: 50,
+              maxCapacity: 500,
+              pricingType: 'per_plate',
+              foodTypes: JSON.stringify(['Veg', 'Non-Veg']),
+              perPlateVeg: '800',
+              perPlateNonVeg: '1200',
+              description: '',
+              amenities: '[]',
+              eventTypes: '[]',
+              photos: '[]',
+              packages: [],
+              halls: [],
+              subscriptionPlan: 'free',
+              onboardingComplete: true
+            });
           }
-          router.push('/onboarding');
-          return;
         }
       } catch (err: any) {
         console.error('Dashboard initialization failed:', err);
@@ -849,9 +918,6 @@ export default function VendorDashboard() {
           // If the error is explicitly an authentication error, redirect to login
           if (err?.code === 401) {
             router.push('/login');
-          } else {
-            // Otherwise, it's a database or permission error. Route to onboarding to allow them to complete profile.
-            router.push('/onboarding');
           }
         }
       }
@@ -918,11 +984,7 @@ export default function VendorDashboard() {
                  state: billing_data.state || payload.state || ''
               });
 
-              if (!payload.onboardingComplete) {
-                router.push('/onboarding');
-                return;
-              }
-              // Auto-hide payment reminder if payment is now complete
+               // Auto-hide payment reminder if payment is now complete
               if (payload.subscriptionPlan && payload.subscriptionPlan !== 'free') {
                 setShowPaymentReminder(false);
               }
@@ -1005,24 +1067,6 @@ export default function VendorDashboard() {
   const [newBookingDay, setNewBookingDay] = useState<number | null>(null);
 
   const selectedDayEvents = calendarEvents.filter(e => e.day === selectedDay);
-
-  const completeOnboarding = async () => {
-    localStorage.setItem('onboardingComplete', 'true');
-    localStorage.setItem('onboardingCompletedAt', new Date().toISOString());
-    setShowOnboarding(false);
-    
-    // Sync with database if profile exists
-    if (venueProfile?.$id) {
-       try {
-          const { databases, DATABASE_ID, VENUES_COLLECTION_ID } = await import('@/lib/appwrite');
-          await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueProfile.$id, {
-            onboardingComplete: true
-          });
-       } catch (err) {
-          console.error('Failed to sync onboarding status:', err);
-       }
-    }
-  };
 
   if (!isAuthorized) return null;
 
@@ -1124,28 +1168,32 @@ export default function VendorDashboard() {
                 ))}
              </div>
 
-              {/* Listing Management - Only visible during onboarding */}
-             {!isOnboardingComplete && (
-               <div className="space-y-1 mt-6 px-2">
-                  <span className={`text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 block opacity-60 ${sidebarOpen ? 'pl-4' : 'text-center pl-0'}`}>
-                    {sidebarOpen ? 'Listing Management' : 'Listing'}
-                  </span>
-                  {[
-                    { id: 'profile', label: 'Set Profile', icon: <User size={18} />, href: '/dashboard/onboarding/profile' },
-                    { id: 'photos', label: 'Upload Photos', icon: <ImageIcon size={18} />, href: '/dashboard/onboarding/photos' },
-                    { id: 'pricing', label: 'Manage Pricing', icon: <IndianRupee size={18} />, href: '/dashboard/onboarding/pricing' },
-                  ].map(item => (
-                    <Link key={item.id} href={item.href || '#'} onClick={() => isMobile && setSidebarOpen(false)}>
-                      <div className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-slate-500 hover:bg-slate-50 hover:text-pd-pink transition-all cursor-pointer`} title={!sidebarOpen ? item.label : undefined}>
-                        <div className="p-1.5 bg-slate-50 rounded-lg group-hover:bg-white transition-colors">
-                           {item.icon}
-                        </div>
-                        {sidebarOpen && <span className="whitespace-nowrap">{item.label}</span>}
-                      </div>
-                    </Link>
-                  ))}
-               </div>
-             )}
+              {/* Listing Management */}
+              <div className="space-y-1 mt-6 px-2">
+                 <span className={`text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 block opacity-60 ${sidebarOpen ? 'pl-4' : 'text-center pl-0'}`}>
+                   {sidebarOpen ? 'Listing Details' : 'Listing'}
+                 </span>
+                 {[
+                   { id: 'profile', label: 'Venue Profile', icon: <User size={18} />, action: () => { setActiveTab('settings'); setSettingsSection('profile'); } },
+                   { id: 'photos', label: 'Upload Photos', icon: <ImageIcon size={18} />, action: () => { setActiveTab('settings'); setSettingsSection('photos'); } },
+                   { id: 'pricing', label: 'Manage Pricing', icon: <IndianRupee size={18} />, action: () => { setActiveTab('settings'); setSettingsSection('pricing'); } },
+                 ].map(item => (
+                   <button
+                     key={item.id}
+                     onClick={() => {
+                       item.action();
+                       if (isMobile) setSidebarOpen(false);
+                     }}
+                     className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-3 rounded-xl text-[11px] font-black uppercase tracking-wider text-slate-500 hover:bg-slate-50 hover:text-pd-pink transition-all cursor-pointer`}
+                     title={!sidebarOpen ? item.label : undefined}
+                   >
+                     <div className="p-1.5 bg-slate-50 rounded-lg group-hover:bg-white transition-colors">
+                        {item.icon}
+                     </div>
+                     {sidebarOpen && <span className="whitespace-nowrap">{item.label}</span>}
+                   </button>
+                 ))}
+              </div>
 
              <div className="space-y-1 mt-6">
                 <span className={`text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block ${sidebarOpen ? 'pl-4' : 'text-center pl-0'}`}>
@@ -1232,7 +1280,7 @@ export default function VendorDashboard() {
                               Plan Expired
                            </span>
                         </div>
-                        <Link href="/dashboard/onboarding/pricing" className="bg-slate-900 hover:bg-pd-pink transition-colors text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-slate-900/10 active:scale-95 text-center w-full">
+                        <Link href="/pricing" className="bg-slate-900 hover:bg-pd-pink transition-colors text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-slate-900/10 active:scale-95 text-center w-full">
                            Upgrade Now
                         </Link>
                      </div>

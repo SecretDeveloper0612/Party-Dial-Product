@@ -101,7 +101,74 @@ exports.createOrder = async (req, res) => {
     res.json(order);
   } catch (error) {
     console.error('Razorpay Order Error:', error);
-    res.status(500).json({ error: error.message });
+    const msg = error?.error?.description || error?.message || 'Razorpay order creation failed';
+    res.status(500).json({ error: msg, message: msg, details: error });
+  }
+};
+
+// ── CREATE RECURRING SUBSCRIPTION (AUTO-DEBIT) ──
+let cachedMonthlyPlanId = null;
+
+exports.createSubscription = async (req, res) => {
+  try {
+    const { amount, planName = 'Partner Pro Monthly Plan', totalCycles = 12 } = req.body;
+    const amountVal = parseInt(String(amount)); // amount in paise, e.g. 707900
+
+    // Ensure or create Razorpay Plan for monthly recurring
+    if (!cachedMonthlyPlanId) {
+      try {
+        const plan = await razorpay.plans.create({
+          period: 'monthly',
+          interval: 1,
+          item: {
+            name: `PartyDial ${planName}`,
+            amount: amountVal,
+            currency: 'INR',
+            description: 'Monthly recurring auto-debit subscription for PartyDial venue listing'
+          }
+        });
+        cachedMonthlyPlanId = plan.id;
+      } catch (planErr) {
+        console.warn('Plan creation note:', planErr.message);
+      }
+    }
+
+    if (!cachedMonthlyPlanId) {
+      // Fallback: create fresh plan
+      const plan = await razorpay.plans.create({
+        period: 'monthly',
+        interval: 1,
+        item: {
+          name: `PartyDial ${planName}`,
+          amount: amountVal,
+          currency: 'INR',
+          description: 'Monthly recurring auto-debit subscription'
+        }
+      });
+      cachedMonthlyPlanId = plan.id;
+    }
+
+    // Create Subscription
+    const subscription = await razorpay.subscriptions.create({
+      plan_id: cachedMonthlyPlanId,
+      total_count: parseInt(String(totalCycles)) || 12,
+      quantity: 1,
+      customer_notify: 1
+    });
+
+    res.json({
+      status: 'success',
+      isSubscription: true,
+      subscription_id: subscription.id,
+      plan_id: cachedMonthlyPlanId,
+      amount: amountVal,
+      currency: 'INR',
+      short_url: subscription.short_url
+    });
+  } catch (error) {
+    console.error('Razorpay Subscription Error:', error);
+    const msg = error?.error?.description || error?.message || 'Failed to create recurring subscription';
+    res.status(500).json({ error: msg, message: msg, details: error });
   }
 };
 
@@ -111,6 +178,7 @@ exports.verifyPayment = async (req, res) => {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
+      razorpay_subscription_id,
       venueId,
       venueName,
       ownerEmail,
@@ -120,13 +188,26 @@ exports.verifyPayment = async (req, res) => {
       amount
     } = req.body;
 
-    const sign = razorpay_order_id + "|" + razorpay_payment_id;
-    const expectedSign = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(sign.toString())
-      .digest("hex");
+    let isValid = false;
+    if (razorpay_subscription_id) {
+      // Signature for subscriptions: razorpay_payment_id + '|' + razorpay_subscription_id
+      const subSign = razorpay_payment_id + "|" + razorpay_subscription_id;
+      const expectedSubSign = crypto
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+        .update(subSign.toString())
+        .digest("hex");
+      isValid = (razorpay_signature === expectedSubSign);
+    } else if (razorpay_order_id) {
+      // Signature for one-time orders: razorpay_order_id + '|' + razorpay_payment_id
+      const sign = razorpay_order_id + "|" + razorpay_payment_id;
+      const expectedSign = crypto
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+        .update(sign.toString())
+        .digest("hex");
+      isValid = (razorpay_signature === expectedSign);
+    }
 
-    if (razorpay_signature !== expectedSign) {
+    if (!isValid) {
       return res.status(400).json({ status: 'error', message: "Invalid signature sent!" });
     }
 
@@ -157,12 +238,11 @@ exports.verifyPayment = async (req, res) => {
       } catch (e) { bill = {}; }
 
       const startDate = new Date();
-      let expiryDate = new Date(startDate);
-      const durationMonths = billingDuration === 'quarterly' ? 3 : billingDuration === 'halfYearly' ? 6 : 12;
+      const durationMonths = billingDuration === 'monthly' ? 1 : (billingDuration === 'halfYearly' || billingDuration === 'halfyear') ? 6 : 12;
       expiryDate.setMonth(expiryDate.getMonth() + durationMonths);
 
-      const durationMap = { quarterly: '3 Months', halfYearly: '6 Months', annually: '12 Months' };
-      const billingDurationLabel = billingDuration === 'quarterly' ? 'Quarterly' : billingDuration === 'halfYearly' ? 'Half-Yearly' : 'Annually';
+      const durationMap = { monthly: '1 Month', halfYearly: '6 Months', halfyear: '6 Months', annually: '12 Months', yearly: '12 Months' };
+      const billingDurationLabel = billingDuration === 'monthly' ? 'Monthly' : (billingDuration === 'halfYearly' || billingDuration === 'halfyear') ? 'Half-Yearly' : 'Annually';
       const planDurationStr = `${billingDurationLabel} (${durationMap[billingDuration] || '12 Months'})`;
 
       const invoiceData = {
@@ -248,8 +328,7 @@ exports.verifyPayment = async (req, res) => {
     try {
       if (targetVenueId) {
         const startDate = new Date();
-        let expiryDate = new Date(startDate);
-        const durationMonths = billingDuration === 'quarterly' ? 3 : billingDuration === 'halfYearly' ? 6 : 12;
+        const durationMonths = billingDuration === 'monthly' ? 1 : (billingDuration === 'halfYearly' || billingDuration === 'halfyear') ? 6 : 12;
         expiryDate.setMonth(expiryDate.getMonth() + durationMonths);
 
         // --- ADD PAID_SINCE METADATA ---

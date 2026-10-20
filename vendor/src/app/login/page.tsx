@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, ShieldCheck, Lock, Mail, X, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function AuthPage() {
+function AuthContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,28 +61,38 @@ export default function AuthPage() {
   React.useEffect(() => {
     // Check if user is already logged in or returning from OAuth redirect
     const checkActiveSession = async () => {
-      try {
-        const { account } = await import('@/lib/appwrite');
-        const user = await account.get();
-        if (user) {
-          localStorage.setItem('user', JSON.stringify(user));
-          router.push('/dashboard');
-        }
-      } catch {
-        // Not logged in, stay on login page
-      }
-    };
-    checkActiveSession();
-  }, [router]);
+       try {
+         const { account } = await import('@/lib/appwrite');
+         const user = await account.get();
+         if (user) {
+           localStorage.setItem('user', JSON.stringify(user));
+           let targetRedirect = searchParams.get('redirect') || localStorage.getItem('loginRedirect') || '/dashboard';
+           localStorage.removeItem('loginRedirect');
+           if (!targetRedirect.startsWith('/checkout') && !targetRedirect.startsWith('/dashboard') && !targetRedirect.startsWith('/pricing')) {
+             targetRedirect = '/dashboard';
+           }
+           if (targetRedirect.includes('onboarding')) {
+             targetRedirect = '/dashboard';
+           }
+           router.push(targetRedirect);
+         }
+       } catch {
+         // Not logged in, stay on login page
+       }
+     };
+     checkActiveSession();
+   }, [router, searchParams]);
 
   const handleGoogleLogin = async () => {
     try {
       const { account } = await import('@/lib/appwrite');
       const { OAuthProvider } = await import('appwrite');
       const currentUrl = window.location.origin;
+      const targetRedirect = searchParams.get('redirect') || '/dashboard';
+      localStorage.setItem('loginRedirect', targetRedirect);
       await account.createOAuth2Session(
         OAuthProvider.Google,
-        `${currentUrl}/dashboard`,
+        `${currentUrl}${targetRedirect}`,
         `${currentUrl}/login`
       );
     } catch (err) {
@@ -134,7 +145,16 @@ export default function AuthPage() {
 
     localStorage.setItem('auth_session', JSON.stringify(session));
     localStorage.setItem('user', JSON.stringify(user));
-    router.push('/dashboard');
+    
+    let targetRedirect = searchParams.get('redirect') || localStorage.getItem('loginRedirect') || '/dashboard';
+    localStorage.removeItem('loginRedirect');
+    if (!targetRedirect.startsWith('/checkout') && !targetRedirect.startsWith('/dashboard') && !targetRedirect.startsWith('/pricing')) {
+      targetRedirect = '/dashboard';
+    }
+    if (targetRedirect.includes('onboarding')) {
+      targetRedirect = '/dashboard';
+    }
+    router.push(targetRedirect);
   };
 
   const handleSignUp = async () => {
@@ -504,5 +524,17 @@ export default function AuthPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-8 h-8 border-3 border-pink-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <AuthContent />
+    </Suspense>
   );
 }

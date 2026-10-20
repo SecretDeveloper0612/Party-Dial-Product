@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const response = NextResponse.next();
   
   // Apply no-store cache control for sensitive routes
@@ -12,6 +12,8 @@ export function middleware(request: NextRequest) {
   
   return response;
 }
+
+export { proxy as middleware };
 
 // See "Matching Paths" below to learn more
 export const config = {

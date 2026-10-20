@@ -1,174 +1,171 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-
 import Script from 'next/script';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { account, databases, DATABASE_ID, VENUES_COLLECTION_ID, Query } from '@/lib/appwrite';
-
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Check, 
-  ChevronDown, 
   Zap, 
-  Star,
-  Plus,
-  Sparkle,
-  CheckCircle2,
-  ChevronRight,
-  Loader2,
-  MapPin
+  Sparkle, 
+  CheckCircle2, 
+  Loader2, 
+  MapPin, 
+  ShieldCheck, 
+  Calendar, 
+  FileText, 
+  PhoneCall, 
+  TrendingUp, 
+  ArrowRight
 } from 'lucide-react';
 
-// --- STYLES ---
+// --- SUBSCRIPTION MODEL ---
+export type BillingDuration = 'monthly' | 'halfYearly' | 'annually';
 
-const gradientStyle = "bg-linear-to-r from-red-500 via-pink-500 via-purple-500 to-blue-500";
+export interface PlanDurationOption {
+  id: string;
+  duration: BillingDuration;
+  name: string;
+  subtitle: string;
+  badge?: string;
+  periodLabel: string;
+  monthlyMrp: number;
+  monthlyRate: number;      // Base price per month before GST
+  baseTotalPrice: number;   // Base total before GST
+  gstAmount: number;        // 18% GST amount
+  totalWithGst: number;     // Final payable amount
+  totalMrp: number;
+  savingsPercent: number;
+  totalSavings: number;
+  billedText: string;
+  isPopular?: boolean;
+  isVip?: boolean;
+  ctaText: string;
+  features: string[];
+}
 
-// --- DATA ---
-
-const pricingPlans = [
+const subscriptionTiers: PlanDurationOption[] = [
   {
-    id: 1,
-    name: "Upto 50 PAX",
-    packName: "Starter Pack",
-    mrp: { quarterly: 5310, halfYearly: 10620, annually: 21535 },
-    price: { quarterly: 4410, halfYearly: 7920, annually: 12045 },
-    leads: "Unlimited Leads",
+    id: 'monthly',
+    duration: 'monthly',
+    name: 'Monthly Plan',
+    subtitle: 'Flexible month-to-month listing commitment',
+    badge: 'Flexible • 1 Month',
+    periodLabel: '1 Month',
+    monthlyMrp: 7999,
+    monthlyRate: 5999,
+    baseTotalPrice: 5999,
+    gstAmount: 1080,         // Math.round(5999 * 0.18) = 1080
+    totalWithGst: 7079,     // 5999 + 1080 = 7079
+    totalMrp: 7999,
+    savingsPercent: 25,
+    totalSavings: 2000,
+    billedText: 'Base ₹5,999 + 18% GST (₹1,080) = ₹7,079/mo',
+    ctaText: 'Get Started Monthly',
     features: [
-      "Basic listing visibility",
-      "Standard search placement",
-      "Lead notifications (App + Email)",
-      "Upload up to 10 photos",
-      "Basic customer support"
-    ],
-    popular: false,
-    cta: "Get Started"
+      'Unlimited Customer Inquiries',
+      'Instant Email Lead Alerts',
+      'Complete Venue Profile & Media Showcase',
+      'Standard City Search Placement',
+      'Lead CRM & Status Pipeline',
+      'Quotation & Digital Invoice Maker',
+      'Venue Event Booking Calendar',
+      'Standard Email & Chat Support'
+    ]
   },
   {
-    id: 2,
-    name: "Upto 100 PAX",
-    packName: "Growth Pack",
-    mrp: { quarterly: 6210, halfYearly: 12420, annually: 25185 },
-    price: { quarterly: 5310, halfYearly: 9900, annually: 16060 },
-    leads: "Unlimited Leads",
+    id: 'halfYearly',
+    duration: 'halfYearly',
+    name: 'Half-Yearly Plan',
+    subtitle: 'Prime wedding & peak celebration seasons',
+    badge: '★ Most Popular • 6 Months',
+    periodLabel: '6 Months',
+    monthlyMrp: 7999,
+    monthlyRate: 3500,
+    baseTotalPrice: 21000,   // 3500 * 6
+    gstAmount: 3780,        // 21000 * 0.18
+    totalWithGst: 24780,    // 21000 + 3780
+    totalMrp: 47994,
+    savingsPercent: 56,
+    totalSavings: 26994,
+    billedText: 'Base ₹21,000 + 18% GST (₹3,780) = ₹24,780 for 6 Mo',
+    isPopular: true,
+    ctaText: 'Claim 6-Month Plan',
     features: [
-      "Improved listing visibility",
-      "WhatsApp lead alerts",
-      "Standard placement in search",
-      "Upload up to 20 photos",
-      "Basic analytics dashboard"
-    ],
-    popular: false,
-    cta: "Get Started"
+      'Unlimited Customer Inquiries',
+      'Instant Email Lead Alerts',
+      'Priority Lead Dispatch Algorithm',
+      'High Category & City Search Placement',
+      'Lead CRM & Status Pipeline',
+      'Quotation & PDF Invoice Generator',
+      'Official Verified Partner Badge',
+      'Priority Partner Phone Support'
+    ]
   },
   {
-    id: 3,
-    name: "Upto 200 PAX",
-    packName: "Priority Pack",
-    mrp: { quarterly: 10710, halfYearly: 21420, annually: 43435 },
-    price: { quarterly: 8910, halfYearly: 16920, annually: 28105 },
-    leads: "Unlimited Leads",
+    id: 'annually',
+    duration: 'annually',
+    name: 'Annual Plan',
+    subtitle: 'Top city ranking & maximum yearly bookings',
+    badge: '👑 Best Value • Save 62%',
+    periodLabel: '12 Months',
+    monthlyMrp: 7999,
+    monthlyRate: 3000,
+    baseTotalPrice: 36000,   // 3000 * 12
+    gstAmount: 6480,        // 36000 * 0.18
+    totalWithGst: 42480,    // 36000 + 6480
+    totalMrp: 95988,
+    savingsPercent: 62,
+    totalSavings: 59988,
+    billedText: 'Base ₹36,000 + 18% GST (₹6,480) = ₹42,480 / Year',
+    isVip: true,
+    ctaText: 'Unlock Annual Access',
     features: [
-      "Priority listing in search results",
-      "WhatsApp notifications",
-      "Lead insights dashboard",
-      "Faster lead delivery",
-      "Upload up to 30 photos"
-    ],
-    popular: true,
-    cta: "Get Started"
-  },
-  {
-    id: 4,
-    name: "Upto 500 PAX",
-    packName: "Featured Pack",
-    mrp: { quarterly: 16110, halfYearly: 32220, annually: 65335 },
-    price: { quarterly: 14310, halfYearly: 26820, annually: 44895 },
-    leads: "Unlimited Leads",
-    features: [
-      "Featured placement in listings",
-      "Priority visibility in search",
-      "Lead filtering system",
-      "Priority customer support",
-      "Upload up to 40 photos"
-    ],
-    popular: false,
-    cta: "Get Started"
-  },
-  {
-    id: 5,
-    name: "Upto 1000 PAX",
-    packName: "Premium Pack",
-    mrp: { quarterly: 22410, halfYearly: 44820, annually: 90885 },
-    price: { quarterly: 19710, halfYearly: 35820, annually: 65335 },
-    leads: "Unlimited Leads",
-    features: [
-      "Premium placement in listings",
-      "High visibility ranking",
-      "Faster lead routing",
-      "Advanced performance analytics",
-      "Upload up to 50 photos"
-    ],
-    popular: false,
-    cta: "Get Started"
-  },
-  {
-    id: 6,
-    name: "Upto 2000 PAX",
-    packName: "Elite Pack",
-    mrp: { quarterly: 30510, halfYearly: 61020, annually: 123735 },
-    price: { quarterly: 26910, halfYearly: 48600, annually: 90885 },
-    leads: "Unlimited Leads",
-    features: [
-      "Top city visibility",
-      "Premium ranking placement",
-      "Advanced lead analytics",
-      "Priority lead routing",
-      "Upload up to 60 photos"
-    ],
-    popular: false,
-    cta: "Get Started"
-  },
-  {
-    id: 7,
-    name: "Upto 5000 PAX",
-    packName: "Platinum Pack",
-    mrp: { quarterly: 50310, halfYearly: 100620, annually: 204035 },
-    price: { quarterly: 41310, halfYearly: 79020, annually: 138335 },
-    leads: "Unlimited Leads",
-    features: [
-      "High priority ranking",
-      "Dedicated support assistance",
-      "Premium listing visibility",
-      "Advanced reporting dashboard",
-      "Upload up to 75 photos"
-    ],
-    popular: false,
-    cta: "Get Started"
-  },
-  {
-    id: 8,
-    name: "5000+ PAX",
-    packName: "Enterprise Pack",
-    mrp: { quarterly: 89910, halfYearly: 179820, annually: 364635 },
-    price: { quarterly: 62910, halfYearly: 118620, annually: 218635 },
-    leads: "Unlimited Leads",
-    features: [
-      "Exclusive lead priority",
-      "Dedicated account manager",
-      "Highest platform visibility",
-      "Custom promotional support",
-      "Unlimited photo uploads"
-    ],
-    popular: false,
-    cta: "Contact Sales"
+      'Everything in Half-Yearly Plan',
+      'Guaranteed Lowest Rate (₹3,000/mo)',
+      'Save ₹59,988 compared to Monthly MRP',
+      'Top-Tier Search Ranking & Featured Spotlight',
+      'Dedicated Partner Growth Manager',
+      'Citywide Venue & Social Media Promotion',
+      'Unlimited Photo & Video Uploads',
+      '24/7 Priority VIP Phone & Email Support'
+    ]
   }
 ];
 
-// --- COMPONENTS ---
+const coreHighlights = [
+  {
+    title: 'Zero Commission Fees',
+    desc: 'Keep 100% of your booking revenues. We never charge commission on food or rentals.',
+    icon: ShieldCheck
+  },
+  {
+    title: 'Verified Phone Numbers',
+    desc: 'Every client inquiry is validated with OTP verification to eliminate fake leads.',
+    icon: PhoneCall
+  },
+  {
+    title: 'Instant Email Lead Alerts',
+    desc: 'Receive customer inquiries directly to your registered inbox the moment they are submitted.',
+    icon: Zap
+  },
+  {
+    title: 'Interactive Quotation Maker',
+    desc: 'Send customized event quotes with menu packages and GST directly to clients.',
+    icon: FileText
+  }
+];
 
-const InquiryPopup = React.memo(({ plan, billingDuration, onClose }: { plan: typeof pricingPlans[0] | null, billingDuration: 'quarterly' | 'halfYearly' | 'annually', onClose: () => void }) => {
+// --- INQUIRY POPUP COMPONENT ---
+const InquiryPopup = React.memo(({ 
+  plan, 
+  onClose 
+}: { 
+  plan: PlanDurationOption | null; 
+  onClose: () => void; 
+}) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -176,12 +173,11 @@ const InquiryPopup = React.memo(({ plan, billingDuration, onClose }: { plan: typ
     venueName: '',
     city: '',
     pincode: '',
-    selectedPlanId: plan?.id || pricingPlans[0].id
+    selectedPlanId: plan?.id || 'annually'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   
-  // Pincode/Location states
   const [suggestions, setSuggestions] = useState<{display: string, city: string, district: string, pincode: string}[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoadingPincode, setIsLoadingPincode] = useState(false);
@@ -192,7 +188,6 @@ const InquiryPopup = React.memo(({ plan, billingDuration, onClose }: { plan: typ
     }
   }, [plan]);
 
-  // Indian Post API Auto-suggest
   useEffect(() => {
     const fetchPincode = async () => {
       const input = formData.pincode.trim();
@@ -210,8 +205,8 @@ const InquiryPopup = React.memo(({ plan, billingDuration, onClose }: { plan: typ
         const response = await fetch(url);
         const data = await response.json();
 
-        if (data[0].Status === 'Success') {
-          const offices = data[0].PostOffice;
+        if (data[0]?.Status === 'Success') {
+          const offices = data[0].PostOffice || [];
           setSuggestions(offices.map((o: { Name: string, District: string, Pincode: string }) => ({
             display: `${o.Name}, ${o.District}`,
             city: o.Name,
@@ -246,8 +241,8 @@ const InquiryPopup = React.memo(({ plan, billingDuration, onClose }: { plan: typ
     setIsSubmitting(true);
     
     try {
-      const selectedPlan = pricingPlans.find(p => p.id === formData.selectedPlanId);
-      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'https://party-dial-product-server.onrender.com/api';
+      const selectedPlan = subscriptionTiers.find(p => p.id === formData.selectedPlanId) || plan;
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5005/api';
       const serverUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
 
       const response = await fetch(`${serverUrl}/leads/partner-enquiry`, {
@@ -259,11 +254,11 @@ const InquiryPopup = React.memo(({ plan, billingDuration, onClose }: { plan: typ
           name: formData.name,
           phone: formData.phone,
           email: formData.email,
-          plan: selectedPlan ? `${selectedPlan.name} (${selectedPlan.packName}) - Billed ${billingDuration === 'quarterly' ? 'Quarterly' : billingDuration === 'halfYearly' ? 'Half-Yearly' : 'Annually'}` : 'Custom',
+          plan: selectedPlan ? `Partner Pro (${selectedPlan.name}) - ${selectedPlan.billedText}` : 'Partner Pro Membership',
           venueName: formData.venueName,
           city: formData.city,
           pincode: formData.pincode,
-          guestCapacity: selectedPlan?.name.split(' ')[0] || '0'
+          guestCapacity: 'All Capacities'
         }),
       });
 
@@ -281,193 +276,175 @@ const InquiryPopup = React.memo(({ plan, billingDuration, onClose }: { plan: typ
   };
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.15 }}
-        onClick={onClose}
-        className="absolute inset-0 bg-slate-900/60"
-      />
-      <motion.div
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md">
+      <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
-        className="relative w-full max-w-125 bg-white rounded-2xl shadow-2xl z-10 border border-slate-100 flex flex-col max-h-[90vh]"
+        className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative border border-slate-100 max-h-[90vh] overflow-y-auto"
       >
         <button 
-           onClick={onClose} 
-           className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-colors z-20"
+          onClick={onClose}
+          className="absolute top-5 right-5 text-slate-400 hover:text-slate-700 transition-colors w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center cursor-pointer"
         >
-          <Plus className="rotate-45" size={18} />
+          ✕
         </button>
 
-        <div className="p-8 overflow-y-auto custom-scrollbar">
-          {!isSubmitted ? (
-            <div className="relative z-10 text-left">
-              <div className="mb-6">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-pd-blue/5 text-pd-blue rounded-md mb-4 border border-pd-blue/10">
-                  <Sparkle size={12} fill="currentColor" className="animate-pulse" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Quick Enquiry</span>
-                </div>
-                <h2 className="text-2xl font-bold text-slate-900 mb-1">
-                  Partner Enquiry
-                </h2>
-                <p className="text-sm text-slate-500 font-medium">Complete the form below to get started</p>
+        {isSubmitted ? (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 size={32} />
+            </div>
+            <h3 className="text-2xl font-black text-slate-900 mb-2">Inquiry Received!</h3>
+            <p className="text-slate-500 text-sm mb-6">
+              Our partner relationship manager will contact you within 2 hours to activate your venue account.
+            </p>
+            <button 
+              onClick={onClose}
+              className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold uppercase tracking-wider text-xs hover:bg-slate-800 transition-all cursor-pointer"
+            >
+              Done
+            </button>
+          </div>
+        ) : (
+          <div>
+            <div className="mb-6">
+              <span className="text-[10px] font-semibold font-pd uppercase tracking-widest text-pink-600 bg-pink-50 px-3 py-1 rounded-full border border-pink-100">
+                VENDOR CONSULTATION
+              </span>
+              <h3 className="text-xl sm:text-2xl font-semibold font-sf text-slate-900 mt-2.5 tracking-tight">
+                Partner Pro Consultation
+              </h3>
+              <p className="text-slate-500 text-xs sm:text-sm font-normal font-pd mt-1">
+                Interested in {plan?.name || 'Partner Pro'}? Send us your venue details and our growth team will connect with you.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4 font-pd">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  Selected Duration
+                </label>
+                <select
+                  value={formData.selectedPlanId}
+                  onChange={(e) => setFormData(prev => ({ ...prev, selectedPlanId: e.target.value }))}
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-pink-500"
+                >
+                  {subscriptionTiers.map(p => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} — ₹{p.monthlyRate.toLocaleString()}/mo + 18% GST ({p.billedText})
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Full Name</label>
-                    <input 
-                      required 
-                      type="text" 
-                      placeholder="John Doe"
-                      value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Phone Number</label>
-                    <input 
-                      required 
-                      type="tel" 
-                      placeholder="+91 00000 00000"
-                      value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Email Address</label>
-                  <input 
-                    required 
-                    type="email" 
-                    placeholder="john@example.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Contact Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="e.g. Ramesh Chandra"
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-pink-500"
                   />
                 </div>
-                
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Preferred Plan</label>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    placeholder="9876543210"
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-pink-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="contact@myvenue.com"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-pink-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Venue / Banquet Name</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.venueName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, venueName: e.target.value }))}
+                  placeholder="e.g. Royal Greens Banquet & Lawn"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-pink-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Pincode</label>
                   <div className="relative">
-                    <select 
-                      className="w-full h-11 bg-white border border-slate-200 rounded-lg pl-4 pr-10 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none appearance-none cursor-pointer"
-                      value={formData.selectedPlanId}
-                      onChange={(e) => setFormData(prev => ({ ...prev, selectedPlanId: parseInt(e.target.value) }))}
-                    >
-                      {pricingPlans.map(p => (
-                        <option key={p.id} value={p.id}>{p.name} ({p.packName})</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Venue Name</label>
-                    <input 
-                      required 
-                      type="text" 
-                      placeholder="Grand Hotel"
-                      value={formData.venueName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, venueName: e.target.value }))}
-                      className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                    <input
+                      type="text"
+                      required
+                      value={formData.pincode}
+                      onChange={(e) => {
+                        setFormData(prev => ({ ...prev, pincode: e.target.value }));
+                        setShowSuggestions(true);
+                      }}
+                      onFocus={() => setShowSuggestions(true)}
+                      placeholder="e.g. 110001"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-pink-500"
                     />
+                    {isLoadingPincode && (
+                      <Loader2 size={16} className="animate-spin text-slate-400 absolute right-3 top-3" />
+                    )}
                   </div>
-
-                  <div className="group space-y-1 relative">
-                    <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Pincode</label>
-                    <div className="relative">
-                      <input 
-                        required 
-                        type="text" 
-                        placeholder="110001"
-                        value={formData.pincode}
-                        onChange={(e) => {
-                          setFormData(prev => ({ ...prev, pincode: e.target.value }));
-                          setShowSuggestions(true);
-                        }}
-                        onFocus={() => setShowSuggestions(true)}
-                        autoComplete="off"
-                        className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
-                      />
-                      {isLoadingPincode && <Loader2 className="absolute right-3.5 top-1/2 -translate-y-1/2 animate-spin text-pd-blue" size={14} />}
-                      
-                      <AnimatePresence>
-                        {showSuggestions && suggestions.length > 0 && (
-                          <motion.div 
-                            initial={{ opacity: 0, y: -5 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -5 }}
-                            className="absolute left-0 right-0 top-[110%] bg-white border border-slate-100 rounded-lg shadow-xl z-50 max-h-48 overflow-y-auto p-1 custom-scrollbar"
-                          >
-                            {suggestions.map((s, idx) => (
-                              <button 
-                                key={idx}
-                                type="button"
-                                onClick={() => selectPincode(s)}
-                                className="w-full text-left px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-pd-blue transition-colors rounded-md flex items-center gap-2"
-                              >
-                                <MapPin size={12} /> {s.display} ({s.pincode})
-                              </button>
-                            ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                  {showSuggestions && suggestions.length > 0 && (
+                    <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+                      {suggestions.map((s, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => selectPincode(s)}
+                          className="px-3 py-2 text-xs hover:bg-slate-50 cursor-pointer flex items-center gap-1.5 border-b border-slate-100 last:border-0"
+                        >
+                          <MapPin size={12} className="text-pink-500" />
+                          <span>{s.display} ({s.pincode})</span>
+                        </div>
+                      ))}
                     </div>
-                  </div>
+                  )}
                 </div>
-
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">City / Area</label>
-                  <input 
-                    required 
-                    type="text" 
-                    placeholder="New Delhi"
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">City</label>
+                  <input
+                    type="text"
+                    required
                     value={formData.city}
                     onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                    className="w-full h-11 bg-white border border-slate-200 rounded-lg px-4 text-sm text-slate-900 focus:border-pd-blue focus:ring-1 focus:ring-pd-blue/20 transition-all outline-none"
+                    placeholder="e.g. New Delhi"
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-pink-500"
                   />
                 </div>
-
-                <button 
-                  disabled={isSubmitting}
-                  className="w-full h-12 bg-slate-900 hover:bg-pd-blue text-white rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2 mt-6"
-                >
-                  {isSubmitting ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <>Submit Inquiry <ChevronRight size={16} /></>
-                  )}
-                </button>
-              </form>
-            </div>
-          ) : (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-12"
-            >
-              <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto mb-5">
-                <CheckCircle2 size={32} />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Inquiry Sent!</h3>
-              <p className="text-sm text-slate-500 font-medium">
-                Our team will reach out to you within <span className="text-pd-blue font-bold">4 working hours</span>.
-              </p>
-            </motion.div>
-          )}
-        </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3.5 rounded-xl text-xs font-semibold font-pd uppercase tracking-wider text-white shadow-lg shadow-pink-500/25 bg-gradient-to-r from-red-500 via-pink-600 to-purple-600 hover:opacity-95 transition-opacity disabled:opacity-50 cursor-pointer"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Inquiry'}
+              </button>
+            </form>
+          </div>
+        )}
       </motion.div>
     </div>
   );
@@ -475,292 +452,504 @@ const InquiryPopup = React.memo(({ plan, billingDuration, onClose }: { plan: typ
 
 InquiryPopup.displayName = 'InquiryPopup';
 
-const PricingCard = React.memo(({ plan, onSelect, billingDuration, onBuyNow }: { plan: typeof pricingPlans[0], onSelect: (plan: typeof pricingPlans[0]) => void, billingDuration: 'quarterly' | 'halfYearly' | 'annually', onBuyNow: (plan: typeof pricingPlans[0]) => void }) => {
-  const currentMrp = plan.mrp[billingDuration];
-  const currentPrice = plan.price[billingDuration];
-  const discount = Math.round(((currentMrp - currentPrice) / currentMrp) * 100);
-  
-  const days = billingDuration === 'quarterly' ? 90 : billingDuration === 'halfYearly' ? 180 : 365;
-  const dailyMrp = Math.round(currentMrp / days);
-  const dailyPrice = Math.round(currentPrice / days);
-
-  const billingLabel = billingDuration === 'quarterly' ? 'Billed Quarterly' : billingDuration === 'halfYearly' ? 'Billed Half-Yearly' : 'Billed Annually';
-  
-  return (
-    <motion.div
-      whileHover={{ y: -8 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className={`relative h-full ${plan.popular ? 'scale-[1.03] z-10' : 'z-0'}`}
-    >
-      <div className={`h-full flex flex-col p-5 md:p-6 rounded-3xl bg-white relative transition-all duration-300 ${plan.popular ? 'shadow-[0_20px_50px_-12px_rgba(236,72,153,0.2)]' : 'border border-slate-200 shadow-xl hover:shadow-2xl hover:border-slate-300'}`}>
-        {plan.popular && (
-          <>
-             <div className={`absolute -inset-0.5 rounded-3xl -z-10 pointer-events-none ${gradientStyle}`}></div>
-             <div className={`absolute -inset-0.5 rounded-3xl -z-20 opacity-30 blur-2xl transition-opacity duration-300 group-hover:opacity-50 pointer-events-none ${gradientStyle}`}></div>
-          </>
-        )}
-
-        <div className="absolute top-5 right-5 pointer-events-none">
-          <span className={`${gradientStyle} text-white px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-md shadow-pink-500/20`}>
-            Save {discount}%
-          </span>
-        </div>
-
-        <div className="mb-5 overflow-visible relative">
-          {plan.popular && (
-            <div className="flex items-center gap-1.5 text-pink-600 font-black text-[9px] uppercase tracking-[0.2em] mb-2 mt-1">
-               <Star size={10} fill="currentColor" className="animate-pulse" /> MOST POPULAR
-            </div>
-          )}
-            <div className="flex flex-col mb-3">
-               <h3 className="text-xl font-black text-slate-900 leading-tight tracking-tight uppercase">{plan.name}</h3>
-               <span className="text-[9px] font-black text-pd-purple uppercase tracking-[0.2em] mt-1">{plan.packName}</span>
-            </div>
-          <div className="space-y-1 relative">
-            <p className="text-xs text-slate-400 line-through font-bold leading-none decoration-2 decoration-slate-300">₹{dailyMrp.toLocaleString()}</p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-black text-slate-900 tracking-tighter drop-shadow-sm">₹{dailyPrice.toLocaleString()}</span>
-              <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">/ day</span>
-            </div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 bg-slate-100 inline-block px-1.5 py-0.5 rounded-md">{billingLabel}</p>
-          </div>
-        </div>
-
-        <div className={`mb-6 p-4 rounded-xl border transition-all duration-300 ${plan.popular ? 'bg-pink-50/50 border-pink-100 shadow-inner' : 'bg-slate-50/80 border-slate-100 shadow-inner hover:bg-white'}`}>
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <Zap size={12} className={`${plan.popular ? 'text-pink-500 fill-pink-500' : 'text-slate-400 fill-slate-400'}`} />
-            <span className={`text-[9px] font-black uppercase tracking-widest leading-none ${plan.popular ? 'text-pink-600' : 'text-slate-500'}`}>Lead Capacity</span>
-          </div>
-          <p className="text-xl font-black bg-linear-to-r from-red-500 to-purple-600 bg-clip-text text-transparent">{plan.leads}</p>
-        </div>
-
-        <div className="grow space-y-3 mb-6">
-          {plan.features.map((feature, i) => (
-            <div key={i} className="flex items-start gap-2.5 group/feature">
-              <div className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-colors ${plan.popular ? 'bg-pink-100 text-pink-600 group-hover/feature:bg-pink-500 group-hover/feature:text-white' : 'bg-slate-100 text-slate-500 group-hover/feature:bg-slate-900 group-hover/feature:text-white'}`}>
-                <Check size={10} strokeWidth={4} />
-              </div>
-              <span className="text-xs font-semibold text-slate-600 leading-tight group-hover/feature:text-slate-900 transition-colors">{feature}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex gap-2 w-full relative z-20">
-          <button 
-            onClick={() => onBuyNow(plan)}
-            className={`flex-1 flex items-center justify-center py-3 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest sm:tracking-[0.15em] transition-all duration-300 ${gradientStyle} text-white shadow-lg hover:shadow-xl hover:shadow-pink-500/30 hover:scale-[1.02] cursor-pointer`}
-          >
-            Buy Now
-          </button>
-          <button 
-            onClick={() => {
-              localStorage.setItem('billingDuration', billingDuration);
-              onSelect(plan);
-            }}
-            className="flex-1 py-3 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest sm:tracking-[0.15em] transition-all duration-300 bg-white border-2 border-slate-200 text-slate-700 hover:border-pink-400 hover:text-pink-600 shadow-sm hover:shadow-md cursor-pointer"
-          >
-            Contact Us
-          </button>
-        </div>
-      </div>
-    </motion.div>
-  );
-});
-
-PricingCard.displayName = 'PricingCard';
-
+// --- MAIN PRICING PAGE ---
 export default function PricingPage() {
-  const [inquiryPlan, setInquiryPlan] = useState<typeof pricingPlans[0] | null>(null);
-  const [billingDuration, setBillingDuration] = useState<'quarterly' | 'halfYearly' | 'annually'>('annually');
-  
+  const [inquiryPlan, setInquiryPlan] = useState<PlanDurationOption | null>(null);
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false);
   const router = useRouter();
 
-  const handleBuyNow = async (plan: typeof pricingPlans[0]) => {
-    try {
-      
-      const user = await account.get().catch(() => null);
-      if (!user) {
-         router.push('/login?redirect=/pricing');
-         return;
-      }
-      
-      let currentVenueId = user?.prefs?.venueId;
-      if (!currentVenueId) {
-         try {
-            const vRes = await databases.listDocuments(DATABASE_ID, VENUES_COLLECTION_ID, [Query.equal('userId', user.$id)]);
-            if (vRes.documents.length > 0) {
-               currentVenueId = vRes.documents[0].$id;
-            }
-         } catch (e) {
-            console.error('Failed to fetch venue ID:', e);
-         }
-      }
-      
-      const base = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
-      const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
-      const amount = plan.price[billingDuration];
-      
-      // 1. Create Order
-      const orderRes = await fetch(`${serverUrl}/payments/create-order`, {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({
-            amount: Math.round(amount * 100), // convert to paise
-            venueId: currentVenueId || null,
-            receipt: `rcpt_${Date.now()}`
-         })
-      });
-      const order = await orderRes.json();
-      
-      console.log('Order created:', order);
-      console.log('Razorpay Key:', process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID);
-      if (order.error) {
-         alert(order.message || "Order creation failed");
-         
-         return;
-      }
-
-      const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-          amount: order.amount,
-          currency: order.currency,
-          name: "PartyDial",
-          description: `Payment for ${plan.name}`,
-          order_id: order.id,
-          handler: async (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string; }) => {
-              // Verify Payment
-              try {
-                  const verifyRes = await fetch(`${serverUrl}/payments/verify-payment`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                          ...response,
-                          venueId: currentVenueId || null,
-                          venueName: user?.name || "",
-                          ownerEmail: user?.email,
-                          planId: plan.id === 1 ? 'bp50' : plan.id === 2 ? 'bp100' : plan.id === 3 ? 'bp200' : plan.id === 4 ? 'bp500' : plan.id === 5 ? 'bp1000' : plan.id === 6 ? 'bp2000' : plan.id === 7 ? 'bp5000' : 'bp9999',
-                          planName: plan.name,
-                          billingDuration: billingDuration,
-                          amount: amount,
-                          basePrice: amount,
-                          addons: [],
-                          discount: 0,
-                          billingDetails: { name: user.name, email: user.email, mobile: user.phone || "" },
-                          couponCode: null,
-                          preAddonId: null
-                      })
-                  });
-                  const verifyResult = await verifyRes.json();
-                  if (verifyResult.status === 'success') {
-                      window.location.href = '/dashboard';
-                  } else {
-                      alert("Payment verification failed");
-                  }
-              } catch (err) {
-                  alert("Payment Verification Error");
-              }
-          },
-          prefill: {
-              name: user.name,
-              email: user.email,
-          },
-          theme: {
-              color: "#8b5cf6"
-          }
-      };
-      
-      const rzp = new (window as unknown as { Razorpay: any }).Razorpay(options);
-      rzp.on('payment.failed', function (err: any){
-          alert("Payment Failed");
-      });
-      rzp.open();
-    } catch(err) {
-      console.error(err);
-      alert("Something went wrong");
-    } finally {
-      
-    }
-  }
-
+  const handleBuyNow = (plan: PlanDurationOption) => {
+    router.push(`/checkout?plan=${plan.duration}`);
+  };
 
   return (
-    <div className="bg-slate-50 min-h-screen text-slate-900 selection:bg-pink-500 selection:text-white font-sans antialiased">
+    <div className="bg-[#FAFBFD] min-h-screen text-slate-900 selection:bg-pink-500 selection:text-white font-pd antialiased">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       
       <AnimatePresence>
         {inquiryPlan && (
           <InquiryPopup 
             plan={inquiryPlan} 
-            billingDuration={billingDuration}
-             
             onClose={() => setInquiryPlan(null)} 
           />
         )}
       </AnimatePresence>
 
-      {/* 2. PRICING SECTION (MAIN) */}
-      <section className="pt-32 pb-40 md:pt-40 lg:pb-48 px-6 lg:px-12 relative overflow-hidden bg-slate-50">
-        {/* Decorative elements from image */}
-        <div className="absolute top-10 left-10 opacity-40 transform -rotate-12">
-          <svg width="100" height="40" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 20C10 10 20 10 30 20C40 30 50 30 60 20C70 10 80 10 90 20" stroke="#f43f5e" strokeWidth="4" />
-            <path d="M0 30C10 20 20 20 30 30C40 40 50 40 60 30C70 20 80 20 90 30" stroke="#8b5cf6" strokeWidth="4" />
-          </svg>
-        </div>
-        <div className="absolute bottom-10 right-10 opacity-40">
-           <svg width="100" height="40" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 20C10 10 20 10 30 20C40 30 50 30 60 20C70 10 80 10 90 20" stroke="#f43f5e" strokeWidth="4" />
-            <path d="M0 30C10 20 20 20 30 30C40 40 50 40 60 30C70 20 80 20 90 30" stroke="#8b5cf6" strokeWidth="4" />
-          </svg>
-        </div>
+      {/* HERO SECTION */}
+      <section className="pt-32 pb-14 md:pt-40 md:pb-16 px-6 lg:px-12 relative overflow-hidden">
+        {/* Soft Ambient Radiance */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-gradient-to-b from-pink-500/10 via-purple-500/5 to-transparent blur-[140px] pointer-events-none -z-10" />
 
-        <div className="max-w-7xl mx-auto text-center mb-10">
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-2 tracking-tight uppercase ">Pricing</h2>
-          <p className="text-slate-500 font-bold text-lg">(According to Pax, you serve)</p>
-          
-          <div className="flex justify-center mt-8 mb-4">
-            <div className="inline-flex bg-white p-1.5 rounded-full shadow-sm border border-slate-200">
-              {(['quarterly', 'halfYearly', 'annually'] as const).map((duration) => (
-                <button
-                  key={duration}
-                  onClick={() => setBillingDuration(duration)}
-                  className={`px-3 sm:px-6 py-1.5 rounded-full text-xs sm:text-sm font-bold capitalize transition-all duration-300 ${
-                    billingDuration === duration
-                      ? 'bg-slate-900 text-white shadow-md'
-                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
-                  }`}
+        <div className="max-w-5xl mx-auto text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200 shadow-sm text-slate-600 text-[11px] font-semibold font-pd uppercase tracking-widest mb-6"
+          >
+            <Sparkle size={12} className="text-pd-pink fill-pd-pink" />
+            <span>PARTYDIAL PARTNER PLANS</span>
+          </motion.div>
+
+          <motion.h1 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-3xl sm:text-4xl lg:text-[44px] xl:text-[52px] font-semibold font-pd text-slate-900 tracking-tight leading-[1.12] max-w-4xl mx-auto"
+          >
+            Simple, Transparent Pricing. <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-pink-600 to-purple-600">
+              Zero Booking Commission.
+            </span>
+          </motion.h1>
+
+          <motion.p 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-5 text-slate-600 text-sm sm:text-base lg:text-lg font-normal font-pd max-w-2xl mx-auto leading-relaxed"
+          >
+            Connect with verified event hosts in your city. Direct email lead alerts, smart booking CRM, and zero commission on venue bookings.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* 3 PRICING CARDS (SIDE BY SIDE - NO REDUNDANT TOGGLE) */}
+      <section className="pb-24 px-6 lg:px-12 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+          {subscriptionTiers.map((tier) => {
+            return (
+              <motion.div
+                key={tier.id}
+                whileHover={{ y: -8 }}
+                transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                className={`relative rounded-3xl flex flex-col justify-between transition-all duration-300 bg-white text-slate-900 ${
+                  tier.isVip 
+                    ? 'border-2 border-purple-600 shadow-[0_20px_50px_-12px_rgba(147,51,234,0.22)] lg:-translate-y-2'
+                    : tier.isPopular
+                    ? 'border-2 border-pink-500 shadow-[0_20px_50px_-12px_rgba(236,72,153,0.22)] lg:-translate-y-2'
+                    : 'border border-slate-200/90 shadow-xl'
+                } p-7 sm:p-9`}
+              >
+                {/* Floating Top Badge */}
+                {tier.badge && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap z-10">
+                    <span className={`text-[10px] font-semibold font-pd uppercase tracking-widest px-3.5 py-1 rounded-full shadow-sm ${
+                      tier.isVip
+                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-purple-500/25'
+                        : tier.isPopular
+                        ? 'bg-gradient-to-r from-rose-500 via-pink-600 to-purple-600 text-white shadow-pink-500/25'
+                        : 'bg-slate-800 text-white'
+                    }`}>
+                      {tier.badge}
+                    </span>
+                  </div>
+                )}
+
+                <div>
+                  {/* Card Header with Flawless Alignment */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-[10px] font-semibold font-pd uppercase tracking-widest text-slate-400">
+                        {tier.periodLabel} Commitment
+                      </span>
+                      <span className={`text-[10px] font-semibold font-pd uppercase tracking-widest px-2.5 py-0.5 rounded-full border ${
+                        tier.isVip
+                          ? 'bg-purple-50 text-purple-700 border-purple-200'
+                          : tier.isPopular
+                          ? 'bg-pink-50 text-pink-700 border-pink-200'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      }`}>
+                        Save {tier.savingsPercent}%
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl sm:text-2xl lg:text-[26px] font-semibold font-sf tracking-tight text-slate-900 leading-tight">
+                      {tier.name}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-500 font-normal font-pd mt-1 leading-snug min-h-[20px]">
+                      {tier.subtitle}
+                    </p>
+                  </div>
+
+                  {/* Pricing Box */}
+                  <div className={`my-5 p-5 sm:p-6 rounded-2xl border transition-colors ${
+                    tier.isVip 
+                      ? 'bg-purple-50/40 border-purple-100' 
+                      : tier.isPopular
+                      ? 'bg-pink-50/40 border-pink-100'
+                      : 'bg-slate-50 border-slate-100'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-xs font-normal font-pd text-slate-400">
+                        Base MRP:
+                      </span>
+                      <span className="text-xs font-normal font-pd line-through decoration-rose-500 decoration-2 text-slate-400">
+                        ₹{tier.monthlyMrp.toLocaleString()}/mo
+                      </span>
+                    </div>
+
+                    <div className="flex items-baseline flex-wrap gap-2">
+                      <span className="text-3xl sm:text-4xl lg:text-[42px] font-semibold font-sf tracking-tight text-slate-950">
+                        ₹{tier.monthlyRate.toLocaleString()}
+                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold font-pd uppercase tracking-wider text-slate-500">
+                          / month
+                        </span>
+                        <span className={`text-[10px] font-semibold font-pd uppercase tracking-wider ${
+                          tier.isVip ? 'text-purple-600' : tier.isPopular ? 'text-pink-600' : 'text-slate-500'
+                        }`}>
+                          + 18% GST Extra
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Guaranteed Feature Callout */}
+                  <div className={`mb-6 flex items-center gap-2.5 p-3 rounded-xl border ${
+                    tier.isVip 
+                      ? 'bg-purple-50 border-purple-200/70 text-purple-900' 
+                      : tier.isPopular
+                      ? 'bg-pink-50 border-pink-200/70 text-pink-900'
+                      : 'bg-emerald-50 border-emerald-200/70 text-emerald-900'
+                  }`}>
+                    <Zap size={14} className={`shrink-0 fill-current ${
+                      tier.isVip ? 'text-purple-600' : tier.isPopular ? 'text-pink-600' : 'text-emerald-600'
+                    }`} />
+                    <span className="text-xs font-semibold font-pd leading-tight">
+                      Unlimited Verified Leads Included
+                    </span>
+                  </div>
+
+                  {/* Features List */}
+                  <div className="space-y-3 mb-8">
+                    <p className="text-[10px] font-semibold font-pd uppercase tracking-widest text-slate-400">
+                      What's Included:
+                    </p>
+                    {tier.features.map((feat, idx) => (
+                      <div key={idx} className="flex items-start gap-2.5 text-xs">
+                        <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                          tier.isVip 
+                            ? 'bg-purple-100 text-purple-600' 
+                            : 'bg-emerald-100 text-emerald-600'
+                        }`}>
+                          <Check size={11} strokeWidth={3} />
+                        </div>
+                        <span className="font-normal font-pd leading-snug text-slate-700">
+                          {feat}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bottom Actions */}
+                <div className="space-y-3 pt-5 border-t border-slate-100 mt-auto">
+                  <button
+                    onClick={() => handleBuyNow(tier)}
+                    disabled={isProcessingOrder}
+                    className={`w-full py-3.5 rounded-xl text-xs font-semibold font-pd uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 shadow-md text-white ${
+                      tier.isVip
+                        ? 'bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-95 shadow-purple-500/25'
+                        : tier.isPopular
+                        ? 'bg-gradient-to-r from-red-500 via-pink-600 to-purple-600 hover:opacity-95 shadow-pink-500/25'
+                        : 'bg-slate-900 hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>{tier.ctaText}</span>
+                    <ArrowRight size={14} />
+                  </button>
+
+                  <button
+                    onClick={() => setInquiryPlan(tier)}
+                    className="w-full py-2.5 rounded-xl text-xs font-semibold font-pd uppercase tracking-wider transition-colors cursor-pointer border bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                  >
+                    Contact Sales
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* CORE CAPABILITIES GRID */}
+      <section className="py-20 px-6 lg:px-12 bg-white border-y border-slate-200/80">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <span className="text-[10px] font-semibold font-pd uppercase tracking-widest text-pink-600 bg-pink-50 px-3 py-1 rounded-full border border-pink-100">
+              WHY VENUES CHOOSE PARTYDIAL
+            </span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold font-pd text-slate-900 tracking-tight leading-tight mt-3">
+              Built for Every Venue — From Cafes & Lounges to Luxury Resorts
+            </h2>
+            <p className="mt-3 text-slate-600 text-xs sm:text-sm lg:text-base max-w-2xl mx-auto font-normal font-pd leading-relaxed">
+              Whether you host intimate café birthdays, corporate dinners, banquet weddings, or grand resort celebrations — get direct customer leads with zero commissions.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {coreHighlights.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div 
+                  key={i} 
+                  className="p-6 rounded-2xl bg-[#FAFBFD] border border-slate-200/80 hover:border-pink-300 hover:shadow-lg transition-all group"
                 >
-                  {duration === 'halfYearly' ? 'Half-Yearly' : duration}
+                  <div className="w-12 h-12 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center mb-5 group-hover:bg-gradient-to-r group-hover:from-red-500 group-hover:to-pink-600 group-hover:text-white transition-all shadow-xs">
+                    <Icon size={22} />
+                  </div>
+                  <h4 className="text-base font-semibold font-sf text-slate-900 tracking-tight mb-2">
+                    {item.title}
+                  </h4>
+                  <p className="text-xs font-normal font-pd text-slate-600 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ROI SHOWCASE BANNER (PREMIUM BENTO AESTHETIC MATCHING HOMEPAGE) */}
+      <section className="py-14 sm:py-20 px-4 sm:px-6 lg:px-12 max-w-7xl mx-auto">
+        <div className="relative rounded-3xl bg-slate-50/70 border border-slate-200/90 p-5 sm:p-8 lg:p-14 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300">
+          {/* Subtle Glows */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-pink-500/10 via-purple-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-blue-500/10 via-emerald-400/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Left Content */}
+            <div className="lg:col-span-7 text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white border border-slate-200 shadow-xs text-slate-700 text-[9px] sm:text-[10px] font-semibold font-pd uppercase tracking-widest mb-4">
+                <TrendingUp size={13} className="text-pd-pink" />
+                <span>HIGH RETURN ON INVESTMENT</span>
+              </div>
+
+              <h3 className="text-xl sm:text-2xl lg:text-[32px] font-semibold font-sf text-slate-900 tracking-tight leading-[1.2] mb-3">
+                One Single Booking Pays for <br className="hidden sm:inline" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-purple-600 to-pd-blue">
+                  1 to 3 Years of Membership
+                </span>
+              </h3>
+
+              <p className="text-xs sm:text-sm lg:text-[15px] text-slate-600 font-normal font-pd leading-relaxed max-w-xl">
+                With typical event profits ranging from ₹15,000 for private parties to ₹1,50,000+ for grand celebrations, closing just one customer booking through PartyDial easily covers your entire subscription investment.
+              </p>
+
+              {/* Metric Highlights Pill Row */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 mt-6 pt-6 border-t border-slate-200/70">
+                <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs">
+                  <p className="text-[9px] sm:text-[10px] font-semibold font-pd uppercase tracking-widest text-slate-400">Avg. Profit / Event</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-semibold font-sf text-slate-900 mt-0.5">₹25,000+</p>
+                </div>
+                <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs">
+                  <p className="text-[9px] sm:text-[10px] font-semibold font-pd uppercase tracking-widest text-slate-400">Annual Base Rate</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-semibold font-sf text-emerald-600 mt-0.5">₹3,000/mo</p>
+                </div>
+                <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs col-span-2 sm:col-span-1">
+                  <p className="text-[9px] sm:text-[10px] font-semibold font-pd uppercase tracking-widest text-slate-400">Platform Commission</p>
+                  <p className="text-sm sm:text-base lg:text-lg font-semibold font-sf text-pink-600 mt-0.5">Zero (0%)</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Card / CTA Action */}
+            <div className="lg:col-span-5 flex flex-col items-stretch">
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-7 shadow-md flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] sm:text-[10px] font-semibold font-pd uppercase tracking-widest text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200">
+                    👑 Recommended Value
+                  </span>
+                  <span className="text-xs font-semibold font-pd text-emerald-600">
+                    Save 62%
+                  </span>
+                </div>
+
+                <div>
+                  <div className="text-sm font-semibold font-sf text-slate-900">Partner Pro Annual Plan</div>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <span className="text-2xl sm:text-3xl font-semibold font-sf text-slate-950">₹3,000</span>
+                    <span className="text-xs font-normal font-pd text-slate-400">/ month + 18% GST</span>
+                  </div>
+                  <p className="text-[11px] font-normal font-pd text-slate-500 mt-1">
+                    Billed annually at ₹36,000 + 18% GST (₹6,480) = ₹42,480 / year
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => handleBuyNow(subscriptionTiers[2])}
+                  className="w-full bg-[#F43F5E] hover:bg-[#E11D48] text-white font-semibold font-sf text-sm sm:text-base py-3 sm:py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_8px_25px_rgba(244,63,94,0.3)] hover:shadow-[0_12px_35px_rgba(244,63,94,0.4)] hover:-translate-y-0.5 cursor-pointer"
+                >
+                  <span>Join Annual Plan</span>
+                  <ArrowRight size={16} />
                 </button>
-              ))}
+
+                <p className="text-center text-[10px] font-normal font-pd text-slate-400">
+                  ⚡ Fast Activation • 100% Tax Deductible (ITC)
+                </p>
+              </div>
             </div>
           </div>
         </div>
-
-        <div className="max-w-384 mx-auto relative px-4 lg:px-8">
-          {/* Side Arrows from image */}
-          <div className="absolute -left-4 xl:-left-8 top-1/2 -translate-y-1/2 hidden xl:block text-slate-200">
-             <ChevronRight className="rotate-180" size={48} strokeWidth={3} />
-             <ChevronRight className="rotate-180 -mt-8" size={48} strokeWidth={3} />
-          </div>
-          <div className="absolute -right-4 xl:-right-8 top-1/2 -translate-y-1/2 hidden xl:block text-slate-200">
-             <ChevronRight size={48} strokeWidth={3} />
-             <ChevronRight className="-mt-8" size={48} strokeWidth={3} />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-6">
-            {pricingPlans.map((plan) => (
-              <PricingCard key={plan.id} plan={plan} onSelect={setInquiryPlan} billingDuration={billingDuration} onBuyNow={handleBuyNow} />
-            ))}
-          </div>
-        </div>
-
-
       </section>
 
+      {/* FAQ SECTION */}
+      <section className="pb-28 px-6 lg:px-12 max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <h3 className="text-2xl sm:text-3xl font-semibold font-pd text-slate-900 tracking-tight">
+            Frequently Asked Questions
+          </h3>
+          <p className="text-slate-500 text-xs sm:text-sm font-normal font-pd mt-1">
+            Common questions from venue owners and event partners
+          </p>
+        </div>
 
+        <div className="space-y-4">
+          {[
+            {
+              q: "Is 18% GST included or extra?",
+              a: "GST of 18% is extra on all membership plans. The base rates are ₹5,999/mo (Monthly), ₹3,500/mo (Half-Yearly), and ₹3,000/mo (Annual). Total amounts payable at checkout including 18% GST are ₹7,079 (Monthly), ₹24,780 (6 Months), and ₹42,480 (12 Months). A full GST tax invoice is instantly generated with your GSTIN for 100% Input Tax Credit (ITC) claim."
+            },
+            {
+              q: "How does the subscription pricing work?",
+              a: "PartyDial offers 3 flexible durations: Monthly (₹5,999/mo base), Half-Yearly (₹3,500/mo base billed as ₹21,000 for 6 months), and Annual (₹3,000/mo base billed as ₹36,000 for 12 months). Standard MRP is ₹7,999/month, saving you up to 62%."
+            },
+            {
+              q: "Are there any guest capacity (PAX) restrictions?",
+              a: "No! All plans under our Partner Pro model cover venues of all capacities (from 50 PAX intimate party halls to 5,000+ PAX destination resorts) with zero capacity limits."
+            },
+            {
+              q: "How do I receive customer leads?",
+              a: "Whenever a user searches for venues in your city and submits an inquiry, our automated system instantly notifies you via email, and logs the customer into your dashboard CRM."
+            },
+            {
+              q: "Can I upgrade my plan duration later?",
+              a: "Yes! You can switch from a Monthly Plan to a Half-Yearly or Annual Plan at any time directly from your dashboard to unlock the lower rate of ₹3,000/month."
+            }
+          ].map((faq, i) => (
+            <div key={i} className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs">
+              <h4 className="text-sm sm:text-base font-semibold font-sf text-slate-900 mb-2">
+                {faq.q}
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-600 font-normal font-pd leading-relaxed">
+                {faq.a}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
 
+      {/* JSON-LD STRUCTURED DATA FOR SEO (PRODUCT + FAQ RICH SNIPPETS) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Product",
+                "name": "PartyDial Venue Partner Subscription",
+                "description": "Subscription plans for banquet halls, party venues, and farmhouses to get verified event customer leads with zero commission.",
+                "brand": {
+                  "@type": "Brand",
+                  "name": "PartyDial"
+                },
+                "offers": [
+                  {
+                    "@type": "Offer",
+                    "name": "Monthly Plan",
+                    "price": "5999",
+                    "priceCurrency": "INR",
+                    "priceSpecification": {
+                      "@type": "UnitPriceSpecification",
+                      "price": "5999",
+                      "priceCurrency": "INR",
+                      "unitText": "MONTH",
+                      "valueAddedTaxIncluded": "false"
+                    },
+                    "availability": "https://schema.org/InStock"
+                  },
+                  {
+                    "@type": "Offer",
+                    "name": "Half-Yearly Plan",
+                    "price": "21000",
+                    "priceCurrency": "INR",
+                    "priceSpecification": {
+                      "@type": "UnitPriceSpecification",
+                      "price": "21000",
+                      "priceCurrency": "INR",
+                      "unitText": "6 MONTHS",
+                      "valueAddedTaxIncluded": "false"
+                    },
+                    "availability": "https://schema.org/InStock"
+                  },
+                  {
+                    "@type": "Offer",
+                    "name": "Annual Plan",
+                    "price": "36000",
+                    "priceCurrency": "INR",
+                    "priceSpecification": {
+                      "@type": "UnitPriceSpecification",
+                      "price": "36000",
+                      "priceCurrency": "INR",
+                      "unitText": "YEAR",
+                      "valueAddedTaxIncluded": "false"
+                    },
+                    "availability": "https://schema.org/InStock"
+                  }
+                ]
+              },
+              {
+                "@type": "FAQPage",
+                "mainEntity": [
+                  {
+                    "@type": "Question",
+                    "name": "Is 18% GST included or extra?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "GST of 18% is extra on all membership plans. The base rates are ₹5,999/mo (Monthly), ₹3,500/mo (Half-Yearly), and ₹3,000/mo (Annual). Total amounts payable at checkout including 18% GST are ₹7,079 (Monthly), ₹24,780 (6 Months), and ₹42,480 (12 Months). A full GST tax invoice is instantly generated with your GSTIN for 100% Input Tax Credit (ITC) claim."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "How does the subscription pricing work?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "PartyDial offers 3 flexible durations: Monthly (₹5,999/mo base), Half-Yearly (₹3,500/mo base billed as ₹21,000 for 6 months), and Annual (₹3,000/mo base billed as ₹36,000 for 12 months). Standard MRP is ₹7,999/month, saving you up to 62%."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Are there any guest capacity (PAX) restrictions?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "No! All plans under our Partner Pro model cover venues of all capacities (from 50 PAX intimate party halls to 5,000+ PAX destination resorts) with zero capacity limits."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "How do I receive customer leads?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Whenever a user searches for venues in your city and submits an inquiry, our automated system instantly notifies you via email, and logs the customer into your dashboard CRM."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Can I upgrade my plan duration later?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Yes! You can switch from a Monthly Plan to a Half-Yearly or Annual Plan at any time directly from your dashboard to unlock the lower rate of ₹3,000/month."
+                    }
+                  }
+                ]
+              }
+            ]
+          })
+        }}
+      />
     </div>
   );
 }
-

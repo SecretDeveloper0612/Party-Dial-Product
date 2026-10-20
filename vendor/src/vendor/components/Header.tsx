@@ -12,10 +12,38 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => setIsLoggedIn(!!localStorage.getItem('auth_session')), 0);
+    // 1. Instant check from localStorage
+    const localUser = typeof window !== 'undefined' ? (localStorage.getItem('user') || localStorage.getItem('auth_session')) : null;
+    if (localUser) {
+      setIsLoggedIn(true);
+    }
+
+    // 2. Validate/sync with Appwrite active account session
+    let isMounted = true;
+    import('@/lib/appwrite').then(({ account }) => {
+      account.get()
+        .then((user) => {
+          if (isMounted && user) {
+            setIsLoggedIn(true);
+            try {
+              localStorage.setItem('user', JSON.stringify(user));
+            } catch {}
+          }
+        })
+        .catch(() => {
+          // If Appwrite says not logged in and there's no valid local session
+          if (isMounted && !localUser) {
+            setIsLoggedIn(false);
+          }
+        });
+    }).catch(() => {});
+
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      isMounted = false;
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   return (
@@ -115,7 +143,7 @@ export default function Header() {
               {!isLoggedIn ? (
                 <div className="flex flex-col gap-3">
                   <Link href="/login" onClick={() => setIsMenuOpen(false)} className="w-full py-4 text-center text-[11px] font-black uppercase tracking-widest text-slate-700 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-colors">Sign In</Link>
-                  <Link href="/signup" onClick={() => setIsMenuOpen(false)} className="relative group w-full overflow-hidden rounded-2xl">
+                  <Link href="/login" onClick={() => setIsMenuOpen(false)} className="relative group w-full overflow-hidden rounded-2xl">
                      <div className="absolute inset-0 bg-slate-900 group-hover:bg-pd-pink transition-colors duration-500"></div>
                      <div className="relative z-10 py-4 w-full flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest text-white">
                         List Your Venue

@@ -10,7 +10,8 @@ import {
   Sparkles, Building2, Users, Wind, Car, Wifi, Utensils, Music, 
   Image as ImageIcon, CheckCircle2, IndianRupee,
   Plus, Zap, Trees, ChefHat,
-  Palette, Heart, ShieldCheck, Building, Trash2, Target, Camera, Video, PlayCircle, Clock, X
+  Palette, Heart, ShieldCheck, Building, Trash2, Target, Camera, Video, PlayCircle, Clock, X,
+  Coffee, GlassWater, Landmark, Waves, Tent, Hotel, Beer, ChevronDown, Check
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -379,6 +380,98 @@ const DashboardSettings = ({
                                         />
                                      </div>
                                   </div>
+
+                                  {/* Venue Type with Grid Selection & Custom Option */}
+                                  <div className="space-y-2">
+                                     <div className="flex items-center justify-between">
+                                        <label className="text-xs font-bold text-slate-700">Venue Type</label>
+                                        <span className="text-[11px] font-bold text-pd-pink bg-pink-50 px-2.5 py-0.5 rounded-full border border-pink-100">
+                                          {venueProfile?.venueType || 'Banquet Hall'}
+                                        </span>
+                                     </div>
+
+                                     {/* Grid of Venue Types with Icons */}
+                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 pt-1">
+                                       {[
+                                         { label: 'Banquet Hall', icon: Building2 },
+                                         { label: 'Hotel', icon: Hotel },
+                                         { label: 'Resort', icon: Waves },
+                                         { label: 'Party Lawn', icon: Trees },
+                                         { label: 'Farmhouse', icon: Landmark },
+                                         { label: 'Restaurant', icon: Utensils },
+                                         { label: 'Lounge / Bar', icon: Beer },
+                                         { label: 'Club', icon: Music },
+                                         { label: 'Café', icon: Coffee },
+                                         { label: 'Villa', icon: Building },
+                                         { label: 'Convention Centre', icon: Building2 },
+                                         { label: 'Community Hall', icon: Users },
+                                         { label: 'Rooftop Venue', icon: Wind },
+                                         { label: 'Wedding Garden', icon: Heart },
+                                         { label: 'Tent / Mandap', icon: Tent },
+                                         { label: 'Other', icon: Plus },
+                                       ].map((item) => {
+                                         const isSelected = item.label === 'Other' 
+                                           ? (venueProfile?.venueType && ![
+                                               'Banquet Hall', 'Hotel', 'Resort', 'Party Lawn', 'Farmhouse',
+                                               'Restaurant', 'Lounge / Bar', 'Club', 'Café', 'Villa',
+                                               'Convention Centre', 'Community Hall', 'Rooftop Venue', 'Wedding Garden', 'Tent / Mandap'
+                                             ].includes(venueProfile?.venueType))
+                                           : venueProfile?.venueType === item.label;
+                                         const Icon = item.icon;
+
+                                         return (
+                                           <button
+                                             type="button"
+                                             key={item.label}
+                                             onClick={() => {
+                                               if (item.label === 'Other') {
+                                                 handleProfileUpdate('venueType', 'Other Venue');
+                                               } else {
+                                                 handleProfileUpdate('venueType', item.label);
+                                               }
+                                             }}
+                                             className={`p-2.5 rounded-xl border flex items-center gap-2 text-left transition-all text-xs font-bold ${
+                                               isSelected 
+                                                 ? 'bg-slate-900 border-slate-900 text-white shadow-sm ring-2 ring-pd-pink/20' 
+                                                 : 'bg-slate-50 border-slate-200/60 text-slate-700 hover:bg-white hover:border-slate-300'
+                                             }`}
+                                           >
+                                             <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${
+                                               isSelected ? 'bg-white/20 text-white' : 'bg-white text-slate-500 shadow-2xs'
+                                             }`}>
+                                               <Icon size={13} />
+                                             </div>
+                                             <span className="truncate">{item.label}</span>
+                                           </button>
+                                         );
+                                       })}
+                                     </div>
+
+                                     {/* Custom Other Venue Type Field */}
+                                     {(![
+                                       'Banquet Hall', 'Hotel', 'Resort', 'Party Lawn', 'Farmhouse',
+                                       'Restaurant', 'Lounge / Bar', 'Club', 'Café', 'Villa',
+                                       'Convention Centre', 'Community Hall', 'Rooftop Venue', 'Wedding Garden', 'Tent / Mandap'
+                                     ].includes(venueProfile?.venueType || '')) && (
+                                       <motion.div 
+                                         initial={{ opacity: 0, y: -6 }}
+                                         animate={{ opacity: 1, y: 0 }}
+                                         className="mt-2.5 p-3.5 bg-pink-50/50 border border-pink-100 rounded-xl space-y-1.5"
+                                       >
+                                         <label className="text-[11px] font-bold text-pd-pink uppercase tracking-wider">
+                                           Custom Venue Type Name
+                                         </label>
+                                         <input 
+                                           type="text"
+                                           value={venueProfile?.venueType === 'Other Venue' ? '' : (venueProfile?.venueType || '')}
+                                           onChange={(e) => handleProfileUpdate('venueType', e.target.value || 'Other Venue')}
+                                           placeholder="e.g. Heritage Haveli, Poolside Deck, Private Yacht"
+                                           className="w-full bg-white border border-pink-200 rounded-lg px-3.5 py-2.5 text-xs font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink"
+                                         />
+                                       </motion.div>
+                                     )}
+                                  </div>
+
                                   <div className="space-y-1.5">
                                      <label className="text-xs font-bold text-slate-700">Owner Name</label>
                                      <div className="relative">
@@ -392,29 +485,89 @@ const DashboardSettings = ({
                                         />
                                      </div>
                                   </div>
-                                  <div className="space-y-1.5">
-                                     <label className="text-xs font-bold text-slate-700">Guest Capacity Range</label>
-                                     <div className="relative">
-                                        <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
-                                        <input 
-                                          type="text"
-                                          readOnly
-                                          value={(() => {
-                                             const cap = parseInt(venueProfile?.capacity);
-                                             if (cap >= 5001) return '5000+ Guests';
-                                             if (cap >= 2001) return '2000-5000 Guests';
-                                             if (cap >= 1001) return '1000-2000 Guests';
-                                             if (cap >= 501)  return '500-1000 Guests';
-                                             if (cap >= 201)  return '200-500 Guests';
-                                             if (cap >= 101)  return '100-200 Guests';
-                                             if (cap >= 51)   return '50-100 Guests';
-                                             if (cap >= 1)    return '2-50 Guests';
-                                             return 'Not Specified';
-                                          })()} 
-                                          className="w-full bg-slate-100 border border-slate-200/60 rounded-xl py-3 pl-11 pr-4 text-sm font-medium text-slate-500 outline-none cursor-not-allowed"
-                                        />
+
+                                  {/* Guest Capacity: Min and Maximum Inputs with Quick Presets */}
+                                  <div className="space-y-2">
+                                     <div className="flex items-center justify-between">
+                                        <label className="text-xs font-bold text-slate-700">Guest Capacity</label>
+                                        <span className="text-[11px] font-bold text-slate-500">
+                                          Range: {venueProfile?.minCapacity || 50} – {venueProfile?.maxCapacity || venueProfile?.capacity || 500} Guests
+                                        </span>
+                                     </div>
+
+                                     <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                           <label className="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5">
+                                             <Users size={13} className="text-slate-400" /> Minimum Guests
+                                           </label>
+                                           <div className="relative">
+                                              <input 
+                                                type="number" 
+                                                min="1"
+                                                value={venueProfile?.minCapacity ?? 50}
+                                                onChange={(e) => handleProfileUpdate('minCapacity', e.target.value)}
+                                                placeholder="50"
+                                                className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all"
+                                              />
+                                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Min</span>
+                                           </div>
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                           <label className="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5">
+                                             <Users size={13} className="text-slate-400" /> Maximum Guests
+                                           </label>
+                                           <div className="relative">
+                                              <input 
+                                                type="number" 
+                                                min="1"
+                                                value={venueProfile?.maxCapacity ?? (venueProfile?.capacity || 500)}
+                                                onChange={(e) => {
+                                                  handleProfileUpdate('maxCapacity', e.target.value);
+                                                  handleProfileUpdate('capacity', e.target.value);
+                                                }}
+                                                placeholder="500"
+                                                className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 px-4 text-sm font-bold text-slate-900 outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all"
+                                              />
+                                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Max</span>
+                                           </div>
+                                        </div>
+                                     </div>
+
+                                     {/* Quick Capacity Preset Buttons */}
+                                     <div className="flex flex-wrap gap-2 pt-1">
+                                       {[
+                                         { label: '50-100', min: 50, max: 100 },
+                                         { label: '100-200', min: 100, max: 200 },
+                                         { label: '200-500', min: 200, max: 500 },
+                                         { label: '500-1000', min: 500, max: 1000 },
+                                         { label: '1000-2500', min: 1000, max: 2500 },
+                                         { label: '2500+', min: 2500, max: 5000 },
+                                       ].map((range) => {
+                                         const isActive = Number(venueProfile?.minCapacity) === range.min && 
+                                           Number(venueProfile?.maxCapacity || venueProfile?.capacity) === range.max;
+                                         return (
+                                           <button
+                                             type="button"
+                                             key={range.label}
+                                             onClick={() => {
+                                               handleProfileUpdate('minCapacity', range.min);
+                                               handleProfileUpdate('maxCapacity', range.max);
+                                               handleProfileUpdate('capacity', range.max);
+                                             }}
+                                             className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all border ${
+                                               isActive 
+                                                 ? 'bg-slate-900 text-white border-slate-900 shadow-xs' 
+                                                 : 'bg-white border-slate-200/60 text-slate-600 hover:border-slate-300'
+                                             }`}
+                                           >
+                                             {range.label} Guests
+                                           </button>
+                                         );
+                                       })}
                                      </div>
                                   </div>
+
                                   <div className="space-y-1.5">
                                       <label className="text-xs font-bold text-slate-700">Landmark</label>
                                       <div className="relative">
@@ -844,9 +997,45 @@ const DashboardSettings = ({
                       className="space-y-10"
                     >
                        <section className="max-w-3xl">
-                          <h3 className="text-xl font-extrabold text-slate-900 mb-1">Standard Plate Rates</h3>
-                          <p className="text-sm font-medium text-slate-500 mb-8">Define your baseline pricing to help clients estimate their budget.</p>
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                             <h3 className="text-xl font-extrabold text-slate-900">Event Pricing & Food Rates</h3>
+                             <span className="text-[11px] font-bold text-pd-pink bg-pink-50 px-3 py-1 rounded-full border border-pink-100 w-fit">
+                               Model: {venueProfile?.pricingType === 'per_person' ? 'Per Person' : venueProfile?.pricingType === 'rental_package' ? 'Rental / Package' : 'Per Plate'}
+                             </span>
+                          </div>
+                          <p className="text-sm font-medium text-slate-500 mb-6">Define your starting food rates and whether charges are calculated per plate, per person, or per package.</p>
                           
+                          {/* Pricing Rate Model Selector */}
+                          <div className="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-200/60">
+                             <label className="text-xs font-bold text-slate-700 block mb-2.5">
+                               Pricing Calculation Basis
+                             </label>
+                             <div className="grid grid-cols-3 gap-2.5">
+                               {[
+                                 { id: 'per_plate', label: 'Per Plate', sub: 'Standard Catering' },
+                                 { id: 'per_person', label: 'Per Person', sub: 'Buffet / Guests' },
+                                 { id: 'rental_package', label: 'Fixed / Package', sub: 'Per Day / Event' }
+                               ].map((unit) => {
+                                 const isSelected = (venueProfile?.pricingType || 'per_plate') === unit.id;
+                                 return (
+                                   <button
+                                     type="button"
+                                     key={unit.id}
+                                     onClick={() => handleProfileUpdate('pricingType', unit.id)}
+                                     className={`p-3 rounded-xl border text-left transition-all ${
+                                       isSelected 
+                                         ? 'bg-slate-900 border-slate-900 text-white shadow-sm' 
+                                         : 'bg-white border-slate-200/60 text-slate-700 hover:border-slate-300'
+                                     }`}
+                                   >
+                                     <p className="text-xs font-black">{unit.label}</p>
+                                     <p className={`text-[10px] font-semibold mt-0.5 ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>{unit.sub}</p>
+                                   </button>
+                                 );
+                               })}
+                             </div>
+                          </div>
+
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                              <div className="space-y-2">
                                 <button 
@@ -860,7 +1049,7 @@ const DashboardSettings = ({
                                    <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all ${venueProfile?.foodTypes?.includes('Veg') ? 'border-emerald-500 bg-white' : 'border-slate-300 bg-slate-50'}`}>
                                       {venueProfile?.foodTypes?.includes('Veg') && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
                                    </div>
-                                   Vegetarian Rate
+                                   Vegetarian Starting Rate
                                 </button>
                                 {venueProfile?.foodTypes?.includes('Veg') && (
                                    <div className="relative">
@@ -869,10 +1058,12 @@ const DashboardSettings = ({
                                         type="number" 
                                         value={venueProfile?.perPlateVeg || ""} 
                                         onChange={(e) => handleProfileUpdate('perPlateVeg', e.target.value)}
-                                        placeholder="0"
-                                        className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-10 pr-16 text-lg font-bold outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all" 
+                                        placeholder="800" 
+                                        className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-10 pr-24 text-lg font-bold outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all" 
                                       />
-                                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">/ Plate</span>
+                                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                        / {venueProfile?.pricingType === 'per_person' ? 'Person' : venueProfile?.pricingType === 'rental_package' ? 'Event' : 'Plate'}
+                                      </span>
                                    </div>
                                 )}
                              </div>
@@ -889,7 +1080,7 @@ const DashboardSettings = ({
                                    <div className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-all ${venueProfile?.foodTypes?.includes('Non-Veg') ? 'border-red-500 bg-white' : 'border-slate-300 bg-slate-50'}`}>
                                       {venueProfile?.foodTypes?.includes('Non-Veg') && <div className="w-1.5 h-1.5 rounded-full bg-red-500" />}
                                    </div>
-                                   Non-Vegetarian Rate
+                                   Non-Vegetarian Starting Rate
                                 </button>
                                 {venueProfile?.foodTypes?.includes('Non-Veg') && (
                                    <div className="relative">
@@ -898,10 +1089,12 @@ const DashboardSettings = ({
                                         type="number" 
                                         value={venueProfile?.perPlateNonVeg || ""} 
                                         onChange={(e) => handleProfileUpdate('perPlateNonVeg', e.target.value)}
-                                        placeholder="0"
-                                        className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-10 pr-16 text-lg font-bold outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all" 
+                                        placeholder="1200" 
+                                        className="w-full bg-slate-50 border border-slate-200/60 rounded-xl py-3 pl-10 pr-24 text-lg font-bold outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all" 
                                       />
-                                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">/ Plate</span>
+                                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                        / {venueProfile?.pricingType === 'per_person' ? 'Person' : venueProfile?.pricingType === 'rental_package' ? 'Event' : 'Plate'}
+                                      </span>
                                    </div>
                                 )}
                              </div>

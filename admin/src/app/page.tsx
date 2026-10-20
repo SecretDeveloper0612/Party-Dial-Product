@@ -44,6 +44,11 @@ interface RealtimeEvent {
 }
 
 const PLAN_REVENUE: Record<string, number> = {
+  monthly: 5999,
+  halfYearly: 21000,
+  annually: 36000,
+  pro_partner: 36000,
+  "Partner Pro Membership": 36000,
   trial_30: 11,
   pax_0_50: Math.round(33 * 365 * 1.18),
   pax_50_100: Math.round(44 * 365 * 1.18),
@@ -56,6 +61,11 @@ const PLAN_REVENUE: Record<string, number> = {
 };
 
 const PLAN_LABELS: Record<string, string> = {
+  monthly: "Monthly (₹5,999/mo)",
+  halfYearly: "Half-Yearly (₹3,500/mo)",
+  annually: "Annual (₹3,000/mo)",
+  pro_partner: "Partner Pro",
+  "Partner Pro Membership": "Partner Pro",
   trial_30: "Trial",
   pax_0_50: "0–50 PAX",
   pax_50_100: "50–100 PAX",
