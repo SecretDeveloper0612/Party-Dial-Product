@@ -1,4 +1,4 @@
-import { ID, Query } from 'node-appwrite';
+import { ID, Query, Permission, Role } from 'node-appwrite';
 import { getAppwriteServices } from '../utils/appwrite';
 import { isVenueEligible, getBucketLabel } from '../utils/paxMatcher';
 
@@ -98,8 +98,54 @@ export const updateVenue = async (c) => {
             }
         });
 
-        const updated = await databases.updateDocument(databaseId, collections.venues, id, payload);
-        return c.json({ status: 'success', message: 'Venue updated', data: updated }, 200);
+        if (updateData.vendorId) {
+            payload.userId = updateData.vendorId;
+        }
+
+        const { users } = getAppwriteServices(c.env);
+        let authUserId = null;
+        const email = (updateData.contactEmail || payload.contactEmail)?.trim();
+        const password = updateData.password;
+        if (email && password && users) {
+            try {
+                const existingUsers = await users.list([Query.equal('email', email)]);
+                if (existingUsers.total > 0) {
+                    const existingUser = existingUsers.users[0];
+                    authUserId = existingUser.$id;
+                    const currentLabels = existingUser.labels || [];
+                    if (!currentLabels.includes('vendor')) {
+                        await users.updateLabels(authUserId, [...currentLabels, 'vendor']);
+                    }
+                    await users.updatePassword(authUserId, password);
+                } else {
+                    const vendorName = updateData.ownerName || updateData.venueName || 'Vendor Partner';
+                    const newUser = await users.create(ID.unique(), email, undefined, password, vendorName);
+                    authUserId = newUser.$id;
+                    try {
+                        await users.updateLabels(authUserId, ['vendor']);
+                    } catch (labelErr) {
+                        console.warn('Failed to assign vendor label:', labelErr.message);
+                    }
+                }
+                payload.userId = authUserId;
+            } catch (authErr) {
+                console.error('Error creating/updating Appwrite Auth user in worker updateVenue:', authErr);
+                return c.json({
+                    status: 'error',
+                    message: `Failed to set vendor auth account: ${authErr.message}`
+                }, 400);
+            }
+        }
+
+        const permissions = authUserId ? [
+            Permission.read(Role.user(authUserId)),
+            Permission.update(Role.user(authUserId)),
+            Permission.delete(Role.user(authUserId)),
+            Permission.read(Role.any())
+        ] : undefined;
+
+        const updated = await databases.updateDocument(databaseId, collections.venues, id, payload, permissions);
+        return c.json({ status: 'success', message: 'Venue updated', data: updated, authUserId }, 200);
     } catch (error) {
         return c.json({ status: 'error', message: error.message }, 500);
     }
@@ -335,7 +381,52 @@ export const createVenue = async (c) => {
       return c.json({ status: 'error', message: 'Venue data is required' }, 400);
     }
     
-    const { databases, databaseId, collections } = getAppwriteServices(c.env);
+    const { databases, databaseId, collections, users } = getAppwriteServices(c.env);
+
+    let authUserId = null;
+    const email = venueData.contactEmail?.trim();
+    const password = venueData.password;
+    const vendorName = venueData.ownerName || venueData.venueName || 'Vendor Partner';
+
+    // If an email and password were provided during venue creation, create or link Appwrite Auth user
+    if (email && password && users) {
+      try {
+        const existingUsers = await users.list([Query.equal('email', email)]);
+        if (existingUsers.total > 0) {
+          const existingUser = existingUsers.users[0];
+          authUserId = existingUser.$id;
+          const currentLabels = existingUser.labels || [];
+          if (!currentLabels.includes('vendor')) {
+            await users.updateLabels(authUserId, [...currentLabels, 'vendor']);
+          }
+        } else {
+          const newUser = await users.create(ID.unique(), email, undefined, password, vendorName);
+          authUserId = newUser.$id;
+          try {
+            await users.updateLabels(authUserId, ['vendor']);
+          } catch (labelErr) {
+            console.warn('Failed to assign vendor label:', labelErr.message);
+          }
+        }
+      } catch (authErr) {
+        console.error('Error creating/linking Appwrite Auth user in worker createVenue:', authErr);
+        return c.json({
+          status: 'error',
+          message: `Failed to create vendor auth account: ${authErr.message}`
+        }, 400);
+      }
+    }
+
+    const assignedUserId = authUserId || venueData.vendorId || venueData.userId || (venueData.claimStatus === 'Claimed' ? 'admin_claimed' : 'admin_import');
+    const permissions = authUserId ? [
+      Permission.read(Role.user(authUserId)),
+      Permission.update(Role.user(authUserId)),
+      Permission.delete(Role.user(authUserId)),
+      Permission.read(Role.any())
+    ] : [
+      Permission.read(Role.any())
+    ];
+
     const documentId = ID.unique();
     
     const newVenue = await databases.createDocument(
@@ -357,7 +448,7 @@ export const createVenue = async (c) => {
         eventTypes: venueData.eventTypes || '',
         foodTypes: venueData.foodTypes || '',
         photos: venueData.photos || '',
-        userId: venueData.vendorId || venueData.userId || 'admin_import',
+        userId: assignedUserId,
         ownerName: venueData.ownerName || 'PartyDial Admin',
         contactNumber: venueData.phone || venueData.contactNumber || '0000000000',
         contactEmail: venueData.contactEmail || 'admin@partydial.com',
@@ -371,10 +462,10 @@ export const createVenue = async (c) => {
         totalReviews: 0,
         subscriptionPlan: 'free',
         subscriptionStatus: 'inactive'
-      }
+      },
+      permissions
     );
-
-    return c.json({ status: 'success', data: newVenue }, 201);
+    return c.json({ status: 'success', data: newVenue, authUserId }, 201);
   } catch (error) {
     console.error('Error creating venue:', error);
     return c.json({ status: 'error', message: error.message }, 500);

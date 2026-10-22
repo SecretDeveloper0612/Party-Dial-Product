@@ -120,6 +120,7 @@ app.use('/api/coupons', couponRoutes);
 app.use('/api/access', accessRoutes);
 app.use('/api/quotations', quotationRoutes);
 app.use('/api/support', require('./routes/supportRoutes'));
+app.use('/api/claims', require('./routes/claimAppwriteRoutes'));
 app.get('/api/config', configController.getPublicConfig);
 
 // Optional: Fallback for undefined routes

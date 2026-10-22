@@ -1,5 +1,5 @@
-const { databases, DATABASE_ID, VENUES_COLLECTION_ID, LEADS_COLLECTION_ID, REVIEWS_COLLECTION_ID } = require('../config/appwrite');
-const { ID, Query } = require('node-appwrite');
+const { databases, users, DATABASE_ID, VENUES_COLLECTION_ID, LEADS_COLLECTION_ID, REVIEWS_COLLECTION_ID } = require('../config/appwrite');
+const { ID, Query, Permission, Role } = require('node-appwrite');
 const { sendPushNotification } = require('../utils/notifications');
 const { sendProfileStatusEmail, sendLeadNotificationEmail } = require('../utils/emailService');
 const { isVenueEligible, getBucketLabel, getLeadBucketMax } = require('../utils/paxMatcher');
@@ -198,17 +198,62 @@ exports.updateVenue = async (req, res) => {
             payload.userId = updateData.vendorId;
         }
 
+        // If email and password are provided (e.g. from Admin edit/claim), create or sync vendor Auth account
+        let authUserId = null;
+        const email = (updateData.contactEmail || payload.contactEmail)?.trim();
+        const password = updateData.password;
+        if (email && password) {
+            try {
+                const existingUsers = await users.list([Query.equal('email', email)]);
+                if (existingUsers.total > 0) {
+                    const existingUser = existingUsers.users[0];
+                    authUserId = existingUser.$id;
+                    const currentLabels = existingUser.labels || [];
+                    if (!currentLabels.includes('vendor')) {
+                        await users.updateLabels(authUserId, [...currentLabels, 'vendor']);
+                    }
+                    // Update password if requested
+                    await users.updatePassword(authUserId, password);
+                } else {
+                    const vendorName = updateData.ownerName || updateData.venueName || 'Vendor Partner';
+                    const newUser = await users.create(ID.unique(), email, undefined, password, vendorName);
+                    authUserId = newUser.$id;
+                    try {
+                        await users.updateLabels(authUserId, ['vendor']);
+                    } catch (labelErr) {
+                        console.warn('Failed to assign vendor label:', labelErr.message);
+                    }
+                }
+                payload.userId = authUserId;
+            } catch (authErr) {
+                console.error('Error creating/updating Appwrite Auth user in updateVenue:', authErr);
+                return res.status(400).json({
+                    status: 'error',
+                    message: `Failed to set vendor auth account: ${authErr.message}`
+                });
+            }
+        }
+
+        const permissions = authUserId ? [
+            Permission.read(Role.user(authUserId)),
+            Permission.update(Role.user(authUserId)),
+            Permission.delete(Role.user(authUserId)),
+            Permission.read(Role.any())
+        ] : undefined;
+
         const updated = await databases.updateDocument(
             DATABASE_ID,
             VENUES_COLLECTION_ID,
             id,
-            payload
+            payload,
+            permissions
         );
 
         return res.status(200).json({
             status: 'success',
             message: 'Venue profile updated successfully',
-            data: updated
+            data: updated,
+            authUserId
         });
     } catch (error) {
         console.error('Error updating venue:', error);
@@ -872,10 +917,56 @@ exports.createVenue = async (req, res) => {
     if (!venueData || Object.keys(venueData).length === 0) {
       return res.status(400).json({ status: 'error', message: 'Venue data is required' });
     }
-    
+
+    let authUserId = null;
+    const email = venueData.contactEmail?.trim();
+    const password = venueData.password;
+    const vendorName = venueData.ownerName || venueData.venueName || 'Vendor Partner';
+
+    // If an email and password were provided during venue creation, create or link Appwrite Auth user
+    if (email && password) {
+      try {
+        const existingUsers = await users.list([Query.equal('email', email)]);
+        if (existingUsers.total > 0) {
+          const existingUser = existingUsers.users[0];
+          authUserId = existingUser.$id;
+          // Ensure vendor label is assigned
+          const currentLabels = existingUser.labels || [];
+          if (!currentLabels.includes('vendor')) {
+            await users.updateLabels(authUserId, [...currentLabels, 'vendor']);
+          }
+        } else {
+          // Create new user in Appwrite Auth
+          const newUser = await users.create(ID.unique(), email, undefined, password, vendorName);
+          authUserId = newUser.$id;
+          try {
+            await users.updateLabels(authUserId, ['vendor']);
+          } catch (labelErr) {
+            console.warn('Failed to assign vendor label:', labelErr.message);
+          }
+        }
+      } catch (authErr) {
+        console.error('Error creating/linking Appwrite Auth user in createVenue:', authErr);
+        return res.status(400).json({
+          status: 'error',
+          message: `Failed to create vendor auth account: ${authErr.message}`
+        });
+      }
+    }
+
+    const assignedUserId = authUserId || venueData.vendorId || (venueData.claimStatus === 'Claimed' ? 'admin_claimed' : 'admin_import');
+    const permissions = authUserId ? [
+      Permission.read(Role.user(authUserId)),
+      Permission.update(Role.user(authUserId)),
+      Permission.delete(Role.user(authUserId)),
+      Permission.read(Role.any())
+    ] : [
+      Permission.read(Role.any())
+    ];
+
     // Add default timestamps and identifiers
     const documentId = ID.unique();
-        const newVenue = await databases.createDocument(
+    const newVenue = await databases.createDocument(
       DATABASE_ID,
       VENUES_COLLECTION_ID,
       documentId,
@@ -894,7 +985,7 @@ exports.createVenue = async (req, res) => {
         eventTypes: venueData.eventTypes || '',
         foodTypes: venueData.foodTypes || '',
         photos: venueData.photos || '',
-        userId: venueData.vendorId || 'admin_import',
+        userId: assignedUserId,
         ownerName: venueData.ownerName || 'PartyDial Admin',
         contactNumber: venueData.phone || '0000000000',
         contactEmail: venueData.contactEmail || 'admin@partydial.com',
@@ -908,9 +999,10 @@ exports.createVenue = async (req, res) => {
         totalReviews: 0,
         subscriptionPlan: 'free',
         subscriptionStatus: 'inactive'
-      }
+      },
+      permissions
     );
-    res.status(201).json({ status: 'success', data: newVenue });
+    res.status(201).json({ status: 'success', data: newVenue, authUserId });
   } catch (error) {
     console.error('Error creating venue:', error);
     res.status(500).json({ status: 'error', message: error.message });

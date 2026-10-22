@@ -68,6 +68,7 @@ export default function ListingVenuesPage() {
           listingStatus: 'Published',
           claimStatus: newVenue.claimStatus,
           vendorId: newVenue.claimStatus === 'Claimed' ? 'admin_claimed' : 'admin_import',
+          password: newVenue.password,
           source: 'Admin Import'
       };
 
@@ -293,7 +294,7 @@ export default function ListingVenuesPage() {
               claimStatus: venue.claimStatus || 'Unclaimed'
             });
             setIsImportModalOpen(true);
-          }} className="text-pd-red hover:text-red-700 font-medium text-sm mr-4">Edit</button><a href={`http://localhost:3001/venues/${venue.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 font-medium text-sm">View Listing</a>
+          }} className="text-pd-red hover:text-red-700 font-medium text-sm">Edit</button>
                   </td>
                 </tr>
               ))}

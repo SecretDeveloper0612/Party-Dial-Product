@@ -43,6 +43,7 @@ import {
   MessageCircle,
   User,
   Mail,
+  Building2,
   PartyPopper
 } from 'lucide-react';
 import { useState, useMemo, useRef, useEffect } from 'react';
@@ -104,6 +105,18 @@ export default function VenueDetailPage() {
   });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState('');
+
+  // Claim Business Modal State
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
+  const [isSubmittingClaim, setIsSubmittingClaim] = useState(false);
+  const [claimSuccessMessage, setClaimSuccessMessage] = useState('');
+  const [claimFormData, setClaimFormData] = useState({
+    claimantName: '',
+    claimantRole: 'Owner',
+    phone: '',
+    email: '',
+    notes: ''
+  });
 
   // Sync user details if logged in
   useEffect(() => {
@@ -189,6 +202,45 @@ export default function VenueDetailPage() {
       showToast('Failed to submit lead. Please try again.', 'error');
     } finally {
       setIsSubmittingLead(false);
+    }
+  };
+
+  const handleClaimSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!claimFormData.claimantName.trim() || !claimFormData.phone.trim() || !claimFormData.email.trim()) {
+      showToast('Please fill in your name, mobile number, and email.', 'error');
+      return;
+    }
+
+    setIsSubmittingClaim(true);
+    try {
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5005/api';
+      const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
+
+      const res = await fetch(`${baseUrl}/claims/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          venueId: id,
+          claimantName: claimFormData.claimantName,
+          claimantRole: claimFormData.claimantRole,
+          phone: claimFormData.phone,
+          email: claimFormData.email,
+          notes: claimFormData.notes
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setClaimSuccessMessage('Your claim request has been sent to the PartyDial team! We will coordinate with you to verify ownership.');
+        showToast('Claim request submitted successfully!', 'success');
+      } else {
+        showToast(data.message || 'Failed to submit claim request.', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Error submitting claim request.', 'error');
+    } finally {
+      setIsSubmittingClaim(false);
     }
   };
 
@@ -744,8 +796,18 @@ export default function VenueDetailPage() {
                     </div>
                     
                     <button 
-                      onClick={() => alert('Claim flow opening soon')}
-                      className="relative z-10 group/btn inline-flex items-center justify-center gap-2 px-7 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold shadow-xl shadow-slate-900/10 hover:shadow-slate-900/20 transition-all active:scale-95 whitespace-nowrap ring-2 ring-slate-900/5"
+                      onClick={() => {
+                        setClaimSuccessMessage('');
+                        setClaimFormData({
+                          claimantName: '',
+                          claimantRole: 'Owner',
+                          phone: '',
+                          email: '',
+                          notes: ''
+                        });
+                        setIsClaimModalOpen(true);
+                      }}
+                      className="relative z-10 group/btn inline-flex items-center justify-center gap-2 px-7 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold shadow-xl shadow-slate-900/10 hover:shadow-slate-900/20 transition-all active:scale-95 whitespace-nowrap ring-2 ring-slate-900/5 cursor-pointer"
                     >
                       <span>Claim Venue Now</span>
                       <svg className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1762,6 +1824,141 @@ export default function VenueDetailPage() {
                     ))}
                  </div>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* CLAIM VENUE MODAL */}
+      <AnimatePresence>
+        {isClaimModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden font-pd"
+            >
+              <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                    <Building2 size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-slate-900">Claim This Business</h3>
+                    <p className="text-xs text-slate-500 truncate max-w-[280px]">{venue?.name}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsClaimModalOpen(false)}
+                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold transition-colors cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {claimSuccessMessage ? (
+                <div className="p-8 text-center space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100">
+                    <CheckCircle2 size={32} />
+                  </div>
+                  <h4 className="font-bold text-xl text-slate-900">Claim Request Sent!</h4>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {claimSuccessMessage}
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    Our team will reach out to you via phone/email to verify your business documents and grant direct access to your vendor portal.
+                  </p>
+                  <button
+                    onClick={() => setIsClaimModalOpen(false)}
+                    className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleClaimSubmit} className="p-6 space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Your Full Name <span className="text-rose-500">*</span></label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="e.g. Ramesh Chandra" 
+                      value={claimFormData.claimantName}
+                      onChange={(e) => setClaimFormData({...claimFormData, claimantName: e.target.value})}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Your Role <span className="text-rose-500">*</span></label>
+                      <select 
+                        value={claimFormData.claimantRole}
+                        onChange={(e) => setClaimFormData({...claimFormData, claimantRole: e.target.value})}
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                      >
+                        <option value="Owner">Owner</option>
+                        <option value="General Manager">General Manager</option>
+                        <option value="Event Director">Event Director</option>
+                        <option value="Authorized Representative">Authorized Representative</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Mobile Number <span className="text-rose-500">*</span></label>
+                      <input 
+                        type="tel" 
+                        required
+                        placeholder="e.g. 9876543210" 
+                        value={claimFormData.phone}
+                        onChange={(e) => setClaimFormData({...claimFormData, phone: e.target.value})}
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Business Email Address <span className="text-rose-500">*</span></label>
+                    <input 
+                      type="email" 
+                      required
+                      placeholder="e.g. contact@yourvenue.com" 
+                      value={claimFormData.email}
+                      onChange={(e) => setClaimFormData({...claimFormData, email: e.target.value})}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Additional Proof / Details (Optional)</label>
+                    <textarea 
+                      rows={2}
+                      placeholder="e.g. GST number, website or electricity bill reference..." 
+                      value={claimFormData.notes}
+                      onChange={(e) => setClaimFormData({...claimFormData, notes: e.target.value})}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none"
+                    />
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-100">
+                    <button 
+                      type="button"
+                      onClick={() => setIsClaimModalOpen(false)}
+                      className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit"
+                      disabled={isSubmittingClaim}
+                      className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold shadow-md disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                    >
+                      {isSubmittingClaim ? 'Submitting...' : 'Submit Claim Request'}
+                    </button>
+                  </div>
+                </form>
+              )}
             </motion.div>
           </div>
         )}

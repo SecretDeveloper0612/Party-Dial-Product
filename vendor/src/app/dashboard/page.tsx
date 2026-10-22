@@ -311,8 +311,15 @@ export default function VendorDashboard() {
 
     return null;
   }, [venueProfile]);
- 
-  const hasActivePaidPlan = !!(venueProfile?.subscriptionPlan && venueProfile.subscriptionPlan !== 'free' && venueProfile.subscriptionPlan !== 'None' && (!expiryInfo || expiryInfo.daysLeft > 0));
+
+  const hasPurchasedPlan = !!(
+    venueProfile?.subscriptionPlan && 
+    venueProfile.subscriptionPlan !== 'free' && 
+    venueProfile.subscriptionPlan !== 'None' && 
+    venueProfile.subscriptionPlan !== ''
+  );
+
+  const hasActivePaidPlan = !!(hasPurchasedPlan && (!expiryInfo || expiryInfo.daysLeft > 0));
 
   // Unified Activity History Generation
   const pastActivities = useMemo(() => {
@@ -1276,7 +1283,8 @@ export default function VendorDashboard() {
                           />
                        </div>
                      </>
-                  ) : (
+                  ) : hasPurchasedPlan ? (
+                     /* User purchased a plan, but it is now expired */
                      <div className="flex flex-col items-center justify-center w-full py-1 gap-2.5">
                         <div className="flex items-center gap-2">
                            <div className="w-6 h-6 rounded-full bg-rose-50 flex items-center justify-center text-rose-600 border border-rose-100 shrink-0">
@@ -1290,14 +1298,22 @@ export default function VendorDashboard() {
                            Upgrade Now
                         </Link>
                      </div>
+                  ) : (
+                     /* User never purchased a plan (Free tier) -> Show only Upgrade Now */
+                     <div className="flex flex-col items-center justify-center w-full py-1">
+                        <Link href="/pricing" className="bg-slate-900 hover:bg-pd-pink transition-colors text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-md active:scale-95 text-center w-full flex items-center justify-center gap-1.5">
+                           <Sparkles size={13} className="text-amber-400" />
+                           <span>Upgrade Now</span>
+                        </Link>
+                     </div>
                   )}
                   </div>
                </div>
             ) : (
-               <div className="mb-4 relative group" title={expiryInfo && expiryInfo.daysLeft > 0 ? `${expiryInfo.label}: ${expiryInfo.daysLeft} days left` : 'Plan Expired'}>
+               <div className="mb-4 relative group" title={expiryInfo && expiryInfo.daysLeft > 0 ? `${expiryInfo.label}: ${expiryInfo.daysLeft} days left` : (hasPurchasedPlan ? 'Plan Expired' : 'Upgrade Plan')}>
                   <div className="relative flex items-center justify-center bg-slate-50 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-100 transition-colors">
-                     <span className={`absolute w-3 h-3 rounded-full ${!expiryInfo || expiryInfo.daysLeft < 7 ? 'bg-rose-500' : 'bg-emerald-500'} animate-ping opacity-60`}></span>
-                     <span className={`relative w-2 h-2 rounded-full ${!expiryInfo || expiryInfo.daysLeft < 7 ? 'bg-rose-500' : 'bg-emerald-500'}`}></span>
+                     <span className={`absolute w-3 h-3 rounded-full ${!hasPurchasedPlan ? 'bg-pd-pink' : (expiryInfo && expiryInfo.daysLeft >= 7 ? 'bg-emerald-500' : 'bg-rose-500')} animate-ping opacity-60`}></span>
+                     <span className={`relative w-2 h-2 rounded-full ${!hasPurchasedPlan ? 'bg-pd-pink' : (expiryInfo && expiryInfo.daysLeft >= 7 ? 'bg-emerald-500' : 'bg-rose-500')}`}></span>
                   </div>
                </div>
             )}
