@@ -214,7 +214,7 @@ export default function VenueDetailPage() {
 
     setIsSubmittingClaim(true);
     try {
-      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5005/api';
+      const base = process.env.NEXT_PUBLIC_SERVER_URL || 'https://api.partydial.com/api';
       const baseUrl = base.endsWith('/api') ? base : `${base}/api`;
 
       const res = await fetch(`${baseUrl}/claims/submit`, {
@@ -230,7 +230,14 @@ export default function VenueDetailPage() {
         })
       });
 
-      const data = await res.json();
+      const responseText = await res.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseErr) {
+        data = { message: responseText || `Server responded with status ${res.status}` };
+      }
+
       if (res.ok) {
         setClaimSuccessMessage('Your claim request has been sent to the PartyDial team! We will coordinate with you to verify ownership.');
         showToast('Claim request submitted successfully!', 'success');

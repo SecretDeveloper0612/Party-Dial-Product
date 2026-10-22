@@ -12,6 +12,7 @@ import aiRoutes from './routes/aiRoutes'
 import accessRoutes from './routes/accessRoutes'
 import quotationRoutes from './routes/quotationRoutes'
 import configRoutes from './routes/configRoutes'
+import claimRoutes from './routes/claimRoutes'
 
 const app = new Hono()
 
@@ -52,6 +53,7 @@ app.route('/api/data', dataRoutes)
 app.route('/api/ai', aiRoutes)
 app.route('/api/access', accessRoutes)
 app.route('/api/quotations', quotationRoutes)
+app.route('/api/claims', claimRoutes)
 app.route('/api/config', configRoutes)
 
 import { sendPasswordResetEmail } from './utils/emailService';
