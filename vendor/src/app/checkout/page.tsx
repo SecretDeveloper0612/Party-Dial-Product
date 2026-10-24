@@ -351,7 +351,7 @@ function CheckoutContent() {
 
       // 2. Open Razorpay Checkout modal
       const options: any = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TpjqJRzx9lPYxh',
+        key: orderOrSub.key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_live_Tref0fxZCuBhCF',
         name: 'PartyDial',
         description: isRecurring
           ? `Partner Pro Monthly (Auto-Debit ₹${finalTotalWithGst.toLocaleString()}/mo)`

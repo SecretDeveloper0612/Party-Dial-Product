@@ -98,7 +98,10 @@ exports.createOrder = async (req, res) => {
     }
 
     const order = await razorpay.orders.create(options);
-    res.json(order);
+    res.json({
+      ...order,
+      key_id: process.env.RAZORPAY_KEY_ID
+    });
   } catch (error) {
     console.error('Razorpay Order Error:', error);
     const msg = error?.error?.description || error?.message || 'Razorpay order creation failed';
@@ -163,7 +166,8 @@ exports.createSubscription = async (req, res) => {
       plan_id: cachedMonthlyPlanId,
       amount: amountVal,
       currency: 'INR',
-      short_url: subscription.short_url
+      short_url: subscription.short_url,
+      key_id: process.env.RAZORPAY_KEY_ID
     });
   } catch (error) {
     console.error('Razorpay Subscription Error:', error);

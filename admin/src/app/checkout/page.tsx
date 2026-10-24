@@ -272,7 +272,7 @@ function CheckoutContent() {
         }
 
         const options = {
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
+            key: order.key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_live_Tref0fxZCuBhCF",
             amount: order.amount,
             currency: order.currency,
             name: "PartyDial",
