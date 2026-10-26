@@ -30,7 +30,7 @@ import { account, databases, DATABASE_ID, VENUES_COLLECTION_ID, Query } from '@/
 // Pricing plans configured for checkout
 interface PlanOption {
   id: string;
-  duration: 'monthly' | 'halfYearly' | 'annually';
+  duration: 'monthly' | 'quarterly' | 'halfYearly' | 'annually';
   name: string;
   periodLabel: string;
   monthlyMrp: number;
@@ -48,12 +48,12 @@ const CHECKOUT_PLANS: Record<string, PlanOption> = {
     duration: 'monthly',
     name: 'Monthly Plan',
     periodLabel: '1 Month',
-    monthlyMrp: 7999,
-    monthlyRate: 5999,
-    baseTotalPrice: 5999,
-    gstAmount: 1080,         // Math.round(5999 * 0.18) = 1080
-    totalWithGst: 7079,     // 5999 + 1080 = 7079
-    savingsPercent: 25,
+    monthlyMrp: 8999,
+    monthlyRate: 7000,
+    baseTotalPrice: 5932,
+    gstAmount: 1068,         // 5932 + 1068 = 7000
+    totalWithGst: 7000,
+    savingsPercent: 22,
     features: [
       'Unlimited Customer Inquiries',
       'Instant Email Lead Alerts',
@@ -63,17 +63,37 @@ const CHECKOUT_PLANS: Record<string, PlanOption> = {
       'Quotation & Digital Invoice Maker'
     ]
   },
+  quarterly: {
+    id: 'quarterly',
+    duration: 'quarterly',
+    name: 'Quarterly Plan',
+    periodLabel: '3 Months',
+    monthlyMrp: 8999,
+    monthlyRate: 5000,
+    baseTotalPrice: 12712,
+    gstAmount: 2288,        // 12712 + 2288 = 15000
+    totalWithGst: 15000,
+    savingsPercent: 44,
+    features: [
+      'Unlimited Customer Inquiries',
+      'Instant Email Lead Alerts',
+      'Priority City Search Placement',
+      'Direct WhatsApp & Phone Connect',
+      'Lead CRM & Status Pipeline',
+      'Quotation & Digital Invoice Maker'
+    ]
+  },
   halfYearly: {
     id: 'halfYearly',
     duration: 'halfYearly',
     name: 'Half-Yearly Plan',
     periodLabel: '6 Months',
-    monthlyMrp: 7999,
-    monthlyRate: 3500,
-    baseTotalPrice: 21000,
-    gstAmount: 3780,        // 21000 * 0.18
-    totalWithGst: 24780,    // 21000 + 3780
-    savingsPercent: 56,
+    monthlyMrp: 8999,
+    monthlyRate: 4000,
+    baseTotalPrice: 20339,
+    gstAmount: 3661,        // 20339 + 3661 = 24000
+    totalWithGst: 24000,
+    savingsPercent: 55,
     features: [
       'Unlimited Customer Inquiries',
       'Instant Email Lead Alerts',
@@ -88,15 +108,15 @@ const CHECKOUT_PLANS: Record<string, PlanOption> = {
     duration: 'annually',
     name: 'Annual Plan',
     periodLabel: '12 Months',
-    monthlyMrp: 7999,
-    monthlyRate: 3000,
-    baseTotalPrice: 36000,
-    gstAmount: 6480,        // 36000 * 0.18
-    totalWithGst: 42480,    // 36000 + 6480
-    savingsPercent: 62,
+    monthlyMrp: 8999,
+    monthlyRate: 3500,
+    baseTotalPrice: 35593,
+    gstAmount: 6407,        // 35593 + 6407 = 42000
+    totalWithGst: 42000,
+    savingsPercent: 61,
     features: [
       'Everything in Half-Yearly Plan',
-      'Guaranteed Lowest Rate (₹3,000/mo)',
+      'Guaranteed Lowest Rate (₹3,500/mo)',
       'Top-Tier Search Ranking & Featured Spotlight',
       'Dedicated Partner Growth Manager',
       'Citywide Venue & Social Media Promotion',
@@ -634,8 +654,8 @@ function CheckoutContent() {
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-4">
+              {/* Submit Button (Desktop Only — on mobile only the bottom floating button is shown) */}
+              <div className="pt-4 hidden lg:block">
                 <button
                   type="submit"
                   disabled={isProcessing}
@@ -649,13 +669,13 @@ function CheckoutContent() {
                   ) : (
                     <>
                       <Lock size={16} />
-                      <span>
+                      <span className="truncate">
                         {selectedPlan.duration === 'monthly' && isAutoDebit 
                           ? `Start Auto-Debit • ₹${finalTotalWithGst.toLocaleString()}/mo`
                           : `Pay ₹${finalTotalWithGst.toLocaleString()} with Razorpay`
                         }
                       </span>
-                      <ArrowRight size={16} />
+                      <ArrowRight size={16} className="shrink-0" />
                     </>
                   )}
                 </button>
@@ -669,7 +689,7 @@ function CheckoutContent() {
           </div>
 
           {/* RIGHT COLUMN: Order Summary Card */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-6 pb-24 lg:pb-0">
             <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-sm">
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                 <h3 className="text-base font-extrabold text-slate-900">
@@ -685,8 +705,8 @@ function CheckoutContent() {
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
                   Select Subscription Duration:
                 </p>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['monthly', 'halfYearly', 'annually'] as const).map(key => {
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {(['monthly', 'quarterly', 'halfYearly', 'annually'] as const).map(key => {
                     const p = CHECKOUT_PLANS[key];
                     const isSelected = selectedPlan.duration === key;
                     return (
@@ -728,33 +748,58 @@ function CheckoutContent() {
 
               {/* Auto-Debit Option for Monthly Plan */}
               {selectedPlan.duration === 'monthly' && (
-                <div className="mb-5 p-3.5 rounded-2xl bg-gradient-to-r from-pink-50/90 to-purple-50/90 border border-pink-200/80">
+                <div 
+                  onClick={() => setIsAutoDebit(!isAutoDebit)}
+                  className={`mb-5 p-3.5 rounded-2xl border transition-all cursor-pointer select-none ${
+                    isAutoDebit 
+                      ? 'bg-gradient-to-r from-pink-50/90 to-purple-50/90 border-pink-300 shadow-xs' 
+                      : 'bg-slate-50 border-slate-200 hover:border-slate-300 opacity-90'
+                  }`}
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-2.5">
-                      <div className="p-1.5 rounded-lg bg-pink-500 text-white shrink-0 mt-0.5">
+                      <div className={`p-1.5 rounded-lg text-white shrink-0 mt-0.5 transition-colors ${
+                        isAutoDebit ? 'bg-pink-500' : 'bg-slate-400'
+                      }`}>
                         <RefreshCw size={13} className={isAutoDebit ? 'animate-spin-slow' : ''} />
                       </div>
                       <div>
                         <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                           <span>Auto-Debit Monthly Subscription</span>
-                          <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-pink-500 text-white tracking-wider">
-                            Recommended
+                          <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full text-white tracking-wider transition-colors ${
+                            isAutoDebit ? 'bg-pink-500' : 'bg-slate-400'
+                          }`}>
+                            {isAutoDebit ? 'Active' : 'Disabled'}
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                          Hassle-free automatic monthly renewal via UPI Autopay / Card. Cancel anytime with 1-click in dashboard.
+                          {isAutoDebit 
+                            ? 'Hassle-free automatic monthly renewal via UPI Autopay / Card. Cancel anytime with 1-click in dashboard.'
+                            : 'Single-month billing only. You will need to renew manually each month to keep venue visible.'}
                         </p>
                       </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
-                      <input 
-                        type="checkbox" 
-                        checked={isAutoDebit}
-                        onChange={e => setIsAutoDebit(e.target.checked)}
-                        className="sr-only peer"
+                    {/* Switch Button */}
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={isAutoDebit}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsAutoDebit(!isAutoDebit);
+                      }}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none mt-0.5 ${
+                        isAutoDebit ? 'bg-pink-600' : 'bg-slate-300'
+                      }`}
+                    >
+                      <span className="sr-only">Toggle Auto-Debit</span>
+                      <span
+                        aria-hidden="true"
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                          isAutoDebit ? 'translate-x-5' : 'translate-x-0'
+                        }`}
                       />
-                      <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-pink-600"></div>
-                    </label>
+                    </button>
                   </div>
                 </div>
               )}
@@ -883,6 +928,46 @@ function CheckoutContent() {
             </div>
           </div>
         </div>
+
+        {/* Mobile Floating Sticky Checkout Bar */}
+        <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200/90 p-4 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.1)] pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <div className="max-w-md mx-auto flex items-center gap-3">
+            <div className="flex-1">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                {selectedPlan.duration === 'monthly' && isAutoDebit ? 'Auto-Debit/Mo' : 'Total Payable'}
+              </div>
+              <div className="text-lg font-black text-slate-950 leading-tight">
+                ₹{finalTotalWithGst.toLocaleString()}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleProceedPayment}
+              disabled={isProcessing}
+              className="flex-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white shadow-lg bg-gradient-to-r from-red-500 via-pink-600 to-purple-600 hover:opacity-95 shadow-pink-500/25 cursor-pointer flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <Lock size={14} />
+                  <span className="truncate">
+                    {selectedPlan.duration === 'monthly' && isAutoDebit 
+                      ? 'Start Auto-Debit' 
+                      : 'Pay with Razorpay'
+                    }
+                  </span>
+                  <ArrowRight size={14} className="shrink-0" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   );

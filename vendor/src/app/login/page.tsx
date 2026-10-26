@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, Suspense } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff, ShieldCheck, Lock, Mail, X, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, ShieldCheck, Lock, Mail, X, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 function AuthContent() {
@@ -173,6 +174,9 @@ function AuthContent() {
 
     const data = await response.json();
     if (!response.ok) {
+      if (response.status === 409 || data.message?.toLowerCase().includes('already exists') || data.message?.toLowerCase().includes('already in use')) {
+        throw new Error('ALREADY_EXISTS: You already have an account on PartyDial Partner Portal.');
+      }
       throw new Error(data.message || 'Registration failed');
     }
 
@@ -193,7 +197,10 @@ function AuthContent() {
       }
     } catch (err) {
       console.error('Auth error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Authentication failed. Please check your credentials.';
+      let errorMessage = err instanceof Error ? err.message : 'Authentication failed. Please check your credentials.';
+      if (errorMessage.toLowerCase().includes('already exists') || errorMessage.toLowerCase().includes('duplicate')) {
+        errorMessage = 'ALREADY_EXISTS: You already have an account on PartyDial Partner Portal.';
+      }
       setError(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -217,12 +224,12 @@ function AuthContent() {
             <span className="text-white/80 text-xs font-semibold tracking-wide">#1 Event Venue Platform</span>
           </div>
 
-          <h2 className="text-[4rem] xl:text-[4.5rem] font-black text-white leading-[1.05] tracking-tighter mb-6">
+          <h2 className="text-[4rem] xl:text-[4.5rem] font-semibold font-poppins text-white leading-[1.05] tracking-tight mb-6">
             Fill your<br/>
-            <span className="text-transparent bg-clip-text bg-linear-to-r from-pink-400 to-rose-400">calendar.</span>
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-pink-400 to-rose-400 font-semibold">calendar.</span>
           </h2>
 
-          <p className="text-slate-400 text-lg leading-relaxed mb-14 max-w-105 font-medium">
+          <p className="text-slate-400 text-lg leading-relaxed mb-14 max-w-105 font-light font-poppins">
             Join India&apos;s top venues receiving verified leads and managing their events in one unified platform.
           </p>
 
@@ -271,20 +278,12 @@ function AuthContent() {
 
       {/* Right Section - Form */}
       <div className="flex-1 lg:w-[45%] flex flex-col justify-center px-6 sm:px-12 relative items-center">
-        {/* Logo */}
-        <div className="absolute top-8 left-8 flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-linear-to-br from-pd-pink to-rose-400 flex items-center justify-center shadow-md">
-            <span className="text-white font-bold text-sm leading-none">P</span>
-          </div>
-          <span className="text-lg font-black tracking-tight text-slate-900">PartyDial</span>
-        </div>
-
         <div className="w-full max-w-90">
           <div className="mb-8">
-            <h1 className="text-[2rem] font-black text-slate-900 tracking-tight mb-2 leading-tight">
-              Welcome to <span className="text-pd-pink">PartyDial</span>
+            <h1 className="text-[2rem] font-semibold font-poppins text-slate-900 tracking-tight mb-2 leading-tight">
+              Welcome to <span className="text-pd-pink font-semibold">PartyDial</span>
             </h1>
-            <p className="text-slate-500 text-sm leading-relaxed pr-4">
+            <p className="text-slate-500 text-sm font-light font-poppins leading-relaxed pr-4">
               Log in to manage your bookings, or create an account to list your property.
             </p>
           </div>
@@ -320,10 +319,41 @@ function AuthContent() {
                   initial={{ opacity: 0, y: -5 }} 
                   animate={{ opacity: 1, y: 0 }} 
                   exit={{ opacity: 0, y: -5 }}
-                  className="bg-red-50 border border-red-100 p-3 rounded-xl flex items-center gap-2 text-red-600 text-xs font-bold"
+                  className="rounded-2xl overflow-hidden"
                 >
-                  <ShieldCheck size={16} className="text-red-500 shrink-0" /> 
-                  <span>{error}</span>
+                  {error.startsWith('ALREADY_EXISTS:') ? (
+                    <div className="bg-gradient-to-r from-rose-50 to-pink-50 border border-pink-200/80 p-3.5 rounded-2xl shadow-xs">
+                      <div className="flex items-start gap-2.5">
+                        <div className="p-1.5 rounded-lg bg-pd-pink text-white shrink-0 mt-0.5">
+                          <AlertCircle size={14} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-bold text-slate-900 leading-snug">
+                            You already have an account on PartyDial!
+                          </p>
+                          <p className="text-[11px] font-light font-poppins text-slate-500 mt-0.5 leading-relaxed">
+                            This email is already registered with us. Please sign in with your password.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMode('signin');
+                              setError('');
+                            }}
+                            className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pd-pink hover:bg-rose-600 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                          >
+                            <span>Switch to Sign In</span>
+                            <ArrowRight size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-red-50 border border-red-100 p-3 rounded-xl flex items-center gap-2 text-red-600 text-xs font-bold">
+                      <ShieldCheck size={16} className="text-red-500 shrink-0" /> 
+                      <span>{error}</span>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -415,8 +445,15 @@ function AuthContent() {
             Continue with Google
           </button>
 
-          <p className="text-center text-[11px] font-medium text-slate-400 mt-8 leading-relaxed">
-            By continuing, you agree to PartyDial&apos;s <br/><a href="#" className="text-slate-500 hover:text-slate-800 transition-colors">Terms of Service</a> and <a href="#" className="text-slate-500 hover:text-slate-800 transition-colors">Privacy Policy</a>.
+          <p className="text-center text-[11px] font-light font-poppins text-slate-400 mt-8 leading-relaxed">
+            By continuing, you agree to PartyDial&apos;s <br/>
+            <Link href="/terms-of-service" target="_blank" className="text-slate-600 hover:text-pd-pink font-normal underline decoration-slate-300 hover:decoration-pd-pink underline-offset-2 transition-colors">
+              Terms of Service
+            </Link>
+            {' '}and{' '}
+            <Link href="/privacy-policy" target="_blank" className="text-slate-600 hover:text-pd-pink font-normal underline decoration-slate-300 hover:decoration-pd-pink underline-offset-2 transition-colors">
+              Privacy Policy
+            </Link>.
           </p>
         </div>
       </div>
@@ -457,10 +494,10 @@ function AuthContent() {
                     <div className="w-14 h-14 bg-pink-50 text-pd-pink rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
                       <Lock size={24} />
                     </div>
-                    <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">
+                    <h3 className="text-xl font-semibold font-poppins text-slate-900 tracking-tight mb-1">
                       Reset Password
                     </h3>
-                    <p className="text-xs text-slate-500 font-medium">
+                    <p className="text-xs text-slate-500 font-light font-poppins">
                       Enter your email address and we&apos;ll send you a recovery link to reset your password.
                     </p>
                   </div>

@@ -634,7 +634,7 @@ const DashboardSettings = ({
                                     maxLength={1000}
                                     onChange={(e) => handleProfileUpdate('description', e.target.value)}
                                     placeholder="Tell customers about your venue's ambiance..."
-                                    className="w-full bg-slate-50 border border-slate-200/60 rounded-xl p-4 text-sm font-medium focus:bg-white focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all outline-none resize-none" 
+                                    className="w-full bg-slate-50 border border-slate-200/60 rounded-xl p-4 text-sm font-light font-poppins focus:bg-white focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10 transition-all outline-none resize-none" 
                                   />
                                   <div className="flex justify-end mt-1">
                                     <p className={`text-[10px] font-bold ${(venueProfile?.description?.length || 0) >= 1000 ? 'text-pd-red' : 'text-slate-400'}`}>
@@ -805,7 +805,7 @@ const DashboardSettings = ({
                                                  const updated = halls.map((h: any) => h.id === hall.id ? { ...h, description: e.target.value } : h);
                                                  handleProfileUpdate('halls', updated);
                                               }}
-                                              className="w-full bg-white border border-slate-200/60 rounded-xl px-4 py-2.5 text-sm font-medium outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10"
+                                              className="w-full bg-white border border-slate-200/60 rounded-xl px-4 py-2.5 text-sm font-light font-poppins outline-none focus:border-pd-pink focus:ring-4 focus:ring-pd-pink/10"
                                               placeholder="e.g. Perfect for intimate gatherings"
                                            />
                                         </div>

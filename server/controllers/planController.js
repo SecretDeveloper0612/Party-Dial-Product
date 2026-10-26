@@ -8,8 +8,9 @@ const DEFAULT_PLANS = [
   {
     $id: 'plan_partner_pro_monthly',
     name: 'Partner Pro Membership (Monthly)',
-    price: 5999,
-    mrp: 7999,
+    price: 7000,
+    mrp: 8999,
+    monthlyRate: 7000,
     duration: 30,
     billingDuration: 'monthly',
     leadLimit: 99999,
@@ -25,18 +26,37 @@ const DEFAULT_PLANS = [
     status: 'active'
   },
   {
+    $id: 'plan_partner_pro_quarterly',
+    name: 'Partner Pro Membership (Quarterly)',
+    price: 15000,
+    mrp: 26997,
+    monthlyRate: 5000,
+    duration: 90,
+    billingDuration: 'quarterly',
+    leadLimit: 99999,
+    features: [
+      'Unlimited Customer Inquiries',
+      'Priority City Search Placement',
+      'Direct WhatsApp & Phone Connect',
+      'Lead CRM & Status Pipeline',
+      'Quotation & Digital Invoice Maker',
+      'Priority Email & Chat Support'
+    ],
+    status: 'active'
+  },
+  {
     $id: 'plan_partner_pro_halfyearly',
     name: 'Partner Pro Membership (Half-Yearly)',
-    price: 21000,
-    mrp: 47994,
-    monthlyRate: 3500,
+    price: 24000,
+    mrp: 53994,
+    monthlyRate: 4000,
     duration: 180,
     billingDuration: 'halfYearly',
     leadLimit: 99999,
     features: [
-      'Everything in Monthly Plan',
-      'Billed ₹21,000 for 6 Months (₹3,500/mo)',
-      'Save 56% vs Monthly MRP',
+      'Everything in Quarterly Plan',
+      'Billed ₹24,000 for 6 Months (₹4,000/mo)',
+      'Save 55% vs Monthly MRP',
       'Priority Lead Dispatch Engine',
       'Verified Partner Listing Badge'
     ],
@@ -45,16 +65,16 @@ const DEFAULT_PLANS = [
   {
     $id: 'plan_partner_pro_yearly',
     name: 'Partner Pro Membership (Annual)',
-    price: 36000,
-    mrp: 95988,
-    monthlyRate: 3000,
+    price: 42000,
+    mrp: 107988,
+    monthlyRate: 3500,
     duration: 365,
     billingDuration: 'annually',
     leadLimit: 99999,
     features: [
       'Everything in Half-Yearly Plan',
-      'Billed ₹36,000 for 12 Months (₹3,000/mo)',
-      'Maximum Savings: 62% off MRP',
+      'Billed ₹42,000 for 12 Months (₹3,500/mo)',
+      'Maximum Savings: 61% off MRP',
       'Highest City Ranking & Featured Spotlight',
       'Premium Lead Routing Algorithm',
       'Dedicated Account Manager'

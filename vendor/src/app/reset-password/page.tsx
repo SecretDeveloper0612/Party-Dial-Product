@@ -172,12 +172,12 @@ export default function ResetPasswordPage() {
         <div className="absolute bottom-[0%] right-[0%] w-[50%] h-[50%] bg-pink-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
         <div className="relative z-10 w-full max-w-135">
-          <h2 className="text-[4rem] xl:text-[4.5rem] font-black text-white leading-[1.05] tracking-tighter mb-6">
+          <h2 className="text-[4rem] xl:text-[4.5rem] font-semibold font-poppins text-white leading-[1.05] tracking-tight mb-6">
             Secure your<br/>
-            <span className="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-teal-400">account.</span>
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-teal-400 font-semibold">account.</span>
           </h2>
 
-          <p className="text-slate-400 text-lg leading-relaxed mb-14 max-w-105 font-medium">
+          <p className="text-slate-400 text-lg leading-relaxed mb-14 max-w-105 font-light font-poppins">
             Keep your venue&apos;s data protected with a strong password. We use industry-standard encryption to ensure your peace of mind.
           </p>
 
@@ -203,23 +203,15 @@ export default function ResetPasswordPage() {
 
       {/* Right Section - Form */}
       <div className="flex-1 lg:w-[45%] flex flex-col justify-center px-6 sm:px-12 relative items-center">
-        {/* Logo */}
-        <Link href="/" className="absolute top-8 left-8 flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-linear-to-br from-pd-pink to-rose-400 flex items-center justify-center shadow-md">
-            <span className="text-white font-bold text-sm leading-none">P</span>
-          </div>
-          <span className="text-lg font-black tracking-tight text-slate-900">PartyDial</span>
-        </Link>
-
         <div className="w-full max-w-90">
           <div className="mb-8">
             <div className="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
               <Key size={24} />
             </div>
-            <h1 className="text-[2rem] font-black text-slate-900 tracking-tight mb-2 leading-tight">
+            <h1 className="text-[2rem] font-semibold font-poppins text-slate-900 tracking-tight mb-2 leading-tight">
               Reset Password
             </h1>
-            <p className="text-slate-500 text-sm leading-relaxed pr-4">
+            <p className="text-slate-500 text-sm font-light font-poppins leading-relaxed pr-4">
               Enter a new password below to regain access to your PartyDial partner account.
             </p>
           </div>

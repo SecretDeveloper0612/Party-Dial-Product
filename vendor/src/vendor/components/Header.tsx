@@ -2,11 +2,13 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, LogIn, Menu, X, ArrowRight, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, LogIn, Menu, X, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Header() {
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -31,14 +33,13 @@ export default function Header() {
           }
         })
         .catch(() => {
-          // If Appwrite says not logged in and there's no valid local session
           if (isMounted && !localUser) {
             setIsLoggedIn(false);
           }
         });
     }).catch(() => {});
 
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setScrolled(window.scrollY > 15);
     window.addEventListener('scroll', handleScroll);
     return () => {
       isMounted = false;
@@ -46,116 +47,181 @@ export default function Header() {
     };
   }, []);
 
+  const navLinks = [
+    { label: 'Home', href: '/' },
+    { label: 'Our Process', href: '/process' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'Contact', href: '/contact' }
+  ];
+
   return (
-    <header suppressHydrationWarning className={`fixed top-0 inset-x-0 z-50 flex justify-center transition-all duration-500 ${scrolled ? 'py-4 px-4' : 'py-6 px-6'}`}>
-      <nav className={`w-full max-w-300 h-16 flex items-center justify-between transition-all duration-500 ${scrolled ? 'px-6 bg-white/70 backdrop-blur-2xl shadow-[0_20px_80px_-15px_rgba(0,0,0,0.1)] rounded-4xl' : 'bg-transparent px-2'}`}>
+    <header 
+      suppressHydrationWarning 
+      className={`fixed top-0 inset-x-0 z-50 flex justify-center transition-all duration-300 ${
+        scrolled ? 'py-3 px-3 sm:px-6' : 'py-5 px-4 sm:px-8'
+      }`}
+    >
+      <nav 
+        className={`w-full max-w-6xl h-14 sm:h-16 flex items-center justify-between transition-all duration-300 rounded-2xl sm:rounded-full ${
+          scrolled 
+            ? 'px-4 sm:px-6 bg-white/85 backdrop-blur-xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)]' 
+            : 'px-3 sm:px-4 bg-white/60 backdrop-blur-md border border-white/60 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
+        }`}
+      >
         
         {/* Logo Area */}
-        <Link href="/" className="flex items-center gap-3 group relative">
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
           <Image 
             src="/logo.png" 
             alt="PartyDial" 
             width={130} 
             height={38} 
-            className="h-8 w-auto object-contain transition-transform duration-500 group-hover:scale-105" 
+            priority
+            className="h-7 sm:h-8 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]" 
           />
-          <div className="h-5 w-px bg-slate-200 hidden sm:block"></div>
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-pd-blue/5 border border-pd-blue/10 group-hover:bg-pd-blue/10 transition-colors">
-            <ShieldCheck size={12} className="text-pd-blue" />
-            <span className="text-pd-blue text-[9px] font-black uppercase tracking-widest leading-none">
+          <div className="h-4 w-px bg-slate-200/80 hidden sm:block"></div>
+          <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100/80 border border-slate-200/60 text-slate-700">
+            <ShieldCheck size={12} className="text-pd-pink" />
+            <span className="text-[10px] font-semibold font-poppins uppercase tracking-wider leading-none">
               Partner Hub
             </span>
           </div>
         </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-2 pl-4">
-          {[
-            { label: 'Our Process', href: '/process' },
-            { label: 'Pricing', href: '/pricing' },
-            { label: 'Contact', href: '/contact' }
-          ].map((item, i) => (
-            <Link 
-              key={i}
-              href={item.href} 
-              className="relative px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-colors group/link"
-            >
-              {item.label}
-              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-pd-pink rounded-full transition-all duration-300 group-hover/link:w-1/2 opacity-0 group-hover/link:opacity-100"></div>
-            </Link>
-          ))}
-          
-          <div className="w-px h-4 bg-slate-200 mx-2"></div>
-          
+        {/* Desktop Nav Items */}
+        <div className="hidden md:flex items-center gap-1">
+          {navLinks.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link 
+                key={item.href}
+                href={item.href} 
+                className={`group relative px-4 py-2 text-xs font-poppins rounded-full transition-all duration-200 ${
+                  isActive 
+                    ? 'text-pd-pink font-semibold bg-pink-50/80 shadow-xs' 
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 font-normal'
+                }`}
+              >
+                <span>{item.label}</span>
+                {/* Active indicator dot or animated bottom bar */}
+                {isActive ? (
+                  <motion.div 
+                    layoutId="activeNavIndicator"
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                ) : (
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full transition-all duration-300 group-hover:w-4 opacity-0 group-hover:opacity-100" />
+                )}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Desktop Right CTA */}
+        <div className="hidden md:flex items-center gap-2.5">
           {!isLoggedIn ? (
-            <div className="flex items-center gap-3 ml-2">
-              <Link href="/login" className="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-900 transition-all flex items-center gap-2 group">
-                <LogIn size={14} className="group-hover:-translate-y-0.5 transition-transform" /> Sign In
+            <>
+              <Link 
+                href="/login" 
+                className="px-4 py-2 text-xs font-semibold font-poppins text-slate-700 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5"
+              >
+                <LogIn size={13} />
+                <span>Sign In</span>
               </Link>
-              <Link href="/login" className="relative group/btn overflow-hidden rounded-full">
-                <div className="absolute inset-0 bg-slate-900 group-hover/btn:bg-pd-pink transition-colors duration-500"></div>
-                <div className="relative z-10 px-6 py-2.5 text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                  List Venue <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
-                </div>
+              
+              <Link 
+                href="/login" 
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-semibold font-poppins text-white shadow-md shadow-pink-500/20 bg-gradient-to-r from-red-500 via-pink-600 to-purple-600 hover:opacity-95 active:scale-98 transition-all cursor-pointer"
+              >
+                <span>List Venue</span>
+                <ArrowRight size={13} />
               </Link>
-            </div>
+            </>
           ) : (
-            <Link href="/dashboard" className="relative group/btn overflow-hidden rounded-full ml-2">
-               <div className="absolute inset-0 bg-pd-blue group-hover/btn:bg-slate-900 transition-colors duration-500"></div>
-               <div className="relative z-10 px-6 py-2.5 text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                  <LayoutDashboard size={14} /> Partner Dashboard
-               </div>
+            <Link 
+              href="/dashboard" 
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold font-poppins text-white shadow-md bg-slate-900 hover:bg-slate-800 transition-all cursor-pointer"
+            >
+              <LayoutDashboard size={14} className="text-pd-pink" />
+              <span>Partner Dashboard</span>
             </Link>
           )}
         </div>
 
-        {/* Mobile Toggle */}
-        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-full transition-colors relative z-50">
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        {/* Mobile Toggle Button */}
+        <button 
+          type="button"
+          onClick={() => setIsMenuOpen(!isMenuOpen)} 
+          aria-label="Toggle navigation menu"
+          className="md:hidden w-9 h-9 rounded-xl bg-slate-100/90 hover:bg-slate-200/80 flex items-center justify-center text-slate-700 transition-colors"
+        >
+          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </nav>
 
-      {/* Mobile Menu */}
+      {/* Mobile Drawer */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div 
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="md:hidden absolute top-[calc(100%+10px)] left-4 right-4 bg-white/90 backdrop-blur-2xl border border-white shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] rounded-4xl overflow-hidden"
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden absolute top-[calc(100%+8px)] left-3 right-3 bg-white/95 backdrop-blur-2xl border border-slate-200/90 shadow-2xl rounded-3xl overflow-hidden p-5"
           >
-            <div className="p-6 flex flex-col gap-2">
-               <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-4">Navigation</div>
-              {[
-                { label: 'Our Process', href: '/process' },
-                { label: 'Pricing', href: '/pricing' },
-                { label: 'Contact', href: '/contact' }
-              ].map((item, i) => (
-                <Link key={i} href={item.href} onClick={() => setIsMenuOpen(false)} className="px-4 py-4 text-sm font-black uppercase tracking-widest text-slate-800 hover:bg-slate-50 rounded-2xl transition-colors flex justify-between items-center group">
-                  {item.label}
-                  <ArrowRight size={14} className="text-slate-300 group-hover:text-pd-pink group-hover:translate-x-1 transition-all" />
-                </Link>
-              ))}
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-semibold font-poppins text-slate-400 uppercase tracking-widest px-3 mb-1">
+                Navigation
+              </span>
               
-              <div className="w-full h-px bg-slate-100 my-4"></div>
+              {navLinks.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link 
+                    key={item.href} 
+                    href={item.href} 
+                    onClick={() => setIsMenuOpen(false)} 
+                    className={`px-4 py-3 rounded-2xl text-sm font-poppins flex justify-between items-center transition-colors ${
+                      isActive 
+                        ? 'bg-pink-50/90 font-semibold text-pd-pink border border-pink-100/80' 
+                        : 'text-slate-700 hover:bg-slate-50 font-normal'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    <ArrowRight size={14} className={isActive ? 'text-pd-pink' : 'text-slate-400'} />
+                  </Link>
+                );
+              })}
+              
+              <div className="w-full h-px bg-slate-100 my-3"></div>
               
               {!isLoggedIn ? (
-                <div className="flex flex-col gap-3">
-                  <Link href="/login" onClick={() => setIsMenuOpen(false)} className="w-full py-4 text-center text-[11px] font-black uppercase tracking-widest text-slate-700 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-colors">Sign In</Link>
-                  <Link href="/login" onClick={() => setIsMenuOpen(false)} className="relative group w-full overflow-hidden rounded-2xl">
-                     <div className="absolute inset-0 bg-slate-900 group-hover:bg-pd-pink transition-colors duration-500"></div>
-                     <div className="relative z-10 py-4 w-full flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest text-white">
-                        List Your Venue
-                     </div>
+                <div className="flex flex-col gap-2.5">
+                  <Link 
+                    href="/login" 
+                    onClick={() => setIsMenuOpen(false)} 
+                    className="w-full py-3 text-center text-xs font-semibold font-poppins text-slate-700 bg-slate-50 rounded-2xl border border-slate-200/80 hover:bg-slate-100 transition-colors"
+                  >
+                    Sign In to Portal
+                  </Link>
+                  <Link 
+                    href="/login" 
+                    onClick={() => setIsMenuOpen(false)} 
+                    className="w-full py-3 flex items-center justify-center gap-2 text-xs font-semibold font-poppins text-white rounded-2xl shadow-md bg-gradient-to-r from-red-500 via-pink-600 to-purple-600"
+                  >
+                    <span>List Your Venue</span>
+                    <ArrowRight size={14} />
                   </Link>
                 </div>
               ) : (
-                <Link href="/dashboard" onClick={() => setIsMenuOpen(false)} className="relative group w-full overflow-hidden rounded-2xl">
-                  <div className="absolute inset-0 bg-pd-blue group-hover:bg-slate-900 transition-colors duration-500"></div>
-                  <div className="relative z-10 py-4 w-full flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest text-white">
-                     <LayoutDashboard size={16} /> Go to Dashboard
-                  </div>
+                <Link 
+                  href="/dashboard" 
+                  onClick={() => setIsMenuOpen(false)} 
+                  className="w-full py-3 flex items-center justify-center gap-2 text-xs font-semibold font-poppins text-white rounded-2xl bg-slate-900"
+                >
+                  <LayoutDashboard size={15} className="text-pd-pink" />
+                  <span>Go to Partner Dashboard</span>
                 </Link>
               )}
             </div>
@@ -165,3 +231,4 @@ export default function Header() {
     </header>
   );
 }
+

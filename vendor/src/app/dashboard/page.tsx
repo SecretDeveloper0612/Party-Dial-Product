@@ -473,7 +473,24 @@ export default function VendorDashboard() {
 
   const filteredAdvancedLeads = useMemo(() => {
     return [...recentLeads].filter(lead => {
-      const matchesStatus = leadFilter === 'All' || lead.status === leadFilter;
+      const isLeadExpired = !!(
+        (lead.eventDate && new Date(lead.eventDate) < new Date(new Date().setHours(0, 0, 0, 0)) && lead.status !== 'Booked') ||
+        lead.status === 'Expired' ||
+        lead.status === 'Lost' ||
+        lead.status === 'Lost Leads'
+      );
+
+      let matchesStatus = false;
+      if (leadFilter === 'All') {
+        matchesStatus = true;
+      } else if (leadFilter === 'All Expired Leads' || leadFilter === 'Expired') {
+        matchesStatus = isLeadExpired;
+      } else if (leadFilter === 'Lost Leads') {
+        matchesStatus = lead.status === 'Lost' || lead.status === 'Lost Leads';
+      } else {
+        matchesStatus = lead.status === leadFilter;
+      }
+
       const matchesSearch = searchTerm === '' || 
         lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         lead.event.toLowerCase().includes(searchTerm.toLowerCase());
@@ -481,7 +498,16 @@ export default function VendorDashboard() {
         selectedEventTypes.some(t => lead.event.includes(t));
       const matchesGuests = parseInt(lead.guests) <= guestRange.max;
       return matchesStatus && matchesSearch && matchesEvent && matchesGuests;
-    }).sort((a, b) => new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime());
+    }).sort((a, b) => {
+      // 1. Prioritize 'New' status at the very top
+      const aIsNew = a.status === 'New' ? 1 : 0;
+      const bIsNew = b.status === 'New' ? 1 : 0;
+      if (aIsNew !== bIsNew) {
+        return bIsNew - aIsNew; // New leads come first
+      }
+      // 2. Otherwise sort by newest creation date descending
+      return new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime();
+    });
   }, [searchTerm, leadFilter, selectedEventTypes, guestRange, recentLeads]);
 
   // Derived calculations moved to component for complex logic
@@ -518,6 +544,84 @@ export default function VendorDashboard() {
       // Revert if failed
       setRecentLeads(previousLeads);
       showToast('Offline mode: Could not sync status with server.', 'error');
+    }
+  };
+
+  const updateLeadRemark = async (leadId: string, remark: string) => {
+    let updatedNotes = '';
+    setRecentLeads(prev => prev.map(l => {
+      if (l.id !== leadId) return l;
+      const originalRawNotes = l.rawNotes || '';
+      let notes = originalRawNotes;
+      if (notes.includes('Remark:')) {
+        notes = notes.replace(/Remark:\s*([^|]+)/, `Remark: ${remark.trim()}`);
+      } else {
+        notes = notes ? `${notes} | Remark: ${remark.trim()}` : `Remark: ${remark.trim()}`;
+      }
+      updatedNotes = notes;
+      return { ...l, remark, rawNotes: notes };
+    }));
+
+    try {
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = JSON.parse(localStorage.getItem('partydial_lead_remarks') || '{}');
+          stored[leadId] = remark;
+          localStorage.setItem('partydial_lead_remarks', JSON.stringify(stored));
+        } catch {}
+      }
+
+      const { databases, DATABASE_ID, LEADS_COLLECTION_ID } = await import('@/lib/appwrite');
+      await databases.updateDocument(DATABASE_ID, LEADS_COLLECTION_ID, leadId, {
+        notes: updatedNotes
+      });
+      showToast('Remark saved successfully', 'success');
+    } catch (error) {
+      console.error('Failed to save remark to database:', error);
+      showToast('Remark saved locally (database sync will retry)', 'success');
+    }
+  };
+
+  const updateLeadReminder = async (leadId: string, reminderTime: string) => {
+    let updatedNotes = '';
+    setRecentLeads(prev => prev.map(l => {
+      if (l.id !== leadId) return l;
+      const originalRawNotes = l.rawNotes || '';
+      let notes = originalRawNotes;
+      if (notes.includes('Reminder:')) {
+        if (reminderTime) {
+          notes = notes.replace(/Reminder:\s*([^|]+)/, `Reminder: ${reminderTime.trim()}`);
+        } else {
+          notes = notes.replace(/\|\s*Reminder:\s*([^|]+)/, '').replace(/Reminder:\s*([^|]+)/, '').trim();
+        }
+      } else if (reminderTime) {
+        notes = notes ? `${notes} | Reminder: ${reminderTime.trim()}` : `Reminder: ${reminderTime.trim()}`;
+      }
+      updatedNotes = notes;
+      return { ...l, reminder: reminderTime, rawNotes: notes };
+    }));
+
+    try {
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = JSON.parse(localStorage.getItem('partydial_lead_reminders') || '{}');
+          if (reminderTime) {
+            stored[leadId] = reminderTime;
+          } else {
+            delete stored[leadId];
+          }
+          localStorage.setItem('partydial_lead_reminders', JSON.stringify(stored));
+        } catch {}
+      }
+
+      const { databases, DATABASE_ID, LEADS_COLLECTION_ID } = await import('@/lib/appwrite');
+      await databases.updateDocument(DATABASE_ID, LEADS_COLLECTION_ID, leadId, {
+        notes: updatedNotes
+      });
+      showToast(reminderTime ? 'Reminder scheduled successfully' : 'Reminder cleared', 'success');
+    } catch (error) {
+      console.error('Failed to save reminder to database:', error);
+      showToast('Reminder saved locally (database sync will retry)', 'success');
     }
   };
 
@@ -565,13 +669,18 @@ export default function VendorDashboard() {
         state: venueProfile.state || ''
       };
 
+      const resolvedCapacity = !isNaN(parseInt(String(venueProfile.maxCapacity)))
+        ? parseInt(String(venueProfile.maxCapacity))
+        : (!isNaN(parseInt(String(venueProfile.capacity))) ? parseInt(String(venueProfile.capacity)) : 200);
+
+      const minCap = !isNaN(parseInt(String(venueProfile.minCapacity)))
+        ? parseInt(String(venueProfile.minCapacity))
+        : 50;
+
       await databases.updateDocument(DATABASE_ID, VENUES_COLLECTION_ID, venueProfile.$id, {
         venueName: venueProfile.venueName,
         venueType: venueProfile.venueType || 'Banquet Hall',
-        capacity: !isNaN(parseInt(String(venueProfile.capacity))) ? Math.max(1, Math.min(10000, parseInt(String(venueProfile.capacity)))) : 1, 
-        minCapacity: !isNaN(parseInt(String(venueProfile.minCapacity))) ? parseInt(String(venueProfile.minCapacity)) : 50,
-        maxCapacity: !isNaN(parseInt(String(venueProfile.maxCapacity))) ? parseInt(String(venueProfile.maxCapacity)) : 500,
-        pricingType: venueProfile.pricingType || 'per_plate',
+        capacity: Math.max(1, Math.min(10000, resolvedCapacity)),
         foodTypes: typeof venueProfile.foodTypes === 'string' ? venueProfile.foodTypes : JSON.stringify(venueProfile.foodTypes || ['Veg', 'Non-Veg']),
         perPlateVeg: String(parseInt(String(venueProfile.perPlateVeg || 0)) || 0),
         perPlateNonVeg: String(parseInt(String(venueProfile.perPlateNonVeg || 0)) || 0),
@@ -582,12 +691,16 @@ export default function VendorDashboard() {
         billingDetails: JSON.stringify(updatedBillingDetails),
         packages: JSON.stringify({
            packages: Array.isArray(venueProfile.packages) ? venueProfile.packages : [],
-           halls: Array.isArray(venueProfile.halls) ? venueProfile.halls : []
+           halls: Array.isArray(venueProfile.halls) ? venueProfile.halls : [],
+           minCapacity: minCap,
+           maxCapacity: resolvedCapacity,
+           pricingType: venueProfile.pricingType || 'per_plate'
         })
       });
       showToast('Profile successfully synchronized with the portal.', 'success');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Sync error:', err);
+      showToast(err?.message || 'Failed to synchronize profile settings.', 'error');
     } finally {
       setIsUpdatingProfile(false);
     }
@@ -665,12 +778,12 @@ export default function VendorDashboard() {
           const profile = result.documents[0];
           
           // Unified packages/halls storage workaround
-          let p_data: any = { packages: [], halls: [] };
+          let p_data: any = { packages: [], halls: [], minCapacity: 50, maxCapacity: profile.capacity || 500, pricingType: 'per_plate' };
           try {
              if (profile.packages) {
                 const parsed = JSON.parse(profile.packages);
                 if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-                   p_data = parsed;
+                   p_data = { ...p_data, ...parsed };
                 } else {
                    p_data.packages = Array.isArray(parsed) ? parsed : [];
                 }
@@ -686,6 +799,9 @@ export default function VendorDashboard() {
 
           setVenueProfile({
              ...profile,
+             pricingType: p_data.pricingType || 'per_plate',
+             minCapacity: p_data.minCapacity ?? 50,
+             maxCapacity: p_data.maxCapacity ?? (profile.capacity || 500),
              packages: p_data.packages || [],
              halls: p_data.halls || [],
              ownerName: billing_data.ownerName || profile.ownerName || '',
@@ -745,9 +861,18 @@ export default function VendorDashboard() {
                 return notes.match(regex)?.[1]?.trim();
               };
 
+              let localReminders: Record<string, string> = {};
+              let localRemarks: Record<string, string> = {};
+              if (typeof window !== 'undefined') {
+                try { localReminders = JSON.parse(localStorage.getItem('partydial_lead_reminders') || '{}'); } catch {}
+                try { localRemarks = JSON.parse(localStorage.getItem('partydial_lead_remarks') || '{}'); } catch {}
+              }
+
               const extractedDate = findInNotes('Event Date');
               const extractedCity = findInNotes('City');
               const extractedPin = findInNotes('Pin(?:code)?');
+              const extractedRemark = findInNotes('Remark') || localRemarks[doc.$id];
+              const extractedReminder = findInNotes('Reminder') || localReminders[doc.$id];
 
               return {
                 id: doc.$id,
@@ -760,6 +885,9 @@ export default function VendorDashboard() {
                 rawDate: doc.$createdAt,
                 updatedAt: doc.$updatedAt || doc.$createdAt,
                 eventDate: doc.eventDate || extractedDate || null,
+                rawNotes: notes,
+                remark: extractedRemark || '',
+                reminder: extractedReminder || '',
                 status: (() => {
                   if (doc.status === 'Lost') return 'Lost';
                   if (doc.status === 'Booked') return 'Booked';
@@ -862,9 +990,6 @@ export default function VendorDashboard() {
               pincode: '263139',
               venueType: 'Banquet Hall',
               capacity: 200,
-              minCapacity: 50,
-              maxCapacity: 500,
-              pricingType: 'per_plate',
               foodTypes: JSON.stringify(['Veg', 'Non-Veg']),
               perPlateVeg: '800',
               perPlateNonVeg: '1200',
@@ -875,7 +1000,14 @@ export default function VendorDashboard() {
               isVerified: false,
               status: 'active',
               subscriptionPlan: 'free',
-              onboardingComplete: true
+              onboardingComplete: true,
+              packages: JSON.stringify({
+                packages: [],
+                halls: [],
+                minCapacity: 50,
+                maxCapacity: 500,
+                pricingType: 'per_plate'
+              })
             };
 
             const created = await databases.createDocument(
@@ -886,6 +1018,9 @@ export default function VendorDashboard() {
             );
             setVenueProfile({
               ...created,
+              pricingType: 'per_plate',
+              minCapacity: 50,
+              maxCapacity: 500,
               packages: [],
               halls: [],
               ownerName: defaultPayload.ownerName,
@@ -968,12 +1103,12 @@ export default function VendorDashboard() {
             if (!payload) return;
 
             if (response.events.some(e => e.includes('databases.*.collections.' + VENUES_COLLECTION_ID))) {
-              let p_data: any = { packages: [], halls: [] };
+              let p_data: any = { packages: [], halls: [], minCapacity: 50, maxCapacity: payload.capacity || 500, pricingType: 'per_plate' };
               try {
                  if (payload.packages) {
                     const parsed = JSON.parse(payload.packages);
                     if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-                       p_data = parsed;
+                       p_data = { ...p_data, ...parsed };
                     } else {
                        p_data.packages = Array.isArray(parsed) ? parsed : [];
                     }
@@ -987,15 +1122,19 @@ export default function VendorDashboard() {
                  }
               } catch(e) {}
 
-              setVenueProfile({
+              setVenueProfile((prev: any) => ({
+                 ...prev,
                  ...payload,
+                 pricingType: p_data.pricingType || prev?.pricingType || 'per_plate',
+                 minCapacity: p_data.minCapacity ?? prev?.minCapacity ?? 50,
+                 maxCapacity: p_data.maxCapacity ?? prev?.maxCapacity ?? (payload.capacity || 500),
                  packages: p_data.packages || [],
                  halls: p_data.halls || [],
                  ownerName: billing_data.ownerName || payload.ownerName || '',
                  address: billing_data.address || payload.address || '',
                  city: billing_data.city || payload.city || '',
                  state: billing_data.state || payload.state || ''
-              });
+              }));
 
                // Auto-hide payment reminder if payment is now complete
               if (payload.subscriptionPlan && payload.subscriptionPlan !== 'free') {
@@ -1008,6 +1147,8 @@ export default function VendorDashboard() {
                  const extractedDate = notes.match(/Event Date: ([^|]+)/)?.[1]?.trim();
                  const extractedCity = notes.match(/City: ([^|]+)/)?.[1]?.trim();
                  const extractedPin = notes.match(/Pin(?:code)?: ([^|]+)/)?.[1]?.trim();
+                 const extractedRemark = notes.match(/Remark:\s*([^|]+)/i)?.[1]?.trim() || (typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('partydial_lead_remarks') || '{}')[payload.$id] : '');
+                 const extractedReminder = notes.match(/Reminder:\s*([^|]+)/i)?.[1]?.trim() || (typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('partydial_lead_reminders') || '{}')[payload.$id] : '');
 
                  const mapped = {
                     id: payload.$id,
@@ -1020,6 +1161,9 @@ export default function VendorDashboard() {
                     rawDate: payload.$createdAt || new Date().toISOString(),
                     updatedAt: payload.$updatedAt || payload.$createdAt || new Date().toISOString(),
                     eventDate: payload.eventDate || extractedDate || null,
+                    rawNotes: notes,
+                    remark: extractedRemark || '',
+                    reminder: extractedReminder || '',
                     status: payload.status === 'Quoted' ? 'Quotation Send' : (payload.status === 'In-Progress' ? 'Contacted' : (payload.status === 'Lost' || payload.status === 'Lost Leads' ? 'Lost Leads' : (payload.status || 'New'))),
                     location: payload.city || extractedCity || (extractedPin ? `PIN: ${extractedPin}` : 'Haldwani'),
                     email: payload.email || 'client@mail.com',
@@ -1489,6 +1633,9 @@ export default function VendorDashboard() {
                   leadFilter={leadFilter}
                   setLeadFilter={setLeadFilter}
                   updateLeadStatus={updateLeadStatus}
+                  updateLeadRemark={updateLeadRemark}
+                  updateLeadReminder={updateLeadReminder}
+                  vendorEmail={userData?.email || venueProfile?.email || ''}
                   setActiveTab={setActiveTab}
                 />
               ) : (
@@ -1664,31 +1811,49 @@ export default function VendorDashboard() {
       <AnimatePresence>
         {toast && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20, x: '-50%' }}
-            animate={{ opacity: 1, scale: 1, y: 0, x: '-50%' }}
-            exit={{ opacity: 0, scale: 0.9, y: 10, x: '-50%' }}
-            className={`fixed bottom-10 left-1/2 -translate-x-1/2 z-10001 px-6 py-4 rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center gap-4 border border-white/10 backdrop-blur-md ${
-              toast.type === 'success' 
-                ? 'bg-slate-900 text-white' 
-                : 'bg-red-950 text-white'
+            initial={{ opacity: 0, y: 24, x: 24, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, x: 24, scale: 0.92, transition: { duration: 0.2 } }}
+            transition={{ type: "spring", stiffness: 420, damping: 28 }}
+            className={`fixed bottom-6 right-6 z-[99999] overflow-hidden rounded-2xl border border-white/15 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-3.5 px-4 py-3.5 max-w-sm sm:max-w-md ${
+              toast.type === 'success'
+                ? 'bg-[#0f172a]/95 text-white shadow-emerald-500/10'
+                : 'bg-[#18090d]/95 text-white shadow-rose-500/10'
             }`}
           >
             {toast.type === 'success' ? (
-              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
-                <CheckCircle2 size={18} />
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center text-white shadow-md shadow-emerald-500/30 ring-2 ring-emerald-400/20 shrink-0">
+                <CheckCircle2 size={19} className="stroke-[2.5]" />
               </div>
             ) : (
-              <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white shadow-lg shadow-red-500/20">
-                <XCircle size={18} />
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 to-red-400 flex items-center justify-center text-white shadow-md shadow-red-500/30 ring-2 ring-red-400/20 shrink-0">
+                <XCircle size={19} className="stroke-[2.5]" />
               </div>
             )}
-            <div className="flex flex-col">
-               <span className="text-[10px] font-semibold text-white/50 uppercase tracking-wider leading-none mb-1">System Message</span>
-               <p className="text-[13px] font-medium tracking-normal">{toast.message}</p>
+            <div className="flex flex-col min-w-0 pr-1">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className={`w-1.5 h-1.5 rounded-full ${toast.type === 'success' ? 'bg-emerald-400' : 'bg-rose-400'} animate-pulse`} />
+                <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest leading-none">System Message</span>
+              </div>
+              <p className="text-[13px] font-medium text-white/95 tracking-normal leading-snug line-clamp-2">{toast.message}</p>
             </div>
-            <button onClick={() => setToast(null)} className="ml-4 p-1 hover:bg-white/10 rounded-lg transition-colors">
-               <X size={14} className="text-white/40" />
+            <button
+              onClick={() => setToast(null)}
+              className="ml-auto p-1.5 hover:bg-white/10 text-white/40 hover:text-white rounded-lg transition-colors shrink-0"
+              aria-label="Close message"
+            >
+              <X size={14} />
             </button>
+            <motion.div
+              initial={{ width: "100%" }}
+              animate={{ width: "0%" }}
+              transition={{ duration: 4, ease: "linear" }}
+              className={`absolute bottom-0 left-0 h-[2px] ${
+                toast.type === 'success'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
+                  : 'bg-gradient-to-r from-rose-500 to-red-400'
+              }`}
+            />
           </motion.div>
         )}
       </AnimatePresence>

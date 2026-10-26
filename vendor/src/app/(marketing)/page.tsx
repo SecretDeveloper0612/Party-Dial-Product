@@ -81,11 +81,11 @@ const eventCategories = [
 ];
 
 const successStories = [
-  { name:"Grand Imperial", location:"Delhi", text:"PartyDial helped us increase weekend bookings by 35% in 6 months. Their verified lead system is top-notch.", img:"https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=400"},
-  { name:"The Sky Lawn", location:"Mumbai", text:"Their dashboard makes lead management effortless. We've closed more corporate events than ever before.", img:"https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&q=80&w=400"},
-  { name:"Royal Palms", location:"Bangalore", text:"The Real-time App Alerts are a game-changer. We respond to inquiries in minutes now.", img:"https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=400"},
-  { name:"City View Banquet", location:"Chandigarh", text:"Being listed as a verified partner has boosted our credibility significantly. Leads are high-intent.", img:"https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=400"},
-  { name:"Emerald Resort", location:"Jaipur", text:"The seasonal demand analytics helped us price our weekend slots better. Highly recommended for owners.", img:"https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400"}
+  { name:"Grand Imperial", location:"Delhi", rating: 4.8, text:"PartyDial helped us increase weekend bookings by 35% in 6 months. Their verified lead system is top-notch.", img:"https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=400"},
+  { name:"The Sky Lawn", location:"Mumbai", rating: 4.6, text:"Their dashboard makes lead management effortless. We've closed more corporate events than ever before.", img:"https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&q=80&w=400"},
+  { name:"Royal Palms", location:"Bangalore", rating: 4.9, text:"The Real-time App Alerts are a game-changer. We respond to inquiries in minutes now.", img:"https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=400"},
+  { name:"City View Banquet", location:"Chandigarh", rating: 4.7, text:"Being listed as a verified partner has boosted our credibility significantly. Leads are high-intent.", img:"https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=400"},
+  { name:"Emerald Resort", location:"Jaipur", rating: 4.5, text:"The seasonal demand analytics helped us price our weekend slots better. Highly recommended for owners.", img:"https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=400"}
 ];
 
 const AnimatedCounter = ({ end, duration = 2000, suffix =""}: { end: number, duration?: number, suffix?: string }) => {
@@ -1014,206 +1014,301 @@ const RevenueCalculatorSection = () => {
 
   const venueTypes = ['Banquet Hall', 'Hotel', 'Resort', 'Lawn', 'Restaurant', 'Café', 'Farmhouse', 'Party Hall'];
 
-  return (
-   <section id="calculator" className="py-10 lg:py-12 bg-white relative overflow-hidden font-pd border-b border-slate-100">
-     {/* Background */}
-     <div className="absolute inset-0 z-0 pointer-events-none">
-      <div className="absolute top-0 right-0 w-150 h-150 bg-linear-to-bl from-pd-blue/5 via-emerald-400/5 to-transparent rounded-full blur-3xl"/>
-      <div className="absolute bottom-0 left-0 w-200 h-200 bg-linear-to-tr from-pd-pink/5 via-purple-500/5 to-transparent rounded-full blur-3xl"/>
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-size-[40px_40px] opacity-20"style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent, black, transparent)' }} />
-     </div>
-
-     <div className="max-w-300 mx-auto px-6 lg:px-12 relative z-10">
-      {/* Header */}
-      <div className="text-center max-w-3xl mx-auto mb-10">
-        <motion.div 
-         initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-         className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200 shadow-sm text-slate-600 text-[11px] font-semibold font-pd uppercase tracking-widest mb-6"
-        >
-         <TrendingUp size={12} className="text-emerald-500"/>
-         <span>ESTIMATE YOUR BUSINESS OPPORTUNITY</span>
-        </motion.div>
-        <motion.h2 
-         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
-         className="text-3xl sm:text-4xl lg:text-[40px] xl:text-[48px] font-semibold font-pd text-slate-900 tracking-tight leading-[1.12] mb-4 lg:whitespace-nowrap"
-        >
-         See Your Potential <span className="text-transparent bg-clip-text bg-linear-to-r from-pd-blue via-purple-500 to-pd-pink">With PartyDial</span>
-        </motion.h2>
-        <motion.p 
-         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
-         className="text-slate-600 text-sm sm:text-base lg:text-lg font-normal font-pd leading-relaxed max-w-2xl mx-auto"
-        >
-         Explore how customer enquiries, conversion rates, and average booking values can translate into potential business opportunities for your venue.
-        </motion.p>
+   return (
+    <section id="calculator" className="py-20 lg:py-24 bg-[#FAFBFC] relative overflow-hidden font-poppins border-b border-slate-100">
+      {/* Ambient Lighting & Grid */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-bl from-blue-500/8 via-emerald-400/5 to-transparent rounded-full blur-3xl"/>
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-pd-pink/8 via-purple-500/5 to-transparent rounded-full blur-3xl"/>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-        {/* Left side: Inputs */}
-        <div className="lg:col-span-7 bg-white/80 backdrop-blur-xl rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 p-5 sm:p-8">
-         {/* Step 1: Venue Type */}
-         <div className="mb-6">
-           <div className="flex items-center gap-3 mb-3">
-            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px]">01</div>
-            <h3 className="text-base font-semibold text-slate-900">What type of venue do you operate?</h3>
-           </div>
-           <div className="relative">
-            <select 
-              value={venueType} 
-              onChange={(e) => setVenueType(e.target.value)}
-              className="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 font-semibold focus:outline-hidden focus:ring-2 focus:ring-pd-blue/20 focus:border-pd-blue transition-all cursor-pointer"
-            >
-              {venueTypes.map(v => <option key={v} value={v}>{v}</option>)}
-            </select>
-            <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"size={20} />
-           </div>
-         </div>
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-12 relative z-10">
+        {/* Header Block */}
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }} 
+            whileInView={{ opacity: 1, y: 0 }} 
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 shadow-xs text-emerald-700 text-xs font-semibold font-poppins uppercase tracking-wider mb-5"
+          >
+            <TrendingUp size={13} className="text-emerald-600"/>
+            <span>Revenue Growth Simulator</span>
+          </motion.div>
 
-         {/* Step 2: Leads */}
-         <div className="mb-6">
-           <div className="flex items-center gap-3 mb-3">
-            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px]">02</div>
-            <h3 className="text-base font-semibold text-slate-900">How many enquiries could you receive each month?</h3>
-           </div>
-           <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
-            <div className="flex justify-between items-end mb-4">
-              <div className="text-2xl font-bold text-pd-blue">{monthlyLeads} <span className="text-xs text-slate-500 font-semibold">Enquiries / Month</span></div>
-            </div>
-            <input type="range"min="10"max="200"step="5"value={monthlyLeads} onChange={(e) => setMonthlyLeads(parseInt(e.target.value))} className="w-full accent-pd-blue h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer mb-4"/>
-            <div className="flex flex-wrap gap-2">
-              {[10, 25, 50, 75, 100].map(v => (
-               <button key={v} onClick={() => setMonthlyLeads(v)} className={`px-4 py-1.5 rounded-lg text-xs font-bold border transition-colors ${monthlyLeads === v ? 'bg-pd-blue text-white border-pd-blue' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-100'}`}>{v}</button>
-              ))}
-            </div>
-           </div>
-         </div>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }} 
+            whileInView={{ opacity: 1, y: 0 }} 
+            viewport={{ once: true }} 
+            transition={{ delay: 0.1 }}
+            className="text-3xl sm:text-4xl lg:text-5xl font-semibold font-poppins text-slate-900 tracking-tight leading-[1.15] mb-4"
+          >
+            See Your Potential <br className="hidden sm:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-pink-600 to-purple-600 font-semibold font-poppins">
+              With PartyDial
+            </span>
+          </motion.h2>
 
-         {/* Step 3: Conversion Rate */}
-         <div className="mb-6">
-           <div className="flex items-center gap-3 mb-3">
-            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px]">03</div>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }} 
+            whileInView={{ opacity: 1, y: 0 }} 
+            viewport={{ once: true }} 
+            transition={{ delay: 0.2 }}
+            className="text-slate-600 text-sm sm:text-base font-normal font-poppins leading-relaxed max-w-2xl mx-auto"
+          >
+            Simulate your monthly inquiries, realistic conversion rates, and booking values to forecast your venue&apos;s annual booking pipeline.
+          </motion.p>
+        </div>
+
+        {/* Calculator Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Left Column: Interactive Controls */}
+          <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 shadow-[0_10px_35px_-10px_rgba(0,0,0,0.05)] p-6 sm:p-8 space-y-6">
+            
+            {/* Step 1: Venue Type */}
             <div>
-              <h3 className="text-base font-semibold text-slate-900">What percentage of enquiries could convert?</h3>
-            </div>
-           </div>
-           <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
-            <div className="flex justify-between items-end mb-4">
-              <div className="text-2xl font-bold text-emerald-500">{conversionRate}% <span className="text-xs text-slate-500 font-semibold">Conversion Rate</span></div>
-            </div>
-            <input type="range"min="1"max="50"step="1"value={conversionRate} onChange={(e) => setConversionRate(parseInt(e.target.value))} className="w-full accent-emerald-500 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer mb-4"/>
-            <div className="flex justify-between text-xs font-bold text-slate-400"><span>1%</span><span>50%</span></div>
-           </div>
-         </div>
-
-         {/* Step 4: Average Booking Value */}
-         <div>
-           <div className="flex items-center gap-3 mb-3">
-            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px]">04</div>
-            <h3 className="text-base font-semibold text-slate-900">What is your average booking value?</h3>
-           </div>
-           <div className="bg-slate-50 p-5 rounded-xl border border-slate-100">
-            <div className="relative mb-4">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">₹</div>
-              <input type="number"value={avgBookingValue} onChange={(e) => setAvgBookingValue(parseInt(e.target.value) || 0)} className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-4 py-3 text-lg font-bold text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-pd-blue/20 focus:border-pd-blue"/>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {[25000, 50000, 75000, 100000, 200000].map(v => (
-               <button key={v} onClick={() => setAvgBookingValue(v)} className={`px-4 py-1.5 rounded-lg text-xs font-bold border transition-colors ${avgBookingValue === v ? 'bg-pd-blue text-white border-pd-blue' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-100'}`}>₹{v / 1000}K</button>
-              ))}
-            </div>
-           </div>
-         </div>
-        </div>
-
-        {/* Right side: Results */}
-        <div className="lg:col-span-5 flex flex-col gap-4">
-         {/* Result Card */}
-         <div className="bg-slate-900 rounded-3xl shadow-2xl overflow-hidden relative border border-slate-800">
-           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 blur-3xl rounded-full mix-blend-screen pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
-           <div className="absolute bottom-0 left-0 w-64 h-64 bg-pd-blue/20 blur-3xl rounded-full mix-blend-screen pointer-events-none translate-y-1/2 -translate-x-1/2"></div>
-           
-           <div className="p-6 sm:p-8 relative z-10">
-            <div className="text-[10px] font-bold tracking-widest text-emerald-400 uppercase mb-6 flex items-center gap-2">
-              <TrendingUp size={14} /> YOUR ESTIMATED OPPORTUNITY
-            </div>
-            
-            <div className="grid grid-cols-2 gap-6 mb-8">
-              <div>
-               <AnimatePresence mode="popLayout">
-                 <motion.div key={monthlyLeads} initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-3xl sm:text-4xl font-bold text-white mb-1">{monthlyLeads}</motion.div>
-               </AnimatePresence>
-               <div className="text-xs font-semibold text-slate-400">Potential Leads</div>
+              <div className="flex items-center justify-between mb-2.5">
+                <label className="text-xs font-semibold font-poppins text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-md bg-slate-100 flex items-center justify-center text-[10px] text-slate-600 font-bold">1</span>
+                  Venue Category
+                </label>
               </div>
-              <div>
-               <AnimatePresence mode="popLayout">
-                 <motion.div key={potentialBookings} initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-3xl sm:text-4xl font-bold text-white mb-1">
-                  {potentialBookings < 1 ? '<1' : Math.floor(potentialBookings)}
-                  {Math.floor(potentialBookings) !== Math.ceil(potentialBookings) && `–${Math.ceil(potentialBookings)}`}
-                 </motion.div>
-               </AnimatePresence>
-               <div className="text-xs font-semibold text-slate-400">Potential Bookings</div>
+              <div className="relative">
+                <select 
+                  value={venueType} 
+                  onChange={(e) => setVenueType(e.target.value)}
+                  className="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 font-semibold font-poppins focus:outline-hidden focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink transition-all cursor-pointer"
+                >
+                  {venueTypes.map(v => <option key={v} value={v}>{v}</option>)}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
               </div>
             </div>
+
+            {/* Step 2: Monthly Leads */}
+            <div className="bg-slate-50/80 p-5 rounded-2xl border border-slate-100 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-semibold font-poppins text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] text-slate-600 font-bold">2</span>
+                  Monthly Inquiries
+                </span>
+                <span className="text-base font-semibold font-poppins text-pd-pink">
+                  {monthlyLeads} <span className="text-xs font-normal text-slate-500">Inquiries</span>
+                </span>
+              </div>
+
+              <input 
+                type="range" 
+                min="10" 
+                max="200" 
+                step="5" 
+                value={monthlyLeads} 
+                onChange={(e) => setMonthlyLeads(parseInt(e.target.value))} 
+                className="w-full accent-pd-pink h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+              />
+
+              <div className="flex flex-wrap gap-2 pt-1">
+                {[10, 25, 50, 75, 100].map(v => (
+                  <button 
+                    key={v} 
+                    type="button"
+                    onClick={() => setMonthlyLeads(v)} 
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold font-poppins border transition-all cursor-pointer ${
+                      monthlyLeads === v 
+                        ? 'bg-slate-900 text-white border-slate-900 shadow-xs' 
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Step 3: Conversion Rate */}
+            <div className="bg-slate-50/80 p-5 rounded-2xl border border-slate-100 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-semibold font-poppins text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] text-slate-600 font-bold">3</span>
+                  Conversion Probability
+                </span>
+                <span className="text-base font-semibold font-poppins text-emerald-600">
+                  {conversionRate}% <span className="text-xs font-normal text-slate-500">Rate</span>
+                </span>
+              </div>
+
+              <input 
+                type="range" 
+                min="1" 
+                max="50" 
+                step="1" 
+                value={conversionRate} 
+                onChange={(e) => setConversionRate(parseInt(e.target.value))} 
+                className="w-full accent-emerald-500 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+              />
+
+              <div className="flex justify-between text-xs font-normal font-poppins text-slate-400">
+                <span>1% (Conservative)</span>
+                <span>25% (Average)</span>
+                <span>50% (High Demand)</span>
+              </div>
+            </div>
+
+            {/* Step 4: Average Booking Value */}
+            <div className="bg-slate-50/80 p-5 rounded-2xl border border-slate-100 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-semibold font-poppins text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] text-slate-600 font-bold">4</span>
+                  Average Booking Value
+                </span>
+              </div>
+
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-semibold font-poppins text-base">₹</div>
+                <input 
+                  type="number" 
+                  value={avgBookingValue} 
+                  onChange={(e) => setAvgBookingValue(parseInt(e.target.value) || 0)} 
+                  className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-base font-semibold font-poppins text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink"
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-1">
+                {[25000, 50000, 75000, 100000, 200000].map(v => (
+                  <button 
+                    key={v} 
+                    type="button"
+                    onClick={() => setAvgBookingValue(v)} 
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold font-poppins border transition-all cursor-pointer ${
+                      avgBookingValue === v 
+                        ? 'bg-slate-900 text-white border-slate-900 shadow-xs' 
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    ₹{v / 1000}K
+                  </button>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Right Column: High-Impact Output Dashboard */}
+          <div className="lg:col-span-5 space-y-5">
             
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
-              <div className="text-xs font-semibold text-slate-400 mb-2">Estimated Business Opportunity</div>
-              <AnimatePresence mode="popLayout">
-               <motion.div key={estimatedRevenue} initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-linear-to-r from-pd-blue via-purple-500 to-pd-pink tracking-tight">
-                 {formatCurrency(estimatedRevenue)}
-               </motion.div>
-              </AnimatePresence>
-            </div>
-            
-            <div className="flex items-start gap-3 p-4 bg-slate-800/50 rounded-xl border border-slate-700/50">
-              <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center shrink-0 mt-0.5"><Users size={12} className="text-slate-300"/></div>
-              <p className="text-xs text-slate-300 leading-relaxed font-semibold">
-               At {monthlyLeads} enquiries per month and a {conversionRate}% conversion rate, your inputs indicate approximately {Math.max(1, Math.floor(potentialBookings))}–{Math.max(1, Math.ceil(potentialBookings))} potential bookings for a <span className="text-white">{venueType}</span>.
-              </p>
-            </div>
-           </div>
-         </div>
+            {/* Primary Opportunity Display */}
+            <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 rounded-3xl p-7 sm:p-8 text-white relative overflow-hidden shadow-2xl border border-slate-800">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-pd-pink/15 rounded-full blur-3xl pointer-events-none" />
 
-         {/* Funnel Vis */}
-         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 p-6">
-           <div className="text-center font-bold text-xs text-slate-900 mb-4">Opportunity Visualization</div>
-           <div className="flex flex-col items-center gap-1.5">
-            <div className="px-4 py-2 bg-slate-50 text-slate-600 rounded-lg border border-slate-200 text-xs font-semibold w-full text-center">Customer Searches</div>
-            <ArrowDown size={14} className="text-slate-300"/>
-            <div className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-100 text-xs font-bold w-[90%] text-center">{monthlyLeads} Enquiries</div>
-            <ArrowDown size={14} className="text-blue-300"/>
-            <div className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 text-xs font-bold w-[80%] text-center">{Math.max(1, Math.floor(potentialBookings))}–{Math.max(1, Math.ceil(potentialBookings))} Bookings</div>
-            <ArrowDown size={14} className="text-emerald-300"/>
-            <div className="px-4 py-2.5 bg-[#F43F5E] text-white rounded-lg shadow-md shadow-[#F43F5E]/20 text-sm font-bold w-[70%] text-center">
-              {formatCurrency(estimatedRevenue)}
-            </div>
-           </div>
-         </div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-6">
+                  <span className="text-[11px] font-semibold font-poppins uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                    <TrendingUp size={13} /> Forecasted Pipeline
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-[10px] font-normal font-poppins text-slate-300">
+                    Monthly
+                  </span>
+                </div>
 
-         <p className="text-[10px] text-slate-400 text-center leading-relaxed px-4">
-           <strong>Illustrative estimate only.</strong> Actual results may vary based on venue type, location, pricing, customer demand, availability, enquiry quality, and conversion rate. PartyDial does not guarantee a specific number of leads, bookings, or revenue.
-         </p>
+                <div className="mb-6">
+                  <span className="text-xs font-normal font-poppins text-slate-400 block mb-1">
+                    Estimated Gross Revenue Potential
+                  </span>
+                  <AnimatePresence mode="popLayout">
+                    <motion.div 
+                      key={estimatedRevenue} 
+                      initial={{ y: 8, opacity: 0 }} 
+                      animate={{ y: 0, opacity: 1 }} 
+                      className="text-4xl sm:text-5xl font-bold font-poppins tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-pink-400 to-purple-400"
+                    >
+                      {formatCurrency(estimatedRevenue)}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+
+                {/* Sub Stats Row */}
+                <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/10 mb-6">
+                  <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
+                    <span className="text-xs font-normal font-poppins text-slate-400 block">Monthly Inquiries</span>
+                    <span className="text-xl font-semibold font-poppins text-white mt-0.5 block">{monthlyLeads}</span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
+                    <span className="text-xs font-normal font-poppins text-slate-400 block">Converted Bookings</span>
+                    <span className="text-xl font-semibold font-poppins text-emerald-400 mt-0.5 block">
+                      {Math.max(1, Math.floor(potentialBookings))}–{Math.max(1, Math.ceil(potentialBookings))}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3.5 bg-white/5 rounded-2xl border border-white/10 text-xs font-normal font-poppins text-slate-300 leading-relaxed">
+                  <Users size={16} className="text-pd-pink shrink-0 mt-0.5" />
+                  <p>
+                    With <span className="text-white font-medium">{monthlyLeads} leads/month</span> at <span className="text-emerald-400 font-medium">{conversionRate}% conversion</span>, your <span className="text-white font-medium">{venueType}</span> could generate approx <span className="text-white font-medium">{formatCurrency(estimatedRevenue * 12)} / year</span>.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Opportunity Funnel Streamline */}
+            <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6">
+              <h4 className="text-xs font-semibold font-poppins text-slate-900 uppercase tracking-wider mb-4 text-center">
+                Booking Funnel Breakdown
+              </h4>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs font-normal font-poppins">
+                  <span className="text-slate-600">Customer Discovery</span>
+                  <span className="font-semibold text-slate-800">5,000+ Searches</span>
+                </div>
+                <div className="flex justify-between items-center p-2.5 rounded-xl bg-pink-50/70 border border-pink-100 text-xs font-normal font-poppins">
+                  <span className="text-pink-950">Direct Inquiries Generated</span>
+                  <span className="font-semibold text-pd-pink">{monthlyLeads} Leads</span>
+                </div>
+                <div className="flex justify-between items-center p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100 text-xs font-normal font-poppins">
+                  <span className="text-emerald-950">Confirmed Bookings</span>
+                  <span className="font-semibold text-emerald-700">{Math.max(1, Math.floor(potentialBookings))}–{Math.max(1, Math.ceil(potentialBookings))} Events</span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-[11px] font-normal font-poppins text-slate-400 text-center leading-relaxed px-2">
+              *Illustrative model based on partner medians. Actual volume and revenue vary by venue location, pricing, seasonal demand, and response time.
+            </p>
+          </div>
+
         </div>
-      </div>
-      
-      {/* CTA */}
-      <div className="mt-12 lg:mt-16 max-w-3xl mx-auto text-center">
-        <h3 className="text-xl md:text-3xl font-semibold font-sf text-slate-900 mb-3">Ready to Explore Your Opportunity?</h3>
-        <p className="text-slate-500 text-sm mb-6">Create your partner profile and start showcasing your venue to potential customers.</p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-         <Link href="/register"className="w-full sm:w-auto">
-           <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto px-6 py-3 bg-[#F43F5E] hover:bg-[#e11d48] text-white rounded-xl font-semibold font-pd text-sm shadow-lg shadow-[#F43F5E]/20 flex items-center justify-center transition-all">
-            Become a PartyDial Partner →
-           </motion.button>
-         </Link>
-         <Link href="/login"className="w-full sm:w-auto">
-           <button className="w-full sm:w-auto px-6 py-3 bg-white hover:bg-slate-50 text-slate-700 rounded-xl font-semibold font-pd text-sm border border-slate-200 shadow-sm flex items-center justify-center transition-all">
-            Explore Partner Dashboard →
-           </button>
-         </Link>
+        
+        {/* Call to Action Footer */}
+        <div className="mt-14 max-w-2xl mx-auto text-center space-y-4">
+          <h3 className="text-2xl sm:text-3xl font-semibold font-poppins text-slate-900 tracking-tight">
+            Ready to Unlock Your Venue&apos;s Full Potential?
+          </h3>
+          <p className="text-slate-500 text-sm font-normal font-poppins">
+            Create your partner profile in minutes and start receiving direct, high-intent client inquiries.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Link href="/login" className="w-full sm:w-auto">
+              <motion.button 
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.98 }} 
+                className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-red-500 via-pink-600 to-purple-600 hover:opacity-95 text-white rounded-full font-semibold font-poppins text-xs uppercase tracking-wider shadow-lg shadow-pink-500/20 cursor-pointer"
+              >
+                List Your Venue Now →
+              </motion.button>
+            </Link>
+            <Link href="/contact" className="w-full sm:w-auto">
+              <button 
+                type="button"
+                className="w-full sm:w-auto px-7 py-3.5 bg-white hover:bg-slate-50 text-slate-700 rounded-full font-semibold font-poppins text-xs uppercase tracking-wider border border-slate-200/80 shadow-xs transition-all cursor-pointer"
+              >
+                Talk to Partner Team
+              </button>
+            </Link>
+          </div>
         </div>
-      </div>
 
-     </div>
-   </section>
+      </div>
+    </section>
   );
 };
 
@@ -1805,77 +1900,124 @@ export default function PartnerLandingPage() {
 
       <style>{`
         @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
         }
         @keyframes marquee-reverse {
-          0% { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
+          0% { transform: translate3d(-50%, 0, 0); }
+          100% { transform: translate3d(0, 0, 0); }
         }
         .animate-marquee {
-          animation: marquee 80s linear infinite;
+          animation: marquee 45s linear infinite;
+          will-change: transform;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
         }
         .animate-marquee-reverse {
-          animation: marquee-reverse 90s linear infinite;
+          animation: marquee-reverse 45s linear infinite;
+          will-change: transform;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
         }
-        .ticker-row:hover .animate-marquee, .ticker-row:hover .animate-marquee-reverse {
+        .marquee-row-1:hover .animate-marquee {
+          animation-play-state: paused;
+        }
+        .marquee-row-2:hover .animate-marquee-reverse {
           animation-play-state: paused;
         }
       `}</style>
 
       {/* Marquee Container */}
-      <div className="flex flex-col gap-6 w-full relative z-10 ticker-row group">
+      <div className="flex flex-col gap-6 w-full relative z-10">
         
-        {/* Row 1: Left scrolling */}
-        <div className="flex w-[max-content] animate-marquee gap-6">
-          {[...successStories, ...successStories, ...successStories, ...successStories].map((t, i) => (
-            <div key={i} className="w-[340px] md:w-[400px] shrink-0 bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between">
-              <div>
-                <div className="flex text-amber-400 mb-5 gap-1">
-                  {[...Array(5)].map((_, j) => (
-                    <svg key={j} width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                  ))}
+        {/* Row 1: Left scrolling (freezes only when row 1 is hovered) */}
+        <div className="w-full overflow-hidden marquee-row-1">
+          <div className="flex w-max animate-marquee gap-6">
+            {[...successStories, ...successStories].map((t, i) => (
+              <div 
+                key={i} 
+                className="w-[340px] md:w-[380px] shrink-0 bg-white rounded-3xl p-7 border border-slate-200/80 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.1)] transition-shadow duration-300 flex flex-col justify-between group/card relative overflow-hidden"
+              >
+                <div className="relative z-10">
+                  {/* Header: Rating Pill */}
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-1.5 bg-amber-50/80 px-3 py-1 rounded-full border border-amber-200/70">
+                      <div className="flex text-amber-500">
+                        {[...Array(5)].map((_, j) => (
+                          <svg key={j} width="13" height="13" viewBox="0 0 24 24" fill={j < Math.floor(t.rating) ? "currentColor" : "none"} stroke="currentColor" strokeWidth={j < Math.floor(t.rating) ? "0" : "2"}>
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          </svg>
+                        ))}
+                      </div>
+                      <span className="text-xs font-semibold font-poppins text-amber-800">{t.rating}</span>
+                    </div>
+                  </div>
+
+                  {/* Review Quote */}
+                  <p className="text-sm font-normal font-poppins text-slate-600 leading-relaxed mb-6">
+                    &ldquo;{t.text}&rdquo;
+                  </p>
                 </div>
-                <p className="text-[13px] md:text-sm text-slate-500 font-normal leading-[1.6] mb-8">
-                  {t.text}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <div>
-                  <div className="text-sm font-semibold text-slate-800">{t.name}</div>
-                  <div className="text-xs text-slate-500">{t.location}</div>
+
+                {/* Author & Venue Footer */}
+                <div className="relative z-10 flex items-center gap-3 pt-4 border-t border-slate-100">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pd-pink/15 to-purple-600/15 border border-pd-pink/20 flex items-center justify-center font-semibold font-poppins text-sm text-slate-800 shadow-xs">
+                    {t.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold font-poppins text-slate-900 leading-snug">
+                      {t.name}
+                    </h4>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Row 2: Right scrolling (reverse) */}
-        <div className="flex w-[max-content] animate-marquee-reverse gap-6 pl-12">
-          {[...successStories].reverse().concat([...successStories].reverse()).concat([...successStories].reverse()).concat([...successStories].reverse()).map((t, i) => (
-            <div key={i} className="w-[340px] md:w-[400px] shrink-0 bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between">
-              <div>
-                <div className="flex text-amber-400 mb-5 gap-1">
-                  {[...Array(5)].map((_, j) => (
-                    <svg key={j} width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                  ))}
+        {/* Row 2: Right scrolling (freezes only when row 2 is hovered) */}
+        <div className="w-full overflow-hidden marquee-row-2">
+          <div className="flex w-max animate-marquee-reverse gap-6">
+            {[...successStories, ...successStories].reverse().map((t, i) => (
+              <div 
+                key={i} 
+                className="w-[340px] md:w-[380px] shrink-0 bg-white rounded-3xl p-7 border border-slate-200/80 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.1)] transition-shadow duration-300 flex flex-col justify-between group/card relative overflow-hidden"
+              >
+                <div className="relative z-10">
+                  {/* Header: Rating Pill */}
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-1.5 bg-amber-50/80 px-3 py-1 rounded-full border border-amber-200/70">
+                      <div className="flex text-amber-500">
+                        {[...Array(5)].map((_, j) => (
+                          <svg key={j} width="13" height="13" viewBox="0 0 24 24" fill={j < Math.floor(t.rating) ? "currentColor" : "none"} stroke="currentColor" strokeWidth={j < Math.floor(t.rating) ? "0" : "2"}>
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          </svg>
+                        ))}
+                      </div>
+                      <span className="text-xs font-semibold font-poppins text-amber-800">{t.rating}</span>
+                    </div>
+                  </div>
+
+                  {/* Review Quote */}
+                  <p className="text-sm font-normal font-poppins text-slate-600 leading-relaxed mb-6">
+                    &ldquo;{t.text}&rdquo;
+                  </p>
                 </div>
-                <p className="text-[13px] md:text-sm text-slate-500 font-normal leading-[1.6] mb-8">
-                  {t.text}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <div>
-                  <div className="text-sm font-semibold text-slate-800">{t.name}</div>
-                  <div className="text-xs text-slate-500">{t.location}</div>
+
+                {/* Author & Venue Footer */}
+                <div className="relative z-10 flex items-center gap-3 pt-4 border-t border-slate-100">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pd-blue/15 to-purple-600/15 border border-pd-blue/20 flex items-center justify-center font-semibold font-poppins text-sm text-slate-800 shadow-xs">
+                    {t.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold font-poppins text-slate-900 leading-snug">
+                      {t.name}
+                    </h4>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
       </div>
@@ -1899,7 +2041,7 @@ export default function PartnerLandingPage() {
             National Expansion
           </div>
           
-          <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold font-sf text-slate-900 tracking-tight leading-[1.1] mb-6">
+          <h3 className="text-3xl md:text-5xl font-semibold font-sf text-slate-900 tracking-tight leading-[1.1] mb-6">
             Dominating <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-purple-600 to-pd-blue">The Hills,</span> <br className="hidden md:block" />
             Scaling India.
           </h3>
@@ -1909,84 +2051,179 @@ export default function PartnerLandingPage() {
           </p>
         </div>
 
-        {/* Phase 02 Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            {
-              state: "Delhi NCR",
-              cities: "New Delhi · Gurugram · Noida",
-              status: "Live",
-              color: "#F43F5E" // Pink
-            },
-            {
-              state: "Maharashtra",
-              cities: "Mumbai · Pune",
-              status: "Beta",
-              color: "#A855F7" // Purple
-            },
-            {
-              state: "Punjab",
-              cities: "Chandigarh · Ludhiana",
-              status: "Deploying",
-              color: "#3B82F6" // Blue
-            },
-            {
-              state: "Rajasthan",
-              cities: "Jaipur · Udaipur",
-              status: "Deploying",
-              color: "#F59E0B" // Amber
-            },
-            {
-              state: "Gujarat",
-              cities: "Ahmedabad · Surat",
-              status: "Planning",
-              color: "#10B981" // Emerald
-            },
-            {
-              state: "Uttar Pradesh",
-              cities: "Lucknow · Agra",
-              status: "Planning",
-              color: "#6366F1" // Indigo
-            }
-          ].map((loc, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
-              className="bg-white rounded-[20px] p-6 md:p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
-            >
-              <div 
-                className="absolute top-0 left-0 w-1 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{ backgroundColor: loc.color }}
-              ></div>
-              
-              <div className="flex justify-between items-start mb-12">
-                <div 
-                  className="w-12 h-12 rounded-xl flex items-center justify-center bg-slate-50 shadow-sm transition-transform duration-500 group-hover:rotate-6"
-                  style={{ color: loc.color }}
-                >
-                  <MapPin size={24} />
+        {/* Modern Bento Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          
+          {/* Main Hero Card: Uttarakhand Active Flagship (Takes 5 columns on desktop) */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="lg:col-span-5 rounded-3xl p-8 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white relative overflow-hidden flex flex-col justify-between shadow-xl border border-slate-800"
+          >
+            {/* Ambient Lighting & Glow */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-pd-blue/20 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Top row: Badge & Ping */}
+            <div className="relative z-10 flex items-center justify-between mb-8">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="text-xs font-semibold font-poppins uppercase tracking-wider">
+                  Active Headquarters
+                </span>
+              </div>
+              <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-emerald-400">
+                <MapPin size={20} />
+              </div>
+            </div>
+
+            {/* Middle: Title & Stat highlights */}
+            <div className="relative z-10 space-y-4 my-auto">
+              <div>
+                <span className="text-emerald-400 text-xs font-semibold font-poppins uppercase tracking-widest">State 01 · Full Operation</span>
+                <h4 className="text-3xl sm:text-4xl font-semibold font-poppins tracking-tight mt-1 text-white">
+                  Uttarakhand
+                </h4>
+              </div>
+              <p className="text-slate-300 text-sm font-normal font-poppins leading-relaxed">
+                The flagship operational corridor powering India’s hill banquets, destination weddings, and mountain luxury resorts.
+              </p>
+
+              {/* Live Metric Counters */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
+                  <span className="block text-2xl font-bold font-poppins text-white">500+</span>
+                  <span className="text-[11px] font-normal font-poppins text-slate-400">Verified Venues</span>
                 </div>
-                
-                <div 
-                  className="px-3 py-1 text-[10px] uppercase tracking-widest font-bold font-sf rounded-full border bg-white shadow-sm"
-                  style={{ 
-                    borderColor: `${loc.color}30`, 
-                    color: loc.color 
-                  }}
-                >
-                  {loc.status}
+                <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
+                  <span className="block text-2xl font-bold font-poppins text-emerald-400">100%</span>
+                  <span className="text-[11px] font-normal font-poppins text-slate-400">Instant Lead Routing</span>
                 </div>
               </div>
-              
-              <h4 className="text-xl md:text-2xl font-bold font-sf text-slate-900 mb-2">{loc.state}</h4>
-              <p className="text-sm font-pd text-slate-500">{loc.cities}</p>
+            </div>
+
+            {/* Bottom: Covered Cities */}
+            <div className="relative z-10 pt-6 mt-6 border-t border-white/10">
+              <span className="text-[10px] font-semibold font-poppins uppercase tracking-widest text-slate-400 block mb-2.5">
+                Active Covered Hubs
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {["Dehradun", "Haridwar", "Haldwani", "Rishikesh", "Nainital"].map((c, i) => (
+                  <span key={i} className="px-3 py-1 rounded-xl bg-white/10 border border-white/15 text-xs font-normal font-poppins text-white">
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Right Column: 5 Expanding Regions (Takes 7 columns on desktop in a clean 2-column or 3-card subgrid) */}
+          <div className="lg:col-span-7 flex flex-col justify-between gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
+              {[
+                {
+                  state: "Delhi NCR",
+                  label: "Phase 2 · Tier 1",
+                  cities: ["New Delhi", "Gurugram", "Noida", "Faridabad"],
+                  highlight: "High Density Banquet Hubs",
+                  accent: "text-rose-600 bg-rose-50 border-rose-100"
+                },
+                {
+                  state: "Chandigarh",
+                  label: "Phase 2 · Tricity",
+                  cities: ["Chandigarh", "Mohali", "Panchkula", "Zirakpur"],
+                  highlight: "Premium Resort Strip",
+                  accent: "text-blue-600 bg-blue-50 border-blue-100"
+                },
+                {
+                  state: "Mumbai",
+                  label: "Phase 2 · West Hub",
+                  cities: ["Mumbai City", "Navi Mumbai", "Thane"],
+                  highlight: "Coastal & Destination Banquets",
+                  accent: "text-purple-600 bg-purple-50 border-purple-100"
+                },
+                {
+                  state: "Bangalore",
+                  label: "Phase 2 · South Tech",
+                  cities: ["Central", "Whitefield", "Koramangala", "Indiranagar"],
+                  highlight: "Corporate Event Corridors",
+                  accent: "text-indigo-600 bg-indigo-50 border-indigo-100"
+                }
+              ].map((loc, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.1 * i }}
+                  className="p-5 sm:p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className={`text-[10px] font-semibold font-poppins uppercase tracking-wider px-2.5 py-1 rounded-lg border ${loc.accent}`}>
+                        {loc.label}
+                      </span>
+                      <MapPin size={16} className="text-slate-400 group-hover:text-slate-900 transition-colors" />
+                    </div>
+                    <h5 className="text-xl font-semibold font-poppins text-slate-900 mb-1">
+                      {loc.state}
+                    </h5>
+                    <p className="text-xs font-normal font-poppins text-slate-500 mb-4">
+                      {loc.highlight}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 pt-3 border-t border-slate-100">
+                    {loc.cities.map((city, idx) => (
+                      <span key={idx} className="text-[11px] font-normal font-poppins px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 text-slate-600">
+                        {city}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* 6th Full-width strip: Rajasthan */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="p-5 sm:p-6 bg-white rounded-3xl border border-slate-200/80 shadow-xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+            >
+              <div className="flex items-start sm:items-center gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                  <MapPin size={20} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h5 className="text-xl font-semibold font-poppins text-slate-900">
+                      Rajasthan
+                    </h5>
+                    <span className="text-[10px] font-semibold font-poppins uppercase tracking-wider px-2.5 py-0.5 rounded-lg border text-amber-700 bg-amber-50 border-amber-100">
+                      Heritage Circuit
+                    </span>
+                  </div>
+                  <p className="text-xs font-normal font-poppins text-slate-500 mt-0.5">
+                    Royal palace banquets, destination forts & desert luxury celebrations
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 sm:shrink-0">
+                {["Jaipur", "Udaipur", "Jodhpur", "Pushkar"].map((city, idx) => (
+                  <span key={idx} className="text-[11px] font-normal font-poppins px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-100 text-slate-600">
+                    {city}
+                  </span>
+                ))}
+              </div>
             </motion.div>
-          ))}
+          </div>
+
         </div>
-        
       </div>
      </section>
 
@@ -2108,6 +2345,174 @@ export default function PartnerLandingPage() {
       </div>
      </section>
 
+      {/* DOWNLOAD APP SECTION — 100% EXACT DESIGN FROM REFERENCE */}
+      <section className="py-20 md:py-28 px-6 sm:px-10 lg:px-16 bg-white relative overflow-hidden border-t border-slate-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            
+            {/* Left Column: Heading, Subtitle & Exact Pill Buttons */}
+            <div className="lg:col-span-6 space-y-6 md:space-y-8 text-left">
+              {/* Eyebrow Pill */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F43F5E]/10 border border-[#F43F5E]/20 text-pd-pink text-xs font-semibold font-poppins uppercase tracking-wider shadow-2xs">
+                <Smartphone size={13} className="text-pd-pink shrink-0" />
+                <span>Available on iOS &amp; Android</span>
+              </div>
+
+              {/* Headline with matched font family, size and brand gradient */}
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-poppins text-slate-900 tracking-tight leading-[1.12]">
+                Download the <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-pd-pink via-purple-600 to-pd-blue">
+                  PartyDial Partner App
+                </span>
+              </h2>
+
+              <p className="text-slate-500 font-normal font-poppins text-sm sm:text-base md:text-lg leading-relaxed max-w-lg">
+                Manage your venue inquiries, view instant OTP-verified leads, connect with event hosts 1:1, and track your bookings in real-time from anywhere.
+              </p>
+
+              {/* Exact App Store & Google Play Buttons with Real Official Vector Icons */}
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                {/* Download for iOS (Official Apple Logo) */}
+                <a
+                  href="https://apps.apple.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-3 px-6 py-3.5 sm:py-4 rounded-2xl bg-[#090F1F] text-white hover:bg-black transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-98"
+                >
+                  <svg className="w-6 h-6 fill-current text-white shrink-0" viewBox="0 0 24 24">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.87-.93.04-2.02.63-2.66 1.39-.56.65-1.06 1.71-.93 2.74 1.04.08 2.07-.53 2.67-1.26z" />
+                  </svg>
+                  <div className="text-left leading-tight">
+                    <div className="text-[10px] text-slate-400 font-poppins uppercase tracking-wider">Download for</div>
+                    <div className="text-sm sm:text-base font-bold font-poppins text-white">Apple iOS</div>
+                  </div>
+                </a>
+
+                {/* Download for Android (Official Multi-Color Google Play Icon) */}
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.partnerapp.app&hl=en_IN"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-3 px-6 py-3.5 sm:py-4 rounded-2xl bg-[#090F1F] text-white hover:bg-black transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-98"
+                >
+                  <svg className="w-6 h-6 shrink-0" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M3.609 1.814L13.792 12 3.61 22.186c-.378-.403-.61-.954-.61-1.569V3.383c0-.615.232-1.166.61-1.569z" />
+                    <path fill="#FBBC04" d="M14.849 13.057l2.122-2.122-12.015-6.93 9.893 9.052z" />
+                    <path fill="#EA4335" d="M14.849 14.949L4.956 24.001l12.015-6.932-2.122-2.122z" />
+                    <path fill="#34A853" d="M16.263 13.535l3.125-1.804c.883-.51.883-1.346 0-1.856l-3.125-1.804-1.414 1.414 1.414 1.414z" />
+                  </svg>
+                  <div className="text-left leading-tight">
+                    <div className="text-[10px] text-slate-400 font-poppins uppercase tracking-wider">Download for</div>
+                    <div className="text-sm sm:text-base font-bold font-poppins text-white">Android</div>
+                  </div>
+                </a>
+              </div>
+
+              <div className="text-xs font-poppins text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-1 pt-1">
+                <span className="flex items-center gap-1 font-semibold text-amber-500">★ 4.9 Rating</span>
+                <span>•</span>
+                <span>Free Partner Download</span>
+                <span>•</span>
+                <span>Instant Push Alerts</span>
+              </div>
+            </div>
+
+            {/* Right Column: Exact Rounded Pink/Purple Gradient Backdrop with Dual Overlapping iPhone Mockups */}
+            <div className="lg:col-span-6 flex justify-center items-center relative py-6">
+              
+              {/* Rounded Purple-to-Pink Background Card exactly like the screenshot */}
+              <div className="relative w-full max-w-[480px] h-[430px] sm:h-[490px] rounded-[38px] sm:rounded-[48px] bg-gradient-to-br from-[#7C3AED] via-[#C026D3] to-[#EC4899] shadow-2xl flex items-center justify-center overflow-visible">
+                
+                {/* Back iPhone: Dashboard Screen (Tilted to the Right ~ 9deg, z-10) */}
+                <div 
+                  className="absolute -top-10 sm:-top-14 right-1 sm:right-5 w-[215px] sm:w-[250px] transform rotate-[9deg] transition-transform duration-300 hover:rotate-[7deg] select-none"
+                  style={{ zIndex: 10 }}
+                >
+                  {/* iPhone Hardware Side Buttons */}
+                  <div className="absolute -left-[3px] top-[95px] w-[3px] h-5 bg-[#d4d4d8] rounded-l-xs shadow-xs" />
+                  <div className="absolute -left-[3px] top-[125px] w-[3px] h-9 bg-[#d4d4d8] rounded-l-xs shadow-xs" />
+                  <div className="absolute -left-[3px] top-[175px] w-[3px] h-9 bg-[#d4d4d8] rounded-l-xs shadow-xs" />
+                  <div className="absolute -right-[3px] top-[135px] w-[3px] h-12 bg-[#d4d4d8] rounded-r-xs shadow-xs" />
+
+                  {/* iPhone Outer Titanium Chassis */}
+                  <div className="relative bg-gradient-to-b from-[#f8fafc] via-[#e2e8f0] to-[#cbd5e1] rounded-[48px] p-[6px] shadow-[0_20px_50px_rgba(0,0,0,0.28),0_0_0_1.5px_rgba(255,255,255,0.8)_inset]">
+                    {/* Inner Screen Bezel */}
+                    <div className="relative bg-[#FAFAFC] rounded-[42px] overflow-hidden flex flex-col justify-between h-[420px] sm:h-[480px] border border-slate-100 shadow-inner">
+                      
+                      {/* Top Dynamic Island */}
+                      <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-20">
+                        <div className="h-[18px] w-[62px] bg-black rounded-full flex items-center justify-between px-2 shadow-xs">
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-900 ring-1 ring-blue-500/40" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-900 ring-1 ring-emerald-500/40" />
+                        </div>
+                      </div>
+
+                      {/* Image: Partner App Dashboard Screen in Back */}
+                      <div className="relative w-full h-full">
+                        <Image
+                          src="/partner-dashboard.png"
+                          alt="PartyDial Partner App Dashboard Screen"
+                          fill
+                          className="object-cover object-top"
+                          sizes="(max-width: 768px) 215px, 250px"
+                          priority
+                        />
+                      </div>
+
+                      {/* iPhone Home Swipe Indicator */}
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 w-20 h-1 bg-slate-400 rounded-full" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Front iPhone: Splash Screen (Tilted to the Left ~ -7deg, z-20) */}
+                <div 
+                  className="absolute -bottom-6 sm:-bottom-10 left-1 sm:left-4 w-[225px] sm:w-[260px] transform -rotate-[7deg] transition-transform duration-300 hover:-rotate-[5deg] select-none"
+                  style={{ zIndex: 20 }}
+                >
+                  {/* iPhone Hardware Side Buttons */}
+                  <div className="absolute -left-[3px] top-[105px] w-[3px] h-5 bg-[#d4d4d8] rounded-l-xs shadow-xs" />
+                  <div className="absolute -left-[3px] top-[135px] w-[3px] h-9 bg-[#d4d4d8] rounded-l-xs shadow-xs" />
+                  <div className="absolute -left-[3px] top-[185px] w-[3px] h-9 bg-[#d4d4d8] rounded-l-xs shadow-xs" />
+                  <div className="absolute -right-[3px] top-[145px] w-[3px] h-12 bg-[#d4d4d8] rounded-r-xs shadow-xs" />
+
+                  {/* iPhone Outer Titanium Chassis */}
+                  <div className="relative bg-gradient-to-b from-[#f8fafc] via-[#e2e8f0] to-[#cbd5e1] rounded-[48px] p-[6px] shadow-[0_25px_60px_rgba(0,0,0,0.32),0_0_0_1.5px_rgba(255,255,255,0.9)_inset]">
+                    {/* Inner Screen Bezel */}
+                    <div className="relative bg-white rounded-[42px] overflow-hidden flex flex-col justify-between h-[440px] sm:h-[500px] border border-slate-100 shadow-inner">
+                      
+                      {/* Top Dynamic Island */}
+                      <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-20">
+                        <div className="h-[18px] w-[62px] bg-black rounded-full flex items-center justify-between px-2 shadow-xs">
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-900 ring-1 ring-blue-500/40" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-900 ring-1 ring-emerald-500/40" />
+                        </div>
+                      </div>
+
+                      {/* Image: PartnerApp Splash Screen in Front */}
+                      <div className="relative w-full h-full">
+                        <Image
+                          src="/partner-splash.png"
+                          alt="PartyDial Partner App Splash Screen"
+                          fill
+                          className="object-cover object-center"
+                          sizes="(max-width: 768px) 225px, 260px"
+                          priority
+                        />
+                      </div>
+
+                      {/* iPhone Home Swipe Indicator */}
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 w-20 h-1 bg-slate-300 rounded-full" />
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
 
      
      

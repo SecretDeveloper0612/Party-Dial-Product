@@ -11,14 +11,15 @@ import {
 } from 'lucide-react';
 
 interface Lead {
-  id: number;
+  id: number | string;
   name: string;
   location: string;
   event: string;
   date: string;
   time: string;
-  guests: number;
+  guests: number | string;
   status: string;
+  eventDate?: string | null;
   unread?: boolean;
 }
 
@@ -106,18 +107,26 @@ const LeadExplorer = ({
               <aside className="w-80 border-r border-slate-100 p-8 space-y-10 overflow-y-auto hidden lg:block shrink-0 scrollbar-hide">
                 <div>
                   <h4 className="text-[10px] font-semibold uppercase tracking-wider text-slate-900 mb-6 font-pd">Status Categorization</h4>
-                  <div className="space-y-2">
-                    {['All', 'New', 'In-Progress', 'Booked', 'Lost Leads', 'Archived'].map(status => (
-                      <button 
-                        key={status}
-                        onClick={() => setLeadFilter(status)}
-                        className={`w-full flex items-center justify-between px-5 py-3 rounded-xl text-[11px] font-semibold uppercase  transition-all ${leadFilter === status ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
-                      >
-                        {status}
-                        <span className="text-[9px] opacity-40">({recentLeads.filter(l => status === 'All' || l.status === status).length})</span>
-                      </button>
-                    ))}
-                  </div>
+                    {['All', 'New', 'In-Progress', 'Booked', 'Lost Leads', 'All Expired Leads', 'Archived'].map(status => {
+                      const count = recentLeads.filter(l => {
+                        if (status === 'All') return true;
+                        if (status === 'All Expired Leads') {
+                          return (l.eventDate && new Date(l.eventDate) < new Date(new Date().setHours(0, 0, 0, 0)) && l.status !== 'Booked') || l.status === 'Lost' || l.status === 'Lost Leads' || l.status === 'Expired';
+                        }
+                        if (status === 'Lost Leads') return l.status === 'Lost' || l.status === 'Lost Leads';
+                        return l.status === status;
+                      }).length;
+                      return (
+                        <button 
+                          key={status}
+                          onClick={() => setLeadFilter(status)}
+                          className={`w-full flex items-center justify-between px-5 py-3 rounded-xl text-[11px] font-semibold uppercase transition-all ${leadFilter === status ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
+                        >
+                          {status}
+                          <span className="text-[9px] opacity-40">({count})</span>
+                        </button>
+                      );
+                    })}
                 </div>
 
                 <div>

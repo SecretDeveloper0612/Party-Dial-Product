@@ -1,0 +1,29 @@
+<svg width="360" height="740" viewBox="0 0 360 740" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer Rim with Deep Plum/Titanium Gradient -->
+  <defs>
+    <linearGradient id="titanium" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8E6B78"/>
+      <stop offset="30%" stop-color="#3A1220"/>
+      <stop offset="70%" stop-color="#1F0A12"/>
+      <stop offset="100%" stop-color="#5C293C"/>
+    </linearGradient>
+    <linearGradient id="innerGleam" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.3)"/>
+      <stop offset="10%" stop-color="rgba(255,255,255,0.05)"/>
+      <stop offset="90%" stop-color="rgba(0,0,0,0.4)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.15)"/>
+    </linearGradient>
+  </defs>
+  <!-- Buttons -->
+  <!-- Left Side: Action button (y: 140, h: 28), Vol Up (y: 190, h: 56), Vol Down (y: 260, h: 56) -->
+  <rect x="-2" y="140" width="3" height="28" rx="1.5" fill="#3A1220" stroke="#8E6B78" stroke-width="0.5"/>
+  <rect x="-2" y="190" width="3" height="56" rx="1.5" fill="#3A1220" stroke="#8E6B78" stroke-width="0.5"/>
+  <rect x="-2" y="260" width="3" height="56" rx="1.5" fill="#3A1220" stroke="#8E6B78" stroke-width="0.5"/>
+  <!-- Right Side: Power button (y: 200, h: 76) -->
+  <rect x="359" y="200" width="3" height="76" rx="1.5" fill="#3A1220" stroke="#8E6B78" stroke-width="0.5"/>
+  
+  <!-- Outer Body -->
+  <rect x="1" y="1" width="358" height="738" rx="52" fill="none" stroke="url(#titanium)" stroke-width="3.5"/>
+  <rect x="4" y="4" width="352" height="732" rx="49" fill="none" stroke="#0B0407" stroke-width="2"/>
+  <rect x="6" y="6" width="348" height="728" rx="47" fill="none" stroke="url(#innerGleam)" stroke-width="1"/>
+</svg>
