@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 import "./globals.css";
@@ -9,7 +9,12 @@ import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import AuthGuard from "@/components/AuthGuard";
 
-const inter = Inter({ subsets: ["latin"] });
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap"
+});
 
 
 
@@ -41,7 +46,7 @@ export default function RootLayout({
         </Script>
         {/* End Google Tag Manager */}
       </head>
-      <body className={`${inter.className} custom-scrollbar`} suppressHydrationWarning>
+      <body className={`${poppins.className} custom-scrollbar font-poppins`} suppressHydrationWarning>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe

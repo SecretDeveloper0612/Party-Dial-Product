@@ -25,7 +25,7 @@ export default function Footer() {
   );
 
   if (pathname?.startsWith('/venues')) return null;
-  if (pathname === '/ai-search' || isApp) return null;
+  if (pathname === '/ai-search' || pathname === '/event-inquiry' || isApp) return null;
 
   return (
     <footer suppressHydrationWarning className="bg-[#F8F5F0] pt-20 pb-10 px-6 text-slate-900 relative overflow-hidden font-pd">

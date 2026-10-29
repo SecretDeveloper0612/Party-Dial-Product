@@ -107,12 +107,9 @@ const LeadExplorer = ({
               <aside className="w-80 border-r border-slate-100 p-8 space-y-10 overflow-y-auto hidden lg:block shrink-0 scrollbar-hide">
                 <div>
                   <h4 className="text-[10px] font-semibold uppercase tracking-wider text-slate-900 mb-6 font-pd">Status Categorization</h4>
-                    {['All', 'New', 'In-Progress', 'Booked', 'Lost Leads', 'All Expired Leads', 'Archived'].map(status => {
+                    {['All', 'New', 'In-Progress', 'Booked', 'Lost Leads', 'Archived'].map(status => {
                       const count = recentLeads.filter(l => {
-                        if (status === 'All') return true;
-                        if (status === 'All Expired Leads') {
-                          return (l.eventDate && new Date(l.eventDate) < new Date(new Date().setHours(0, 0, 0, 0)) && l.status !== 'Booked') || l.status === 'Lost' || l.status === 'Lost Leads' || l.status === 'Expired';
-                        }
+                        if (status === 'All') return l.status !== 'Lost' && l.status !== 'Lost Leads';
                         if (status === 'Lost Leads') return l.status === 'Lost' || l.status === 'Lost Leads';
                         return l.status === status;
                       }).length;

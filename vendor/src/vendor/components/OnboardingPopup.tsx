@@ -123,9 +123,8 @@ const OnboardingPopup = ({ isOpen, onClose }: OnboardingPopupProps) => {
                 <div className="flex flex-col gap-3">
                    <button 
                       onClick={onClose}
-                      className="pd-btn-primary w-full py-5 rounded-[22px] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-pd-pink/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 cursor-pointer"
+                      className="pd-btn-primary w-full py-5 rounded-[22px] text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-pd-pink/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center cursor-pointer"
                    >
-                      <Sparkle size={16} fill="white" />
                       Go to Dashboard
                    </button>
                 </div>

@@ -94,10 +94,10 @@ export default function CRMLeads() {
         if (result.status === "success") {
           const normalizedLeads = result.data.map((l: any) => ({
             id: l.$id,
-            customerName: l.name,
-            email: l.email,
-            phone: l.phone,
-            eventType: l.eventType,
+            customerName: l.name || l.customerName || "Unknown Customer",
+            email: l.email || "",
+            phone: l.phone || "",
+            eventType: l.eventType || "Event",
             status: l.status || "New",
             priority: l.priority || "Warm",
             source: l.source || "Bulk Distribution",
@@ -170,11 +170,14 @@ export default function CRMLeads() {
     setIsModalOpen(false);
   };
 
-  const filteredLeads = leads.filter(l => 
-    l.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.phone.includes(searchQuery) ||
-    l.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredLeads = leads.filter(l => {
+    const name = (l.customerName || "").toLowerCase();
+    const phone = l.phone || "";
+    const email = (l.email || "").toLowerCase();
+    const query = searchQuery.toLowerCase();
+
+    return name.includes(query) || phone.includes(searchQuery) || email.includes(query);
+  });
 
   return (
     <div className="space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
@@ -268,12 +271,12 @@ export default function CRMLeads() {
                     >
                        <td className="p-6">
                           <div className="flex items-center gap-4">
-                             <div className="w-10 h-10 rounded-xl grad-brand text-white flex items-center justify-center font-black text-sm">{lead.customerName.charAt(0)}</div>
+                             <div className="w-10 h-10 rounded-xl grad-brand text-white flex items-center justify-center font-black text-sm">{(lead.customerName || '?').charAt(0)}</div>
                              <div>
-                                <h4 className="text-sm font-bold text-slate-800">{lead.customerName}</h4>
+                                <h4 className="text-sm font-bold text-slate-800">{lead.customerName || 'Unknown Customer'}</h4>
                                 <div className="flex items-center gap-3 mt-1">
-                                   <span className="text-[10px] text-slate-400 flex items-center gap-1"><Phone size={10} /> {lead.phone}</span>
-                                   <span className="text-[10px] text-slate-400 flex items-center gap-1"><Mail size={10} /> {lead.email}</span>
+                                   <span className="text-[10px] text-slate-400 flex items-center gap-1"><Phone size={10} /> {lead.phone || 'N/A'}</span>
+                                   <span className="text-[10px] text-slate-400 flex items-center gap-1"><Mail size={10} /> {lead.email || 'N/A'}</span>
                                 </div>
                              </div>
                           </div>

@@ -145,24 +145,40 @@ exports.distributeLeads = async (req, res) => {
 
 
 /**
- * Get distribution logs (leads marked as isBulk)
+ * Get distribution logs & audit trail for Admins
+ * Queries the dedicated `lead_distributions` collection with exclusion reasons,
+ * delivery statuses, and candidate evaluations.
  */
 exports.getDistributionLogs = async (req, res) => {
     try {
-        let logs;
+        const LEAD_DISTRIBUTIONS_COLLECTION_ID = process.env.APPWRITE_LEAD_DISTRIBUTIONS_COLLECTION_ID || 'lead_distributions';
+        const { leadId, venueId, eligibilityResult, deliveryStatus, limit = 100 } = req.query;
+
+        const queries = [
+            Query.orderDesc('$createdAt'),
+            Query.limit(Math.min(parseInt(limit) || 100, 200))
+        ];
+
+        if (leadId) queries.push(Query.equal('leadId', leadId));
+        if (venueId) queries.push(Query.equal('venueId', venueId));
+        if (eligibilityResult) queries.push(Query.equal('eligibilityResult', eligibilityResult));
+        if (deliveryStatus) queries.push(Query.equal('deliveryStatus', deliveryStatus));
+
         try {
-            logs = await databases.listDocuments(
+            const auditLogs = await databases.listDocuments(
                 DATABASE_ID,
-                LEADS_COLLECTION_ID,
-                [
-                    Query.equal('isBulk', true),
-                    Query.orderDesc('$createdAt'),
-                    Query.limit(100)
-                ]
+                LEAD_DISTRIBUTIONS_COLLECTION_ID,
+                queries
             );
-        } catch (e) {
-            console.warn("isBulk query failed, falling back to basic list:", e.message);
-            // Fallback: list recent leads and filter in memory if attribute doesn't exist
+
+            return res.status(200).json({
+                status: 'success',
+                total: auditLogs.total,
+                data: auditLogs.documents
+            });
+        } catch (colErr) {
+            console.warn('[ADMIN LOGS] lead_distributions query failed or empty, checking legacy logs:', colErr.message);
+            // Fallback: list recent leads from LEADS_COLLECTION_ID
             const result = await databases.listDocuments(
                 DATABASE_ID,
                 LEADS_COLLECTION_ID,
@@ -170,19 +186,20 @@ exports.getDistributionLogs = async (req, res) => {
             );
             return res.status(200).json({
                 status: 'success',
-                data: result.documents.filter(d => d.notes?.includes('Bulk Lead') || d.notes?.includes('GSheet Sync') || d.notes?.includes('MANUAL DISTRIBUTION'))
+                total: result.documents.length,
+                data: result.documents.filter(d => 
+                    d.notes?.includes('SMART MATCH') || 
+                    d.notes?.includes('UNMATCHED') || 
+                    d.notes?.includes('Bulk Lead') || 
+                    d.notes?.includes('MANUAL DISTRIBUTION')
+                )
             });
         }
-
-        return res.status(200).json({
-            status: 'success',
-            data: logs.documents
-        });
     } catch (error) {
         console.error('Error fetching distribution logs:', error);
         return res.status(500).json({
             status: 'error',
-            message: error.message || 'Failed to fetch logs'
+            message: error.message || 'Failed to fetch distribution logs'
         });
     }
 };
@@ -601,24 +618,62 @@ exports.processPublicInquiry = async (req, res) => {
             name, 
             email, 
             number, 
+            phone,
             eventType, 
             guestCapacity, 
+            guestCount,
+            guests,
             pincode, 
             eventDate, 
-            eventDetails 
+            eventDetails,
+            notes,
+            leadSource: customLeadSource,
+            campaignData,
+            utm_source,
+            utm_medium,
+            utm_campaign,
+            utm_content,
+            utm_term,
+            gclid,
+            fbclid,
+            location: customLocation
         } = req.body;
 
-        if (!name || !number || !eventType || !guestCapacity || !pincode) {
+        const rawPhone = phone || number;
+        const rawGuests = guests !== undefined && guests !== null && guests !== '' ? guests : (guestCount !== undefined && guestCount !== null && guestCount !== '' ? guestCount : guestCapacity);
+        const rawLocation = pincode || customLocation;
+
+        if (!name || !rawPhone || !eventType || rawGuests === undefined || rawGuests === null || rawGuests === '' || !rawLocation) {
             console.warn('❌ INQUIRY REJECTED: Missing core fields');
-            return res.status(400).json({ status: 'error', message: 'Missing required fields' });
+            return res.status(400).json({ status: 'error', message: 'Missing required fields: name, phone/number, eventType, guests, and location/pincode' });
         }
 
         // 1. Sanitize & Parse Lead Requirements
-        const leadPincode = pincode.toString().replace(/\s/g, '').trim();
-        const cleanPhone = number.toString().replace(/[^0-9]/g, '').slice(-10);
+        const locationInput = rawLocation.toString().trim();
+        const pinMatch = locationInput.match(/\b\d{6}\b/);
+        const leadPincode = pinMatch ? pinMatch[0] : (/^\d{6}$/.test(locationInput) ? locationInput : '');
+        const cleanPhone = rawPhone.toString().replace(/[^0-9]/g, '').slice(-10);
+
+        if (cleanPhone.length !== 10) {
+            return res.status(400).json({ status: 'error', message: 'Please provide a valid 10-digit mobile number' });
+        }
+
+        // Build campaign attribution object
+        const attribution = typeof campaignData === 'object' && campaignData !== null ? campaignData : {};
+        if (utm_source) attribution.utm_source = utm_source;
+        if (utm_medium) attribution.utm_medium = utm_medium;
+        if (utm_campaign) attribution.utm_campaign = utm_campaign;
+        if (utm_content) attribution.utm_content = utm_content;
+        if (utm_term) attribution.utm_term = utm_term;
+        if (gclid) attribution.gclid = gclid;
+        if (fbclid) attribution.fbclid = fbclid;
+
+        const isPaidAd = !!(attribution.utm_source || attribution.gclid || attribution.fbclid || (attribution.utm_medium && /cpc|paid|ads/i.test(attribution.utm_medium)));
+        const finalLeadSource = customLeadSource || (isPaidAd ? 'Paid Ads' : 'Website Inquiry');
+        const serializedCampaign = Object.keys(attribution).length > 0 ? JSON.stringify(attribution).slice(0, 990) : '';
         
-        // Handle guest capacity ranges (e.g., "0-50", "50-100", "5000+")
-        const guestCapStr = String(guestCapacity || "0");
+        // Handle guest count from manual number input or ranges
+        const guestCapStr = String(rawGuests || "0");
         let requestedGuests = 0;
         if (guestCapStr.includes('-')) {
             requestedGuests = parseInt(guestCapStr.split('-').pop()) || 0;
@@ -628,173 +683,59 @@ exports.processPublicInquiry = async (req, res) => {
             requestedGuests = parseInt(guestCapStr) || 0;
         }
 
-        console.log(`📍 TARGET AREA: ${leadPincode} | 👥 GUESTS: ${requestedGuests} | 👤 NAME: ${name}`);
+        const extraNotes = notes || eventDetails || '';
+        const notesStr = `${finalLeadSource} | Event Date: ${eventDate || 'N/A'} | Location: ${locationInput} | Guests: ${requestedGuests}${extraNotes ? ' | ' + extraNotes : ''}`;
 
-        // 2. Fetch Potential Partners WITH DATABASE-LEVEL PINCODE FILTER
-        // This is the most reliable way to prevent cross-pincode leaks.
-        const query = [
-            Query.equal('isVerified', true),
-            Query.equal('status', 'active'),
-            Query.equal('onboardingComplete', true),
-            Query.limit(1000)
-        ];
-
-        // If your database stores pincode as a single string field, use this:
-        query.push(Query.equal('pincode', leadPincode));
-
-        const venueResult = await databases.listDocuments(
-            DATABASE_ID,
-            VENUES_COLLECTION_ID,
-            query
-        );
-
-        const localVenues = venueResult.documents;
-        console.log(`🔎 Database returned ${localVenues.length} qualified partners in Pin: ${leadPincode}`);
-
-        // 3. Secondary Precise Matching (Guest Capacity & Subscription)
-        const matchedVenues = localVenues.filter(v => {
-            // A. Subscription Check
-            const isPaid = (v.subscriptionPlan && v.subscriptionPlan !== 'free') || v.isPaid === true;
-            if (!isPaid) {
-                console.log(`  - ❌ ${v.venueName}: Not on a paid plan`);
-                return false;
-            }
-
-            // B. PAX Bucket Capacity Check
-            // Venue bucket max must be >= lead bucket max.
-            // Example: Lead "100-200" → venues with 100-200, 200-500, 500-1000 etc. are eligible
-            //          Venues with 0-50 or 50-100 are NOT eligible.
-            const eligible = isVenueEligible(v.capacity, guestCapacity);
-            if (!eligible) {
-                console.log(`  - ❌ ${v.venueName}: Capacity ${v.capacity} (${getBucketLabel(v.capacity)}) too small for "${guestCapacity}" guests`);
-                return false;
-            }
-
-            console.log(`  - ✅ ${v.venueName}: Matches Pin ${leadPincode} | Capacity ${v.capacity} (${getBucketLabel(v.capacity)}) handles "${guestCapacity}"`);
-            return true;
+        // 2. Delegate to authoritative Smart Lead Distribution Engine
+        const { distributeEventInquiry } = require('../services/leadDistributionService');
+        const distributionResult = await distributeEventInquiry({
+            name,
+            phone: cleanPhone,
+            email: email || '',
+            eventType,
+            guests: requestedGuests,
+            eventDate: eventDate || '',
+            location: locationInput,
+            pincode: leadPincode,
+            notes: notesStr,
+            leadSource: finalLeadSource,
+            campaignData: serializedCampaign
         });
 
-        // 4. Final Distribution Pool (Max 5 Vendors)
-        const MAX_DISTRIBUTION = 5;
-        const finalizedVenues = matchedVenues
-            .sort(() => 0.5 - Math.random()) // Randomize for fairness
-            .slice(0, MAX_DISTRIBUTION);
-
-        console.log(`✅ MATCH SNAPSHOT: Found ${matchedVenues.length} partners | Distributing to ${finalizedVenues.length}\n`);
-
-        // 5. Broadcast Fallback
-        if (finalizedVenues.length === 0) {
-            console.log('⚠️ FALLBACK: No perfect local matches. Routing to Global ADMIN review pool.');
-            await databases.createDocument(DATABASE_ID, LEADS_COLLECTION_ID, ID.unique(), {
-                venueId: 'BROADCAST',
-                name,
-                phone: cleanPhone,
-                email: email || '',
-                eventType,
-                guests: requestedGuests,
-                notes: `BROADCAST | Event Date: ${eventDate || 'N/A'} | Pin: ${leadPincode} | Guests: ${requestedGuests} | Details: ${eventDetails || 'N/A'}`,
-                status: 'New',
-                createdAt: new Date().toISOString()
-            });
-
-            return res.status(200).json({ 
-                status: 'success', 
-                message: 'Inquiry received. Matching you with our partners shortly.',
-                matchCount: 0 
-            });
-        }
-
-        // 6. Create Lead Documents for Selected Partners
-        const leadTasks = finalizedVenues.map(async (v) => {
-            try {
-                // Check for duplicates (Last 24 hours)
-                const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-                const existing = await databases.listDocuments(DATABASE_ID, LEADS_COLLECTION_ID, [
-                    Query.equal('venueId', v.$id),
-                    Query.equal('phone', cleanPhone),
-                    Query.greaterThan('$createdAt', yesterday),
-                    Query.limit(1)
-                ]);
-
-                if (existing.total > 0) return null;
-
-                const doc = await databases.createDocument(DATABASE_ID, LEADS_COLLECTION_ID, ID.unique(), {
-                    venueId: v.$id,
-                    name,
-                    phone: cleanPhone,
-                    email: email || '',
-                    eventType,
-                    guests: requestedGuests,
-                    eventDate: eventDate || '',
-                    pincode: leadPincode || '',
-                    notes: `SMART MATCH | Event Date: ${eventDate || 'N/A'} | Pin: ${leadPincode} | Local Partner | Guests: ${requestedGuests}`,
-                    status: 'New',
-                    createdAt: new Date().toISOString()
-                });
-
-                // Push Notification
-                if (v.expoPushToken) {
-                    const { sendPushNotification } = require('../utils/notifications');
-                    sendPushNotification(
-                        v.expoPushToken, 
-                        'New Party Inquiry! 🎊', 
-                        `${name} needs a ${eventType} venue for ${requestedGuests} guests in ${leadPincode}.`,
-                        { leadId: doc.$id }
-                    ).catch(() => {});
-                }
-
-                /* 
-                // RELIABLE COUNT: SYNC DISABLED DUE TO SCHEMA LIMITS
-                try {
-                    const leadCountRes = await databases.listDocuments(
-                        DATABASE_ID,
-                        LEADS_COLLECTION_ID,
-                        [Query.equal('venueId', v.$id), Query.limit(1)]
-                    );
-                    
-                    await databases.updateDocument(
-                        DATABASE_ID,
-                        VENUES_COLLECTION_ID || '6783857500366eb7b9b4',
-                        v.$id,
-                        {
-                            totalLeads: leadCountRes.total
-                        }
-                    );
-                    console.log(`[SYNC] Updated venue ${v.$id} leads count to ${leadCountRes.total}`);
-                } catch (updateErr) {
-                    console.error(`Failed to sync lead count for venue ${v.$id}:`, updateErr.message);
-                }
-                */
-
-                return doc;
-            } catch (err) {
-                console.error(`Failed distributing to ${v.venueName}:`, err.message);
-                return null;
-            }
-        });
-
-        const successes = (await Promise.all(leadTasks)).filter(t => t !== null).length;
-        console.log(`🏁 FINISHED: Distributed to ${successes} partners.\n`);
-
-        // --- 📩 CENTRAL EMAIL NOTIFICATION ---
-        // Notify admin about the new public inquiry
+        // 3. Central Admin Email Notification
         if (process.env.ADMIN_EMAIL) {
             sendLeadNotificationEmail(process.env.ADMIN_EMAIL, {
                 name,
-                number,
+                number: cleanPhone,
+                phone: cleanPhone,
                 email,
                 eventType,
-                guestCapacity,
-                pincode: leadPincode,
+                guestCapacity: requestedGuests,
+                guests: requestedGuests,
+                pincode: leadPincode || locationInput,
+                location: locationInput,
                 eventDate,
-                eventDetails
+                eventDetails: `${notesStr} | Distributed to: ${distributionResult.matchCount} venue(s)`
             }).catch(err => console.error('Failed to send admin public inquiry email:', err.message));
+        }
+
+        if (distributionResult.status === 'unmatched') {
+            return res.status(200).json({
+                status: 'success',
+                message: 'Inquiry received. We are matching you with our verified partners shortly.',
+                matchCount: 0,
+                inquiryId: distributionResult.inquiryId,
+                distributionStatus: 'Unmatched'
+            });
         }
 
         return res.status(201).json({
             status: 'success',
-            message: `Lead distributed to ${successes} matching partners.`,
-            matchCount: successes
+            message: `Lead distributed to ${distributionResult.matchCount} matching partner venue(s).`,
+            matchCount: distributionResult.matchCount,
+            eligibleVenues: distributionResult.eligibleVenues,
+            inquiryId: distributionResult.inquiryId,
+            distributionStatus: 'Distributed'
         });
 
     } catch (error) {
@@ -1131,6 +1072,82 @@ exports.redistributeOldLeads = async (req, res) => {
         });
     } catch (error) {
         console.error('[ERROR] redistributeOldLeads:', error);
+        return res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+/**
+ * Check Maximum Venue Capacity for a specific location / pincode & event type
+ * GET /api/leads/check-capacity?location=...&guests=...&eventType=...
+ */
+exports.checkLocationCapacity = async (req, res) => {
+    try {
+        const { location, pincode, guests, eventType } = req.query;
+        const requestedGuests = parseInt(guests) || 0;
+        const locationQuery = (location || pincode || '').toString().trim();
+
+        if (!locationQuery && !requestedGuests) {
+            return res.status(200).json({ status: 'success', maxCapacity: 7000, hasCapacity: true });
+        }
+
+        const pinMatch = locationQuery.match(/\b\d{6}\b/);
+        const targetPin = pinMatch ? pinMatch[0] : (/^\d{6}$/.test(locationQuery) ? locationQuery : '');
+        const locLower = locationQuery.toLowerCase();
+
+        // Fetch registered active venues
+        const venueResult = await databases.listDocuments(
+            DATABASE_ID,
+            VENUES_COLLECTION_ID,
+            [
+                Query.equal('isVerified', true),
+                Query.equal('status', 'active'),
+                Query.limit(1000)
+            ]
+        );
+
+        // Filter by location
+        let matchedVenues = venueResult.documents.filter(v => {
+            const vPin = (v.pincode || '').toString().trim();
+            const vCity = (v.city || '').toLowerCase();
+            const vAddress = (v.address || '').toLowerCase();
+            const vLandmark = (v.landmark || '').toLowerCase();
+
+            if (targetPin && vPin === targetPin) return true;
+            if (vCity && (locLower.includes(vCity) || vCity.includes(locLower))) return true;
+            if (vAddress && locLower.includes(vAddress)) return true;
+            if (vLandmark && locLower.includes(vLandmark)) return true;
+            return false;
+        });
+
+        // If no venues found strictly by that location query, fallback to all venues
+        const venuesPool = matchedVenues.length > 0 ? matchedVenues : venueResult.documents;
+        const isLocationSpecific = matchedVenues.length > 0;
+
+        const capacities = venuesPool
+            .map(v => parseInt(v.capacity) || 0)
+            .filter(c => c > 0);
+
+        const maxCap = capacities.length > 0 ? Math.max(...capacities) : 7000;
+        const hasCapacity = requestedGuests <= maxCap;
+
+        return res.status(200).json({
+            status: 'success',
+            location: locationQuery,
+            isLocationSpecific,
+            venuesCount: venuesPool.length,
+            maxCapacity: maxCap,
+            requestedGuests,
+            hasCapacity,
+            message: !hasCapacity 
+                ? (isLocationSpecific 
+                    ? `In ${locationQuery}, our platform does not have any venue with a capacity of ${requestedGuests} guests (maximum available capacity in this location is ${maxCap.toLocaleString('en-IN')} guests).`
+                    : `Our platform does not have any venue with a capacity of ${requestedGuests} guests (maximum available capacity is ${maxCap.toLocaleString('en-IN')} guests).`
+                  )
+                : 'Capacity available'
+        });
+
+    } catch (error) {
+        console.error('Error in checkLocationCapacity:', error);
         return res.status(500).json({ status: 'error', message: error.message });
     }
 };

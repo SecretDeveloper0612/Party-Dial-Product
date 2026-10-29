@@ -942,130 +942,219 @@ const QuotationManager = ({
                      </button>
                   </div>
 
-                  {/* PREVIEW DOCUMENT (Visual-First Proposal Format) */}
+                  {/* PREVIEW DOCUMENT (Ultra-Professional Proposal & Quotation Format) */}
                   <motion.div
                      layout
                      ref={quotationRef}
                      id="quotation-preview-doc"
-                     className="w-full max-w-[212.5rem] bg-white shadow-2xl shadow-slate-200 rounded-lg relative min-h-264 flex flex-col overflow-hidden border border-slate-200 print:shadow-none print:rounded-none print-only"
+                     className="w-full bg-white shadow-2xl shadow-slate-200/80 rounded-2xl relative min-h-[1050px] flex flex-col overflow-hidden border border-slate-200/80 print:shadow-none print:rounded-none print-only"
                   >
-                     <div className="p-12 lg:p-14 space-y-12">
+                     {/* Top Premium Color Bar */}
+                     <div className="h-2 w-full bg-linear-to-r from-pd-pink via-purple-600 to-slate-900" />
 
-                        {/* Header: Venue Identity */}
-                        <div className="flex justify-between items-start">
-                           <div className="space-y-1">
-                              <h1 className="text-3xl font-bold font-heading text-slate-900 tracking-tight leading-none">{venueProfile?.venueName || "Henry's Imperial Ballroom"}</h1>
-                              <div className="flex items-center gap-1.5 text-slate-400 mt-2">
-                                 <MapPin size={14} className="text-pink-500" />
-                                 <p className="text-xs font-medium uppercase tracking-wider">{venueProfile?.location || "Nainital Road, Haldwani"}</p>
-                              </div>
-                           </div>
-                           <div className="w-16 h-16 bg-white rounded-lg border border-slate-100 shadow-sm flex items-center justify-center overflow-hidden">
-                              {(() => {
-                                 const rawPhotos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
-                                 const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => {
-                                     if (typeof p === 'string') {
-                                         try {
-                                             const obj = JSON.parse(p);
-                                             if (obj && typeof obj === 'object') return obj;
-                                         } catch(e) {}
-                                         return { id: p, category: 'All Photos' };
-                                     }
-                                     return p;
-                                 }) : [];
-                                 const avatar = photos.find((p: any) => p.category === 'Profile') || (photos.length > 0 ? photos[0] : null);
-                                 if (avatar) {
+                     <div className="p-10 lg:p-14 flex-1 flex flex-col justify-between space-y-10">
+
+                        {/* Header: Venue Brand & Quote Metadata */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-6 pb-8 border-b border-slate-100">
+                           <div className="flex items-start gap-4">
+                              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200/70 shadow-sm flex items-center justify-center overflow-hidden shrink-0">
+                                 {(() => {
+                                    let photos: any[] = [];
+                                    try {
+                                       const rawPhotos = typeof venueProfile?.photos === "string" ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
+                                       if (Array.isArray(rawPhotos)) {
+                                          photos = rawPhotos.map((p: any) => {
+                                             if (typeof p === "string") {
+                                                try {
+                                                   const obj = JSON.parse(p);
+                                                   if (obj && typeof obj === "object") return obj;
+                                                } catch(e) {}
+                                                return { id: p, category: "All Photos" };
+                                             }
+                                             return p;
+                                          });
+                                       }
+                                    } catch (e) {}
+
+                                    const avatar = photos.find((p: any) => p?.category === "Profile") || (photos.length > 0 ? photos[0] : null);
+                                    const fallbackLogoSrc = typeof logo === "string" ? logo : (logo?.src || "/logo.jpg");
+
+                                    if (avatar?.id) {
+                                       return (
+                                          <img
+                                             crossOrigin="anonymous"
+                                             src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${avatar.id}/view?project=69ae84bc001ca4edf8c2`}
+                                             alt="Logo"
+                                             className="object-cover w-full h-full"
+                                             onError={(e) => {
+                                                const target = e.currentTarget as HTMLImageElement;
+                                                target.onerror = null;
+                                                target.src = fallbackLogoSrc;
+                                                target.className = "object-contain w-12 h-12 p-1";
+                                             }}
+                                          />
+                                       );
+                                    }
                                     return (
-                                        
                                        <img
                                           crossOrigin="anonymous"
-                                          src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${avatar.id}/view?project=69ae84bc001ca4edf8c2`}
+                                          src={fallbackLogoSrc}
                                           alt="Logo"
-                                          className="object-cover w-full h-full"
+                                          className="object-contain w-12 h-12 p-1"
                                        />
                                     );
+                                 })()}
+                              </div>
+
+                              <div>
+                                 <h1 className="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                                    {venueProfile?.venueName || "Henry's Imperial Ballroom"}
+                                 </h1>
+                                 <div className="flex flex-wrap items-center gap-y-1 gap-x-3 text-slate-500 mt-1.5 text-xs">
+                                    <span className="flex items-center gap-1 font-medium">
+                                       <MapPin size={13} className="text-pd-pink shrink-0" />
+                                       {venueProfile?.location || venueProfile?.city || "Nainital Road, Haldwani"}
+                                    </span>
+                                    {venueProfile?.phone && (
+                                       <span className="flex items-center gap-1 font-medium text-slate-400">
+                                          <span>•</span>
+                                          <span>{venueProfile.phone}</span>
+                                       </span>
+                                    )}
+                                 </div>
+                              </div>
+                           </div>
+
+                           {/* Quote Metadata Badge */}
+                           <div className="text-left sm:text-right bg-slate-50/80 border border-slate-200/60 rounded-xl px-4 py-3 min-w-[180px]">
+                              <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-pd-pink/10 text-pd-pink mb-1.5">
+                                 Official Quotation
+                              </span>
+                              <p className="text-xs font-semibold text-slate-800">
+                                 Quote #{quoteData.leadId ? quoteData.leadId.slice(-6).toUpperCase() : `PD-${Math.floor(100000 + Math.random() * 900000)}`}
+                              </p>
+                              <p className="text-[11px] text-slate-400 mt-0.5">
+                                 Date: {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                              </p>
+                           </div>
+                        </div>
+
+                        {/* Client & Event Specifications (Executive Grid) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           {/* Client Details Box */}
+                           <div className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-5 border border-slate-200/70 shadow-xs">
+                              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 block mb-2">
+                                 Prepared Exclusively For
+                              </span>
+                              <h3 className="text-base font-bold text-slate-900 mb-1">
+                                 {quoteData.client || "Valued Client"}
+                              </h3>
+                              <div className="space-y-1 text-xs text-slate-600">
+                                 {quoteData.contact && (
+                                    <p className="flex items-center gap-2">
+                                       <Phone size={12} className="text-slate-400 shrink-0" />
+                                       <span>{quoteData.contact}</span>
+                                    </p>
+                                 )}
+                                 {quoteData.email && (
+                                    <p className="flex items-center gap-2">
+                                       <Mail size={12} className="text-slate-400 shrink-0" />
+                                       <span>{quoteData.email}</span>
+                                    </p>
+                                 )}
+                                 {!quoteData.contact && !quoteData.email && (
+                                    <p className="text-slate-400 italic">Contact details provided upon confirmation</p>
+                                 )}
+                              </div>
+                           </div>
+
+                           {/* Event Specifications Box */}
+                           <div className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-5 border border-slate-200/70 shadow-xs">
+                              <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 block mb-2">
+                                 Event Details & Schedule
+                              </span>
+                              <h3 className="text-base font-bold text-slate-900 mb-1">
+                                 {quoteData.event || "Special Occasion / Function"}
+                              </h3>
+                              <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-100 text-xs">
+                                 <div>
+                                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Date</span>
+                                    <span className="font-semibold text-slate-700">
+                                       {quoteData.eventDate ? new Date(quoteData.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "To be decided"}
+                                    </span>
+                                 </div>
+                                 <div>
+                                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Guest Count</span>
+                                    <span className="font-semibold text-slate-700">
+                                       {quoteData.guestCount ? `${quoteData.guestCount} Guests` : "Flexible"}
+                                    </span>
+                                 </div>
+                              </div>
+                           </div>
+
+                           {quoteData.specialRequests && (
+                              <div className="md:col-span-2 bg-amber-50/60 rounded-xl p-4 border border-amber-200/60 text-xs">
+                                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-800 block mb-1">
+                                    Special Directives & Notes
+                                 </span>
+                                 <p className="text-amber-900 font-medium leading-relaxed italic">
+                                    &ldquo;{quoteData.specialRequests}&rdquo;
+                                 </p>
+                              </div>
+                           )}
+                        </div>
+
+                        {/* Amenities Included */}
+                        <div className="space-y-3">
+                           <div className="flex items-center justify-between">
+                              <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                                 Complimentary Amenities & Facilities
+                              </h4>
+                           </div>
+                           <div className="flex flex-wrap gap-2.5">
+                              {(() => {
+                                 const rawAmenities = typeof venueProfile?.amenities === "string" 
+                                    ? JSON.parse(venueProfile.amenities) 
+                                    : (Array.isArray(venueProfile?.amenities) ? venueProfile.amenities : []);
+                                 
+                                 if (rawAmenities.length === 0) {
+                                    return <span className="text-xs text-slate-400 italic">Standard venue amenities included.</span>;
                                  }
-                                 return  
-                                 <img crossOrigin="anonymous" src={typeof logo === 'string' ? logo : logo.src} alt="Logo" className="object-contain w-10 h-10 opacity-50" />;
+
+                                 const formatAmenity = (name: string) => {
+                                    return name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+                                 };
+
+                                 return rawAmenities.map((amenity: string) => {
+                                    const icon = AMENITY_ICONS[amenity] || AMENITY_ICONS["Garden"];
+                                    return (
+                                       <div
+                                          key={amenity}
+                                          className="flex items-center gap-2 bg-slate-50/80 px-3.5 py-2 rounded-lg border border-slate-200/60 text-slate-700"
+                                       >
+                                          <div className="text-pd-pink shrink-0">
+                                             {icon}
+                                          </div>
+                                          <span className="text-xs font-semibold">
+                                             {formatAmenity(amenity)}
+                                          </span>
+                                       </div>
+                                    );
+                                 });
                               })()}
                            </div>
                         </div>
 
-                        {/* Personalized Intro & Overview */}
-                        <div className="space-y-6">
-                           <div className="space-y-2">
-                              <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Proposal for {quoteData.client || 'Client'}</h3>
-                              <p className="text-base text-slate-500 leading-relaxed">
-                                 Hi {quoteData.client ? quoteData.client.split(' ')[0] : ''}, based on your requirements, here is our customized proposal for your upcoming event.
-                              </p>
-                           </div>
-
-                           <div className="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-lg border border-slate-100">
-                              <div className="space-y-3">
-                                 <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Client Details</h4>
-                                 <div>
-                                    <p className="text-sm font-bold text-slate-800">{quoteData.client || 'N/A'}</p>
-                                    {quoteData.contact && <p className="text-xs text-slate-500 mt-1">{quoteData.contact}</p>}
-                                    {quoteData.email && <p className="text-xs text-slate-500 mt-0.5">{quoteData.email}</p>}
-                                 </div>
-                              </div>
-                              <div className="space-y-3">
-                                 <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Event Specifications</h4>
-                                 <div>
-                                    <p className="text-sm font-bold text-slate-800">{quoteData.event || 'N/A'}</p>
-                                    <p className="text-xs text-slate-500 mt-1">Date: {quoteData.eventDate ? new Date(quoteData.eventDate).toLocaleDateString() : 'TBD'}</p>
-                                    <p className="text-xs text-slate-500 mt-0.5">Guests: {quoteData.guestCount || 0} Pax</p>
-                                 </div>
-                              </div>
-                              {quoteData.specialRequests && (
-                                 <div className="col-span-2 pt-4 border-t border-slate-200 mt-2">
-                                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Special Directives</h4>
-                                    <p className="text-xs text-slate-600 ">&quot;{quoteData.specialRequests}&quot;</p>
-                                 </div>
-                              )}
-                           </div>
-                        </div>
-
-                        {/* About Our Venue */}
-                        <div className="space-y-4">
-                           <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Amenities Included</h4>
-                           <div className="bg-slate-50 rounded-lg p-6 border border-slate-100">
-                              <div className="flex flex-wrap gap-4">
-                                 {(() => {
-                                    const rawAmenities = typeof venueProfile?.amenities === 'string' 
-                                       ? JSON.parse(venueProfile.amenities) 
-                                       : (Array.isArray(venueProfile?.amenities) ? venueProfile.amenities : []);
-                                    
-                                    if (rawAmenities.length === 0) {
-                                       return <span className="text-sm text-slate-400">No amenities listed.</span>;
-                                    }
-
-                                    return rawAmenities.map((amenity: string) => {
-                                       const icon = AMENITY_ICONS[amenity] || AMENITY_ICONS['Garden'];
-                                       return (
-                                          <div key={amenity} className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-sm">
-                                             <div className="text-slate-500 scale-90">
-                                                {icon}
-                                             </div>
-                                             <span className="text-[10px] font-semibold text-slate-700 uppercase tracking-wider">{amenity}</span>
-                                          </div>
-                                       );
-                                    });
-                                 })()}
-                              </div>
-                           </div>
-                        </div>
-
-                        {/* Venue Gallery */}
+                        {/* Venue Gallery Preview if selected */}
                         {(() => {
-                           const rawPhotos = typeof venueProfile?.photos === 'string' ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
+                           const rawPhotos = typeof venueProfile?.photos === "string" ? JSON.parse(venueProfile.photos) : venueProfile?.photos;
                            const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => {
-                               if (typeof p === 'string') {
+                               if (typeof p === "string") {
                                    try {
                                        const obj = JSON.parse(p);
-                                       if (obj && typeof obj === 'object') return obj;
+                                       if (obj && typeof obj === "object") return obj;
                                    } catch(e) {}
-                                   return { id: p, category: 'All Photos' };
+                                   return { id: p, category: "All Photos" };
                                }
                                return p;
                            }) : [];
@@ -1074,17 +1163,16 @@ const QuotationManager = ({
                            if (gallery.length === 0) return null;
 
                            return (
-                              <div className="space-y-4">
-                                 <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Venue Preview</h4>
+                              <div className="space-y-3 pt-2">
+                                 <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Venue & Setup Preview</h4>
                                  <div className="grid grid-cols-3 gap-3">
                                     {gallery.map((photo: any, i) => (
-                                       <div key={photo.id || i} className="aspect-4/3 rounded-xl bg-slate-100 overflow-hidden relative border border-slate-200">
-                                          /* eslint-disable-next-line @next/next/no-img-element */
-                                       <img
+                                       <div key={photo.id || i} className="aspect-4/3 rounded-xl bg-slate-100 overflow-hidden relative border border-slate-200/80 shadow-xs">
+                                          <img
                                              crossOrigin="anonymous"
                                              src={`https://sgp.cloud.appwrite.io/v1/storage/buckets/venues_photos/files/${photo.id}/view?project=69ae84bc001ca4edf8c2`}
-                                             alt={`View ${i}`}
-                                             className="absolute inset-0 w-full h-full object-cover"
+                                             alt={`Venue View ${i}`}
+                                             className="w-full h-full object-cover"
                                           />
                                        </div>
                                     ))}
@@ -1093,25 +1181,34 @@ const QuotationManager = ({
                            );
                         })()}
 
-                        {/* Financial Ledger Table */}
-                        <div className="pt-6">
-                           <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Investment Summary</h4>
-                           <div className="overflow-hidden rounded-lg border border-slate-200 shadow-sm">
+                        {/* Financial Ledger / Investment Breakdown */}
+                        <div className="space-y-4 pt-2">
+                           <div className="flex items-center justify-between">
+                              <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                                 Commercial Quotation Breakdown
+                              </h4>
+                           </div>
+                           
+                           <div className="overflow-hidden rounded-xl border border-slate-200/80 shadow-xs">
                               <table className="w-full border-collapse bg-white">
                                  <thead>
-                                    <tr className="bg-slate-50 border-b border-slate-200">
-                                       <th className="text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider p-4 w-2/3">Item Description</th>
-                                       <th className="text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wider p-4 w-1/3">Amount (₹)</th>
+                                    <tr className="bg-slate-900 text-white">
+                                       <th className="text-left text-[11px] font-bold uppercase tracking-wider py-3.5 px-5 w-12">#</th>
+                                       <th className="text-left text-[11px] font-bold uppercase tracking-wider py-3.5 px-5">Service / Item Description</th>
+                                       <th className="text-right text-[11px] font-bold uppercase tracking-wider py-3.5 px-5 w-44">Amount (₹)</th>
                                     </tr>
                                  </thead>
                                  <tbody className="divide-y divide-slate-100">
                                     {quoteData.lineItems.map((item, i) => (
-                                       <tr key={item.id || i} className="hover:bg-slate-50 transition-colors">
-                                          <td className="p-4">
-                                             <p className="text-[13px] font-semibold text-slate-800">{item.label}</p>
+                                       <tr key={item.id || i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50/50"}>
+                                          <td className="py-3.5 px-5 text-xs font-semibold text-slate-400">
+                                             {String(i + 1).padStart(2, "0")}
                                           </td>
-                                          <td className="p-4 text-right">
-                                             <p className="text-[13px] font-medium text-slate-600">₹{item.amount.toLocaleString('en-IN')}</p>
+                                          <td className="py-3.5 px-5">
+                                             <p className="text-sm font-semibold text-slate-800">{item.label}</p>
+                                          </td>
+                                          <td className="py-3.5 px-5 text-right font-bold text-slate-800 text-sm">
+                                             ₹{item.amount.toLocaleString("en-IN")}
                                           </td>
                                        </tr>
                                     ))}
@@ -1119,55 +1216,86 @@ const QuotationManager = ({
                               </table>
                            </div>
 
-                           {/* Totals Floating Card */}
-                           <div className="flex justify-end pt-6">
-                              <div className="w-full max-w-[320px] bg-white rounded-lg p-6 border border-slate-200 shadow-sm space-y-3">
-                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="font-medium text-slate-500">Subtotal</span>
-                                    <span className="font-semibold text-slate-900">₹{subtotal.toLocaleString('en-IN')}</span>
+                           {/* Financial Summary & Total Breakdown Card */}
+                           <div className="flex flex-col sm:flex-row justify-between items-start gap-6 pt-4">
+                              <div className="text-xs text-slate-500 max-w-sm space-y-1.5">
+                                 <p className="font-bold text-slate-700 uppercase text-[10px] tracking-wider">Payment & Terms Notice</p>
+                                 <p className="text-[11px] leading-relaxed text-slate-500">
+                                    This proposal is valid for 15 days from issuance. Booking confirmation is subject to advance deposit and hall availability on the requested event date.
+                                 </p>
+                              </div>
+
+                              <div className="w-full sm:w-80 bg-slate-50/80 rounded-xl p-5 border border-slate-200/80 shadow-xs space-y-3">
+                                 <div className="flex justify-between items-center text-xs">
+                                    <span className="font-medium text-slate-500">Subtotal Amount</span>
+                                    <span className="font-bold text-slate-800">₹{subtotal.toLocaleString("en-IN")}</span>
                                  </div>
+
                                  {discountAmt > 0 && (
-                                    <div className="flex justify-between items-center text-sm text-rose-500">
-                                       <span className="font-medium">Discount</span>
-                                       <span className="font-semibold">-₹{discountAmt.toLocaleString('en-IN')}</span>
+                                    <div className="flex justify-between items-center text-xs text-rose-600">
+                                       <span className="font-medium">Special Discount</span>
+                                       <span className="font-bold">-₹{discountAmt.toLocaleString("en-IN")}</span>
                                     </div>
                                  )}
-                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="font-medium text-slate-500">GST ({quoteData.gstRate}%)</span>
-                                    <span className="font-semibold text-slate-900">₹{gstAmt.toLocaleString('en-IN')}</span>
+
+                                 {quoteData.extraCharges > 0 && (
+                                    <div className="flex justify-between items-center text-xs text-slate-600">
+                                       <span className="font-medium">Additional Charges</span>
+                                       <span className="font-bold">+₹{quoteData.extraCharges.toLocaleString("en-IN")}</span>
+                                    </div>
+                                 )}
+
+                                 <div className="flex justify-between items-center text-xs">
+                                    <span className="font-medium text-slate-500">Applicable Taxes (GST {quoteData.gstRate}%)</span>
+                                    <span className="font-bold text-slate-800">₹{gstAmt.toLocaleString("en-IN")}</span>
                                  </div>
-                                 <div className="h-px bg-slate-200 my-3" />
-                                 <div className="flex justify-between items-end">
-                                    <span className="text-sm font-bold text-slate-900">Total</span>
-                                    <span className="text-2xl font-bold font-heading text-pink-500 tracking-tight">₹{total.toLocaleString('en-IN')}</span>
+
+                                 <div className="h-px bg-slate-200/80 my-2" />
+
+                                 <div className="flex justify-between items-baseline pt-1">
+                                    <span className="text-sm font-bold text-slate-900 uppercase tracking-wide">Net Payable</span>
+                                    <span className="text-2xl font-black font-heading text-pd-pink">
+                                       ₹{total.toLocaleString("en-IN")}
+                                    </span>
                                  </div>
                               </div>
                            </div>
                         </div>
 
-                        {/* Signature Section */}
-                        <div className="flex justify-end pt-8">
-                           <div className="text-right space-y-3">
-                              <div className="w-40 h-px bg-slate-300 ml-auto" />
-                              <div>
-                                 <p className="text-[11px] font-bold text-slate-900 tracking-wider">{quoteData.signatory || venueProfile?.venueName || "Henry's Imperial Ballroom"}</p>
-                                 <p className="text-[10px] text-slate-500 mt-0.5">Authorized Signatory</p>
-                              </div>
+                        {/* Signatures & Authorization */}
+                        <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-end gap-8">
+                           <div className="text-left space-y-1">
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Client Acceptance</p>
+                              <div className="w-48 h-10 border-b border-dashed border-slate-300 mt-6" />
+                              <p className="text-[10px] text-slate-400 mt-1">Signature & Date</p>
                            </div>
-                        </div>
 
-                        {/* Visual-First Footer */}
-                        <div className="mt-auto pt-10">
-                           <div className="border-t border-slate-100 pt-6 text-center">
-                              <p className="text-[10px] font-medium text-slate-400 flex items-center justify-center gap-1.5">
-                                 <span className="text-pink-500">✧</span> Generated seamlessly via PartyDial Quotation Maker
+                           <div className="text-right space-y-1">
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Authorized Signatory</p>
+                              <div className="w-48 h-10 border-b border-dashed border-slate-300 ml-auto mt-6" />
+                              <p className="text-xs font-bold text-slate-900 mt-1.5">
+                                 {quoteData.signatory || venueProfile?.venueName || "Henry's Imperial Ballroom"}
                               </p>
+                              <p className="text-[10px] text-slate-400">Management Representative</p>
                            </div>
                         </div>
+
+                        {/* Official Document Footer */}
+                        <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-[10px] text-slate-400 gap-2">
+                           <p className="font-medium">
+                              Confidential • Prepared exclusively for {quoteData.client || "Client"}
+                           </p>
+                           <p className="font-medium flex items-center gap-1">
+                              <span>Verified Venue Partner</span>
+                              <span>•</span>
+                              <span className="font-semibold text-slate-600">PartyDial Network</span>
+                           </p>
+                        </div>
+
                      </div>
                   </motion.div>
-               </div>
             </div>
+               </div>
          </motion.div>
 
          <style jsx global>{`

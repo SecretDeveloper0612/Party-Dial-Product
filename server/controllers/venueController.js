@@ -534,33 +534,33 @@ exports.getVenueLeads = async (req, res) => {
     try {
         const { venueId } = req.params;
 
-        // Fetch venue to get its creation date and subscription status
+        // Fetch venue to get its creation date and authoritative subscription status
         const venue = await databases.getDocument(
             DATABASE_ID,
             VENUES_COLLECTION_ID,
             venueId
         );
 
-        // Security Check: Hide leads from free accounts
-        if (!venue.subscriptionPlan || venue.subscriptionPlan === 'free') {
+        // Security Check: Use authoritative subscription eligibility check
+        const { checkSubscriptionEligibility } = require('../services/leadDistributionService');
+        const eligibility = checkSubscriptionEligibility(venue);
+        if (!eligibility.isEligible) {
             return res.status(200).json({
                 status: 'success',
                 results: 0,
                 data: [],
-                message: 'Leads are only visible to venues with an active subscription plan.'
+                message: `Leads are only accessible to venues with an active paid subscription plan. (${eligibility.reason})`
             });
         }
 
         const registrationDate = venue.createdAt || venue.$createdAt;
 
+        // Fetch leads strictly assigned to this venue (avoid broadcast leaks to unauthorized partners)
         const leads = await databases.listDocuments(
             DATABASE_ID,
             LEADS_COLLECTION_ID,
             [
-                Query.or([
-                    Query.equal('venueId', venueId),
-                    Query.equal('venueId', 'BROADCAST')
-                ]),
+                Query.equal('venueId', venueId),
                 Query.greaterThan('$createdAt', registrationDate),
                 Query.orderDesc('$createdAt')
             ]

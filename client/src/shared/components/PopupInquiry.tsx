@@ -781,9 +781,13 @@ export default function PopupInquiry() {
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (!isOpen && !isSubmitted && !isAuthModalOpen) {
+    const isDedicatedLanding = typeof window !== 'undefined' && window.location.pathname.startsWith('/event-inquiry');
+    if (!isOpen && !isSubmitted && !isAuthModalOpen && !isDedicatedLanding) {
       const delay = hasInitialTimerFired.current ? 60000 : 10000;
       timer = setTimeout(async () => {
+        if (typeof window !== 'undefined' && window.location.pathname.startsWith('/event-inquiry')) {
+          return;
+        }
         // Prevent opening if the user is trying to log in (fallback check) or if another modal is open
         if (typeof window !== 'undefined' && ((window as any).isAuthModalOpen || (window as any).isOtherModalOpen)) {
           return;

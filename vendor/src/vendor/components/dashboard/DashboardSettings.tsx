@@ -10,7 +10,7 @@ import {
   Sparkles, Building2, Users, Wind, Car, Wifi, Utensils, Music, 
   Image as ImageIcon, CheckCircle2, IndianRupee,
   Plus, Zap, Trees, ChefHat,
-  Palette, Heart, ShieldCheck, Building, Trash2, Target, Camera, Video, PlayCircle, Clock, X,
+  Palette, Heart, ShieldCheck, Building, Trash2, Target, TrendingUp, Camera, Video, PlayCircle, Clock, X,
   Coffee, GlassWater, Landmark, Waves, Tent, Hotel, Beer, ChevronDown, Check
 } from 'lucide-react';
 import Image from 'next/image';
@@ -1102,7 +1102,7 @@ const DashboardSettings = ({
 
                           <div className="p-6 bg-slate-50 border border-slate-200/60 rounded-lg flex items-start gap-4">
                              <div className="w-10 h-10 bg-white rounded-xl border border-slate-200/60 flex items-center justify-center text-amber-500 shrink-0">
-                                <Sparkles size={20} />
+                                <TrendingUp size={20} />
                              </div>
                              <div>
                                 <h4 className="text-sm font-semibold text-slate-900 mb-1">Smart Pricing Insight</h4>

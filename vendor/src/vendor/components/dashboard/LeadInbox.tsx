@@ -50,6 +50,9 @@ interface LeadInboxProps {
   updateLeadReminder?: (leadId: string, reminderTime: string) => void;
   vendorEmail?: string;
   setActiveTab: (tab: string) => void;
+  searchTerm?: string;
+  setSearchTerm?: (term: string) => void;
+  onOpenAdvancedFilter?: () => void;
 }
 
 const LeadInbox = ({
@@ -60,7 +63,10 @@ const LeadInbox = ({
   updateLeadRemark,
   updateLeadReminder,
   vendorEmail,
-  setActiveTab
+  setActiveTab,
+  searchTerm = '',
+  setSearchTerm,
+  onOpenAdvancedFilter
 }: LeadInboxProps) => {
   const [editingRemarkId, setEditingRemarkId] = useState<string | null>(null);
   const [remarkDraft, setRemarkDraft] = useState<string>('');
@@ -163,7 +169,7 @@ const LeadInbox = ({
     }
   };
 
-  const filters = ['All', 'New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost Leads', 'All Expired Leads'];
+  const filters = ['All', 'New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost Leads'];
 
   return (
     <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-6xl mx-auto space-y-6">
@@ -181,11 +187,17 @@ const LeadInbox = ({
                 <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pd-pink transition-colors" />
                 <input 
                   type="text" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm && setSearchTerm(e.target.value)}
                   placeholder="Search leads..." 
                   className="pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200/60 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:ring-2 focus:ring-pd-pink/20 focus:border-pd-pink transition-all w-full md:w-64"
                 />
              </div>
-             <button className="p-2.5 bg-white border border-slate-200/60 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-sm">
+             <button 
+                onClick={() => onOpenAdvancedFilter && onOpenAdvancedFilter()}
+                className="p-2.5 bg-white border border-slate-200/60 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-sm"
+                title="Advanced Filters"
+             >
                 <Filter size={18} />
              </button>
           </div>
@@ -223,8 +235,7 @@ const LeadInbox = ({
         <div className="divide-y divide-slate-100">
           <AnimatePresence>
             {filteredAdvancedLeads.length > 0 ? filteredAdvancedLeads.map((lead, i) => {
-              const isExpired = lead.eventDate && new Date(lead.eventDate) < new Date(new Date().setHours(0, 0, 0, 0)) && lead.status !== 'Booked';
-              const displayStatus = isExpired ? 'Expired' : lead.status;
+              const displayStatus = lead.status;
               
               return (
               <motion.div 
@@ -253,7 +264,7 @@ const LeadInbox = ({
                          <span className="truncate">{lead.email || 'No email provided'}</span>
                        </div>
                        <div className="md:hidden mt-2 flex items-center gap-2">
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider ${isExpired ? 'bg-slate-100 text-slate-500' : lead.color} border border-current/10`}>
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider ${lead.status === 'Lost Leads' ? 'bg-rose-50 text-rose-700' : lead.color} border border-current/10`}>
                             {displayStatus}
                           </span>
                        </div>
@@ -315,24 +326,18 @@ const LeadInbox = ({
                          <ChevronDown size={14} />
                        </div>
                        <select 
-                          className={`w-full appearance-none pr-8 pl-3 py-1.5 rounded-lg text-xs font-bold border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-900/10 ${
-                            isExpired ? 'bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed' :
-                            lead.status === 'New' ? 'bg-blue-50 text-blue-700 border-blue-200/50 cursor-pointer' :
-                            lead.status === 'Booked' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50 cursor-pointer' :
-                            lead.status === 'Lost Leads' ? 'bg-rose-50 text-rose-700 border-rose-200/50 cursor-pointer' :
-                            'bg-slate-50 text-slate-700 border-slate-200/60 cursor-pointer'
+                          className={`w-full appearance-none pr-8 pl-3 py-1.5 rounded-lg text-xs font-bold border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer ${
+                            lead.status === 'New' ? 'bg-blue-50 text-blue-700 border-blue-200/50' :
+                            lead.status === 'Booked' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50' :
+                            lead.status === 'Lost Leads' ? 'bg-rose-50 text-rose-700 border-rose-200/50' :
+                            'bg-slate-50 text-slate-700 border-slate-200/60'
                           }`}
                           value={displayStatus}
                           onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
-                          disabled={!!isExpired}
                        >
-                          {isExpired ? (
-                             <option value="Expired">Expired</option>
-                          ) : (
-                             ['New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost Leads'].map(s => (
-                                <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
-                             ))
-                          )}
+                          {['New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost Leads'].map(s => (
+                             <option key={s} value={s} className="bg-white text-slate-900">{s}</option>
+                          ))}
                        </select>
                     </div>
 

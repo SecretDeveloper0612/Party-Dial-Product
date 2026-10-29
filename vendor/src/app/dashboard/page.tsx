@@ -94,6 +94,7 @@ import NotificationDropdown from '@/vendor/components/dashboard/NotificationDrop
 import PaymentReminderPopup from '@/vendor/components/PaymentReminderPopup';
 import PartnerInquiryPopup from '@/vendor/components/PartnerInquiryPopup';
 import VerificationModal from '@/vendor/components/dashboard/VerificationModal';
+import SubscriptionTab from '@/vendor/components/dashboard/SubscriptionTab';
 
 import logo from '../logo.jpg';
 
@@ -106,6 +107,7 @@ const tabs = [
 ];
 
 const secondaryTabs = [
+  { id: 'subscription', label: 'Subscription', icon: <CreditCard size={18} /> },
   { id: 'support', label: 'Support', icon: <Headset size={18} /> },
   { id: 'settings', label: 'Settings', icon: <Settings size={18} /> },
 ];
@@ -473,20 +475,13 @@ export default function VendorDashboard() {
 
   const filteredAdvancedLeads = useMemo(() => {
     return [...recentLeads].filter(lead => {
-      const isLeadExpired = !!(
-        (lead.eventDate && new Date(lead.eventDate) < new Date(new Date().setHours(0, 0, 0, 0)) && lead.status !== 'Booked') ||
-        lead.status === 'Expired' ||
-        lead.status === 'Lost' ||
-        lead.status === 'Lost Leads'
-      );
+      const isLost = lead.status === 'Lost' || lead.status === 'Lost Leads';
 
       let matchesStatus = false;
       if (leadFilter === 'All') {
-        matchesStatus = true;
-      } else if (leadFilter === 'All Expired Leads' || leadFilter === 'Expired') {
-        matchesStatus = isLeadExpired;
+        matchesStatus = !isLost;
       } else if (leadFilter === 'Lost Leads') {
-        matchesStatus = lead.status === 'Lost' || lead.status === 'Lost Leads';
+        matchesStatus = isLost;
       } else {
         matchesStatus = lead.status === leadFilter;
       }
@@ -841,7 +836,8 @@ export default function VendorDashboard() {
                   Query.equal('venueId', 'BROADCAST')
                 ]),
                 Query.greaterThan('$createdAt', restrictedSince),
-                Query.orderDesc('$createdAt')
+                Query.orderDesc('$createdAt'),
+                Query.limit(5000)
               ];
 
               const leadsResult = await databases.listDocuments(DATABASE_ID, LEADS_COLLECTION_ID, queries);
@@ -889,17 +885,8 @@ export default function VendorDashboard() {
                 remark: extractedRemark || '',
                 reminder: extractedReminder || '',
                 status: (() => {
-                  if (doc.status === 'Lost') return 'Lost';
+                  if (doc.status === 'Lost' || doc.status === 'Lost Leads') return 'Lost Leads';
                   if (doc.status === 'Booked') return 'Booked';
-                  
-                  // Auto-Lost check: immediately after event date
-                  const eventDateStr = doc.eventDate || extractedDate;
-                  if (eventDateStr) {
-                    const eventDate = new Date(eventDateStr);
-                    const now = new Date();
-                    if (now > eventDate) return 'Lost';
-                  }
-
                   if (doc.status === 'Quoted') return 'Quotation Send';
                   if (doc.status === 'In-Progress') return 'Contacted';
                   return doc.status || 'New';
@@ -1381,87 +1368,6 @@ export default function VendorDashboard() {
          </div>
 
          <div className={`mt-auto ${sidebarOpen ? 'p-6' : 'p-4 flex flex-col items-center'}`}>
-            {sidebarOpen ? (
-               <div className="bg-white border border-slate-200/60 shadow-[0_4px_12px_rgba(0,0,0,0.03)] rounded-xl p-3 flex flex-col w-full relative overflow-hidden group mb-4">
-                  {/* Subtle background glow based on status */}
-                  {expiryInfo && (
-                    <div className={`absolute -inset-1 opacity-20 blur-xl transition-all group-hover:opacity-30 ${expiryInfo.daysLeft < 7 ? 'bg-rose-500' : 'bg-emerald-400'}`}></div>
-                  )}
-                  <div className="relative z-10">
-                  {expiryInfo && expiryInfo.daysLeft > 0 ? (
-                     <>
-                       <div className="flex items-center justify-between w-full mb-3 gap-1">
-                          <div className="flex items-center gap-2">
-                             <div className="relative flex items-center justify-center bg-slate-50 p-1.5 rounded-lg border border-slate-100 shrink-0">
-                                <span className={`absolute w-2 h-2 rounded-full ${expiryInfo.daysLeft < 7 ? 'bg-rose-500' : 'bg-emerald-500'} animate-ping opacity-60`}></span>
-                                <span className={`relative w-1.5 h-1.5 rounded-full ${expiryInfo.daysLeft < 7 ? 'bg-rose-500' : 'bg-emerald-500'}`}></span>
-                             </div>
-                             <div className="min-w-0">
-                                <span className="text-xs font-semibold text-slate-800 leading-none block mb-0.5 truncate">
-                                   {expiryInfo.label}
-                                </span>
-                                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400 leading-none block">
-                                   Validity
-                                </span>
-                             </div>
-                          </div>
-                          <div className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold tracking-normal border shrink-0 ${
-                             expiryInfo.daysLeft < 7 
-                               ? 'bg-rose-50 text-rose-600 border-rose-100 shadow-[0_0_10px_rgba(244,63,94,0.1)]' 
-                               : 'bg-emerald-50 text-emerald-700 border-emerald-100 shadow-[0_0_10px_rgba(16,185,129,0.1)]'
-                          }`}>
-                             <Clock size={11} className={expiryInfo.daysLeft < 7 ? 'animate-pulse' : ''} />
-                             <span>{expiryInfo.daysLeft}d left</span>
-                          </div>
-                       </div>
-                       <div className="relative w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                          <motion.div 
-                             initial={{ width: 0 }}
-                             animate={{ width: `${expiryInfo.percent}%` }}
-                             transition={{ duration: 1.5, ease: "circOut", delay: 0.5 }}
-                             className={`absolute top-0 left-0 h-full rounded-full shadow-sm ${
-                                expiryInfo.daysLeft < 7 
-                                  ? 'bg-linear-to-r from-rose-500 to-red-500' 
-                                  : 'bg-linear-to-r from-pd-pink via-amber-400 to-emerald-400'
-                             }`}
-                          />
-                       </div>
-                     </>
-                  ) : hasPurchasedPlan ? (
-                     /* User purchased a plan, but it is now expired */
-                     <div className="flex flex-col items-center justify-center w-full py-1 gap-2.5">
-                        <div className="flex items-center gap-2">
-                           <div className="w-6 h-6 rounded-full bg-rose-50 flex items-center justify-center text-rose-600 border border-rose-100 shrink-0">
-                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.6)]"></span>
-                           </div>
-                           <span className="text-xs font-semibold text-rose-600 leading-none text-center">
-                              Plan Expired
-                           </span>
-                        </div>
-                        <Link href="/pricing" className="bg-slate-900 hover:bg-pd-pink transition-colors text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md active:scale-95 text-center w-full">
-                           Upgrade Now
-                        </Link>
-                     </div>
-                  ) : (
-                     /* User never purchased a plan (Free tier) -> Show only Upgrade Now */
-                     <div className="flex flex-col items-center justify-center w-full py-1">
-                        <Link href="/pricing" className="bg-slate-900 hover:bg-pd-pink transition-colors text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-md active:scale-95 text-center w-full flex items-center justify-center gap-1.5">
-                           <Sparkles size={13} className="text-amber-400" />
-                           <span>Upgrade Now</span>
-                        </Link>
-                     </div>
-                  )}
-                  </div>
-               </div>
-            ) : (
-               <div className="mb-4 relative group" title={expiryInfo && expiryInfo.daysLeft > 0 ? `${expiryInfo.label}: ${expiryInfo.daysLeft} days left` : (hasPurchasedPlan ? 'Plan Expired' : 'Upgrade Plan')}>
-                  <div className="relative flex items-center justify-center bg-slate-50 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-100 transition-colors">
-                     <span className={`absolute w-3 h-3 rounded-full ${!hasPurchasedPlan ? 'bg-pd-pink' : (expiryInfo && expiryInfo.daysLeft >= 7 ? 'bg-emerald-500' : 'bg-rose-500')} animate-ping opacity-60`}></span>
-                     <span className={`relative w-2 h-2 rounded-full ${!hasPurchasedPlan ? 'bg-pd-pink' : (expiryInfo && expiryInfo.daysLeft >= 7 ? 'bg-emerald-500' : 'bg-rose-500')}`}></span>
-                  </div>
-               </div>
-            )}
-            
             <button 
                onClick={handleLogout}
                className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4 justify-start' : 'justify-center px-0'} py-2.5 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors`}
@@ -1637,6 +1543,9 @@ export default function VendorDashboard() {
                   updateLeadReminder={updateLeadReminder}
                   vendorEmail={userData?.email || venueProfile?.email || ''}
                   setActiveTab={setActiveTab}
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  onOpenAdvancedFilter={() => setIsAdvancedFilterOpen(true)}
                 />
               ) : (
                 <motion.div 
@@ -1726,7 +1635,7 @@ export default function VendorDashboard() {
                       onClick={() => setShowInquiryPopup(true)}
                       className="px-8 py-4 bg-pd-purple text-white text-xs font-semibold rounded-2xl hover:bg-slate-900 transition-all shadow-xl active:scale-95 flex items-center gap-2"
                    >
-                      Activate Sales Pipeline <Sparkles size={16} />
+                      Activate Sales Pipeline
                    </button>
                 </motion.div>
               )
@@ -1776,6 +1685,17 @@ export default function VendorDashboard() {
 
             {activeTab === 'analytics' && (
               <AnalyticsCenter />
+            )}
+
+            {activeTab === 'subscription' && (
+              <SubscriptionTab 
+                venueProfile={venueProfile}
+                userData={userData}
+                expiryInfo={expiryInfo}
+                hasActivePaidPlan={hasActivePaidPlan}
+                setShowInquiryPopup={setShowInquiryPopup}
+                setActiveTab={setActiveTab}
+              />
             )}
 
             {activeTab === 'support' && (

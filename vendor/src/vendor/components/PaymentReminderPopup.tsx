@@ -86,10 +86,7 @@ const PaymentReminderPopup: React.FC<PaymentReminderPopupProps> = ({ isOpen, onC
 
               <div className="space-y-6 mb-8 sm:mb-10">
                 <div className="p-6 sm:p-8 bg-linear-to-br from-slate-900 to-slate-800 rounded-[25px] sm:rounded-[35px] text-white shadow-xl relative overflow-hidden group">
-                  {/* Micro-animation sparkles */}
-                  <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
-                    <Sparkles className="absolute top-4 right-6 text-white" size={24} />
-                  </div>
+
                   
                   <div className="relative z-10">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">

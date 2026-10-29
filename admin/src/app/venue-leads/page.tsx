@@ -23,7 +23,8 @@ import {
   Clock,
   MessageSquare,
   ChevronDown,
-  Eye
+  Eye,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +42,26 @@ interface VenueLead {
   $createdAt: string;
   pincode?: string;
   eventDate?: string;
+  inquiryId?: string;
+  city?: string;
+  location?: string;
+}
+
+interface GroupedLead {
+  groupKey: string;
+  primaryLead: VenueLead;
+  leadIds: string[];
+  distributedVenues: {
+    venueName: string;
+    venueId: string;
+    leadId: string;
+    status: string;
+  }[];
+  eventDate: string;
+  city: string;
+  pincode: string;
+  notes: string;
+  totalVenues: number;
 }
 
 const STATUS_OPTIONS = [
@@ -92,6 +113,7 @@ export default function VenueLeadsCheckPage() {
   const [selectedVenue, setSelectedVenue] = useState("ALL");
   const [selectedTime, setSelectedTime] = useState("LIFETIME");
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
+  const [activeModalLead, setActiveModalLead] = useState<GroupedLead | null>(null);
   const [redistributing, setRedistributing] = useState(false);
   const [redistResult, setRedistResult] = useState<any>(null);
 
@@ -118,26 +140,31 @@ export default function VenueLeadsCheckPage() {
     fetchLeads();
   }, []);
 
-  // Helper to get all venues associated with a lead (direct + broadcasted)
-  const getRecipientVenues = (lead: VenueLead) => {
-    const vSet = new Set<string>();
-    if (lead.assignedVenue && lead.assignedVenue !== 'Broadcast') {
-      vSet.add(lead.assignedVenue);
+  // Helper to extract Event Date, City, and Pincode cleanly
+  const extractLeadDetails = (lead: VenueLead) => {
+    let eventDate = lead.eventDate || "N/A";
+    let city = lead.city || lead.location || "N/A";
+    let pincode = lead.pincode || "N/A";
+
+    if (lead.notes) {
+      // Event Date:
+      const dateMatch = lead.notes.match(/Event Date:\s*([^|]+)/i);
+      if (dateMatch && dateMatch[1].trim() && dateMatch[1].trim() !== 'N/A') {
+        eventDate = dateMatch[1].trim();
+      }
+      // City / Location:
+      const cityMatch = lead.notes.match(/(?:City|Location):\s*([^|]+)/i);
+      if (cityMatch && cityMatch[1].trim() && cityMatch[1].trim() !== 'N/A') {
+        city = cityMatch[1].trim();
+      }
+      // Pincode:
+      const pinMatch = lead.notes.match(/(?:Pin|Pincode):\s*(\d{6})/i) || lead.notes.match(/\| (\d{6}) \|/);
+      if (pinMatch && pinMatch[1].trim()) {
+        pincode = pinMatch[1].trim();
+      }
     }
-    if (lead.notes?.includes('[DISTRIBUTED] to:')) {
-      try {
-        const listPart = lead.notes.split('[DISTRIBUTED] to:')[1].split('|')[0];
-        listPart.split(',').forEach(v => {
-          const name = v.trim();
-          if (name) vSet.add(name);
-        });
-      } catch (e) { console.error("Parse error", e); }
-    }
-    // Still include 'Broadcast' as a pseudo-venue if it was never distributed
-    if (vSet.size === 0 && lead.assignedVenue === 'Broadcast') {
-      vSet.add('Broadcast');
-    }
-    return Array.from(vSet);
+
+    return { eventDate, city, pincode };
   };
 
   // Primary filtering for Date Range
@@ -153,63 +180,140 @@ export default function VenueLeadsCheckPage() {
     return leads.filter(l => new Date(l.$createdAt) >= cutoff);
   }, [leads, selectedTime]);
 
-  // Extract unique venue names for filter from time-filtered leads
-  const uniqueVenues = useMemo(() => {
-    const venues = new Set<string>();
-    leadsWithinTime.forEach(l => {
-      getRecipientVenues(l).forEach(v => venues.add(v));
+  // Group leads representing the same inquiry into a single unique row
+  const groupedLeads = useMemo(() => {
+    const map = new Map<string, GroupedLead>();
+
+    leadsWithinTime.forEach((lead) => {
+      const rawPhone = (lead.phone || "").replace(/\D/g, "").slice(-10);
+      const { eventDate, city, pincode } = extractLeadDetails(lead);
+      const evType = (lead.eventType || "").toLowerCase().trim();
+      const guests = lead.guests || 0;
+
+      // Group key: if inquiryId exists use it, otherwise phone + eventType + 10-minute time bucket
+      const createdAtMs = new Date(lead.$createdAt).getTime();
+      const timeBucket = Math.floor(createdAtMs / (10 * 60 * 1000));
+      const groupKey = lead.inquiryId
+        ? `inq_${lead.inquiryId}`
+        : rawPhone
+        ? `${rawPhone}_${evType}_${guests}_${timeBucket}`
+        : lead.$id;
+
+      if (!map.has(groupKey)) {
+        map.set(groupKey, {
+          groupKey,
+          primaryLead: lead,
+          leadIds: [lead.$id],
+          distributedVenues: [
+            {
+              venueName: lead.assignedVenue || "Unknown Venue",
+              venueId: lead.venueId,
+              leadId: lead.$id,
+              status: lead.status || "New"
+            }
+          ],
+          eventDate,
+          city,
+          pincode,
+          notes: lead.notes || "",
+          totalVenues: 1
+        });
+      } else {
+        const existing = map.get(groupKey)!;
+        existing.leadIds.push(lead.$id);
+        
+        // Add venue if not already in list
+        const alreadyHasVenue = existing.distributedVenues.some(
+          v => v.venueId === lead.venueId || v.venueName === lead.assignedVenue
+        );
+        if (!alreadyHasVenue) {
+          existing.distributedVenues.push({
+            venueName: lead.assignedVenue || "Unknown Venue",
+            venueId: lead.venueId,
+            leadId: lead.$id,
+            status: lead.status || "New"
+          });
+        }
+        existing.totalVenues = existing.distributedVenues.length;
+
+        // Fill in missing details if secondary lead has them
+        if (existing.eventDate === "N/A" && eventDate !== "N/A") existing.eventDate = eventDate;
+        if (existing.city === "N/A" && city !== "N/A") existing.city = city;
+        if (existing.pincode === "N/A" && pincode !== "N/A") existing.pincode = pincode;
+      }
     });
-    return Array.from(venues).sort();
+
+    return Array.from(map.values());
   }, [leadsWithinTime]);
 
-  // Stats per venue from time-filtered leads
+  // Extract unique venue names for filter from time-filtered grouped leads
+  const uniqueVenues = useMemo(() => {
+    const venues = new Set<string>();
+    groupedLeads.forEach(g => {
+      g.distributedVenues.forEach(v => venues.add(v.venueName));
+    });
+    return Array.from(venues).sort();
+  }, [groupedLeads]);
+
+  // Stats per venue
   const venueStats = useMemo(() => {
-    const stats: Record<string, {total: number, new: number, booked: number}> = {};
-    leadsWithinTime.forEach(l => {
-      const myVenues = getRecipientVenues(l);
-      myVenues.forEach(vName => {
-        if (!stats[vName]) stats[vName] = { total: 0, new: 0, booked: 0 };
-        stats[vName].total++;
-        if (l.status === 'New') stats[vName].new++;
-        if (l.status === 'Booked') stats[vName].booked++;
+    const stats: Record<string, { total: number; new: number; booked: number }> = {};
+    groupedLeads.forEach(g => {
+      g.distributedVenues.forEach(v => {
+        if (!stats[v.venueName]) stats[v.venueName] = { total: 0, new: 0, booked: 0 };
+        stats[v.venueName].total++;
+        if (v.status === 'New') stats[v.venueName].new++;
+        if (v.status === 'Booked') stats[v.venueName].booked++;
       });
     });
     return stats;
-  }, [leadsWithinTime]);
+  }, [groupedLeads]);
 
-  const filteredLeads = leadsWithinTime.filter(l => {
-    const myVenues = getRecipientVenues(l);
-    
-    const matchesSearch = 
-      l.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      l.phone?.includes(searchQuery) ||
-      l.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      myVenues.some(v => v.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesStatus = selectedStatus === "ALL" || l.status === selectedStatus;
-    const matchesVenue = selectedVenue === "ALL" || myVenues.includes(selectedVenue);
+  // Filtered unique grouped leads based on search query, venue filter, and status filter
+  const filteredGroupedLeads = useMemo(() => {
+    return groupedLeads.filter(g => {
+      const p = g.primaryLead;
+      const venueNames = g.distributedVenues.map(v => v.venueName.toLowerCase());
 
-    return matchesSearch && matchesStatus && matchesVenue;
-  });
+      const matchesSearch =
+        p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.phone?.includes(searchQuery) ||
+        p.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        g.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        g.pincode.includes(searchQuery) ||
+        venueNames.some(v => v.includes(searchQuery.toLowerCase()));
 
-  const todayLeads = leads.filter(l => new Date(l.$createdAt).toDateString() === new Date().toDateString()).length;
-  const bookedLeads = leadsWithinTime.filter(l => l.status === 'Booked').length;
+      const matchesStatus =
+        selectedStatus === "ALL" ||
+        g.distributedVenues.some(v => v.status === selectedStatus) ||
+        p.status === selectedStatus;
+
+      const matchesVenue =
+        selectedVenue === "ALL" ||
+        g.distributedVenues.some(v => v.venueName === selectedVenue);
+
+      return matchesSearch && matchesStatus && matchesVenue;
+    });
+  }, [groupedLeads, searchQuery, selectedStatus, selectedVenue]);
+
+  const todayLeads = groupedLeads.filter(g => new Date(g.primaryLead.$createdAt).toDateString() === new Date().toDateString()).length;
+  const bookedLeads = groupedLeads.filter(g => g.distributedVenues.some(v => v.status === 'Booked') || g.primaryLead.status === 'Booked').length;
 
   const exportToCSV = () => {
-    const headers = ["Date", "Time", "Customer Name", "Phone", "Email", "Event Type", "PAX", "Pincode", "Proposed Event Date", "Venue", "Status", "Notes"];
-    const rows = filteredLeads.map(l => [
-      new Date(l.$createdAt).toLocaleDateString(),
-      new Date(l.$createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      l.name,
-      l.phone,
-      l.email || '',
-      l.eventType,
-      l.guests,
-      l.pincode || '',
-      l.eventDate || '',
-      l.assignedVenue,
-      l.status,
-      (l.notes || '').replace(/,/g, ';')
+    const headers = ["Date", "Time", "Customer Name", "Phone", "Email", "Event Type", "PAX", "City", "Pincode", "Event Date", "Distributed Venues", "Status"];
+    const rows = filteredGroupedLeads.map(g => [
+      new Date(g.primaryLead.$createdAt).toLocaleDateString(),
+      new Date(g.primaryLead.$createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      g.primaryLead.name,
+      g.primaryLead.phone,
+      g.primaryLead.email || '',
+      g.primaryLead.eventType,
+      g.primaryLead.guests,
+      g.city,
+      g.pincode,
+      g.eventDate,
+      g.distributedVenues.map(v => v.venueName).join('; '),
+      g.primaryLead.status
     ]);
 
     const csvContent = "data:text/csv;charset=utf-8," 
@@ -358,37 +462,7 @@ export default function VenueLeadsCheckPage() {
         </motion.div>
       )}
 
-      {/* Per-Venue Breakdown */}
-      {uniqueVenues.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {Object.entries(venueStats).sort((a, b) => b[1].total - a[1].total).map(([venue, stat]) => (
-            <button
-              key={venue}
-              onClick={() => setSelectedVenue(selectedVenue === venue ? "ALL" : venue)}
-              className={cn(
-                "p-4 rounded-xl border text-left transition-all hover:shadow-md",
-                selectedVenue === venue 
-                  ? "bg-indigo-50 border-indigo-200 shadow-md" 
-                  : "bg-white border-slate-50 hover:border-slate-200"
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-violet-50 text-violet-500 flex items-center justify-center font-black text-xs shrink-0">
-                  {venue.charAt(0)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-slate-700 truncate">{venue}</p>
-                  <div className="flex items-center gap-3 mt-0.5">
-                    <span className="text-[10px] font-black text-slate-400">{stat.total} leads</span>
-                    {stat.new > 0 && <span className="text-[10px] font-black text-blue-500">{stat.new} new</span>}
-                    {stat.booked > 0 && <span className="text-[10px] font-black text-emerald-500">{stat.booked} booked</span>}
-                  </div>
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
+
 
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -444,7 +518,7 @@ export default function VenueLeadsCheckPage() {
       {/* Results Count */}
       <div className="flex items-center justify-between">
         <p className="text-xs font-bold text-slate-400">
-          Showing <span className="text-slate-700">{filteredLeads.length}</span> of {leads.length} leads
+          Showing <span className="text-slate-700">{filteredGroupedLeads.length}</span> unique leads (from {leads.length} distributions)
           {selectedVenue !== "ALL" && <span className="text-indigo-500"> · Filtered by: {selectedVenue}</span>}
         </p>
       </div>
@@ -457,10 +531,10 @@ export default function VenueLeadsCheckPage() {
                   <tr className="bg-slate-50/80 border-b border-slate-100">
                      <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Lead Info</th>
                      <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Event</th>
-                     <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Assigned Venue</th>
+                     <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Distributed To</th>
                      <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
                      <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Date</th>
-                     <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400"></th>
+                     <th className="p-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Action</th>
                   </tr>
                </thead>
                <tbody className="divide-y divide-slate-50">
@@ -470,7 +544,7 @@ export default function VenueLeadsCheckPage() {
                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Syncing Leads Data...</p>
                       </td>
                     </tr>
-                  ) : filteredLeads.length === 0 ? (
+                  ) : filteredGroupedLeads.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="p-20 text-center">
                          <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -487,122 +561,233 @@ export default function VenueLeadsCheckPage() {
                          )}
                       </td>
                     </tr>
-                  ) : filteredLeads.map((lead, i) => (
-                    <React.Fragment key={lead.$id}>
-                    <motion.tr 
-                      key={lead.$id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: Math.min(i * 0.02, 0.5) }}
-                      className="hover:bg-slate-50/50 transition-colors cursor-pointer"
-                      onClick={() => setExpandedLead(expandedLead === lead.$id ? null : lead.$id)}
-                    >
-                       <td className="p-5">
-                          <div className="flex items-center gap-3">
-                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-600 flex items-center justify-center font-black text-sm uppercase shrink-0">
-                               {lead.name?.charAt(0) || '?'}
-                             </div>
-                             <div className="min-w-0">
-                                <h4 className="text-sm font-bold text-slate-800 truncate">{lead.name}</h4>
-                                <div className="flex items-center gap-3 mt-1 flex-wrap">
-                                   <span className="text-[10px] text-slate-400 flex items-center gap-1 font-bold"><Phone size={9} /> {lead.phone}</span>
-                                   {lead.pincode && <span className="text-[10px] text-indigo-500 flex items-center gap-1 font-black"><MapPin size={9} /> {lead.pincode}</span>}
-                                   {lead.email && <span className="text-[10px] text-slate-400 flex items-center gap-1 font-bold"><Mail size={9} /> {lead.email}</span>}
-                                </div>
-                             </div>
-                          </div>
-                       </td>
-                       <td className="p-5">
-                          <div className="flex flex-col gap-1.5">
-                             <span className="px-2 py-0.5 bg-slate-900 text-white rounded text-[8px] font-black uppercase tracking-widest w-fit">
-                               {lead.eventType}
-                             </span>
-                             <div className="flex items-center gap-2">
-                                <span className="flex items-center gap-1 text-[10px] font-black text-slate-500">
-                                   <UsersIcon size={10} className="text-slate-400" /> {lead.guests} PAX
-                                </span>
-                                {lead.eventDate && (
-                                  <span className="flex items-center gap-1 text-[10px] font-black text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-100 uppercase text-[9px]">
-                                     <Calendar size={10} /> {new Date(lead.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
-                                  </span>
-                                )}
-                             </div>
-                          </div>
-                       </td>
-                       <td className="p-5">
-                          <div className="flex items-center gap-2">
-                             <div className="w-7 h-7 rounded-lg bg-violet-50 text-violet-500 flex items-center justify-center shrink-0">
-                                <Building2 size={14} />
-                             </div>
-                             <span className="text-xs font-bold text-slate-700 truncate max-w-[160px]">{lead.assignedVenue}</span>
-                          </div>
-                       </td>
-                       <td className="p-5">
-                          <span className={cn(
-                            "px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border inline-flex items-center gap-1",
-                            getStatusStyle(lead.status)
-                          )}>
-                            {getStatusIcon(lead.status)} {lead.status}
-                          </span>
-                       </td>
-                       <td className="p-5">
-                          <div className="flex flex-col">
-                             <span className="text-xs font-bold text-slate-600">{new Date(lead.$createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                             <span className="text-[10px] text-slate-300 font-semibold">{new Date(lead.$createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                          </div>
-                       </td>
-                       <td className="p-5">
-                          <button className="p-2 hover:bg-slate-100 rounded-xl transition-all text-slate-400 hover:text-indigo-500">
-                            <Eye size={16} />
-                          </button>
-                       </td>
-                    </motion.tr>
-                    {/* Expanded Notes Row */}
-                    {expandedLead === lead.$id && (
-                      <tr key={`${lead.$id}-notes`} className="bg-slate-50/80">
-                        <td colSpan={6} className="px-5 py-4">
-                          <div className="flex items-start gap-3">
-                            <MessageSquare size={14} className="text-slate-400 mt-0.5 shrink-0" />
-                            <div className="min-w-0">
-                              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Notes / Distribution Info</p>
-                              <div className="flex flex-col gap-2">
-                                 {lead.notes?.includes('[DISTRIBUTED] to:') ? (
-                                   <div className="bg-violet-50/50 border border-violet-100/50 rounded-xl p-3">
-                                      <p className="text-[9px] font-black text-violet-500 uppercase tracking-widest mb-2 flex items-center gap-1">
-                                         <CheckCircle2 size={12} /> Successfully Distributed To:
-                                      </p>
-                                      <div className="flex flex-wrap gap-2">
-                                         {lead.notes.split('[DISTRIBUTED] to:')[1].split('|')[0].split(',').map((v: string) => (
-                                           <span key={v} className="px-2 py-1 bg-white border border-violet-100 text-violet-600 rounded-lg text-[10px] font-bold shadow-sm">
-                                              {v.trim()}
-                                           </span>
-                                         ))}
-                                      </div>
-                                      <p className="text-[10px] text-slate-400 mt-2 ">
-                                         {lead.notes.split('|').slice(1).join('|').trim() || 'No additional notes'}
-                                      </p>
-                                   </div>
-                                 ) : (
-                                   <p className="text-xs font-semibold text-slate-600 leading-relaxed break-words">
-                                     {lead.notes || 'No notes available'}
-                                   </p>
-                                 )}
-                              </div>
-                              <div className="flex flex-wrap gap-3 mt-2">
-                                <span className="text-[10px] font-bold text-slate-400">Venue ID: {lead.venueId}</span>
-                                <span className="text-[10px] font-bold text-slate-400">Lead ID: {lead.$id}</span>
-                              </div>
+                  ) : filteredGroupedLeads.map((group, i) => {
+                    const lead = group.primaryLead;
+                    const venueCount = group.distributedVenues.length;
+                    const primaryVenue = group.distributedVenues[0]?.venueName || "Unknown Venue";
+
+                    return (
+                      <React.Fragment key={group.groupKey}>
+                      <motion.tr 
+                        key={group.groupKey}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: Math.min(i * 0.02, 0.5) }}
+                        className="hover:bg-slate-50/50 transition-colors"
+                      >
+                         <td className="p-5">
+                            <div className="flex items-center gap-3">
+                               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-600 flex items-center justify-center font-black text-sm uppercase shrink-0">
+                                 {lead.name?.charAt(0) || '?'}
+                               </div>
+                               <div className="min-w-0">
+                                  <h4 className="text-sm font-bold text-slate-800 truncate">{lead.name}</h4>
+                                  <div className="flex items-center gap-3 mt-1 flex-wrap">
+                                     <span className="text-[10px] text-slate-400 flex items-center gap-1 font-bold"><Phone size={9} /> {lead.phone}</span>
+                                     {group.pincode && group.pincode !== 'N/A' && (
+                                       <span className="text-[10px] text-indigo-500 flex items-center gap-1 font-black"><MapPin size={9} /> {group.pincode}</span>
+                                     )}
+                                     {lead.email && <span className="text-[10px] text-slate-400 flex items-center gap-1 font-bold"><Mail size={9} /> {lead.email}</span>}
+                                  </div>
+                               </div>
                             </div>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                    </React.Fragment>
-                  ))}
+                         </td>
+                         <td className="p-5">
+                            <div className="flex flex-col gap-1.5">
+                               <span className="px-2 py-0.5 bg-slate-900 text-white rounded text-[8px] font-black uppercase tracking-widest w-fit">
+                                 {lead.eventType}
+                               </span>
+                               <div className="flex items-center gap-2">
+                                  <span className="flex items-center gap-1 text-[10px] font-black text-slate-500">
+                                     <UsersIcon size={10} className="text-slate-400" /> {lead.guests} PAX
+                                  </span>
+                                  {group.eventDate && group.eventDate !== 'N/A' && (
+                                    <span className="flex items-center gap-1 text-[10px] font-black text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-100 uppercase text-[9px]">
+                                       <Calendar size={10} /> {group.eventDate}
+                                    </span>
+                                  )}
+                               </div>
+                            </div>
+                         </td>
+                         <td className="p-5">
+                            <div className="flex flex-col gap-1.5">
+                               <div className="flex items-center gap-2">
+                                  <div className="w-7 h-7 rounded-lg bg-violet-50 text-violet-500 flex items-center justify-center shrink-0">
+                                     <Building2 size={14} />
+                                  </div>
+                                  <span className="text-xs font-bold text-slate-700 truncate max-w-[160px]">{primaryVenue}</span>
+                               </div>
+                               {venueCount > 1 && (
+                                 <button
+                                   onClick={() => setActiveModalLead(group)}
+                                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-[10px] font-black tracking-wide w-fit transition-colors"
+                                 >
+                                   +{venueCount - 1} more {venueCount - 1 === 1 ? 'venue' : 'venues'}
+                                 </button>
+                               )}
+                            </div>
+                         </td>
+                         <td className="p-5">
+                            <span className={cn(
+                              "px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border inline-flex items-center gap-1",
+                              getStatusStyle(lead.status)
+                            )}>
+                              {getStatusIcon(lead.status)} {lead.status}
+                            </span>
+                         </td>
+                         <td className="p-5">
+                            <div className="flex flex-col">
+                               <span className="text-xs font-bold text-slate-600">{new Date(lead.$createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                               <span className="text-[10px] text-slate-300 font-semibold">{new Date(lead.$createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                         </td>
+                         <td className="p-5 text-center">
+                            <button 
+                              onClick={() => setActiveModalLead(group)}
+                              title="View distribution details & received venues"
+                              className="p-2.5 bg-slate-50 hover:bg-indigo-50 border border-slate-100 hover:border-indigo-200 rounded-xl transition-all text-slate-500 hover:text-indigo-600 shadow-sm active:scale-95 inline-flex items-center justify-center"
+                            >
+                              <Eye size={16} />
+                            </button>
+                         </td>
+                      </motion.tr>
+                      </React.Fragment>
+                    );
+                  })}
                </tbody>
             </table>
          </div>
       </div>
+
+      {/* MODAL: Received Venues & Distribution Details */}
+      <AnimatePresence>
+        {activeModalLead && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-2xl w-full overflow-hidden flex flex-col max-h-[90vh]"
+            >
+              {/* Modal Header */}
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-lg uppercase shadow-sm">
+                    {activeModalLead.primaryLead.name?.charAt(0) || "?"}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-slate-800 leading-tight">
+                      {activeModalLead.primaryLead.name}
+                    </h3>
+                    <p className="text-xs text-slate-400 font-semibold mt-0.5">
+                      Lead Distribution Breakdown
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setActiveModalLead(null)}
+                  className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 overflow-y-auto space-y-6 custom-scrollbar">
+                {/* Meta details banner */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Event Date</span>
+                    <span className="font-bold text-slate-700">{activeModalLead.eventDate || "N/A"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">City</span>
+                    <span className="font-bold text-slate-700">{activeModalLead.city || "N/A"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Pin</span>
+                    <span className="font-bold text-slate-700">{activeModalLead.pincode || "N/A"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-0.5">Guests</span>
+                    <span className="font-bold text-slate-700">{activeModalLead.primaryLead.guests} PAX</span>
+                  </div>
+                </div>
+
+                {/* Contact row */}
+                <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-600 px-1">
+                  <span className="flex items-center gap-1.5"><Phone size={13} className="text-slate-400" /> {activeModalLead.primaryLead.phone}</span>
+                  {activeModalLead.primaryLead.email && (
+                    <span className="flex items-center gap-1.5"><Mail size={13} className="text-slate-400" /> {activeModalLead.primaryLead.email}</span>
+                  )}
+                  <span className="px-2 py-0.5 bg-slate-900 text-white rounded text-[9px] font-black uppercase tracking-wider">
+                    {activeModalLead.primaryLead.eventType}
+                  </span>
+                </div>
+
+                {/* Venues that received this lead */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                      <Building2 size={14} className="text-indigo-500" />
+                      Venues That Received This Lead ({activeModalLead.distributedVenues.length})
+                    </h4>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {activeModalLead.distributedVenues.map((v, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-2xl border border-slate-100 bg-white hover:border-indigo-100 transition-colors flex items-center justify-between gap-3 shadow-sm"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center font-bold text-xs shrink-0">
+                            {idx + 1}
+                          </div>
+                          <div className="min-w-0">
+                            <h5 className="text-sm font-bold text-slate-800 truncate">{v.venueName}</h5>
+                            <p className="text-[10px] text-slate-400 font-semibold truncate">Venue ID: {v.venueId}</p>
+                          </div>
+                        </div>
+                        <div className="shrink-0 flex items-center gap-2">
+                          <span className={cn(
+                            "px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border",
+                            getStatusStyle(v.status)
+                          )}>
+                            {v.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Distribution Notes if present */}
+                {activeModalLead.notes && (
+                  <div className="p-4 rounded-2xl bg-violet-50/40 border border-violet-100/60 text-xs">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-violet-600 block mb-1">
+                      Distribution Note Log
+                    </span>
+                    <p className="font-semibold text-slate-600 leading-relaxed break-words whitespace-pre-wrap">
+                      {activeModalLead.notes}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+                <button
+                  onClick={() => setActiveModalLead(null)}
+                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-md active:scale-95"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

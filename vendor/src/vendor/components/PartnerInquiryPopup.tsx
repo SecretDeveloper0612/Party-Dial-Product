@@ -143,8 +143,7 @@ const PartnerInquiryPopup = ({ isOpen, onClose, venueProfile }: PartnerInquiryPo
               ) : (
                 <>
                   <div className="mb-6">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-pd-blue/5 text-pd-blue rounded-md mb-4 border border-pd-blue/10">
-                      <Sparkles size={12} className="animate-pulse" />
+                    <div className="inline-flex items-center px-3 py-1 bg-pd-blue/5 text-pd-blue rounded-md mb-4 border border-pd-blue/10">
                       <span className="text-[10px] font-bold uppercase tracking-wider">Quick Enquiry</span>
                     </div>
                     <h2 className="text-2xl font-bold text-slate-900 mb-1">
