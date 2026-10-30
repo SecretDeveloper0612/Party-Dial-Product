@@ -7,7 +7,6 @@ import {
   ChevronDown, 
   CalendarDays, 
   Users, 
-  Sparkles, 
   Phone, 
   MessageCircle,
   Search,
@@ -274,7 +273,6 @@ const LeadInbox = ({
                  {/* Event Details */}
                  <div className="col-span-3 flex flex-col gap-1.5 w-full md:w-auto text-sm">
                     <div className="flex items-center gap-2 font-semibold text-slate-700">
-                       <Sparkles size={14} className="text-pd-purple shrink-0" />
                        <span className="truncate">{lead.event}</span>
                     </div>
                     <div className="flex items-center gap-3 text-xs font-normal text-slate-500">

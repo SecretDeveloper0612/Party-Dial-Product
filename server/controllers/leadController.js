@@ -457,13 +457,18 @@ exports.distributeLeadsManualVenues = async (req, res) => {
 
                     if (existing.total > 0) continue;
 
+                    const rawPaxStr = String(leadData.pax || '0').trim();
+                    const guestsCount = rawPaxStr.includes('-') 
+                        ? (parseInt(rawPaxStr.split('-').pop()?.replace(/\D/g, '') || '0', 10) || 0)
+                        : (parseInt(rawPaxStr.replace(/\D/g, ''), 10) || 0);
+
                     const leadDoc = {
                         venueId: targetVenue.$id,
                         name: leadData.name || '',
                         phone: cleanPhone,
                         email: leadData.email || '',
                         eventType: leadData.eventType || '',
-                        guests: parseInt(String(leadData.pax || '0').replace(/\D/g, ''), 10) || 0,
+                        guests: guestsCount,
                         eventDate: leadData.eventDate || '',
                         pincode: leadData.pincode || '',
                         notes: `MANUAL DISTRIBUTION | Distributed to ${targetVenue.venueName} | Event Date: ${leadData.eventDate || 'N/A'} | City: ${leadData.city || 'N/A'} | Pin: ${leadData.pincode || 'N/A'} | ${leadData.notes || ''}`,

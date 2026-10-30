@@ -201,6 +201,29 @@ export default function VendorDashboard() {
     return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
   };
 
+  // Helper to normalize guest / pax numbers when raw values might be composite (e.g. '100-200' -> 200 or '51100' -> 100)
+  const parseLeadGuests = (rawGuests: any): number => {
+    if (rawGuests === null || rawGuests === undefined) return 0;
+    const str = String(rawGuests).trim();
+    if (!str) return 0;
+    if (str.includes('-')) {
+      const parts = str.split('-');
+      return parseInt(parts[parts.length - 1].replace(/\D/g, ''), 10) || 0;
+    }
+    const val = parseInt(str.replace(/\D/g, ''), 10) || 0;
+    // Known data quirk where a range like 100-150 or 50-100 was stored without dash (e.g. 101150 or 51100)
+    if (val > 10000) {
+      if (str.length === 5 && str.startsWith('51')) {
+        return parseInt(str.slice(2), 10) || val;
+      }
+      if (str.length === 6) {
+        const last3 = parseInt(str.slice(3), 10);
+        if (last3 > 0) return last3;
+      }
+    }
+    return val;
+  };
+
 
   // Calculate Realtime Stats
   const stats = useMemo(() => {
@@ -490,8 +513,14 @@ export default function VendorDashboard() {
         lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         lead.event.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesEvent = selectedEventTypes.length === 0 || 
-        selectedEventTypes.some(t => lead.event.includes(t));
-      const matchesGuests = parseInt(lead.guests) <= guestRange.max;
+        selectedEventTypes.some(t => lead.event.toLowerCase().includes(t.toLowerCase()));
+      
+      const leadPaxNum = parseLeadGuests(lead.guests);
+      // If guestRange.max is at max slider threshold (2000+) or default high, don't cap upper bound
+      const matchesGuests = guestRange.max >= 2000 
+        ? leadPaxNum >= guestRange.min 
+        : (leadPaxNum >= guestRange.min && leadPaxNum <= guestRange.max);
+
       return matchesStatus && matchesSearch && matchesEvent && matchesGuests;
     }).sort((a, b) => {
       // 1. Prioritize 'New' status at the very top
@@ -835,7 +864,6 @@ export default function VendorDashboard() {
                   Query.equal('venueId', profile.$id),
                   Query.equal('venueId', 'BROADCAST')
                 ]),
-                Query.greaterThan('$createdAt', restrictedSince),
                 Query.orderDesc('$createdAt'),
                 Query.limit(5000)
               ];
@@ -874,8 +902,11 @@ export default function VendorDashboard() {
                 id: doc.$id,
                 name: doc.name,
                 phone: doc.phone || '+91 98765 43210',
-                event: doc.eventType,
-                guests: doc.guests ? doc.guests.toString() : '0',
+                event: doc.eventType || 'Event',
+                guests: (() => {
+                  const p = parseLeadGuests(doc.guests);
+                  return p > 0 ? p.toString() : (doc.guests ? doc.guests.toString() : '0');
+                })(),
                 date: formatLeadDate(doc.$createdAt),
                 time: formatLeadTime(doc.$createdAt),
                 rawDate: doc.$createdAt,
@@ -1064,6 +1095,11 @@ export default function VendorDashboard() {
 
   // Separate Effect for Realtime to avoid WebSocket "Still in CONNECTING" error
   const subscribedId = useRef<string | null>(null);
+  const venueProfileRef = useRef(venueProfile);
+  useEffect(() => {
+    venueProfileRef.current = venueProfile;
+  }, [venueProfile]);
+
   useEffect(() => {
     if (!venueProfile?.$id) return;
     
@@ -1128,8 +1164,9 @@ export default function VendorDashboard() {
                 setShowPaymentReminder(false);
               }
             } else if (response.events.some(e => e.includes('databases.*.collections.' + LEADS_COLLECTION_ID))) {
-              const isPaid = venueProfile?.subscriptionPlan && venueProfile?.subscriptionPlan !== 'free';
-              if (isPaid && (payload.venueId === venueProfile?.$id || payload.venueId === 'BROADCAST')) {
+              const currentProfile = venueProfileRef.current;
+              const isPaid = currentProfile?.subscriptionPlan && currentProfile?.subscriptionPlan !== 'free';
+              if (isPaid && (payload.venueId === currentProfile?.$id || payload.venueId === 'BROADCAST')) {
                  const notes = payload.notes || '';
                  const extractedDate = notes.match(/Event Date: ([^|]+)/)?.[1]?.trim();
                  const extractedCity = notes.match(/City: ([^|]+)/)?.[1]?.trim();
@@ -1142,7 +1179,10 @@ export default function VendorDashboard() {
                     name: payload.name || 'Anonymous',
                     phone: payload.phone || '+91 98765 43210',
                     event: payload.eventType || 'Event',
-                    guests: payload.guests ? payload.guests.toString() : '0',
+                    guests: (() => {
+                      const p = parseLeadGuests(payload.guests);
+                      return p > 0 ? p.toString() : (payload.guests ? payload.guests.toString() : '0');
+                    })(),
                     date: formatLeadDate(payload.$createdAt || new Date().toISOString()),
                     time: formatLeadTime(payload.$createdAt || new Date().toISOString()),
                     rawDate: payload.$createdAt || new Date().toISOString(),
