@@ -16,6 +16,15 @@ exports.createCoupon = async (req, res) => {
   try {
     const { code, discountValue, discountType, expiryDate, status = 'active' } = req.body;
     
+    if (!code) {
+      return res.status(400).json({ status: 'error', message: 'Coupon code is required' });
+    }
+
+    const parsedDiscountValue = parseFloat(discountValue);
+    if (isNaN(parsedDiscountValue) || parsedDiscountValue <= 0) {
+      return res.status(400).json({ status: 'error', message: 'Discount value must be a valid number greater than 0' });
+    }
+
     // Check if code exists
     const existing = await databases.listDocuments(DATABASE_ID, COUPONS_COLLECTION_ID, [Query.equal('code', code.toUpperCase())]);
     if (existing.total > 0) {
@@ -28,10 +37,10 @@ exports.createCoupon = async (req, res) => {
       ID.unique(),
       {
         code: code.toUpperCase(),
-        discountValue: parseFloat(discountValue),
-        discountType,
-        expiryDate,
-        status,
+        discountValue: parsedDiscountValue,
+        discountType: discountType || 'percentage',
+        expiryDate: expiryDate ? new Date(expiryDate).toISOString() : new Date().toISOString(),
+        status: status || 'active',
       }
     );
     res.json({ status: 'success', data: coupon });
@@ -43,9 +52,23 @@ exports.createCoupon = async (req, res) => {
 exports.updateCoupon = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
+    const updateData = { ...req.body };
     
-    if (updateData.code) updateData.code = updateData.code.toUpperCase();
+    if (updateData.code) {
+      updateData.code = updateData.code.toUpperCase();
+    }
+
+    if (updateData.discountValue !== undefined) {
+      const parsed = parseFloat(updateData.discountValue);
+      if (isNaN(parsed) || parsed <= 0) {
+        return res.status(400).json({ status: 'error', message: 'Discount value must be a valid number greater than 0' });
+      }
+      updateData.discountValue = parsed;
+    }
+
+    if (updateData.expiryDate) {
+      updateData.expiryDate = new Date(updateData.expiryDate).toISOString();
+    }
 
     const coupon = await databases.updateDocument(DATABASE_ID, COUPONS_COLLECTION_ID, id, updateData);
     res.json({ status: 'success', data: coupon });

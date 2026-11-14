@@ -629,6 +629,8 @@ exports.processPublicInquiry = async (req, res) => {
             guestCount,
             guests,
             pincode, 
+            pincodes,
+            locations,
             eventDate, 
             eventDetails,
             notes,
@@ -646,7 +648,11 @@ exports.processPublicInquiry = async (req, res) => {
 
         const rawPhone = phone || number;
         const rawGuests = guests !== undefined && guests !== null && guests !== '' ? guests : (guestCount !== undefined && guestCount !== null && guestCount !== '' ? guestCount : guestCapacity);
-        const rawLocation = pincode || customLocation;
+        
+        // Extract array of locations / pincodes if provided
+        const locArray = Array.isArray(locations) ? locations : (locations ? [locations] : []);
+        const pinArray = Array.isArray(pincodes) ? pincodes : (pincodes ? [pincodes] : []);
+        const rawLocation = customLocation || pincode || (locArray.length > 0 ? locArray.join(', ') : '') || (pinArray.length > 0 ? pinArray.join(', ') : '');
 
         if (!name || !rawPhone || !eventType || rawGuests === undefined || rawGuests === null || rawGuests === '' || !rawLocation) {
             console.warn('❌ INQUIRY REJECTED: Missing core fields');
@@ -701,7 +707,9 @@ exports.processPublicInquiry = async (req, res) => {
             guests: requestedGuests,
             eventDate: eventDate || '',
             location: locationInput,
+            locations: locArray.length > 0 ? locArray : [locationInput],
             pincode: leadPincode,
+            pincodes: pinArray.length > 0 ? pinArray : (leadPincode ? [leadPincode] : []),
             notes: notesStr,
             leadSource: finalLeadSource,
             campaignData: serializedCampaign
@@ -1095,9 +1103,14 @@ exports.checkLocationCapacity = async (req, res) => {
             return res.status(200).json({ status: 'success', maxCapacity: 7000, hasCapacity: true });
         }
 
-        const pinMatch = locationQuery.match(/\b\d{6}\b/);
-        const targetPin = pinMatch ? pinMatch[0] : (/^\d{6}$/.test(locationQuery) ? locationQuery : '');
-        const locLower = locationQuery.toLowerCase();
+        const allPins = (locationQuery.match(/\b\d{6}\b/g) || []);
+        if (pincode && /^\d{6}$/.test(String(pincode).trim())) allPins.push(String(pincode).trim());
+        const pinSet = new Set(allPins);
+
+        const terms = locationQuery
+            .split(/[,;|]+/)
+            .map(t => t.replace(/\b\d{6}\b/g, '').replace(/[-–—]/g, ' ').trim().toLowerCase())
+            .filter(t => t.length >= 2);
 
         // Fetch registered active venues
         const venueResult = await databases.listDocuments(
@@ -1116,11 +1129,15 @@ exports.checkLocationCapacity = async (req, res) => {
             const vCity = (v.city || '').toLowerCase();
             const vAddress = (v.address || '').toLowerCase();
             const vLandmark = (v.landmark || '').toLowerCase();
+            const vVenueName = (v.venueName || v.name || '').toLowerCase();
 
-            if (targetPin && vPin === targetPin) return true;
-            if (vCity && (locLower.includes(vCity) || vCity.includes(locLower))) return true;
-            if (vAddress && locLower.includes(vAddress)) return true;
-            if (vLandmark && locLower.includes(vLandmark)) return true;
+            if (vPin && pinSet.has(vPin)) return true;
+            for (const t of terms) {
+                if (vCity && (vCity === t || vCity.includes(t) || t.includes(vCity))) return true;
+                if (vAddress && (vAddress.includes(t) || t.includes(vAddress))) return true;
+                if (vLandmark && (vLandmark.includes(t) || t.includes(vLandmark))) return true;
+                if (vVenueName && (vVenueName.includes(t) || t.includes(vVenueName))) return true;
+            }
             return false;
         });
 

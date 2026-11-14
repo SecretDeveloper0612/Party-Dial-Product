@@ -168,7 +168,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed left-0 top-0 h-screen w-[var(--sidebar-w)] bg-white flex flex-col z-[60] border-r border-slate-100 shadow-sm overflow-hidden transition-transform duration-300",
+        "fixed left-0 top-0 h-screen w-[var(--sidebar-w)] bg-white flex flex-col z-[60] border-r border-slate-100 shadow-sm overflow-hidden transition-transform duration-300 font-sans",
         // Mobile: off-screen by default, slide in when open
         "translate-x-[-100%] lg:translate-x-0",
         isOpen && "translate-x-0"
@@ -181,7 +181,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                alt="PartyDial Logo" 
                className="h-9 w-auto rounded-lg object-contain shadow-sm"
              />
-             <span className="font-black text-slate-800 text-lg tracking-tight">Admin</span>
+             <span className="font-bold text-slate-800 text-lg tracking-tight">Admin</span>
           </Link>
           {/* Close button — mobile only */}
           <button
@@ -197,14 +197,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           <div className="px-6 mb-6">
              <div className="flex items-center gap-3 group/profile">
                 <div className="relative shrink-0">
-                   <div className="w-11 h-11 rounded-full grad-brand text-white flex items-center justify-center font-black text-sm shadow-md">
+                   <div className="w-11 h-11 rounded-full grad-brand text-white flex items-center justify-center font-bold text-sm shadow-md">
                       {initials}
                    </div>
                    <div className="absolute -right-0.5 bottom-0 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full" />
                 </div>
                 <div className="flex-1 min-w-0">
-                   <h4 className="text-sm font-bold text-slate-700 m-0 truncate">{user?.name || "Loading..."}</h4>
-                   <p className="text-[11px] text-slate-400 font-medium m-0 truncate mt-0.5">{user?.prefs?.role || "System User"}</p>
+                   <h4 className="text-sm font-semibold text-slate-700 m-0 truncate">{user?.name || "Loading..."}</h4>
+                   <p className="text-[11px] text-slate-400 font-light m-0 truncate mt-0.5">{user?.prefs?.role || "System User"}</p>
                 </div>
                 <div className="text-emerald-400 shrink-0">
                   <CheckCircle size={14} />
@@ -217,7 +217,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             {filteredMenuGroups.map((group, groupIdx) => (
               <div key={groupIdx}>
                 {group.category !== "Main" && (
-                  <h3 className="px-6 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+                  <h3 className="px-6 text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">
                     {group.category}
                   </h3>
                 )}
@@ -258,8 +258,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="p-5 space-y-3">
           <div className="p-4 rounded-xl shadow-lg bg-slate-900 text-white relative overflow-hidden group/upgrade cursor-pointer border border-slate-700">
              <div className="relative z-10">
-                <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">Ecosystem Status</p>
-                <h5 className="text-xs font-bold leading-tight">Aegis Core Active</h5>
+                <p className="text-[10px] font-light uppercase tracking-widest opacity-60 mb-1">Ecosystem Status</p>
+                <h5 className="text-xs font-semibold leading-tight">Aegis Core Active</h5>
              </div>
              <div className="absolute -right-2 -bottom-2 opacity-20 scale-150 rotate-12 group-hover/upgrade:rotate-0 transition-transform duration-500">
                 <ShieldCheck size={40} />
@@ -271,12 +271,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               localStorage.removeItem("party_admin_session");
               window.location.href = "/login";
             }}
-            className="w-full flex items-center gap-3 p-3 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-100 group/logout"
+            className="w-full flex items-center gap-3 p-3 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all border border-transparent hover:border-rose-100 group/logout cursor-pointer"
           >
              <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover/logout:bg-rose-100 transition-colors shrink-0">
                 <LogOut size={16} />
              </div>
-             <span className="text-xs font-black uppercase tracking-widest">Terminate Session</span>
+             <span className="text-xs font-semibold uppercase tracking-widest">Terminate Session</span>
           </button>
         </div>
       </aside>

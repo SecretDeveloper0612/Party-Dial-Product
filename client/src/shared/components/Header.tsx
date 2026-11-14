@@ -296,7 +296,9 @@ export default function Header() {
 
 
 
-  // Removed the line that hides Header on venue pages
+  if (pathname === '/event-inquiry' || pathname?.startsWith('/event-inquiry')) {
+    return null;
+  }
 
   return (
     <>

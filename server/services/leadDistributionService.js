@@ -82,48 +82,104 @@ function checkEventTypeMatch(venue, requestedEventType) {
 }
 
 /**
- * Checks if a venue's location/service coverage matches the user's location/pincode.
+ * Checks if a venue's location/service coverage matches the user's location/pincode(s) or venue location name.
  *
  * Criteria:
- * 1. Pincode match: exact 6-digit match between inquiry and venue.pincode.
- * 2. City / Locality match: case-insensitive containment match between inquiry location
- *    and venue's city, landmark, address, or state.
+ * 1. Pincode match: exact 6-digit match between ANY of the inquiry pincodes and venue.pincode.
+ * 2. Venue Location / City / Landmark / Name match: case-insensitive containment match between
+ *    inquiry location terms and venue's city, landmark, address, venueName, or state.
  */
-function checkLocationMatch(venue, leadPincode, locationText) {
+function checkLocationMatch(venue, leadPincodesInput, locationTextsInput) {
     const venuePincode = (venue.pincode || '').toString().trim();
     const vCity = (venue.city || '').toString().trim().toLowerCase();
     const vLandmark = (venue.landmark || '').toString().trim().toLowerCase();
     const vAddress = (venue.address || '').toString().trim().toLowerCase();
     const vState = (venue.state || '').toString().trim().toLowerCase();
+    const vVenueName = (venue.venueName || venue.name || '').toString().trim().toLowerCase();
 
-    // 1. Direct Pincode Match
-    if (leadPincode && venuePincode) {
-        if (leadPincode === venuePincode) {
-            return { isMatch: true, reason: null, matchType: 'PINCODE_EXACT' };
+    // 1. Normalize Pincodes into an array of 6-digit strings
+    const rawPincodes = Array.isArray(leadPincodesInput)
+        ? leadPincodesInput
+        : (leadPincodesInput ? String(leadPincodesInput).split(/[,\s;|]+/) : []);
+
+    const rawLocationTexts = Array.isArray(locationTextsInput)
+        ? locationTextsInput
+        : (locationTextsInput ? String(locationTextsInput).split(/[,\n;|]+/) : []);
+
+    const allPincodes = new Set();
+    rawPincodes.forEach(p => {
+        const m = String(p).trim().match(/\b\d{6}\b/);
+        if (m) allPincodes.add(m[0]);
+        else if (/^\d{6}$/.test(String(p).trim())) allPincodes.add(String(p).trim());
+    });
+
+    rawLocationTexts.forEach(t => {
+        const matches = String(t).match(/\b\d{6}\b/g);
+        if (matches) matches.forEach(m => allPincodes.add(m));
+    });
+
+    // A. Direct Pincode Match across all requested pincodes
+    if (venuePincode && allPincodes.size > 0) {
+        if (allPincodes.has(venuePincode)) {
+            return {
+                isMatch: true,
+                reason: null,
+                matchType: 'PINCODE_EXACT',
+                matchedPincode: venuePincode
+            };
         }
     }
 
-    // 2. Location text matching
-    if (locationText) {
-        const locLower = locationText.toLowerCase();
+    // B. Location text and Venue Location Name matching
+    const terms = [];
+    rawLocationTexts.forEach(t => {
+        const cleanTerm = String(t).replace(/\b\d{6}\b/g, '').replace(/[-–—]/g, ' ').trim().toLowerCase();
+        if (cleanTerm && cleanTerm.length >= 2) {
+            terms.push(cleanTerm);
+            cleanTerm.split(/[,/]+/).forEach(part => {
+                const p = part.trim();
+                if (p && p.length >= 2 && !terms.includes(p)) {
+                    terms.push(p);
+                }
+            });
+        }
+    });
 
-        // Check if venue city matches inquiry location text
-        if (vCity && (locLower.includes(vCity) || vCity.includes(locLower))) {
-            return { isMatch: true, reason: null, matchType: 'CITY_MATCH' };
+    for (const term of terms) {
+        // Check venue city
+        if (vCity && (vCity === term || term.includes(vCity) || vCity.includes(term))) {
+            return { isMatch: true, reason: null, matchType: 'CITY_MATCH', matchedTerm: term };
         }
 
-        // Check if landmark or address matches
-        if (vLandmark && locLower.includes(vLandmark)) {
-            return { isMatch: true, reason: null, matchType: 'LANDMARK_MATCH' };
+        // Check venue landmark / locality
+        if (vLandmark && (vLandmark.includes(term) || term.includes(vLandmark))) {
+            return { isMatch: true, reason: null, matchType: 'LANDMARK_MATCH', matchedTerm: term };
         }
-        if (vAddress && locLower.includes(vAddress)) {
-            return { isMatch: true, reason: null, matchType: 'ADDRESS_MATCH' };
+
+        // Check venue address
+        if (vAddress && (vAddress.includes(term) || term.includes(vAddress))) {
+            return { isMatch: true, reason: null, matchType: 'ADDRESS_MATCH', matchedTerm: term };
+        }
+
+        // Check venue name (in case user searched by venue location / specific venue name)
+        if (vVenueName && (vVenueName.includes(term) || term.includes(vVenueName))) {
+            return { isMatch: true, reason: null, matchType: 'VENUE_NAME_MATCH', matchedTerm: term };
+        }
+
+        // Check venue state
+        if (vState && (vState === term || term.includes(vState) || vState.includes(term))) {
+            return { isMatch: true, reason: null, matchType: 'STATE_MATCH', matchedTerm: term };
         }
     }
+
+    const requestedSummary = [
+        Array.from(allPincodes).join(', '),
+        terms.slice(0, 3).join(', ')
+    ].filter(Boolean).join(' | ');
 
     return {
         isMatch: false,
-        reason: `Venue location (${venue.city || 'N/A'}, Pincode: ${venue.pincode || 'N/A'}) outside requested area "${locationText || leadPincode}"`
+        reason: `Venue "${venue.venueName || 'Unnamed'}" (${venue.city || 'N/A'}, Pincode: ${venue.pincode || 'N/A'}) outside requested areas/pincodes "${requestedSummary}"`
     };
 }
 
@@ -268,7 +324,7 @@ function checkSubscriptionEligibility(venue, now = new Date()) {
  * A venue must satisfy EVERY condition to receive a lead.
  */
 function evaluateVenueEligibility(venue, criteria, now = new Date()) {
-    const { eventType, location, pincode, guests } = criteria;
+    const { eventType, location, locations, pincode, pincodes, guests } = criteria;
 
     // A. Event Type
     const eventTypeEval = checkEventTypeMatch(venue, eventType);
@@ -282,7 +338,7 @@ function evaluateVenueEligibility(venue, criteria, now = new Date()) {
     }
 
     // B. Location / Pincode
-    const locationEval = checkLocationMatch(venue, pincode, location);
+    const locationEval = checkLocationMatch(venue, pincodes && pincodes.length > 0 ? pincodes : pincode, locations && locations.length > 0 ? locations : location);
     if (!locationEval.isMatch) {
         return {
             isEligible: false,
@@ -344,30 +400,53 @@ async function distributeEventInquiry(inquiryData) {
         guests = 0,
         eventDate = '',
         location = '',
+        locations = [],
         pincode = '',
+        pincodes = [],
         notes = '',
         leadSource = 'Website Inquiry',
         campaignData = ''
     } = inquiryData;
 
+    // Parse all requested pincodes
+    const pinSet = new Set();
+    const pinSources = [
+        ...(Array.isArray(pincodes) ? pincodes : [pincodes]),
+        pincode,
+        ...(Array.isArray(locations) ? locations : [locations]),
+        location
+    ];
+    pinSources.forEach(src => {
+        if (!src) return;
+        const matches = String(src).match(/\b\d{6}\b/g);
+        if (matches) matches.forEach(m => pinSet.add(m));
+        else if (/^\d{6}$/.test(String(src).trim())) pinSet.add(String(src).trim());
+    });
+    const resolvedPincodes = Array.from(pinSet);
+    const resolvedPincode = resolvedPincodes[0] || '';
+
+    // Collect all location texts
+    const locList = [];
+    if (Array.isArray(locations)) locList.push(...locations.map(String).filter(Boolean));
+    if (location && !locList.includes(String(location))) locList.push(String(location));
+    const locationSummary = locList.join(', ') || resolvedPincodes.join(', ') || '';
+
     console.log(`\n======================================================`);
     console.log(`🚀 [SMART LEAD ENGINE] Processing Inquiry: ${inquiryId}`);
     console.log(`   Customer: ${name} (${phone})`);
     console.log(`   Event Type: "${eventType}" | Guests: ${guests}`);
-    console.log(`   Location: "${location}" | Pincode: "${pincode || 'N/A'}"`);
+    console.log(`   Locations: "${locationSummary}" | Pincodes: [${resolvedPincodes.join(', ')}]`);
     console.log(`======================================================`);
 
     const now = new Date();
     const nowIso = now.toISOString();
 
-    // Parse clean pincode
-    const pinMatch = (location || '').match(/\b\d{6}\b/);
-    const resolvedPincode = pincode || (pinMatch ? pinMatch[0] : (/^\d{6}$/.test((location || '').trim()) ? (location || '').trim() : ''));
-
     const criteria = {
         eventType,
-        location: location || resolvedPincode,
+        location: locationSummary,
+        locations: locList,
         pincode: resolvedPincode,
+        pincodes: resolvedPincodes,
         guests: parseInt(guests) || 0
     };
 
@@ -431,8 +510,8 @@ async function distributeEventInquiry(inquiryData) {
             eventType,
             guests: criteria.guests,
             eventDate,
-            pincode: resolvedPincode,
-            location: (location || '').slice(0, 120),
+            pincode: (resolvedPincodes.join(', ') || resolvedPincode || '').slice(0, 120),
+            location: (locationSummary || location || '').slice(0, 120),
             leadSource,
             campaignData: typeof campaignData === 'string' ? campaignData.slice(0, 990) : JSON.stringify(campaignData).slice(0, 990),
             notes: `UNMATCHED | No eligible partner venue found | Evaluated: ${allVenues.length} venues | ${notes}`,
@@ -524,8 +603,8 @@ async function distributeEventInquiry(inquiryData) {
                 eventType,
                 guests: criteria.guests,
                 eventDate,
-                pincode: resolvedPincode,
-                location: (location || '').slice(0, 120),
+                pincode: v.pincode || resolvedPincode,
+                location: (locationSummary || location || '').slice(0, 120),
                 leadSource,
                 campaignData: typeof campaignData === 'string' ? campaignData.slice(0, 990) : JSON.stringify(campaignData).slice(0, 990),
                 notes: `SMART MATCH | Eligible Venue: ${v.venueName} | Plan: ${match.subscriptionPlan} | ${notes}`,

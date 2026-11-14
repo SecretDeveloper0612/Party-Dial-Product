@@ -22,6 +22,7 @@ import {
   Clock,
   Mail,
   Save,
+  Layers,
   Snowflake, Car, Zap, Home, Sun, Utensils, ChefHat, Music, Sparkles, UserCircle, Shield, Wifi, Cake, Heart, Camera, Gift, Briefcase, Coffee, Users, PartyPopper, Smile, GlassWater, Baby, Gem, Ticket
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,8 @@ interface LiveVenue {
   contactNumber: string;
   ownerEmail: string;
   subscriptionPlan: string;
+  subscriptionExpiry?: string | null;
+  isExpired: boolean;
   hasActivePlan: boolean;
   isVerified: boolean;
   status: string;
@@ -112,12 +115,34 @@ function getAppwriteImageUrl(fileId: any) {
 // Map raw Appwrite doc → LiveVenue
 function mapDoc(doc: any): LiveVenue {
   let sub = doc.subscriptionPlan || "None";
+  const subStatus = (doc.subscriptionStatus || "").toString().trim().toLowerCase();
+  const expiryStr = doc.subscriptionExpiry || doc.subscriptionExpiryDate || null;
+  
+  let isExpired = false;
+
+  // 1. Explicit status check
+  if (subStatus === 'expired') {
+    isExpired = true;
+  }
+
+  // 2. Explicit expiry date check
+  if (expiryStr) {
+    const expDate = new Date(expiryStr);
+    if (!isNaN(expDate.getTime()) && Date.now() > expDate.getTime()) {
+      isExpired = true;
+    }
+  }
+
+  // 3. Trial 30 plan expiration check
   if (sub === 'trial_30') {
     const createdAt = doc.$createdAt ? new Date(doc.$createdAt).getTime() : Date.now();
     if ((Date.now() - createdAt) > (30 * 24 * 60 * 60 * 1000)) {
-      sub = 'None';
+      isExpired = true;
     }
   }
+
+  // If marked expired, it cannot have an active plan
+  const hasActivePlan = !isExpired && !!(sub && sub !== "None" && sub !== "free");
 
   let logoUrl = null;
   try {
@@ -137,7 +162,9 @@ function mapDoc(doc: any): LiveVenue {
     contactNumber: doc.contactNumber || "—",
     ownerEmail: doc.contactEmail || doc.ownerEmail || "—",
     subscriptionPlan: sub,
-    hasActivePlan: !!(sub && sub !== "None" && sub !== "free"),
+    subscriptionExpiry: expiryStr,
+    isExpired,
+    hasActivePlan,
     isVerified: doc.isVerified === true,
     status: doc.status || "active",
     totalLeads: doc.totalLeads || 0,
@@ -162,8 +189,10 @@ function VenueManagementContent() {
   const [editForm, setEditForm] = useState<any>({});
   const [updating, setUpdating] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [listingFilter, setListingFilter] = useState<"All" | "Free" | "Paid">("All");
+  const [listingFilter, setListingFilter] = useState<"All" | "Free" | "Paid" | "Expired">("All");
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [venueToDelete, setVenueToDelete] = useState<LiveVenue | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const showToast = (msg: string, type: "success" | "error") => {
     setToast({ msg, type });
@@ -223,6 +252,8 @@ function VenueManagementContent() {
           data = data.filter((v) => v.hasActivePlan);
         } else if (initialFilter === "unsubscribed") {
           data = data.filter((v) => !v.hasActivePlan);
+        } else if (initialFilter === "expired") {
+          data = data.filter((v) => v.isExpired);
         }
 
         setVenues(data);
@@ -277,6 +308,36 @@ function VenueManagementContent() {
     }
   };
 
+  const handleDeleteVenue = async () => {
+    if (!venueToDelete) return;
+    setDeleting(true);
+    try {
+      const rawBase = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5005/api";
+      const base = rawBase.replace(/\/+$/, "");
+      const serverUrl = base.endsWith("/api") ? base : `${base}/api`;
+
+      const res = await fetch(`${serverUrl}/venues/${venueToDelete.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.status !== "error") {
+        showToast(`✓ "${venueToDelete.name}" deleted successfully`, "success");
+        setVenues((prev) => prev.filter((v) => v.id !== venueToDelete.id));
+        if (selectedVenue?.id === venueToDelete.id) {
+          setSelectedVenue(null);
+        }
+        setVenueToDelete(null);
+      } else {
+        showToast(`✗ ${data.message || "Failed to delete venue"}`, "error");
+      }
+    } catch (err: any) {
+      console.error("Delete failed", err);
+      showToast(`✗ Failed to delete venue: ${err?.message || "Network error"}`, "error");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   useEffect(() => {
     if (selectedVenue) {
       const parseField = (val: any) => {
@@ -323,7 +384,8 @@ function VenueManagementContent() {
       const matchesListing = 
         listingFilter === "All" ||
         (listingFilter === "Paid" && v.hasActivePlan && v.subscriptionPlan !== "free") ||
-        (listingFilter === "Free" && (v.subscriptionPlan === "free" || !v.hasActivePlan));
+        (listingFilter === "Free" && (v.subscriptionPlan === "free" || !v.hasActivePlan) && !v.isExpired) ||
+        (listingFilter === "Expired" && v.isExpired);
 
       if (!matchesSearch || !matchesListing) return false;
 
@@ -391,7 +453,7 @@ function VenueManagementContent() {
 
       {/* Search Bar */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-8 relative flex items-center">
+        <div className="lg:col-span-7 relative flex items-center">
           <input
             type="text"
             placeholder="Search by venue name, city, or email..."
@@ -404,26 +466,31 @@ function VenueManagementContent() {
             className="absolute left-4 text-slate-400"
           />
         </div>
-        <div className="lg:col-span-4 flex gap-3">
+        <div className="lg:col-span-5 flex gap-3">
           <div className="flex-1 bg-white border border-slate-100 rounded-xl p-1 flex shadow-sm">
-            {(["All", "Free", "Paid"] as const).map((f) => (
+            {(["All", "Free", "Paid", "Expired"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setListingFilter(f)}
                 className={cn(
-                  "flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                  "flex-1 py-2 px-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all text-center",
                   listingFilter === f 
                     ? "bg-slate-900 text-white shadow-lg" 
                     : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
                 )}
               >
-                {f}
+                {f === "Expired" ? "Expired" : f}
               </button>
             ))}
           </div>
-          <div className="w-[120px] bg-white border border-slate-100 rounded-xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 px-4 py-3 shadow-sm">
-            <Filter size={14} className="text-[#b66dff]" />
-            <span>{filteredVenues.length}</span>
+          <div className="shrink-0 bg-white border border-slate-100 rounded-xl flex items-center justify-center gap-2 px-3.5 py-2.5 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-[#b66dff] animate-pulse" />
+            <span className="text-xs font-semibold text-slate-800">
+              {filteredVenues.length}
+            </span>
+            <span className="text-[10px] font-light text-slate-400">
+              venues
+            </span>
           </div>
         </div>
       </div>
@@ -535,14 +602,20 @@ function VenueManagementContent() {
                       <span
                         className={cn(
                           "px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border",
-                          venue.subscriptionPlan === "free"
-                             ? "bg-amber-50 text-amber-600 border-amber-100"
-                             : venue.hasActivePlan
-                                ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                                : "bg-slate-50 text-slate-400 border-slate-100"
+                          venue.isExpired
+                            ? "bg-rose-50 text-rose-600 border-rose-200"
+                            : venue.subscriptionPlan === "free"
+                               ? "bg-amber-50 text-amber-600 border-amber-100"
+                               : venue.hasActivePlan
+                                  ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                  : "bg-slate-50 text-slate-400 border-slate-100"
                         )}
                       >
-                        {venue.subscriptionPlan === "free" ? "Free Listing" : (venue.subscriptionPlan === "None" || !venue.subscriptionPlan ? "No Plan" : venue.subscriptionPlan)}
+                        {venue.isExpired 
+                          ? `Expired (${venue.subscriptionPlan && venue.subscriptionPlan !== "None" ? venue.subscriptionPlan : "Plan"})`
+                          : venue.subscriptionPlan === "free" 
+                              ? "Free Listing" 
+                              : (venue.subscriptionPlan === "None" || !venue.subscriptionPlan ? "No Plan" : venue.subscriptionPlan)}
                       </span>
                       <span className="px-2 py-0.5 bg-violet-50 text-violet-600 border border-violet-100 rounded text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
                         <TrendingUp size={10} /> {venue.totalLeads} Leads
@@ -593,8 +666,9 @@ function VenueManagementContent() {
                     <Edit2 size={18} />
                   </button>
                   <button
-                    className="p-3 rounded-xl bg-slate-50 text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all shadow-sm"
-                    title="Delete"
+                    onClick={() => setVenueToDelete(venue)}
+                    className="p-3 rounded-xl bg-slate-50 text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all shadow-sm cursor-pointer"
+                    title="Delete Venue"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -914,14 +988,18 @@ function VenueManagementContent() {
                   <span
                     className={cn(
                       "px-3 py-1 rounded-full text-[10px] font-black uppercase border",
-                      selectedVenue.hasActivePlan
-                        ? "bg-purple-50 text-[#b66dff] border-purple-100"
-                        : "bg-slate-50 text-slate-400 border-slate-100"
+                      selectedVenue.isExpired
+                        ? "bg-rose-50 text-rose-600 border-rose-200"
+                        : selectedVenue.hasActivePlan
+                          ? "bg-purple-50 text-[#b66dff] border-purple-100"
+                          : "bg-slate-50 text-slate-400 border-slate-100"
                     )}
                   >
-                    {selectedVenue.hasActivePlan
-                      ? selectedVenue.subscriptionPlan
-                      : "Free Plan"}
+                    {selectedVenue.isExpired
+                      ? `Expired (${selectedVenue.subscriptionPlan || "Plan"})`
+                      : selectedVenue.hasActivePlan
+                        ? selectedVenue.subscriptionPlan
+                        : "Free Plan"}
                   </span>
                   <span
                     className={cn(
@@ -995,6 +1073,16 @@ function VenueManagementContent() {
                     label="Leads"
                     value={`${selectedVenue.totalLeads} Total`}
                   />
+                  {selectedVenue.subscriptionExpiry && (
+                    <DetailRow
+                      label="Subscription Expiry"
+                      value={new Date(selectedVenue.subscriptionExpiry).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric"
+                      })}
+                    />
+                  )}
                   {selectedVenue.raw.landmark && (
                     <DetailRow label="Landmark" value={selectedVenue.raw.landmark} />
                   )}
@@ -1054,6 +1142,74 @@ function VenueManagementContent() {
                 </details>
               </>
             )}
+            </div>
+          </div>
+        </motion.div>
+      </>
+    )}
+  </AnimatePresence>
+
+  {/* Delete Confirmation Modal */}
+  <AnimatePresence>
+    {venueToDelete && (
+      <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => !deleting && setVenueToDelete(null)}
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150]"
+        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
+          animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
+          exit={{ opacity: 0, scale: 0.95, x: "-50%", y: "-50%" }}
+          transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          className="fixed top-1/2 left-1/2 w-[92vw] max-w-md bg-white rounded-3xl p-6 sm:p-7 shadow-2xl z-[151] border border-slate-100"
+        >
+          <div className="flex flex-col items-center text-center">
+            <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mb-4 shadow-sm border border-rose-100/60">
+              <Trash2 size={26} />
+            </div>
+
+            <h3 className="text-xl font-semibold text-slate-800 tracking-tight mb-2">
+              Delete Venue?
+            </h3>
+
+            <p className="text-sm font-light text-slate-500 leading-relaxed mb-6">
+              Are you sure you want to permanently delete{" "}
+              <span className="font-semibold text-slate-700">{venueToDelete.name}</span>
+              {venueToDelete.city && venueToDelete.city !== "—" ? ` (${venueToDelete.city})` : ""}? 
+              This will remove all associated profiles and data. This action cannot be undone.
+            </p>
+
+            <div className="flex items-center gap-3 w-full">
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => setVenueToDelete(null)}
+                className="flex-1 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={handleDeleteVenue}
+                className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white text-xs font-semibold uppercase tracking-wider shadow-lg shadow-rose-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {deleting ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={14} />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </motion.div>

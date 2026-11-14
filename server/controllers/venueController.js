@@ -1008,3 +1008,27 @@ exports.createVenue = async (req, res) => {
     res.status(500).json({ status: 'error', message: error.message });
   }
 };
+
+// Delete venue
+exports.deleteVenue = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ status: 'error', message: 'Venue ID is required' });
+    }
+
+    // Delete venue document from Appwrite
+    await databases.deleteDocument(DATABASE_ID, VENUES_COLLECTION_ID, id);
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Venue deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting venue:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: error.message || 'Failed to delete venue'
+    });
+  }
+};

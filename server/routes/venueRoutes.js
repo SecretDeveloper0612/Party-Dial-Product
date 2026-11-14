@@ -10,6 +10,7 @@ router.get('/:venueId/leads', venueController.getVenueLeads);
 router.patch('/:id/approve', venueController.approveVenue);
 router.patch('/:id/reject', venueController.rejectVenue);
 router.put('/:id', venueController.updateVenue);
+router.delete('/:id', venueController.deleteVenue);
 router.get('/:id', venueController.getVenueById);
 
 // Define routes for reviews

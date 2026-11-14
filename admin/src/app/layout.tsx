@@ -44,9 +44,13 @@ export default function RootLayout({
             })(window,document,'script','dataLayer','GTM-PLPQB8V7');
           `}
         </Script>
+        {/* Google Fonts: Poppins */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,600&display=swap" rel="stylesheet" />
         {/* End Google Tag Manager */}
       </head>
-      <body className={`${poppins.className} custom-scrollbar font-poppins`} suppressHydrationWarning>
+      <body className={`${poppins.className} ${poppins.variable} custom-scrollbar font-poppins`} suppressHydrationWarning>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe

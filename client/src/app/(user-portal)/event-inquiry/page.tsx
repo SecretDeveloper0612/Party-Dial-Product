@@ -35,32 +35,125 @@ import { account, ID } from '@/lib/appwrite';
 
 // Master Event Types List
 const EVENT_TYPES = [
+  // Wedding & Pre/Post-Wedding
   'Wedding',
-  'Engagement',
-  'Reception',
-  'Birthday Party',
-  'Anniversary',
-  'Corporate Event',
-  'Conference',
-  'Seminar',
-  'Meeting',
-  'Exhibition',
-  'Product Launch',
-  'Award Ceremony',
-  'Farewell Party',
-  'Retirement Party',
-  'Baby Shower',
-  'Naming Ceremony',
-  'Bridal Shower',
+  'Destination Wedding',
+  'Engagement Ceremony',
+  'Ring Ceremony',
+  'Wedding Reception',
+  'Roka Ceremony',
+  'Haldi Ceremony',
+  'Mehndi Ceremony',
+  'Sangeet Ceremony',
+  'Cocktail Party',
   'Bachelor Party',
   'Bachelorette Party',
+  'Pre-Wedding Function',
+  'Post-Wedding Celebration',
+  'Anniversary Celebration',
+
+  // Birthdays & Milestones
+  'Kids Birthday Party',
+  'First Birthday',
+  'Adult Birthday Party',
+  'Milestone Birthday (18th, 21st, 25th, 50th)',
+  'Surprise Birthday Party',
+  'Anniversary Party',
+  'Baby Shower',
+  'Godh Bharai',
+  'Naming Ceremony',
+  'Welcome Baby Party',
+  'Farewell Party',
+  'Retirement Party',
+  'Reunion Party',
+  'Housewarming Party',
   'Graduation Party',
-  'Family Function',
-  'Religious Ceremony',
-  'Festival Celebration',
-  'School or College Event',
-  'Private Party',
-  'Social Gathering',
+
+  // Corporate Events
+  'Corporate Meetings',
+  'Business Conferences',
+  'Corporate Seminars',
+  'Product Launch',
+  'Brand Launch',
+  'Annual General Meeting',
+  'Award Ceremony',
+  'Corporate Annual Day',
+  'Team Building Events',
+  'Employee Appreciation Party',
+  'Networking Events',
+  'Business Workshops',
+  'Training Programs',
+  'Dealer Meets',
+  'Corporate Dinner',
+
+  // Religious, Traditional & Spiritual Ceremonies
+  'Mata Ki Chowki',
+  'Jagran',
+  'Kirtan',
+  'Bhajan Sandhya',
+  'Satyanarayan Katha',
+  'Bhagwat Katha',
+  'Ram Katha',
+  'Sundarkand Path',
+  'Pooja Ceremony',
+  'Havan Ceremony',
+  'Ganesh Chaturthi Celebration',
+  'Diwali Celebration',
+  'Holi Celebration',
+  'Navratri Celebration',
+  'Lohri Celebration',
+
+  // Music, Entertainment & College Fests
+  'DJ Night',
+  'Music Concert',
+  'Live Band Performance',
+  'Dance Party',
+  'Pool Party',
+  'Theme Party',
+  'Fashion Show',
+  'Comedy Show',
+  'Talent Show',
+  'Cultural Festival',
+  'College Fest',
+  'Freshers Party',
+  'Farewell Fest',
+  'Open Mic Event',
+  'Karaoke Night',
+
+  // Community, Family & Social Gatherings
+  'Family Get-Together',
+  'Family Reunion',
+  'Community Gathering',
+  'Society Function',
+  'Kitty Party',
+  "Ladies' Party",
+  "Friends' Reunion",
+  'Picnic Party',
+  'Club Party',
+  'Cultural Gathering',
+  'Community Festival',
+  'Charity Event',
+  'Fundraising Event',
+  'NGO Event',
+  'Neighbourhood Celebration',
+
+  // Festivals & Seasonal Celebrations
+  'New Year Party',
+  'Christmas Party',
+  "Valentine's Day Celebration",
+  'Holi Party',
+  'Diwali Party',
+  'Halloween Party',
+  'Independence Day Celebration',
+  'Republic Day Celebration',
+  'Uttarakhand Foundation Day',
+  'Karwa Chauth Celebration',
+  'Teej Celebration',
+  'Raksha Bandhan Celebration',
+  'Eid Celebration',
+  'Onam Celebration',
+
+  // Other Custom Option
   'Other'
 ];
 
@@ -145,8 +238,28 @@ function EventInquiryContent() {
   const [eventTypeSearch, setEventTypeSearch] = useState('');
   const eventTypeRef = useRef<HTMLDivElement>(null);
 
-  // Pincode & Location suggestions state
-  const [suggestions, setSuggestions] = useState<Array<{ display: string; name: string; pincode: string }>>([]);
+  // Location / Pincode tags & suggestions state
+  interface LocationTag {
+    id: string;
+    display: string;
+    name?: string;
+    pincode?: string;
+  }
+
+  const POPULAR_LOCATIONS: LocationTag[] = useMemo(() => [
+    { id: '263139-haldwani', display: 'Haldwani (263139)', name: 'Haldwani', pincode: '263139' },
+    { id: '263126-kathgodam', display: 'Kathgodam (263126)', name: 'Kathgodam', pincode: '263126' },
+    { id: '263139-mukhani', display: 'Mukhani (263139)', name: 'Mukhani', pincode: '263139' },
+    { id: '263140-kaladhungi', display: 'Kaladhungi (263140)', name: 'Kaladhungi', pincode: '263140' },
+    { id: '263131-lalkuan', display: 'Lalkuan (263131)', name: 'Lalkuan', pincode: '263131' },
+    { id: '263001-nainital', display: 'Nainital (263001)', name: 'Nainital', pincode: '263001' },
+    { id: '244715-ramnagar', display: 'Ramnagar (244715)', name: 'Ramnagar', pincode: '244715' },
+    { id: '263153-rudrapur', display: 'Rudrapur (263153)', name: 'Rudrapur', pincode: '263153' }
+  ], []);
+
+  const [selectedLocations, setSelectedLocations] = useState<LocationTag[]>([]);
+  const [locationInput, setLocationInput] = useState('');
+  const [suggestions, setSuggestions] = useState<LocationTag[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoadingPincode, setIsLoadingPincode] = useState(false);
   const locationRef = useRef<HTMLDivElement>(null);
@@ -184,24 +297,69 @@ function EventInquiryContent() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Sync selectedLocations into formData.location string
+  useEffect(() => {
+    const combined = selectedLocations.map((l) => l.display).join(', ');
+    setFormData((prev) => ({ ...prev, location: combined }));
+    if (selectedLocations.length > 0) {
+      setErrors((prev) => ({ ...prev, location: undefined }));
+    }
+  }, [selectedLocations]);
+
+  // Add a location tag
+  const handleAddLocation = useCallback((locOrText: LocationTag | string) => {
+    if (typeof locOrText === 'string') {
+      const raw = locOrText.trim();
+      if (!raw) return;
+
+      const parts = raw.split(/[,\n;]+/).map((p) => p.trim()).filter(Boolean);
+      setSelectedLocations((prev) => {
+        const next = [...prev];
+        parts.forEach((part) => {
+          const pinMatch = part.match(/\b\d{6}\b/);
+          const pincode = pinMatch ? pinMatch[0] : (/^\d{6}$/.test(part) ? part : undefined);
+          const name = pincode ? part.replace(/\b\d{6}\b/g, '').replace(/[-–—()]/g, ' ').trim() : part;
+          const display = pincode && name ? `${name} (${pincode})` : part;
+          const id = pincode ? `${pincode}-${name || 'pin'}`.toLowerCase().replace(/\s+/g, '-') : part.toLowerCase();
+
+          if (!next.some((l) => l.id === id || l.display.toLowerCase() === display.toLowerCase() || (pincode && l.pincode === pincode && !name))) {
+            next.push({ id, display, name: name || part, pincode });
+          }
+        });
+        return next;
+      });
+    } else {
+      setSelectedLocations((prev) => {
+        if (prev.some((l) => l.id === locOrText.id || l.display.toLowerCase() === locOrText.display.toLowerCase() || (locOrText.pincode && l.pincode === locOrText.pincode && l.name === locOrText.name))) {
+          return prev;
+        }
+        return [...prev, locOrText];
+      });
+    }
+    setLocationInput('');
+    setShowSuggestions(false);
+    setErrors((prev) => ({ ...prev, location: undefined }));
+  }, []);
+
+  // Remove a location tag
+  const handleRemoveLocation = useCallback((id: string) => {
+    setSelectedLocations((prev) => prev.filter((l) => l.id !== id));
+  }, []);
+
   // Location / Pincode Suggestions lookup with debounce
   useEffect(() => {
-    const query = formData.location.trim();
-    if (query.length < 3) {
+    const query = locationInput.trim();
+    if (query.length < 2) {
       setSuggestions([]);
       return;
     }
 
-    if (query === '263139' || query.toLowerCase() === 'haldwani') {
-      setSuggestions([
-        { display: 'Haldwani, Nainital - 263139', name: 'Haldwani', pincode: '263139' },
-        { display: 'Kathgodam, Nainital - 263126', name: 'Kathgodam', pincode: '263126' },
-        { display: 'Mukhani, Haldwani - 263139', name: 'Mukhani', pincode: '263139' },
-        { display: 'Kaladhungi, Nainital - 263140', name: 'Kaladhungi', pincode: '263140' },
-        { display: 'Lalkuan, Nainital - 263131', name: 'Lalkuan', pincode: '263131' }
-      ]);
-      return;
-    }
+    const localMatches = POPULAR_LOCATIONS.filter(
+      (l) =>
+        l.display.toLowerCase().includes(query.toLowerCase()) ||
+        (l.name && l.name.toLowerCase().includes(query.toLowerCase())) ||
+        (l.pincode && l.pincode.startsWith(query))
+    );
 
     if (/^\d{3,6}$/.test(query)) {
       const timer = setTimeout(async () => {
@@ -210,24 +368,63 @@ function EventInquiryContent() {
           const res = await fetch(`https://api.postalpincode.in/pincode/${query}`);
           const data = await res.json();
           if (Array.isArray(data) && data[0]?.Status === 'Success' && Array.isArray(data[0]?.PostOffice)) {
-            const mapped = data[0].PostOffice.slice(0, 6).map((po: any) => ({
+            const mapped: LocationTag[] = data[0].PostOffice.slice(0, 6).map((po: any) => ({
+              id: `${po.Pincode}-${po.Name}`,
               display: `${po.Name}, ${po.District} - ${po.Pincode}`,
               name: po.Name,
               pincode: po.Pincode
             }));
-            setSuggestions(mapped);
+            const combined = [...localMatches];
+            mapped.forEach((m) => {
+              if (!combined.some((c) => c.pincode === m.pincode && c.name?.toLowerCase() === m.name?.toLowerCase())) {
+                combined.push(m);
+              }
+            });
+            setSuggestions(combined);
           } else {
-            setSuggestions([]);
+            setSuggestions(localMatches);
           }
         } catch {
-          setSuggestions([]);
+          setSuggestions(localMatches);
+        } finally {
+          setIsLoadingPincode(false);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    } else if (query.length >= 3) {
+      const timer = setTimeout(async () => {
+        setIsLoadingPincode(true);
+        try {
+          const res = await fetch(`https://api.postalpincode.in/postoffice/${encodeURIComponent(query)}`);
+          const data = await res.json();
+          if (Array.isArray(data) && data[0]?.Status === 'Success' && Array.isArray(data[0]?.PostOffice)) {
+            const mapped: LocationTag[] = data[0].PostOffice.slice(0, 6).map((po: any) => ({
+              id: `${po.Pincode}-${po.Name}`,
+              display: `${po.Name}, ${po.District} - ${po.Pincode}`,
+              name: po.Name,
+              pincode: po.Pincode
+            }));
+            const combined = [...localMatches];
+            mapped.forEach((m) => {
+              if (!combined.some((c) => c.pincode === m.pincode && c.name?.toLowerCase() === m.name?.toLowerCase())) {
+                combined.push(m);
+              }
+            });
+            setSuggestions(combined);
+          } else {
+            setSuggestions(localMatches);
+          }
+        } catch {
+          setSuggestions(localMatches);
         } finally {
           setIsLoadingPincode(false);
         }
       }, 350);
       return () => clearTimeout(timer);
+    } else {
+      setSuggestions(localMatches);
     }
-  }, [formData.location]);
+  }, [locationInput, POPULAR_LOCATIONS]);
 
   // Location-Specific Guest Capacity Analysis
   useEffect(() => {
@@ -329,11 +526,8 @@ function EventInquiryContent() {
         return '';
 
       case 'location': {
-        if (!value.trim()) return 'Please enter the city, area, or pincode where you want the venue';
-        const isNumeric = /^\d+$/.test(value.trim());
-        if (isNumeric && value.trim().length !== 6) {
-          return 'Pincode must be exactly 6 digits';
-        }
+        const hasSelected = selectedLocations.length > 0 || locationInput.trim().length > 0 || Boolean(value.trim());
+        if (!hasSelected) return 'Please enter or select at least one preferred pincode or venue location';
         return '';
       }
 
@@ -501,6 +695,34 @@ function EventInquiryContent() {
       );
       const leadSource = isPaid ? 'Paid Ads' : 'Website Inquiry';
 
+      // Auto-include any pending location typed in input
+      const currentSelected = [...selectedLocations];
+      if (locationInput.trim()) {
+        const parts = locationInput.trim().split(/[,\n;]+/).map((p) => p.trim()).filter(Boolean);
+        parts.forEach((part) => {
+          const pinMatch = part.match(/\b\d{6}\b/);
+          const pincode = pinMatch ? pinMatch[0] : (/^\d{6}$/.test(part) ? part : undefined);
+          const name = pincode ? part.replace(/\b\d{6}\b/g, '').replace(/[-–—()]/g, ' ').trim() : part;
+          const display = pincode && name ? `${name} (${pincode})` : part;
+          const id = pincode ? `${pincode}-${name || 'pin'}`.toLowerCase().replace(/\s+/g, '-') : part.toLowerCase();
+          if (!currentSelected.some((l) => l.id === id || l.display.toLowerCase() === display.toLowerCase())) {
+            currentSelected.push({ id, display, name: name || part, pincode });
+          }
+        });
+      }
+
+      const allPincodes = Array.from(
+        new Set(
+          currentSelected
+            .map((l) => l.pincode?.trim())
+            .filter((p): p is string => Boolean(p && /^\d{6}$/.test(p)))
+            .concat(currentSelected.flatMap((l) => l.display.match(/\b\d{6}\b/g) || []))
+        )
+      );
+
+      const locationString = currentSelected.map((l) => l.display).join(', ');
+      const locationList = currentSelected.map((l) => l.display);
+
       const payload = {
         name: formData.name.trim(),
         phone: cleanPhone,
@@ -511,9 +733,11 @@ function EventInquiryContent() {
         guestCapacity: String(formData.guests),
         guestCount: parseInt(formData.guests, 10),
         eventDate: formData.eventDate,
-        pincode: formData.location.trim(),
-        location: formData.location.trim(),
-        notes: `Landing Page Lead (Verified Phone) | Event Date: ${formData.eventDate} | Guests: ${formData.guests} | Location: ${formData.location.trim()}`,
+        pincode: allPincodes[0] || (locationString.match(/\b\d{6}\b/) || [''])[0],
+        pincodes: allPincodes,
+        location: locationString,
+        locations: locationList,
+        notes: `Landing Page Lead (Verified Phone) | Event Date: ${formData.eventDate} | Guests: ${formData.guests} | Location(s): ${locationString}`,
         leadSource,
         campaignData,
         ...campaignData
@@ -571,6 +795,9 @@ function EventInquiryContent() {
     });
     setErrors({});
     setTouched({});
+    setSelectedLocations([]);
+    setLocationInput('');
+    setSuggestions([]);
     setSubmitError(null);
     setIsSubmitted(false);
     setIsPhoneVerified(false);
@@ -580,7 +807,7 @@ function EventInquiryContent() {
   };
 
   return (
-    <main className="bg-slate-50/50 sm:bg-white text-slate-900 font-inter antialiased flex flex-col justify-start relative overflow-hidden pt-2 sm:pt-4 pb-12 sm:pb-16 min-h-[calc(100vh-80px)]">
+    <main className="bg-slate-50/50 sm:bg-white text-slate-900 font-inter antialiased flex flex-col justify-center relative overflow-hidden py-4 sm:py-8 min-h-screen">
       {/* Subtle warm ambient glow */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-rose-100/30 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute top-1/3 left-10 w-[500px] h-[500px] bg-blue-100/20 rounded-full blur-[120px] pointer-events-none" />
@@ -600,10 +827,6 @@ function EventInquiryContent() {
               className="bg-white rounded-[32px] p-8 sm:p-12 shadow-2xl border border-slate-200 text-center relative overflow-hidden max-w-2xl mx-auto my-12"
             >
               <div className="absolute top-0 left-0 right-0 h-2 pd-gradient" />
-              
-              <div className="w-20 h-20 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/10">
-                <CheckCircle2 size={44} className="text-emerald-500 animate-pulse" />
-              </div>
 
               {matchCount === 0 ? (
                 /* NO MATCH AT LOCATION MESSAGE VIEW */
@@ -1217,65 +1440,186 @@ function EventInquiryContent() {
                     )}
                   </AnimatePresence>
 
-                  {/* PREFERRED VENUE LOCATION / PINCODE */}
-                  <div className="space-y-1.5 relative" ref={locationRef}>
-                    <label htmlFor="inquiry-location" className="block text-[11px] font-bold uppercase tracking-wider text-slate-700">
-                      Preferred Venue Location / Pincode <span className="text-pd-red">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                        <MapPin size={17} />
-                      </div>
-                      <input
-                        id="inquiry-location"
-                        type="text"
-                        required
-                        value={formData.location}
-                        onChange={(e) => {
-                          handleChange('location', e.target.value);
-                          setShowSuggestions(true);
-                        }}
-                        onFocus={() => setShowSuggestions(true)}
-                        onBlur={() => handleBlur('location')}
-                        placeholder="Where do you need the venue? (e.g. Haldwani or 263139)"
-                        className={`w-full h-12 sm:h-13 bg-white border rounded-xl sm:rounded-2xl pl-11 pr-4 text-sm font-semibold text-slate-900 placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-4 transition-all shadow-sm ${
-                          errors.location && touched.location
-                            ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-100 bg-rose-50/20'
-                            : 'border-slate-300 hover:border-slate-400 focus:border-pd-red focus:ring-pd-red/10'
-                        }`}
-                      />
+                  {/* PREFERRED VENUE LOCATION / PINCODE(S) */}
+                  <div className="space-y-2 relative" ref={locationRef}>
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="inquiry-location" className="block text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                        Preferred Venue Location / Pincode(s) <span className="text-pd-red">*</span>
+                      </label>
+                      <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">
+                        Select or add multiple pincodes / areas
+                      </span>
                     </div>
 
-                    {/* Suggestions */}
+                    {/* Input Container with Selected Tags */}
+                    <div
+                      className={`min-h-12 sm:min-h-13 bg-white border rounded-xl sm:rounded-2xl p-2 sm:p-2.5 transition-all shadow-sm flex flex-wrap items-center gap-1.5 ${
+                        errors.location && touched.location
+                          ? 'border-rose-400 focus-within:border-rose-500 focus-within:ring-4 focus-within:ring-rose-100 bg-rose-50/20'
+                          : 'border-slate-300 hover:border-slate-400 focus-within:border-pd-red focus-within:ring-4 focus-within:ring-pd-red/10'
+                      }`}
+                      onClick={() => {
+                        const inputEl = document.getElementById('inquiry-location');
+                        inputEl?.focus();
+                      }}
+                    >
+                      {/* Left icon if no tags */}
+                      {selectedLocations.length === 0 && (
+                        <div className="pl-2 pr-1 text-slate-400 pointer-events-none">
+                          <MapPin size={17} />
+                        </div>
+                      )}
+
+                      {/* Selected Location Chips */}
+                      <AnimatePresence>
+                        {selectedLocations.map((loc) => (
+                          <motion.span
+                            key={loc.id}
+                            initial={{ opacity: 0, scale: 0.85 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            transition={{ duration: 0.15 }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg sm:rounded-xl bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200/80 text-slate-800 text-xs font-semibold shadow-xs"
+                          >
+                            <MapPin size={12} className="text-pd-red shrink-0" />
+                            <span className="max-w-[180px] sm:max-w-[240px] truncate">{loc.display}</span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveLocation(loc.id);
+                              }}
+                              className="text-slate-400 hover:text-rose-600 transition-colors ml-0.5 p-0.5 rounded-full hover:bg-rose-100/50"
+                              title="Remove location"
+                            >
+                              <X size={13} />
+                            </button>
+                          </motion.span>
+                        ))}
+                      </AnimatePresence>
+
+                      {/* Text Input */}
+                      <div className="flex-1 flex items-center min-w-[160px]">
+                        <input
+                          id="inquiry-location"
+                          type="text"
+                          value={locationInput}
+                          onChange={(e) => {
+                            setLocationInput(e.target.value);
+                            setShowSuggestions(true);
+                          }}
+                          onFocus={() => setShowSuggestions(true)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ',') {
+                              e.preventDefault();
+                              if (locationInput.trim()) {
+                                handleAddLocation(locationInput.trim());
+                              }
+                            }
+                          }}
+                          onBlur={() => {
+                            setTimeout(() => {
+                              if (selectedLocations.length === 0 && !locationInput.trim()) {
+                                setTouched((prev) => ({ ...prev, location: true }));
+                                setErrors((prev) => ({ ...prev, location: 'Please enter or select at least one preferred pincode or venue location' }));
+                              }
+                            }, 200);
+                          }}
+                          placeholder={
+                            selectedLocations.length === 0
+                              ? "Enter pincode or venue location (e.g. 263139 or Haldwani)"
+                              : "+ Add another pincode or location..."
+                          }
+                          className="w-full bg-transparent border-none text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:ring-0 p-1"
+                        />
+
+                        {locationInput.trim() && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddLocation(locationInput.trim());
+                            }}
+                            className="shrink-0 px-2.5 py-1 rounded-lg bg-pd-red text-white text-[11px] font-bold uppercase tracking-wider hover:bg-rose-700 transition-colors shadow-xs active:scale-95"
+                          >
+                            + Add
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Popular / Quick-add Suggestions */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-0.5">
+                        Popular:
+                      </span>
+                      {POPULAR_LOCATIONS.slice(0, 5).map((pop) => {
+                        const isAdded = selectedLocations.some((l) => l.pincode === pop.pincode && l.name === pop.name);
+                        return (
+                          <button
+                            key={pop.id}
+                            type="button"
+                            onClick={() => {
+                              if (isAdded) {
+                                handleRemoveLocation(pop.id);
+                              } else {
+                                handleAddLocation(pop);
+                              }
+                            }}
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all border ${
+                              isAdded
+                                ? 'bg-rose-50 border-rose-300 text-pd-red font-bold'
+                                : 'bg-slate-50 border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-900'
+                            }`}
+                          >
+                            <span>{pop.name}</span>
+                            <span className="text-[10px] text-slate-400">({pop.pincode})</span>
+                            <span className="text-xs">{isAdded ? '✓' : '+'}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Suggestions Dropdown */}
                     <AnimatePresence>
                       {showSuggestions && (suggestions.length > 0 || isLoadingPincode) && (
                         <motion.div
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -8 }}
-                          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden divide-y divide-slate-50"
+                          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden divide-y divide-slate-50 max-h-60 overflow-y-auto"
                         >
                           {isLoadingPincode ? (
                             <div className="p-3 text-center text-xs font-bold text-slate-400 uppercase tracking-widest animate-pulse">
-                              Finding locations...
+                              Finding locations & pincodes...
                             </div>
                           ) : (
-                            suggestions.map((s, idx) => (
-                              <button
-                                key={idx}
-                                type="button"
-                                onClick={() => {
-                                  handleChange('location', s.display);
-                                  setShowSuggestions(false);
-                                }}
-                                className="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-xs font-bold text-slate-800 transition-colors flex items-center justify-between"
-                              >
-                                <span>{s.display}</span>
-                                <span className="text-[10px] uppercase font-bold text-pd-red bg-rose-50 px-2 py-0.5 rounded-md">
-                                  {s.pincode}
-                                </span>
-                              </button>
-                            ))
+                            suggestions.map((s, idx) => {
+                              const isAdded = selectedLocations.some((l) => l.pincode === s.pincode && l.name === s.name);
+                              return (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => handleAddLocation(s)}
+                                  className="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-xs font-bold text-slate-800 transition-colors flex items-center justify-between"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <MapPin size={14} className="text-pd-red shrink-0" />
+                                    <span>{s.display}</span>
+                                    {isAdded && (
+                                      <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">
+                                        Added
+                                      </span>
+                                    )}
+                                  </div>
+                                  {s.pincode && (
+                                    <span className="text-[10px] uppercase font-bold text-pd-red bg-rose-50 px-2 py-0.5 rounded-md shrink-0">
+                                      {s.pincode}
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })
                           )}
                         </motion.div>
                       )}
