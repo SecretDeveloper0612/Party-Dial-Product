@@ -5,51 +5,11 @@ const { sendPaymentReminderEmail, sendProfileReminder } = require('./emailServic
 
 /**
  * Automatically move inactive leads to "Lost Leads" category.
- * Rule: Leads not updated for 7+ days.
- * Frequency: Once per day at midnight.
+ * DISABLED: Leads should not be automatically marked as "Lost Leads".
  */
 const automateLeadStatus = async () => {
-    console.log('--- Starting Lead Status Automation ---');
-    try {
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        const isoDate = sevenDaysAgo.toISOString();
-
-        // 1. Fetch leads that haven't been updated for 7 days
-        // We exclude leads that are already "Lost Leads" or "Booked"
-        const leads = await databases.listDocuments(
-            DATABASE_ID,
-            LEADS_COLLECTION_ID,
-            [
-                Query.lessThan('$createdAt', isoDate), // Base expiry on creation date for strict 1-week limit
-                Query.notEqual('status', 'Lost Leads'),
-                Query.notEqual('status', 'Booked'),
-                Query.limit(1000) 
-            ]
-        );
-
-        console.log(`Found ${leads.documents.length} leads older than 1 week to mark as Lost.`);
-
-        // 2. Update each lead to "Lost Leads"
-        const updatePromises = leads.documents.map(lead => {
-            return databases.updateDocument(
-                DATABASE_ID,
-                LEADS_COLLECTION_ID,
-                lead.$id,
-                {
-                    status: 'Lost Leads'
-                }
-            ).catch(err => {
-                console.error(`Failed to update lead ${lead.$id}:`, err.message);
-            });
-        });
-
-        await Promise.all(updatePromises);
-        console.log('--- Lead Status Automation Completed ---');
-
-    } catch (error) {
-        console.error('Error in Lead Status Automation:', error);
-    }
+    // Disabled as requested: leads should not be automatically moved to Lost Leads
+    return;
 };
 
 /**
@@ -173,10 +133,10 @@ const automateGSheetSync = async () => {
     }
 };
 
-// Schedule Lead Status cleanup at 00:00 (Midnight)
-cron.schedule('0 0 * * *', () => {
-    automateLeadStatus();
-});
+// Schedule Lead Status cleanup at 00:00 (Midnight) - DISABLED
+// cron.schedule('0 0 * * *', () => {
+//     automateLeadStatus();
+// });
 
 // Schedule Payment Reminders at 10:00 AM daily
 // cron.schedule('0 10 * * *', () => {

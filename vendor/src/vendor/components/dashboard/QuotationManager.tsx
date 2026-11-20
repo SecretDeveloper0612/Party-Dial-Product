@@ -118,7 +118,7 @@ const QuotationManager = ({
                      ...prev,
                      client: leadDoc.name || prev.client,
                      contact: leadDoc.phone || prev.contact,
-                     email: leadDoc.email || prev.email,
+                     email: (leadDoc.email && leadDoc.email.toLowerCase() !== 'client@mail.com') ? leadDoc.email : (prev.email === 'client@mail.com' ? '' : prev.email),
                      guestCount: leadDoc.guests ? leadDoc.guests.toString() : prev.guestCount,
                      // Only clear leadId after successful fetch to prevent infinite loop
                      // but we want to keep it to know we already fetched for this ID

@@ -571,6 +571,31 @@ export default function VendorDashboard() {
     }
   };
 
+  const updateMultipleLeadsStatus = async (leadIds: string[], newStatus: string) => {
+    if (!leadIds || leadIds.length === 0) return;
+    const idSet = new Set(leadIds);
+    const previousLeads = [...recentLeads];
+
+    // Optimistic Update
+    setRecentLeads(prev => prev.map(l => idSet.has(l.id) ? { ...l, status: newStatus } : l));
+    showToast(`${leadIds.length} lead${leadIds.length > 1 ? 's' : ''} successfully moved to ${newStatus}`, 'success');
+
+    try {
+      const { databases, DATABASE_ID, LEADS_COLLECTION_ID } = await import('@/lib/appwrite');
+      await Promise.all(
+        leadIds.map(leadId =>
+          databases.updateDocument(DATABASE_ID, LEADS_COLLECTION_ID, leadId, {
+            status: newStatus
+          })
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update multiple lead statuses:', error);
+      setRecentLeads(previousLeads);
+      showToast('Offline mode: Could not sync some lead statuses with server.', 'error');
+    }
+  };
+
   const updateLeadRemark = async (leadId: string, remark: string) => {
     let updatedNotes = '';
     setRecentLeads(prev => prev.map(l => {
@@ -923,7 +948,7 @@ export default function VendorDashboard() {
                   return doc.status || 'New';
                 })(),
                 location: doc.city || extractedCity || (extractedPin ? `PIN: ${extractedPin}` : 'Haldwani'),
-                email: doc.email || 'client@mail.com',
+                email: (doc.email && doc.email.toLowerCase() !== 'client@mail.com') ? doc.email : '',
                 title: 'Direct Inquiry',
                 starred: false,
                 unread: doc.status === 'New',
@@ -1193,7 +1218,7 @@ export default function VendorDashboard() {
                     reminder: extractedReminder || '',
                     status: payload.status === 'Quoted' ? 'Quotation Send' : (payload.status === 'In-Progress' ? 'Contacted' : (payload.status === 'Lost' || payload.status === 'Lost Leads' ? 'Lost Leads' : (payload.status || 'New'))),
                     location: payload.city || extractedCity || (extractedPin ? `PIN: ${extractedPin}` : 'Haldwani'),
-                    email: payload.email || 'client@mail.com',
+                    email: (payload.email && payload.email.toLowerCase() !== 'client@mail.com') ? payload.email : '',
                     title: 'Direct Inquiry',
                     starred: false,
                     unread: payload.status === 'New',
@@ -1579,6 +1604,7 @@ export default function VendorDashboard() {
                   leadFilter={leadFilter}
                   setLeadFilter={setLeadFilter}
                   updateLeadStatus={updateLeadStatus}
+                  updateMultipleLeadsStatus={updateMultipleLeadsStatus}
                   updateLeadRemark={updateLeadRemark}
                   updateLeadReminder={updateLeadReminder}
                   vendorEmail={userData?.email || venueProfile?.email || ''}

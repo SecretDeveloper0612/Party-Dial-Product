@@ -566,16 +566,8 @@ exports.getVenueLeads = async (req, res) => {
             ]
         );
 
-        const now = new Date();
         const mappedLeads = leads.documents.map(doc => {
-            let isLost = false;
-            if (doc.eventDate) {
-                const eventDate = new Date(doc.eventDate);
-                // Mark as lost if event date has passed
-                if (now > eventDate) {
-                    isLost = true;
-                }
-            }
+            const isLost = doc.status === 'Lost' || doc.status === 'Lost Leads';
             return {
                 ...doc,
                 isLost

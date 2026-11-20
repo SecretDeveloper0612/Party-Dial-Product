@@ -30,7 +30,7 @@ const { fixAppwriteSchema } = require('./utils/schemaFix');
 fixAppwriteSchema().catch(err => console.error('Schema fix failed:', err.message));
 
 // Initialize Cron Jobs
-automateLeadStatus();
+// automateLeadStatus(); // Disabled: Do not auto-lost leads
 // automatePaymentReminders();
 // automateProfileReminders();
 automateGSheetSync();

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Filter, 
@@ -19,7 +19,11 @@ import {
   Calendar,
   Clock,
   ExternalLink,
-  Trash2
+  Trash2,
+  CheckSquare,
+  Square,
+  Sparkles,
+  Zap
 } from 'lucide-react';
 
 interface Lead {
@@ -45,6 +49,7 @@ interface LeadInboxProps {
   leadFilter: string;
   setLeadFilter: (filter: string) => void;
   updateLeadStatus: (leadId: string, newStatus: string) => void;
+  updateMultipleLeadsStatus?: (leadIds: string[], newStatus: string) => Promise<void> | void;
   updateLeadRemark?: (leadId: string, remark: string) => void;
   updateLeadReminder?: (leadId: string, reminderTime: string) => void;
   vendorEmail?: string;
@@ -59,6 +64,7 @@ const LeadInbox = ({
   leadFilter,
   setLeadFilter,
   updateLeadStatus,
+  updateMultipleLeadsStatus,
   updateLeadRemark,
   updateLeadReminder,
   vendorEmail,
@@ -74,6 +80,76 @@ const LeadInbox = ({
   const [reminderDate, setReminderDate] = useState<string>('');
   const [reminderTime, setReminderTime] = useState<string>('11:00');
   const [reminderNote, setReminderNote] = useState<string>('');
+
+  // Bulk / Multiple Leads Selection State
+  const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
+  const [isBulkUpdating, setIsBulkUpdating] = useState<boolean>(false);
+  const [bulkStatus, setBulkStatus] = useState<string>('');
+  const headerCheckboxRef = useRef<HTMLInputElement>(null);
+  const mobileHeaderCheckboxRef = useRef<HTMLInputElement>(null);
+
+  // Sync selected leads when filter or lead list changes
+  useEffect(() => {
+    setSelectedLeadIds((prev) =>
+      prev.filter((id) => filteredAdvancedLeads.some((l) => l.id === id))
+    );
+  }, [filteredAdvancedLeads]);
+
+  const allSelected =
+    filteredAdvancedLeads.length > 0 &&
+    selectedLeadIds.length === filteredAdvancedLeads.length;
+  const isIndeterminate =
+    selectedLeadIds.length > 0 &&
+    selectedLeadIds.length < filteredAdvancedLeads.length;
+
+  useEffect(() => {
+    if (headerCheckboxRef.current) {
+      headerCheckboxRef.current.indeterminate = isIndeterminate;
+    }
+    if (mobileHeaderCheckboxRef.current) {
+      mobileHeaderCheckboxRef.current.indeterminate = isIndeterminate;
+    }
+  }, [isIndeterminate]);
+
+  const handleToggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedLeadIds([]);
+    } else {
+      setSelectedLeadIds(filteredAdvancedLeads.map((l) => l.id));
+    }
+  };
+
+  const handleSelectAll = () => {
+    setSelectedLeadIds(filteredAdvancedLeads.map((l) => l.id));
+  };
+
+  const handleToggleLead = (leadId: string) => {
+    setSelectedLeadIds((prev) =>
+      prev.includes(leadId)
+        ? prev.filter((id) => id !== leadId)
+        : [...prev, leadId]
+    );
+  };
+
+  const handleBulkStatusChange = async (newStatus: string) => {
+    if (!newStatus || selectedLeadIds.length === 0) return;
+    setIsBulkUpdating(true);
+    try {
+      if (updateMultipleLeadsStatus) {
+        await updateMultipleLeadsStatus(selectedLeadIds, newStatus);
+      } else {
+        await Promise.all(
+          selectedLeadIds.map((id) => updateLeadStatus(id, newStatus))
+        );
+      }
+      setBulkStatus('');
+      setSelectedLeadIds([]);
+    } catch (err) {
+      console.error('Failed bulk status update:', err);
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
 
   const handleStartEditRemark = (lead: Lead) => {
     setEditingRemarkId(lead.id);
@@ -202,39 +278,198 @@ const LeadInbox = ({
           </div>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex overflow-x-auto pb-2 scrollbar-hide gap-2 w-max max-w-full">
-           {filters.map(filter => (
-             <button 
-               key={filter} 
-               onClick={() => setLeadFilter(filter)}
-               className={`px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
-                 leadFilter === filter 
-                 ? 'bg-slate-900 text-white shadow-md' 
-                 : 'bg-white border border-slate-200/60 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-               }`}
-             >
-               {filter}
-             </button>
-           ))}
+        {/* Filter Tabs & Quick Selection Stat */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex overflow-x-auto pb-2 sm:pb-0 scrollbar-hide gap-2 w-max max-w-full">
+             {filters.map(filter => (
+               <button 
+                 key={filter} 
+                 onClick={() => setLeadFilter(filter)}
+                 className={`px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
+                   leadFilter === filter 
+                   ? 'bg-slate-900 text-white shadow-md' 
+                   : 'bg-white border border-slate-200/60 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                 }`}
+               >
+                 {filter}
+               </button>
+             ))}
+          </div>
+
+          {filteredAdvancedLeads.length > 0 && (
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={handleToggleSelectAll}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-colors active:scale-95"
+              >
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  ref={headerCheckboxRef}
+                  onChange={handleToggleSelectAll}
+                  className="w-3.5 h-3.5 rounded text-pd-pink focus:ring-pd-pink/30 border-slate-300 cursor-pointer accent-pd-pink"
+                />
+                <span>{allSelected ? 'Deselect All' : `Select All (${filteredAdvancedLeads.length})`}</span>
+              </button>
+              {selectedLeadIds.length > 0 && (
+                <span className="text-xs font-bold text-pd-pink bg-pink-50 px-2 py-1 rounded-md border border-pink-200/60">
+                  {selectedLeadIds.length} Selected
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
+
+      {/* TOP BULK ACTIONS BANNER (Appears when leads are selected) */}
+      <AnimatePresence>
+        {selectedLeadIds.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -10 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -10 }}
+            className="bg-white text-slate-900 rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/90 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 overflow-hidden"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-pink-50 text-pd-pink flex items-center justify-center font-black text-sm shrink-0 border border-pink-200/80 shadow-2xs">
+                {selectedLeadIds.length}
+              </div>
+              <div>
+                <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <span>{selectedLeadIds.length} of {filteredAdvancedLeads.length} leads selected</span>
+                  {allSelected && (
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                      All Selected
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 mt-0.5 font-normal">
+                  Change status & action for all selected leads simultaneously
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-start lg:justify-end">
+              {/* Quick Action Pills */}
+              <div className="hidden xl:flex items-center gap-1.5 mr-1">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mr-1">Quick Move:</span>
+                {[
+                  { label: 'Contacted', status: 'Contacted', color: 'hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200' },
+                  { label: 'Follow-up', status: 'Followups', color: 'hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200' },
+                  { label: 'Quote Sent', status: 'Quotation Send', color: 'hover:bg-pink-50 hover:text-pd-pink hover:border-pink-200' },
+                  { label: 'Booked', status: 'Booked', color: 'hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200' },
+                  { label: 'Lost', status: 'Lost Leads', color: 'hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200' }
+                ].map((act) => (
+                  <button
+                    key={act.status}
+                    disabled={isBulkUpdating}
+                    onClick={() => handleBulkStatusChange(act.status)}
+                    className={`px-3 py-1.5 rounded-lg bg-slate-50 text-slate-700 text-xs font-semibold border border-slate-200/80 shadow-2xs ${act.color} transition-all active:scale-95 disabled:opacity-50`}
+                  >
+                    {act.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Status Select Dropdown */}
+              <div className="relative flex-1 sm:flex-none">
+                <select
+                  disabled={isBulkUpdating}
+                  value={bulkStatus}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      handleBulkStatusChange(e.target.value);
+                    }
+                  }}
+                  className="w-full sm:w-auto appearance-none bg-linear-to-r from-pd-pink to-pd-purple hover:opacity-95 text-white font-bold text-xs py-2 pl-3.5 pr-8 rounded-xl shadow-xs cursor-pointer transition-all border border-pink-400/30 focus:outline-none focus:ring-2 focus:ring-pd-pink/20 disabled:opacity-60"
+                >
+                  <option value="" className="bg-white text-slate-900 font-semibold">
+                    {isBulkUpdating ? 'Updating Statuses...' : 'Change Status & Action ▾'}
+                  </option>
+                  {['New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost Leads'].map((s) => (
+                    <option key={s} value={s} className="bg-white text-slate-900">
+                      Move All to: {s}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-2.5 flex items-center pointer-events-none text-white">
+                  <ChevronDown size={14} />
+                </div>
+              </div>
+
+              {/* Select All / Deselect Toggle */}
+              <button
+                type="button"
+                onClick={allSelected ? () => setSelectedLeadIds([]) : handleSelectAll}
+                className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 text-xs font-semibold transition-colors border border-slate-200 shadow-2xs"
+              >
+                {allSelected ? 'Deselect All' : `Select All (${filteredAdvancedLeads.length})`}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedLeadIds([])}
+                className="p-2 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors border border-slate-200 shadow-2xs"
+                title="Clear Selection"
+              >
+                <X size={15} />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Leads List */}
       <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
         
         {/* Table Header (Hidden on Mobile) */}
-        <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-slate-100 bg-slate-50/50 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-           <div className="col-span-4 pl-4">Lead Info</div>
+        <div className="hidden md:grid grid-cols-12 gap-4 p-4 border-b border-slate-100 bg-slate-50/50 text-[10px] font-semibold uppercase tracking-wider text-slate-500 items-center">
+           <div className="col-span-4 pl-2 flex items-center gap-3">
+             <label className="flex items-center gap-2 cursor-pointer select-none group/chk" title="Select All Leads">
+               <input
+                 type="checkbox"
+                 checked={allSelected}
+                 ref={headerCheckboxRef}
+                 onChange={handleToggleSelectAll}
+                 className="w-4 h-4 rounded text-pd-pink focus:ring-pd-pink/30 border-slate-300 cursor-pointer accent-pd-pink"
+               />
+               <span className="font-bold text-slate-700 group-hover/chk:text-pd-pink transition-colors">
+                 Select All
+               </span>
+             </label>
+             <span className="text-slate-300">|</span>
+             <span>Lead Info</span>
+           </div>
            <div className="col-span-3">Event Details</div>
            <div className="col-span-3">Contact</div>
            <div className="col-span-2 text-right pr-4">Status & Action</div>
+        </div>
+
+        {/* Mobile Header Bar with Select All */}
+        <div className="flex md:hidden items-center justify-between p-3.5 border-b border-slate-100 bg-slate-50/80">
+          <label className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-700">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              ref={mobileHeaderCheckboxRef}
+              onChange={handleToggleSelectAll}
+              className="w-4 h-4 rounded text-pd-pink focus:ring-pd-pink/30 border-slate-300 cursor-pointer accent-pd-pink"
+            />
+            <span>Select All Leads ({filteredAdvancedLeads.length})</span>
+          </label>
+          {selectedLeadIds.length > 0 && (
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-pd-pink/10 text-pd-pink">
+              {selectedLeadIds.length} Selected
+            </span>
+          )}
         </div>
 
         <div className="divide-y divide-slate-100">
           <AnimatePresence>
             {filteredAdvancedLeads.length > 0 ? filteredAdvancedLeads.map((lead, i) => {
               const displayStatus = lead.status;
+              const isSelected = selectedLeadIds.includes(lead.id);
               
               return (
               <motion.div 
@@ -243,10 +478,31 @@ const LeadInbox = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ delay: i * 0.05 }}
-                className="group flex flex-col md:grid md:grid-cols-12 gap-4 p-4 lg:p-5 hover:bg-slate-50/50 transition-all items-start md:items-center relative"
+                className={`group flex flex-col md:grid md:grid-cols-12 gap-4 p-4 lg:p-5 transition-all items-start md:items-center relative ${
+                  isSelected 
+                    ? 'bg-rose-50/40 border-l-4 border-l-pd-pink shadow-xs' 
+                    : 'hover:bg-slate-50/50 border-l-4 border-l-transparent'
+                }`}
               >
-                 {/* Lead Info */}
-                 <div className="col-span-4 flex gap-4 items-center w-full md:w-auto md:pl-2">
+                 {/* Lead Info with Checkbox */}
+                 <div className="col-span-4 flex gap-3 lg:gap-4 items-center w-full md:w-auto md:pl-2">
+                    {/* Row Checkbox */}
+                    <div 
+                      className="flex items-center shrink-0 pr-0.5 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleLead(lead.id);
+                      }}
+                      title={isSelected ? 'Deselect lead' : 'Select lead'}
+                    >
+                      <input 
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => {}}
+                        className="w-4 h-4 rounded text-pd-pink focus:ring-pd-pink/30 border-slate-300 cursor-pointer accent-pd-pink"
+                      />
+                    </div>
+
                     <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-linear-to-tr from-pd-pink/10 to-pd-purple/10 text-pd-pink flex items-center justify-center font-bold text-sm lg:text-base shrink-0 border border-pd-pink/20">
                        {lead.name ? lead.name.charAt(0).toUpperCase() : 'U'}
                     </div>
@@ -259,9 +515,11 @@ const LeadInbox = ({
                            </span>
                          )}
                        </div>
-                       <div className="flex items-center gap-1 text-xs font-normal text-slate-500 mt-0.5">
-                         <span className="truncate">{lead.email || 'No email provided'}</span>
-                       </div>
+                       {lead.email && lead.email.toLowerCase() !== 'client@mail.com' && (
+                         <div className="flex items-center gap-1 text-xs font-normal text-slate-500 mt-0.5">
+                           <span className="truncate">{lead.email}</span>
+                         </div>
+                       )}
                        <div className="md:hidden mt-2 flex items-center gap-2">
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider ${lead.status === 'Lost Leads' ? 'bg-rose-50 text-rose-700' : lead.color} border border-current/10`}>
                             {displayStatus}
@@ -578,6 +836,60 @@ const LeadInbox = ({
               </div>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+      {/* STICKY BOTTOM BULK BAR (Floating on scroll) */}
+      <AnimatePresence>
+        {selectedLeadIds.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 60 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/95 backdrop-blur-md text-slate-900 px-4 py-3 rounded-2xl shadow-xl border border-slate-200/90 flex items-center gap-3 sm:gap-4 max-w-xl w-[92%]"
+          >
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="w-6 h-6 rounded-lg bg-pink-50 text-pd-pink border border-pink-200/80 text-xs font-black flex items-center justify-center">
+                {selectedLeadIds.length}
+              </span>
+              <span className="text-xs font-bold text-slate-700 hidden sm:inline">Selected</span>
+            </div>
+
+            <div className="h-4 w-px bg-slate-200 shrink-0" />
+
+            {/* Quick Status Select */}
+            <div className="relative flex-1">
+              <select
+                disabled={isBulkUpdating}
+                value={bulkStatus}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    handleBulkStatusChange(e.target.value);
+                  }
+                }}
+                className="w-full appearance-none bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold text-xs py-2 pl-3 pr-8 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-pd-pink/20 cursor-pointer disabled:opacity-60"
+              >
+                <option value="" className="bg-white text-slate-900">
+                  {isBulkUpdating ? 'Updating...' : 'Change Status & Action to...'}
+                </option>
+                {['New', 'Contacted', 'Followups', 'Quotation Send', 'Booked', 'Lost Leads'].map((s) => (
+                  <option key={s} value={s} className="bg-white text-slate-900">
+                    {s}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-2.5 flex items-center pointer-events-none text-slate-400">
+                <ChevronDown size={14} />
+              </div>
+            </div>
+
+            <button
+              onClick={() => setSelectedLeadIds([])}
+              className="text-xs text-slate-400 hover:text-rose-600 transition-colors shrink-0 p-1.5 rounded-lg hover:bg-rose-50"
+              title="Deselect all"
+            >
+              <X size={16} />
+            </button>
+          </motion.div>
         )}
       </AnimatePresence>
     </motion.div>

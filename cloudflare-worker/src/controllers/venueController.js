@@ -272,13 +272,8 @@ export const getVenueLeads = async (c) => {
             Query.orderDesc('$createdAt')
         ]);
 
-        const now = new Date();
         const mappedLeads = leads.documents.map(doc => {
-            let isLost = false;
-            if (doc.eventDate) {
-                const eventDate = new Date(doc.eventDate);
-                if (now > eventDate) isLost = true;
-            }
+            const isLost = doc.status === 'Lost' || doc.status === 'Lost Leads';
             return { ...doc, isLost };
         });
 
